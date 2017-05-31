@@ -366,7 +366,7 @@ var __extends = (this && this.__extends) || (function () {
             PromiseStatus[PromiseStatus["PENDING"] = 0] = "PENDING";
             PromiseStatus[PromiseStatus["FULLFILLED"] = 1] = "FULLFILLED";
             PromiseStatus[PromiseStatus["REJECTED"] = 2] = "REJECTED";
-        })(PromiseStatus || (PromiseStatus = {}));
+        })(PromiseStatus = Monadish.PromiseStatus || (Monadish.PromiseStatus = {}));
         /**
          * a small (probably not 100% correct, although I tried to be correct as possible) Promise implementation
          * for systems which do not have a promise implemented

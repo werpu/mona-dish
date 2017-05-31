@@ -14,9 +14,11 @@
   "author": "Werner Punz",
   "license": "Apache-2.0",
   "devDependencies": {
+    "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-browserify": "^0.5.1",
     "gulp-karma": "0.0.5",
+    "gulp-minify": "^1.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-typescript": "^3.1.6",

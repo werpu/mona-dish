@@ -368,7 +368,7 @@ var __extends = (this && this.__extends) || (function () {
             PromiseStatus[PromiseStatus["PENDING"] = 0] = "PENDING";
             PromiseStatus[PromiseStatus["FULLFILLED"] = 1] = "FULLFILLED";
             PromiseStatus[PromiseStatus["REJECTED"] = 2] = "REJECTED";
-        })(PromiseStatus || (PromiseStatus = {}));
+        })(PromiseStatus = Monadish.PromiseStatus || (Monadish.PromiseStatus = {}));
         /**
          * a small (probably not 100% correct, although I tried to be correct as possible) Promise implementation
          * for systems which do not have a promise implemented
@@ -627,7 +627,7 @@ var __extends = (this && this.__extends) || (function () {
 
 //# sourceMappingURL=Monad-umd.js.map
 
-}).call(this,require("pBGvAp"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_a94158e.js","/")
+}).call(this,require("pBGvAp"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_d4a75c38.js","/")
 },{"buffer":3,"pBGvAp":5}],2:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';

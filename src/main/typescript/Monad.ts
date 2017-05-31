@@ -404,7 +404,7 @@ export module Monadish {
     }
 
 
-    enum PromiseStatus {
+    export enum PromiseStatus {
         PENDING, FULLFILLED, REJECTED
     }
 
@@ -426,7 +426,7 @@ export module Monadish {
 
         private value: (resolve: (val?: any) => void, reject: (val?: any) => void) => void;
 
-        protected status = PromiseStatus.PENDING;
+        status = PromiseStatus.PENDING;
 
         protected allFuncs: Array<any> = [];
 
