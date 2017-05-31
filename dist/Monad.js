@@ -622,4 +622,5 @@ var __extends = (this && this.__extends) || (function () {
     //we also add a global handler for systems without module loader
     window.Monadish = Monadish;
 });
+
 //# sourceMappingURL=Monad.js.map
