@@ -25,6 +25,9 @@ gulp.task("ts", function () {
     return tsProject.src()
         .pipe(sourcemaps.init())
         .pipe(tsProject())
+        .pipe(rename(function (path) {
+            path.basename += "-umd";
+        }))
         .pipe(sourcemaps.write("."))
         .pipe(gulp.dest("dist"));
 });
@@ -39,4 +42,21 @@ gulp.task("ts15", function () {
         .pipe(gulp.dest("dist"));
 });
 
-gulp.task('default',["ts", "ts15"]);
+// Basic usage
+gulp.task('bundle', ["ts"], function() {
+    // Single entry point to browserify
+    gulp.src('dist/Monad-umd.js')
+        .pipe(sourcemaps.init())
+        .pipe(browserify({
+            insertGlobals : true//,
+            //debug : !gulp.env.production
+        }))
+        .pipe(rename(function (path) {
+            path.basename += "-bundle";
+        }))
+        .pipe(sourcemaps.write("."))
+        .pipe(gulp.dest('dist'))
+
+});
+
+gulp.task('default',["bundle", "ts15"]);
