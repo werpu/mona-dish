@@ -26,7 +26,6 @@ gulp.task('clean', function() {
     return del(['dist/*']);
 });
 
-
 gulp.task("ts", function () {
     return tsProject.src()
         .pipe(sourcemaps.init())
