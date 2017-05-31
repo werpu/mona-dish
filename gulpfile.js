@@ -23,7 +23,7 @@ gulp.task('test', function (done) {
     }, done).start();
 });
 
-gulp.task('clean', function() {
+gulp.task('clean', function () {
     return del(['dist/*']);
 });
 
@@ -32,7 +32,7 @@ gulp.task("ts", function () {
         .pipe(sourcemaps.init())
         .pipe(tsProject())
         .pipe(rename(function (path) {
-            if(path.extname != ".ts") {
+            if (path.extname != ".ts") {
                 path.basename += "-umd";
             }
         }))
@@ -61,14 +61,14 @@ gulp.task("tsSystem", function () {
 });
 
 // Basic usage
-gulp.task('bundle', ["ts", "ts15", "tsSystem"],  function() {
+gulp.task('bundle', ["ts", "ts15", "tsSystem"], function () {
 
 
     // Single entry point to browserify
     return gulp.src('dist/Monad-umd.js')
         .pipe(sourcemaps.init())
         .pipe(browserify({
-            insertGlobals : true//,
+            insertGlobals: true//,
             //debug : !gulp.env.production
         }))
         .pipe(rename(function (path) {
@@ -79,13 +79,11 @@ gulp.task('bundle', ["ts", "ts15", "tsSystem"],  function() {
 
 });
 
-
-
-gulp.task('compress',  function() {
+gulp.task('compress', function () {
     return gulp.src('dist/*.js')
         .pipe(minify({
-            ext:{
-                min:'.min.js'
+            ext: {
+                min: '.min.js'
             },
             noSource: true,
             ignoreFiles: ['-min.js']
@@ -93,9 +91,9 @@ gulp.task('compress',  function() {
         .pipe(gulp.dest('dist/min/'))
 });
 
-gulp.task('seq', function(cb) {
-    runSequence("clean",  "bundle", "compress", cb);
+gulp.task('seq', function (cb) {
+    runSequence("clean", "bundle", "compress", cb);
 });
 
 
-gulp.task('default',["seq"]);
+gulp.task('default', ["seq"]);
