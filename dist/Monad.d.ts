@@ -2,13 +2,13 @@
  * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
  * Useful if you need the functions in another library to keep its dependencies down
  */
-export declare module Monadish {
+export declare module "Monadish" {
     /**
-     * IFunctor interface,
-     * defines an interface which allows to map a functor
+     * IFunctor export interface,
+     * defines an export interface which allows to map a functor
      * via a first order function to another functor
      */
-    interface IFunctor<T> {
+    export interface IFunctor<T> {
         map<R>(fn: (data: T) => R): IFunctor<R>;
     }
     /**
@@ -17,7 +17,7 @@ export declare module Monadish {
      *
      * flatmap flats nested Monads into a IMonad of the deepest nested implementation
      */
-    interface IMonad<T, M extends IMonad<any, any>> extends IFunctor<T> {
+    export interface IMonad<T, M extends IMonad<any, any>> extends IFunctor<T> {
         flatMap<T, M>(f: (T) => M): IMonad<any, any>;
     }
     /**
@@ -26,7 +26,7 @@ export declare module Monadish {
      *
      * as value holder of type T
      */
-    interface IIdentity<T> extends IFunctor<T> {
+    export interface IIdentity<T> extends IFunctor<T> {
         readonly value: T;
     }
     /**
@@ -34,7 +34,7 @@ export declare module Monadish {
      *  but iterative we have structures which allow the assignment of a value
      *  also not all structures are sideffect free
      */
-    interface IValueHolder<T> {
+    export interface IValueHolder<T> {
         value: T;
     }
     /**
@@ -42,7 +42,7 @@ export declare module Monadish {
      * (Sideffect free), no write allowed directly on the monads
      * value state
      */
-    class Monad<T> implements IMonad<T, Monad<any>> {
+    export class Monad<T> implements IMonad<T, Monad<any>> {
         protected _value: T;
         constructor(value: T);
         map<R>(fn?: (data: T) => R): Monad<R>;
@@ -54,7 +54,7 @@ export declare module Monadish {
      * sugar on top
      * (Sideeffect free, since value assignment is not allowed)
      * */
-    class Optional<T> extends Monad<T> {
+    export class Optional<T> extends Monad<T> {
         constructor(value: T);
         static fromNullable<T>(value?: T): Optional<T>;
         static absent: Optional<any>;
@@ -96,7 +96,7 @@ export declare module Monadish {
      * without generating a new config), not sure if we should make it sideffect free
      * since this would swallow a lot of performane and ram
      */
-    class Config extends Optional<any> {
+    export class Config extends Optional<any> {
         constructor(root: any);
         static fromNullable<T>(value?: any): Config;
         apply(...keys: Array<any>): IValueHolder<any>;
@@ -112,7 +112,7 @@ export declare module Monadish {
         FULLFILLED = 1,
         REJECTED = 2,
     }
-    interface IPromise {
+    export interface IPromise {
         then(executorFunc: (val: any) => any): IPromise;
         catch(executorFunc: (val: any) => any): IPromise;
         finally(executorFunc: () => void): IPromise;
@@ -124,7 +124,7 @@ export declare module Monadish {
      * is value is a function to operate on, hence no real state is kept internally, except for the then
      * and catch calling order
      */
-    class Promise implements IPromise {
+    export class Promise implements IPromise {
         private value;
         status: PromiseStatus;
         protected allFuncs: Array<any>;
@@ -151,7 +151,7 @@ export declare module Monadish {
      * The current then however is fished or a catch is called depending on how the outer
      * operation reacts to a cancel order.
      */
-    class CancellablePromise extends Promise {
+    export class CancellablePromise extends Promise {
         private cancellator;
         /**
          * @param executor asynchronous callback operation which triggers the callback
