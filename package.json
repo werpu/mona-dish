@@ -1,6 +1,6 @@
 {
   "name": "mona-dish",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "TypeScript/Javascript monadish helpers which ease your programming live",
   "main": "index.js",
   "scripts": {
