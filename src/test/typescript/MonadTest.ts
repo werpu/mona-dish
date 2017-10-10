@@ -1,8 +1,7 @@
 ///<reference path="../../../typings/index.d.ts"/>
 
-import {Monadish} from "../../main/typescript/Monad";
-import Optional = Monadish.Optional;
-import Config = Monadish.Config;
+import {Optional, Config} from "../../main/typescript/Monad";
+
 
 describe('optional tests', () => {
     it('fromnullable null', () => {

@@ -1,10 +1,8 @@
 ///<reference path="../../../typings/index.d.ts"/>
 
 
+import {Promise} from "../../main/typescript/Monad";
 
-
-import {Monadish} from "../../main/typescript/Monad";
-import Promise = Monadish.Promise;
 describe('promise tests', () => {
 
     /*it('simple promise no async', () => {
