@@ -20,7 +20,7 @@ declare module "Monadish" {
      * flatmap flats nested Monads into a IMonad of the deepest nested implementation
      */
     export interface IMonad<T, M extends IMonad<any, any>> extends IFunctor<T> {
-        flatMap<T, M>(f: (T) => M): IMonad<any, any>;
+        flatMap<T, M>(f: (T: any) => M): IMonad<any, any>;
     }
     /**
      * a stateful functor which holds a value upn which a
