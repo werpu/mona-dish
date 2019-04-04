@@ -25,8 +25,8 @@ System.register([], function (exports_1, context_1) {
             d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
         };
     })();
-    var __moduleName = context_1 && context_1.id;
     var Monad, Optional, ConfigEntry, Config, PromiseStatus, Promise, CancellablePromise;
+    var __moduleName = context_1 && context_1.id;
     return {
         setters: [],
         execute: function () {/* Licensed to the Apache Software Foundation (ASF) under one or more
@@ -49,7 +49,7 @@ System.register([], function (exports_1, context_1) {
              * (Sideffect free), no write allowed directly on the monads
              * value state
              */
-            Monad = (function () {
+            Monad = /** @class */ (function () {
                 function Monad(value) {
                     this._value = value;
                 }
@@ -77,12 +77,7 @@ System.register([], function (exports_1, context_1) {
                 return Monad;
             }());
             exports_1("Monad", Monad);
-            /**
-             * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
-             * sugar on top
-             * (Sideeffect free, since value assignment is not allowed)
-             * */
-            Optional = (function (_super) {
+            Optional = /** @class */ (function (_super) {
                 __extends(Optional, _super);
                 function Optional(value) {
                     return _super.call(this, value) || this;
@@ -227,16 +222,16 @@ System.register([], function (exports_1, context_1) {
                         return key;
                     }
                 };
+                /*default value for absent*/
+                Optional.absent = Optional.fromNullable(null);
                 return Optional;
             }(Monad));
-            /*default value for absent*/
-            Optional.absent = Optional.fromNullable(null);
             exports_1("Optional", Optional);
             /**
              * helper class to allow write access to the config
              * in certain situations (after an apply call)
              */
-            ConfigEntry = (function () {
+            ConfigEntry = /** @class */ (function () {
                 function ConfigEntry(rootElem, key, arrPos) {
                     this.rootElem = rootElem;
                     this.key = key;
@@ -274,7 +269,7 @@ System.register([], function (exports_1, context_1) {
              * without generating a new config), not sure if we should make it sideffect free
              * since this would swallow a lot of performane and ram
              */
-            Config = (function (_super) {
+            Config = /** @class */ (function (_super) {
                 __extends(Config, _super);
                 function Config(root) {
                     return _super.call(this, root) || this;
@@ -377,7 +372,7 @@ System.register([], function (exports_1, context_1) {
              * is value is a function to operate on, hence no real state is kept internally, except for the then
              * and catch calling order
              */
-            Promise = (function () {
+            Promise = /** @class */ (function () {
                 function Promise(executor) {
                     var _this = this;
                     this.status = PromiseStatus.PENDING;
@@ -590,7 +585,7 @@ System.register([], function (exports_1, context_1) {
              * The current then however is fished or a catch is called depending on how the outer
              * operation reacts to a cancel order.
              */
-            CancellablePromise = (function (_super) {
+            CancellablePromise = /** @class */ (function (_super) {
                 __extends(CancellablePromise, _super);
                 /**
                  * @param executor asynchronous callback operation which triggers the callback

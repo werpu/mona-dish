@@ -41,7 +41,7 @@ var __extends = (this && this.__extends) || (function () {
      * (Sideffect free), no write allowed directly on the monads
      * value state
      */
-    var Monad = (function () {
+    var Monad = /** @class */ (function () {
         function Monad(value) {
             this._value = value;
         }
@@ -74,7 +74,7 @@ var __extends = (this && this.__extends) || (function () {
      * sugar on top
      * (Sideeffect free, since value assignment is not allowed)
      * */
-    var Optional = (function (_super) {
+    var Optional = /** @class */ (function (_super) {
         __extends(Optional, _super);
         function Optional(value) {
             return _super.call(this, value) || this;
@@ -219,16 +219,16 @@ var __extends = (this && this.__extends) || (function () {
                 return key;
             }
         };
+        /*default value for absent*/
+        Optional.absent = Optional.fromNullable(null);
         return Optional;
     }(Monad));
-    /*default value for absent*/
-    Optional.absent = Optional.fromNullable(null);
     exports.Optional = Optional;
     /**
      * helper class to allow write access to the config
      * in certain situations (after an apply call)
      */
-    var ConfigEntry = (function () {
+    var ConfigEntry = /** @class */ (function () {
         function ConfigEntry(rootElem, key, arrPos) {
             this.rootElem = rootElem;
             this.key = key;
@@ -266,7 +266,7 @@ var __extends = (this && this.__extends) || (function () {
      * without generating a new config), not sure if we should make it sideffect free
      * since this would swallow a lot of performane and ram
      */
-    var Config = (function (_super) {
+    var Config = /** @class */ (function (_super) {
         __extends(Config, _super);
         function Config(root) {
             return _super.call(this, root) || this;
@@ -369,7 +369,7 @@ var __extends = (this && this.__extends) || (function () {
      * is value is a function to operate on, hence no real state is kept internally, except for the then
      * and catch calling order
      */
-    var Promise = (function () {
+    var Promise = /** @class */ (function () {
         function Promise(executor) {
             var _this = this;
             this.status = PromiseStatus.PENDING;
@@ -582,7 +582,7 @@ var __extends = (this && this.__extends) || (function () {
      * The current then however is fished or a catch is called depending on how the outer
      * operation reacts to a cancel order.
      */
-    var CancellablePromise = (function (_super) {
+    var CancellablePromise = /** @class */ (function (_super) {
         __extends(CancellablePromise, _super);
         /**
          * @param executor asynchronous callback operation which triggers the callback
@@ -618,7 +618,7 @@ var __extends = (this && this.__extends) || (function () {
 
 //# sourceMappingURL=Monad-umd.js.map
 
-}).call(this,require("pBGvAp"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_23a34eec.js","/")
+}).call(this,require("pBGvAp"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_881f3ef6.js","/")
 },{"buffer":3,"pBGvAp":5}],2:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -1864,7 +1864,7 @@ function assert (test, message) {
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
-  var eLen = nBytes * 8 - mLen - 1
+  var eLen = (nBytes * 8) - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var nBits = -7
@@ -1877,12 +1877,12 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   e = s & ((1 << (-nBits)) - 1)
   s >>= (-nBits)
   nBits += eLen
-  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; e = (e * 256) + buffer[offset + i], i += d, nBits -= 8) {}
 
   m = e & ((1 << (-nBits)) - 1)
   e >>= (-nBits)
   nBits += mLen
-  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
+  for (; nBits > 0; m = (m * 256) + buffer[offset + i], i += d, nBits -= 8) {}
 
   if (e === 0) {
     e = 1 - eBias
@@ -1897,7 +1897,7 @@ exports.read = function (buffer, offset, isLE, mLen, nBytes) {
 
 exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   var e, m, c
-  var eLen = nBytes * 8 - mLen - 1
+  var eLen = (nBytes * 8) - mLen - 1
   var eMax = (1 << eLen) - 1
   var eBias = eMax >> 1
   var rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0)
@@ -1930,7 +1930,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       m = 0
       e = eMax
     } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen)
+      m = ((value * c) - 1) * Math.pow(2, mLen)
       e = e + eBias
     } else {
       m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)

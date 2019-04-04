@@ -39,7 +39,7 @@ var __extends = (this && this.__extends) || (function () {
      * (Sideffect free), no write allowed directly on the monads
      * value state
      */
-    var Monad = (function () {
+    var Monad = /** @class */ (function () {
         function Monad(value) {
             this._value = value;
         }
@@ -72,7 +72,7 @@ var __extends = (this && this.__extends) || (function () {
      * sugar on top
      * (Sideeffect free, since value assignment is not allowed)
      * */
-    var Optional = (function (_super) {
+    var Optional = /** @class */ (function (_super) {
         __extends(Optional, _super);
         function Optional(value) {
             return _super.call(this, value) || this;
@@ -217,16 +217,16 @@ var __extends = (this && this.__extends) || (function () {
                 return key;
             }
         };
+        /*default value for absent*/
+        Optional.absent = Optional.fromNullable(null);
         return Optional;
     }(Monad));
-    /*default value for absent*/
-    Optional.absent = Optional.fromNullable(null);
     exports.Optional = Optional;
     /**
      * helper class to allow write access to the config
      * in certain situations (after an apply call)
      */
-    var ConfigEntry = (function () {
+    var ConfigEntry = /** @class */ (function () {
         function ConfigEntry(rootElem, key, arrPos) {
             this.rootElem = rootElem;
             this.key = key;
@@ -264,7 +264,7 @@ var __extends = (this && this.__extends) || (function () {
      * without generating a new config), not sure if we should make it sideffect free
      * since this would swallow a lot of performane and ram
      */
-    var Config = (function (_super) {
+    var Config = /** @class */ (function (_super) {
         __extends(Config, _super);
         function Config(root) {
             return _super.call(this, root) || this;
@@ -367,7 +367,7 @@ var __extends = (this && this.__extends) || (function () {
      * is value is a function to operate on, hence no real state is kept internally, except for the then
      * and catch calling order
      */
-    var Promise = (function () {
+    var Promise = /** @class */ (function () {
         function Promise(executor) {
             var _this = this;
             this.status = PromiseStatus.PENDING;
@@ -580,7 +580,7 @@ var __extends = (this && this.__extends) || (function () {
      * The current then however is fished or a catch is called depending on how the outer
      * operation reacts to a cancel order.
      */
-    var CancellablePromise = (function (_super) {
+    var CancellablePromise = /** @class */ (function (_super) {
         __extends(CancellablePromise, _super);
         /**
          * @param executor asynchronous callback operation which triggers the callback

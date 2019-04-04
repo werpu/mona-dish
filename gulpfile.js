@@ -3,6 +3,7 @@ var ts = require("gulp-typescript");
 var tsProject = ts.createProject("src/main/typescript/tsconfig.json");
 var tsProject2015 = ts.createProject("src/main/typescript/tsconfig-es15.json");
 var tsProjectSystem = ts.createProject("src/main/typescript/tsconfig-system.json");
+var tsProjectCommon = ts.createProject("src/main/typescript/tsconfig-common.json");
 var browserify = require('gulp-browserify');
 var runSequence = require('run-sequence');
 var sourcemaps = require('gulp-sourcemaps');
@@ -59,9 +60,19 @@ gulp.task("tsSystem", function () {
         .pipe(sourcemaps.write("."))
         .pipe(gulp.dest("dist"));
 });
+gulp.task("tsCommon", function () {
+    return tsProject2015.src()
+        .pipe(sourcemaps.init())
+        .pipe(tsProjectCommon())
+        .pipe(rename(function (path) {
+            path.basename += "-common";
+        }))
+        .pipe(sourcemaps.write("."))
+        .pipe(gulp.dest("dist"));
+});
 
 // Basic usage
-gulp.task('bundle', ["ts", "ts15", "tsSystem"], function () {
+gulp.task('bundle', ["ts", "ts15", "tsSystem", "tsCommon"], function () {
 
 
     // Single entry point to browserify
