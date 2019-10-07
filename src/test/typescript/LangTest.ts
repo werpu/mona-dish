@@ -38,6 +38,8 @@ class Probe {
 }
 
 describe('Lang tests', () => {
+
+
     it('initializable', () => {
         const lang = Lang.instance;
         expect(lang).to.exist;

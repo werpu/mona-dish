@@ -17,6 +17,7 @@ const config: webpack.Configuration = {
     output: {
         filename: '[name]-'+targetType+'.js',
         libraryTarget: targetType,
+        globalObject: 'window',
         path: path.resolve(__dirname,'./target')
     },
     resolve: {

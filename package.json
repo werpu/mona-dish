@@ -7,6 +7,7 @@
     "test": "mocha -r ts-node/register -P ./src/test/typescript/ ./src/test/typescript/**/*Test.ts",
     "build": "webpack",
     "build-umd": "TARGET_TYPE=umd webpack",
+    "build-window": "TARGET_TYPE=window webpack",
     "build-common": "TARGET_TYPE=commonjs webpack",
     "build-system": "TARGET_TYPE=system webpack",
     "build-amd": "TARGET_TYPE=amd webpack",

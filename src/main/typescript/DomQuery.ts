@@ -46,6 +46,7 @@ export class DomQuery {
         if (Optional.fromNullable(rootNode).isAbsent()) {
             return;
         } else {
+            //we need to flatten out the arrays
 
             for(let cnt = 0; cnt < rootNode.length; cnt++) {
                 if(Lang.instance.isString(rootNode[cnt])) {
@@ -109,7 +110,7 @@ export class DomQuery {
             nodes = nodes.concat(Lang.instance.objToArray(res));
         }
 
-        return new DomQuery(nodes);
+        return new DomQuery(...nodes);
     }
 
     static byId(selector: string | DomQuery | Element): DomQuery {
@@ -241,7 +242,7 @@ export class DomQuery {
                 reArr.push(item);
             }
         });
-        return new DomQuery(reArr);
+        return new DomQuery(... <any>reArr);
     }
 
     /**
@@ -286,7 +287,7 @@ export class DomQuery {
         this.each((item: Element) => {
             res = res.concat(Lang.instance.objToArray(item.childNodes))
         });
-        return new DomQuery(res);
+        return new DomQuery(...res);
     }
 
     loadScriptEval(src, type, defer, charSet, async) {
@@ -378,7 +379,7 @@ export class DomQuery {
                 }
             }
         });
-        return new DomQuery(retArr);
+        return new DomQuery(...retArr);
     }
 
 
@@ -398,7 +399,7 @@ export class DomQuery {
         if (Optional.fromNullable(to).isAbsent()) {
             to = this.length;
         }
-        return new DomQuery(this.rootNode.slice(from, Math.min(to, this.length)));
+        return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
     }
 
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery {
