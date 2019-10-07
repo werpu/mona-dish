@@ -9,7 +9,8 @@
     "build-umd": "TARGET_TYPE=umd webpack",
     "build-common": "TARGET_TYPE=commonjs webpack",
     "build-system": "TARGET_TYPE=system webpack",
-    "build-all": "npm run build-umd && npm run build-common && npm run build-system"
+    "build-amd": "TARGET_TYPE=amd webpack",
+    "build-all": "npm run build-umd && npm run build-common && npm run build-system && npm run build-amd"
   },
   "keywords": [
     "typescript",

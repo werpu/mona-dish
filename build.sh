@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-gulp
+npm run build-all
