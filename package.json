@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha -r ts-node/register -P ./src/test/typescript/ ./src/test/typescript/**/*Test.ts",
-    "build": "webpack"
+    "build": "webpack",
+    "build-umd": "TARGET_TYPE=umd webpack",
+    "build-common": "TARGET_TYPE=commonjs webpack",
+    "build-system": "TARGET_TYPE=system webpack",
+    "build-all": "npm run build-umd && npm run build-common && npm run build-system"
   },
   "keywords": [
     "typescript",

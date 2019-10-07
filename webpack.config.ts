@@ -1,6 +1,11 @@
 import webpack from 'webpack';
 import * as path from 'path';
 
+let targetType = "";
+let setupTargetType = function(){
+    targetType = process.env.TARGET_TYPE;
+}
+setupTargetType();
 
 const config: webpack.Configuration = {
     context: __dirname,
@@ -10,7 +15,8 @@ const config: webpack.Configuration = {
         DomQuery: "./src/main/typescript/DomQuery.ts"
     },
     output: {
-        filename: '[name].js',
+        filename: '[name]-'+targetType+'.js',
+        libraryTarget: targetType,
         path: path.resolve(__dirname,'./target')
     },
     resolve: {
