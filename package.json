@@ -4,7 +4,8 @@
   "description": "TypeScript/Javascript monadish helpers which ease your programming live",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register -P ./src/test/typescript/ ./src/test/typescript/**/*Test.ts",
+    "build": "webpack"
   },
   "keywords": [
     "typescript",
@@ -14,24 +15,22 @@
   "author": "Werner Punz",
   "license": "Apache-2.0",
   "devDependencies": {
-    "del": "^2.2.2",
-    "gulp": "^3.9.1",
-    "gulp-browserify": "^0.5.1",
-    "gulp-karma": "0.0.5",
-    "gulp-minify": "^1.0.0",
-    "gulp-rename": "^1.4.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-typescript": "^3.2.4",
-    "jasmine": "^2.99.0",
-    "jasmine-jquery": "^2.1.1",
-    "jquery": "^3.3.1",
-    "karma": "^1.7.1",
-    "karma-chrome-launcher": "^2.2.0",
-    "karma-jasmine": "^1.1.2",
-    "karma-jasmine-jquery": "^0.1.1",
-    "karma-safari-launcher": "^1.0.0",
-    "karma-typescript": "^3.0.13",
-    "run-sequence": "^1.2.2",
-    "typescript": "^2.9.2"
-  }
+    "@types/chai": "^4.2.3",
+    "@types/mocha": "^5.2.7",
+    "@types/sinon": "^7.5.0",
+    "babel-plugin-syntax-dynamic-import": "^6.18.0",
+    "chai": "^4.2.0",
+    "html-webpack-plugin": "^3.2.0",
+    "jsdom": "^15.1.1",
+    "mocha": "^6.2.1",
+    "request": "^2.88.0",
+    "sinon": "^7.5.0",
+    "ts-loader": "^6.2.0",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2"
+  },
+  "dependencies": {}
 }

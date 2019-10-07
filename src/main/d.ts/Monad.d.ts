@@ -114,6 +114,17 @@ declare module "Monadish" {
         protected arrayIndex(key: string): number;
         protected keyVal(key: string): string;
     }
+
+    /**
+     * helper function to savely resolve a tree
+     * this is not an elvis operator, it resolves
+     * a value without exception in a tree and if
+     * it is not resolvable then an optional of
+     * a default value is restored or Optional.empty
+     * if none is given
+     */
+    export function saveResolve<T>(resolver: () => T, defaultValue:T): Optional<T>;
+
     /**
      * Config, basically an optional wrapper for a json structure
      * (not sideeffect free, since we can alter the internal config state

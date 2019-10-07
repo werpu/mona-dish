@@ -1,23 +1,30 @@
 ///<reference path="../../../typings/index.d.ts"/>
-
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
 
 import {Promise} from "../../main/typescript/Monad";
+import * as sinon from 'sinon';
 
 describe('promise tests', () => {
 
+    let clock;
+    beforeEach(function () {
+        clock = sinon.useFakeTimers();
+    });
+    
     /*it('simple promise no async', () => {
      let applyPromise = new Promise((apply: Function, reject: Function) => {
      apply(1);
      });
 
      applyPromise.then((data: any): Promise => {
-     expect(data).toBe(1);
+     expect(data).to.be.eq(1);
      return null;
      });
      });*/
 
     it('simple promise', () => {
-        jasmine.clock().install();
+
         let applyPromise = new Promise((apply: Function, reject: Function) => {
             setTimeout(() => {
                 apply(1);
@@ -28,13 +35,13 @@ describe('promise tests', () => {
         let thenCalled = false;
         applyPromise.then((data: any): any => {
             thenCalled = true;
-            expect(data).toBe(1);
+            expect(data).to.be.eq(1);
         }).finally(() => {
             finallyCalled = true
         });
-        jasmine.clock().tick(2);
-        expect(thenCalled).toBe(true);
-        expect(finallyCalled).toBe(true);
+        clock.tick(2);
+        expect(thenCalled).to.be.true;
+        expect(finallyCalled).to.be.true;
     });
 
 
@@ -52,13 +59,13 @@ describe('promise tests', () => {
         let thenCalled = false;
         applyPromise.catch((data: any): void => {
             thenCalled = true;
-            expect(data).toBe(1);
+            expect(data).to.be.eq(1);
         }).finally(() => {
             finallyCalled = true
         });
-        jasmine.clock().tick(2);
-        expect(thenCalled).toBe(true);
-        expect(finallyCalled).toBe(true);
+        clock.tick(2);
+        expect(thenCalled).to.be.true;
+        expect(finallyCalled).to.be.true;
     });
 
 
@@ -75,18 +82,18 @@ describe('promise tests', () => {
         let then2Called = false;
         applyPromise.then((data: any): any => {
             thenCalled = true;
-            expect(data).toBe(1);
+            expect(data).to.be.eq(1);
             return 2;
         }).then((data: any): any => {
             then2Called = true;
-            expect(data).toBe(2);
+            expect(data).to.be.eq(2);
         }).finally(() => {
             finallyCalled = true
         });
-        jasmine.clock().tick(2);
-        expect(thenCalled).toBe(true);
-        expect(then2Called).toBe(true);
-        expect(finallyCalled).toBe(true);
+        clock.tick(2);
+        expect(thenCalled).to.be.true;
+        expect(then2Called).to.be.true;
+        expect(finallyCalled).to.be.true;
     });
 
 
@@ -111,12 +118,12 @@ describe('promise tests', () => {
 
         applyPromise.then((data: any): any => {
             thenCalled = true;
-            expect(data).toBe(1);
+            expect(data).to.be.eq(1);
             return 2;
         });
         applyPromise2.then((data: any): any => {
             then2Called = true;
-            expect(data).toBe(2);
+            expect(data).to.be.eq(2);
             return 2;
         });
 
@@ -125,10 +132,10 @@ describe('promise tests', () => {
         });
 
 
-        jasmine.clock().tick(4);
-        expect(thenCalled).toBe(true);
-        expect(then2Called).toBe(true);
-        expect(finallyCalled).toBe(true);
+        clock.tick(4);
+        expect(thenCalled).to.be.true;
+        expect(then2Called).to.be.true;
+        expect(finallyCalled).to.be.true;
     });
 
     it("Promise race test", () => {
@@ -152,12 +159,12 @@ describe('promise tests', () => {
 
         applyPromise.then((data: any): any => {
             thenCalled = true;
-            expect(data).toBe(1);
+            expect(data).to.be.eq(1);
             return 2;
         });
         applyPromise2.then((data: any): any => {
             then2Called = true;
-            expect(data).toBe(2);
+            expect(data).to.be.eq(2);
             return 2;
         });
 
@@ -166,11 +173,11 @@ describe('promise tests', () => {
         });
 
 
-        jasmine.clock().tick(4);
+        clock.tick(4);
 
-        expect(thenCalled || then2Called).toBe(true);
-        expect(then2Called).toBe(false);
-        expect(finallyCalled).toBe(true);
+        expect(thenCalled || then2Called).to.be.true;
+        expect(then2Called).to.be.eq(false);
+        expect(finallyCalled).to.be.true;
     });
 
     it("Promise chain test", () => {
@@ -191,8 +198,8 @@ describe('promise tests', () => {
         }).then(() => {
             chainExecuted = true;
         });
-        jasmine.clock().tick(8);
-        expect(chainExecuted).toBe(true);
+        clock.tick(8);
+        expect(chainExecuted).to.be.true;
 
     });
 
@@ -214,8 +221,8 @@ describe('promise tests', () => {
         }).then(() => {
             chainExecuted = true;
         });
-        jasmine.clock().tick(8);
-        expect(chainExecuted).toBe(true);
+        clock.tick(8);
+        expect(chainExecuted).to.be.true;
     });
 
     it("Promise chain3 test", () => {
@@ -255,10 +262,10 @@ describe('promise tests', () => {
             promise3Called = true;
         });
 
-        jasmine.clock().tick(8);
-        expect(chainExecuted).toBe(true);
-        expect(promise3Called).toBe(true);
-        expect(promise4Called).toBe(true);
+        clock.tick(8);
+        expect(chainExecuted).to.be.true;
+        expect(promise3Called).to.be.true;
+        expect(promise4Called).to.be.true;
     });
 
     it("Promise resolve test", () => {
@@ -267,12 +274,12 @@ describe('promise tests', () => {
         var cast = Promise.resolve(original);
         cast.then(function(v) {
             promisCalled = true;
-            expect(v).toBe(true);
+            expect(v).to.be.true;
         });
 
 
-        jasmine.clock().tick(8);
-        expect(promisCalled).toBe(true);
+        clock.tick(8);
+        expect(promisCalled).to.be.true;
     });
 
     it("Promise reject test", () => {
@@ -282,12 +289,12 @@ describe('promise tests', () => {
         var cast = Promise.reject(original2);
         cast.catch(function(v) {
             promisCalled = true;
-            expect(v).toBe(true);
+            expect(v).to.be.true;
         });
 
 
-        jasmine.clock().tick(8);
-        expect(promisCalled).toBe(true);
+        clock.tick(8);
+        expect(promisCalled).to.be.true;
     });
 
 });

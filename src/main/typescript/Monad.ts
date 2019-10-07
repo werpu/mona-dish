@@ -415,6 +415,37 @@ export interface IPromise {
 
 }
 
+
+/**
+ * helper function to savely resolve anything
+ * this is not an elvis operator, it resolves
+ * a value without exception in a tree and if
+ * it is not resolvable then an optional of
+ * a default value is restored or Optional.empty
+ * if none is given
+ *
+ * usage
+ * <code>
+ *     let var: Optiona<string> = saveResolve(() => a.b.c.d.e, "foobaz")
+ * </code>
+ *
+ * @param resolverProducer a lambda which can produce the value
+ * @param defaultValue an optional default value if the producer failes to produce anything
+ * @returns an Optional of the produced value
+ */
+
+export function saveResolve<T>(resolverProducer: () => T, defaultValue:T = null): Optional<T> {
+    try {
+        let result = resolverProducer();
+        if("undefined" == typeof result || null == result) {
+            return Optional.fromNullable(defaultValue);
+        }
+        return Optional.fromNullable(result);
+    } catch (e) {
+        return Optional.absent;
+    }
+}
+
 /**
  * a small (probably not 100% correct, although I tried to be correct as possible) Promise implementation
  * for systems which do not have a promise implemented
