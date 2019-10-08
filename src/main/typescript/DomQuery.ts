@@ -43,13 +43,23 @@ export class ElementAttribute implements IValueHolder<string> {
 
 /**
  * Monadic DomNode representation, ala jquery
- * for now we use only the querySelectorAll construct from the dom
- * level 3, if we need to support older browsers we still can make a fallback
- * to sizzle or jquery if needed
+ * This is a thin wrapper over querySelectorAll
+ * to get slim monadic support
+ * to reduce implementation code on the users side.
+ * This is vital for frameworks which want to rely on
+ * plain dom but still do not want to lose
+ * the reduced code footprint of querying dom trees and traversing
+ * by using functional patterns.
+ *
+ * Also a few convenience methods are added to reduce
+ * the code footprint of standard dom processing
+ * operations like eval
  *
  * TODO add jquery fallback support, since it is supported
  * in most older systems
- *)
+ * Note parts of this code still stem from the Dom.js I have written 10 years
+ * ago, those parts look a little bit ancient and will be replaced over time.
+ *
  */
 export class DomQuery {
 
@@ -421,6 +431,16 @@ export class DomQuery {
         return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
     }
 
+    /**
+     * outerhtml convenience method
+     * browsers only support innerHTML but
+     * for instance for your jsf.js we have a full
+     * replace pattern which needs outerHTML processing
+     *
+     * @param markup
+     * @param runEmbeddedScripts
+     * @param runEmbeddedCss
+     */
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery {
         let nodes = DomQuery.fromMarkup(markup);
 
@@ -605,7 +625,8 @@ export class DomQuery {
      * @param markup the marku code
      */
     static fromMarkup(markup: string): DomQuery {
-        //TODO check if ie8 still has this problem
+        //TODO check if ie8 still has this problem, probably not we probably
+        //can drop this code in favor of html
 
         //now to the non w3c compliant browsers
         //http://blogs.perl.org/users/clinton_gormley/2010/02/forcing-ie-to-accept-script-tags-in-innerhtml.html
