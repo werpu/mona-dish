@@ -26,8 +26,9 @@ export class ElementAttribute implements IValueHolder<string> {
     set value(value: string) {
 
         let val: Element[] = this.element.get(0).presentOrElse(...[]).value;
-        if (!val.length) {
-            return;
+
+        for(var cnt = 0; cnt < val.length; cnt++) {
+            val[cnt].setAttribute(this.attributeName, value);
         }
         val[0].setAttribute(this.attributeName, value);
     }
@@ -37,6 +38,7 @@ export class ElementAttribute implements IValueHolder<string> {
         if (!val.length) {
             return null;
         }
+
         return val[0].getAttribute(this.attributeName);
     }
 }
@@ -183,15 +185,59 @@ export class DomQuery {
         return new ElementAttribute(this, attr);
     }
 
-    isMultipartCandidate(): boolean {
-        let found = false;
-        this.querySelectorAll("input").each((item: Element) => {
-            if (item.getAttribute("type") == "file") {
-                found = true;
-                return false;
+    hasClass(clazz: string) {
+        let hasIt = false;
+
+        this.eachNode((item) => {
+            let oldClass = item.attr("class").value || "";
+            if(oldClass.toLowerCase().indexOf(clazz.toLowerCase()) == -1) {
+                return;
+            } else {
+                let oldClasses = oldClass.split(/\s+/gi);
+                let found = false;
+                for(let cnt = 0; cnt < oldClasses.length && !found; cnt++) {
+                    found = oldClasses[cnt].toLowerCase() == clazz.toLowerCase();
+                }
+                hasIt = hasIt || found;
+                if(hasIt) {
+                    return false;
+                }
             }
         });
-        return found;
+        return hasIt;
+    }
+
+
+    addClass(clazz: string) {
+        this.eachNode((item) => {
+            let oldClass = item.attr("class").value || "";
+            if(!this.hasClass(clazz)) {
+                item.attr("class").value = Lang.instance.trim(oldClass + " " + clazz);
+                return;
+            }
+        });
+        return this;
+    }
+
+    removeClass(clazz: string) {
+        this.eachNode((item) => {
+            if(this.hasClass(clazz)) {
+                let oldClass = item.attr("class").value || "";
+                let newClasses = [];
+                let oldClasses = oldClass.split(/\s+/gi);
+                for(let cnt = 0; cnt < oldClasses.length; cnt++) {
+                    if(oldClasses[cnt].toLowerCase() != clazz.toLowerCase()) {
+                        newClasses.push(oldClasses[cnt]);
+                    }
+                }
+                item.attr("class").value = newClasses.join(" ");
+            }
+        })
+    }
+
+    isMultipartCandidate(): boolean {
+        let found = false;
+        return this.querySelectorAll("input[type='file']").first().isPresent();
     }
 
     html(inval?: string): DomQuery | Optional<string> {
@@ -242,7 +288,7 @@ export class DomQuery {
         return this;
     }
 
-    first(func: (item: Element, cnt?: number) => any): DomQuery {
+    first(func: (item: Element, cnt?: number) => any = item => item): DomQuery {
         if (this.rootNode.length > 1) {
             func(this.rootNode[0], 0);
         }

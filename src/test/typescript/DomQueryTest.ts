@@ -8,7 +8,7 @@ const {JSDOM} = jsdom;
 
 describe('DOMQuery tests', () => {
 
-    before(() => {
+    beforeEach(() => {
 
         let dom = new JSDOM(`
             <!DOCTYPE html>
@@ -114,6 +114,20 @@ describe('DOMQuery tests', () => {
         expect(blarg).to.be.eq("blarg");
         expect(style).to.be.eq("border=1;");
         expect(nonexistent).to.be.eq(null);
+    });
+
+    it('hasclass and addclass test', () => {
+        let probe1 = new DomQuery(document);
+        let element = probe1.querySelectorAll("div#id_2");
+        element.addClass("booga").addClass("Booga2");
+
+        let classdef = element.attr("class").value;
+        expect(classdef).to.eq("booga Booga2");
+
+        element.removeClass("booga2")
+        expect(element.hasClass("booga2")).to.be.false;
+        expect(element.hasClass("booga")).to.be.true;
+
     });
 
 });
