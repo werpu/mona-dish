@@ -45,23 +45,23 @@ describe('DOMQuery tests', () => {
         let probe4 = new DomQuery(window.document.body, probe3);
 
 
-        expect(probe1.value.length).to.be.eq(1);
-        expect(probe2.value.length == 4).to.be.true;
-        expect(probe3.value.length == 5).to.be.true;
+        expect(probe1.length).to.be.eq(1);
+        expect(probe2.length == 4).to.be.true;
+        expect(probe3.length == 5).to.be.true;
         //still under discussion (we might index to avoid doubles)
-        expect(probe4.value.length == 6).to.be.true;
+        expect(probe4.length == 6).to.be.true;
     });
 
     it('domquery ops test filter', () => {
         let probe2 = DomQuery.querySelectorAll("div");
-        probe2 = probe2.filterNode((item: DomQuery) => item.id.match((id) => id != "id_1"));
-        expect(probe2.value.length == 3);
+        probe2 = probe2.filter((item: DomQuery) => item.id.match((id) => id != "id_1"));
+        expect(probe2.length == 3);
     });
 
     it('domquery ops test2 each', () => {
         let probe2 = DomQuery.querySelectorAll("div");
         let noIter = 0;
-        probe2 = probe2.each((item, cnt) => {
+        probe2 = probe2.eachElem((item, cnt) => {
             expect(noIter == cnt).to.be.true;
             noIter++;
         });
@@ -71,7 +71,7 @@ describe('DOMQuery tests', () => {
     it('domquery ops test2 eachNode', () => {
         let probe2 = DomQuery.querySelectorAll("div");
         let noIter = 0;
-        probe2 = probe2.eachNode((item, cnt) => {
+        probe2 = probe2.each((item, cnt) => {
             expect(item instanceof DomQuery).to.be.true;
             expect(noIter == cnt).to.be.true;
             noIter++;

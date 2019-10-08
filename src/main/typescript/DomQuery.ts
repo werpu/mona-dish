@@ -25,16 +25,16 @@ export class ElementAttribute implements IValueHolder<string> {
 
     set value(value: string) {
 
-        let val: Element[] = this.element.get(0).presentOrElse(...[]).value;
+        let val: Element[] = this.element.get(0).presentOrElse(...[]).values;
 
-        for(var cnt = 0; cnt < val.length; cnt++) {
+        for(let cnt = 0; cnt < val.length; cnt++) {
             val[cnt].setAttribute(this.attributeName, value);
         }
         val[0].setAttribute(this.attributeName, value);
     }
 
     get value(): string {
-        let val: Element[] = this.element.get(0).presentOrElse(...[]).value;
+        let val: Element[] = this.element.get(0).presentOrElse(...[]).values;
         if (!val.length) {
             return null;
         }
@@ -78,13 +78,13 @@ export class DomQuery {
                 if (Lang.instance.isString(rootNode[cnt])) {
                     let foundElement = DomQuery.querySelectorAll(<string>rootNode[cnt]);
                     if (!foundElement.isAbsent()) {
-                        rootNode.push(...foundElement.value)
+                        rootNode.push(...foundElement.values)
                     }
                 } else if (rootNode[cnt] instanceof DomQuery) {
-                    this.rootNode.push(...(<any>rootNode[cnt]).value);
+                    this.rootNode.push(...(<any>rootNode[cnt]).values);
                 } else if (Lang.instance.isString(rootNode[cnt])) {
                     let result = DomQuery.querySelectorAll(<string>rootNode[cnt]);
-                    this.rootNode.push(...result.value);
+                    this.rootNode.push(...result.values);
 
                 } else {
                     this.rootNode.push(<any>rootNode[cnt]);
@@ -93,39 +93,74 @@ export class DomQuery {
         }
     }
 
+    /**
+     * returns the nth element as domquery
+     * from the internal elements
+     * note if you try to reach a non existing element position
+     * you will get back an absent entry
+     *
+     * @param index the nth index
+     */
     get(index: number): DomQuery {
         return (index < this.rootNode.length) ? new DomQuery(this.rootNode[index]) : DomQuery.absent;
     }
 
-    asElem(index: number): Optional<Element> {
+    /**
+     * returns the nth element as optional of an Element object
+     * @param index
+     */
+    getAsElem(index: number): Optional<Element> {
         return (index < this.rootNode.length) ? Optional.fromNullable(this.rootNode[index]) : Optional.absent;
     }
 
+    /**
+     * returns the value array< of all elements
+     */
     allElems(): Array<Element> {
         return this.rootNode;
     }
 
+    /**
+     * absent no values reached?
+     */
     isAbsent(): boolean {
         return this.length == 0;
     }
 
+    /**
+     * any value present
+     */
     isPresent(): boolean {
         return !this.isAbsent();
     }
 
+    /**
+     * remove all affected nodes from this query object from the dom tree
+     */
     delete() {
-        this.each((node: Element) => {
+        this.eachElem((node: Element) => {
             if (node.parentNode) {
                 node.parentNode.removeChild(node);
             }
         });
     }
 
-
+    /**
+     * easy query selector all producer
+     *
+     * @param selector the selector
+     * @returns a results dom query object
+     */
     static querySelectorAll(selector: string): DomQuery {
         return new DomQuery(document).querySelectorAll(selector);
     }
 
+    /**
+     * query selector all on the existing dom query object
+     *
+     * @param selector the standard selector
+     * @return a DomQuery with the results
+     */
     querySelectorAll(selector): DomQuery {
         if (this.rootNode.length == 0) {
             return this;
@@ -143,6 +178,12 @@ export class DomQuery {
         return new DomQuery(...nodes);
     }
 
+    /**
+     * byId producer
+     *
+     * @param selector id
+     * @return a DomQuery containing the found elements
+     */
     static byId(selector: string | DomQuery | Element): DomQuery {
         if (Lang.instance.isString(selector)) {
             return new DomQuery(document).byId( <string> selector);
@@ -151,6 +192,12 @@ export class DomQuery {
         }
     }
 
+    /**
+     * byTagName producer
+     *
+     * @param selector name
+     * @return a DomQuery containing the found elements
+     */
     static byTagName(selector: string | DomQuery | Element): DomQuery {
         if (Lang.instance.isString(selector)) {
             return new DomQuery(document).byTagName(<string>selector);
@@ -159,6 +206,11 @@ export class DomQuery {
         }
     }
 
+    /**
+     * core byId method
+     * @param id the id to search for
+     * @param includeRoot also match the root element?
+     */
     byId(id: string, includeRoot?:boolean): DomQuery {
         let res: Array<DomQuery> =  [];
         for (let cnt = 0; includeRoot && cnt < this.rootNode.length; cnt++) {
@@ -170,6 +222,11 @@ export class DomQuery {
         return new DomQuery(...res);
     }
 
+    /**
+     * same as byId just for the tag name
+     * @param tagName
+     * @param includeRoot
+     */
     byTagName(tagName: string, includeRoot ?: boolean): DomQuery {
         let res = [];
         for (let cnt = 0;includeRoot && cnt < this.rootNode.length; cnt++) {
@@ -181,14 +238,24 @@ export class DomQuery {
         return new DomQuery(...res);
     }
 
+    /**
+     * attr accessor, usage myQuery.attr("class").value = "bla"
+     * or let value myQuery.attr("class").value
+     * @param attr
+     */
     attr(attr: string): ElementAttribute {
         return new ElementAttribute(this, attr);
     }
 
+    /**
+     * hasclass, checks for an existing class in the class attributes
+     *
+     * @param clazz the class to search for
+     */
     hasClass(clazz: string) {
         let hasIt = false;
 
-        this.eachNode((item) => {
+        this.each((item) => {
             let oldClass = item.attr("class").value || "";
             if(oldClass.toLowerCase().indexOf(clazz.toLowerCase()) == -1) {
                 return;
@@ -207,9 +274,13 @@ export class DomQuery {
         return hasIt;
     }
 
-
-    addClass(clazz: string) {
-        this.eachNode((item) => {
+    /**
+     * appends a class string if not already in the element(s)
+     *
+     * @param clazz the style class to append
+     */
+    addClass(clazz: string): DomQuery {
+        this.each((item) => {
             let oldClass = item.attr("class").value || "";
             if(!this.hasClass(clazz)) {
                 item.attr("class").value = Lang.instance.trim(oldClass + " " + clazz);
@@ -219,8 +290,13 @@ export class DomQuery {
         return this;
     }
 
-    removeClass(clazz: string) {
-        this.eachNode((item) => {
+    /**
+     * remove the style class if in the class definitions
+     *
+     * @param clazz
+     */
+    removeClass(clazz: string): DomQuery {
+        this.each((item) => {
             if(this.hasClass(clazz)) {
                 let oldClass = item.attr("class").value || "";
                 let newClasses = [];
@@ -232,54 +308,87 @@ export class DomQuery {
                 }
                 item.attr("class").value = newClasses.join(" ");
             }
-        })
+        });
+        return this;
     }
 
+    /**
+     * checks whether we have a multipart element in our children
+     */
     isMultipartCandidate(): boolean {
         let found = false;
-        return this.querySelectorAll("input[type='file']").first().isPresent();
+        return this.querySelectorAll("input[type='file']").firstElem().isPresent();
     }
 
+    /**
+     * innerHtml equivalkent
+     * equivalent to jqueries html
+     * as setter the html is set and the
+     * DomQuery is given back
+     * as getter the html string is returned
+     *
+     * @param inval
+     */
     html(inval?: string): DomQuery | Optional<string> {
         if (Optional.fromNullable(inval).isAbsent()) {
-            return this.asElem(0).isPresent() ? Optional.fromNullable(this.asElem(0).value.innerHTML) : Optional.absent;
+            return this.getAsElem(0).isPresent() ? Optional.fromNullable(this.getAsElem(0).value.innerHTML) : Optional.absent;
         }
-        if (this.asElem(0).isPresent()) {
-            this.asElem(0).value.innerHTML = inval;
+        if (this.getAsElem(0).isPresent()) {
+            this.getAsElem(0).value.innerHTML = inval;
         }
         return this;
     }
 
-
-    getIf(...nodeName: Array<string>): DomQuery {
-        return this.querySelectorAll(" > " + nodeName.join(">"));
+    /**
+     * easy node traversal, you can pass
+     * a set of node selectors which are joined as direct childs
+     * @param nodeSelector
+     */
+    getIf(...nodeSelector: Array<string>): DomQuery {
+        return this.querySelectorAll(" > " + nodeSelector.join(">"));
     }
 
-    get value(): Element[] {
-        return this.rootNode;
+    /**
+     * returns the elements of this dom tree, always as array (keep that in mind)
+     */
+    get value(): Optional<Element> {
+
+        return this.getAsElem(0);
     }
 
+    get values(): Element[] {
+        return this.allElems();
+    }
+
+    /**
+     * returns the id of the first element
+     */
     get id(): Optional<string> {
-        return <Optional<string>>this.asElem(0).getIf("id");
+        return <Optional<string>>this.getAsElem(0).getIf("id");
     }
 
+    /**
+     * length of the entire query set
+     */
     get length(): number {
         return this.rootNode.length
     }
 
+    /**
+     * convenience method for tagName
+     */
     get tagName(): Optional<string> {
-        return <Optional<string>>this.asElem(0).getIf("tagName");
+        return <Optional<string>>this.getAsElem(0).getIf("tagName");
     }
 
+    /**
+     * convenience method for type
+     */
     get type(): Optional<string> {
-        let retVal = this.asElem(0);
-        if (retVal.isAbsent()) {
-            return Optional.absent;
-        }
-        return Optional.fromNullable(this.asElem(0).value.getAttribute("type"));
+        return Optional.fromNullable(this.get(0).attr("type").value);
     }
 
-    each(func: (item: Element, cnt?: number) => any): DomQuery {
+    eachElem(func: (item: Element, cnt?: number) => any): DomQuery {
         for (let cnt = 0, len = this.rootNode.length; cnt < len; cnt++) {
             if (func(this.rootNode[cnt], cnt) === false) {
                 break;
@@ -288,7 +397,7 @@ export class DomQuery {
         return this;
     }
 
-    first(func: (item: Element, cnt?: number) => any = item => item): DomQuery {
+    firstElem(func: (item: Element, cnt?: number) => any = item => item): DomQuery {
         if (this.rootNode.length > 1) {
             func(this.rootNode[0], 0);
         }
@@ -296,7 +405,7 @@ export class DomQuery {
     }
 
 
-    eachNode(func: (item: DomQuery, cnt?: number) => any): DomQuery {
+    each(func: (item: DomQuery, cnt?: number) => any): DomQuery {
         for (let cnt = 0, len = this.rootNode.length; cnt < len; cnt++) {
             if (func(this.get(cnt), cnt) === false) {
                 break;
@@ -305,19 +414,29 @@ export class DomQuery {
         return this;
     }
 
-    firstNode(func: (item: DomQuery, cnt?: number) => any = (item) => item): DomQuery {
+    /**
+     * returns a new dom query containing only the first element max
+     *
+     * @param func a an optional callback function to perform an operation on the first element
+     */
+    first(func: (item: DomQuery, cnt?: number) => any = (item) => item): DomQuery {
         if (this.rootNode.length > 1) {
             func(this.get(0), 0);
+            return this.get(0);
         }
         return this;
     }
 
-    filterNode(func: (item: DomQuery) => boolean): DomQuery {
+
+    /**
+     * filter function which filters a subset
+     *
+     * @param func
+     */
+    filter(func: (item: DomQuery) => boolean): DomQuery {
         let reArr: Array<DomQuery> = [];
-        this.eachNode((item: DomQuery) => {
-            if (func(item)) {
-                reArr.push(item);
-            }
+        this.each((item: DomQuery) => {
+           func(item) ? reArr.push(item) : null;
         });
         return new DomQuery(...<any>reArr);
     }
@@ -348,14 +467,15 @@ export class DomQuery {
      * @return {Array} an array of nodes with the detached dom nodes
      */
     detach(): DomQuery {
-        this.each((item: Element) => {
+        this.eachElem((item: Element) => {
             item.parentNode.removeChild(item);
         });
         return this;
     }
 
     appendTo(elem: DomQuery) {
-        elem.asElem(0).value.appendChild(this.asElem(0).value);
+        //TODO what about multiple children=
+        elem.getAsElem(0).value.appendChild(this.getAsElem(0).value);
     }
 
     loadScriptEval(src, type, defer, charSet, async) {
@@ -395,9 +515,9 @@ export class DomQuery {
     }
 
     insertAfter(...elem: Array<DomQuery>) {
-        let sibling = this.asElem(0).value;
+        let sibling = this.getAsElem(0).value;
         for (let cnt = 0; cnt < elem.length; cnt++) {
-            elem[cnt].each((myElem: Element) => {
+            elem[cnt].eachElem((myElem: Element) => {
                 sibling.parentNode.insertBefore(myElem, sibling.nextSibling);
                 sibling = <Element>sibling.nextSibling;
                 this.rootNode.push(myElem);
@@ -408,8 +528,8 @@ export class DomQuery {
 
     insertBefore(...elem: Array<DomQuery>) {
         for (let cnt = 0; cnt < elem.length; cnt++) {
-            elem[cnt].each((myElem: Element) => {
-                this.asElem(0).value.parentNode.insertBefore(myElem, this.asElem(0).value);
+            elem[cnt].eachElem((myElem: Element) => {
+                this.getAsElem(0).value.parentNode.insertBefore(myElem, this.getAsElem(0).value);
                 this.rootNode.push(myElem);
             });
         }
@@ -436,7 +556,7 @@ export class DomQuery {
             }
         };
 
-        this.each((item: Element) => {
+        this.eachElem((item: Element) => {
             if (resolveItem(item) === false) {
                 return false;
             }
@@ -452,7 +572,7 @@ export class DomQuery {
 
     get childNodes(): DomQuery {
         let childNodeArr: Array<Element> = [];
-        this.each((item: Element) => {
+        this.eachElem((item: Element) => {
             childNodeArr = childNodeArr.concat(Lang.instance.objToArray(item.childNodes));
         });
         return new DomQuery(...childNodeArr);
@@ -460,7 +580,7 @@ export class DomQuery {
 
 
     copyAttrs(sourceItem: DomQuery): DomQuery {
-        sourceItem.each((sourceNode: Element) => {
+        sourceItem.eachElem((sourceNode: Element) => {
             for (let cnt = 0; cnt < sourceNode.attributes.length; cnt++) {
                 let value = sourceNode.attributes[cnt].value;
                 if (value) {
@@ -491,9 +611,9 @@ export class DomQuery {
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery {
         let nodes = DomQuery.fromMarkup(markup);
 
-        this.asElem(0).value.parentNode.replaceChild(nodes.asElem(0).value, this.asElem(0).value);
+        this.getAsElem(0).value.parentNode.replaceChild(nodes.getAsElem(0).value, this.getAsElem(0).value);
         this.rootNode = [];
-        this.rootNode = this.rootNode.concat(nodes.value);
+        this.rootNode = this.rootNode.concat(nodes.values);
         // this.rootNode.push(nodes.value);
 
         for (let cnt = 1; cnt < nodes.length; cnt++) {
@@ -582,7 +702,7 @@ export class DomQuery {
             let scriptElements = this.querySelectorAll("script");
             if (scriptElements == null) return;
             for (let cnt = 0; cnt < scriptElements.length; cnt++) {
-                execScrpt(scriptElements.asElem(cnt).value);
+                execScrpt(scriptElements.getAsElem(cnt).value);
             }
             if (finalScripts.length) {
                 this.globalEval(finalScripts.join("\n"));
@@ -658,7 +778,7 @@ export class DomQuery {
         const scriptElements: DomQuery = this.querySelectorAll("link, style");
         if (scriptElements == null) return;
         for (let cnt = 0; cnt < scriptElements.length; cnt++) {
-            let element: any = scriptElements.asElem(cnt);
+            let element: any = scriptElements.getAsElem(cnt);
             execCss(element.value);
         }
 
