@@ -25,7 +25,7 @@ export class ElementAttribute implements IValueHolder<string> {
 
     set value(value: string) {
 
-        let val: Element[] = this.element.get(0).presentOrElse([]).value;
+        let val: Element[] = this.element.get(0).presentOrElse(...[]).value;
         if (!val.length) {
             return;
         }
@@ -33,7 +33,7 @@ export class ElementAttribute implements IValueHolder<string> {
     }
 
     get value(): string {
-        let val: Element[] = this.element.get(0).presentOrElse([]).value;
+        let val: Element[] = this.element.get(0).presentOrElse(...[]).value;
         if (!val.length) {
             return null;
         }
@@ -66,7 +66,8 @@ export class DomQuery {
     private rootNode: Array<Element> = [];
 
     constructor(...rootNode: Array<Element | DomQuery | Document | Array<any> | string>) {
-        if (Optional.fromNullable(rootNode).isAbsent()) {
+
+        if (Optional.fromNullable(rootNode).isAbsent() || !rootNode.length) {
             return;
         } else {
             //we need to flatten out the arrays
@@ -370,11 +371,11 @@ export class DomQuery {
     }
 
 
-    presentOrElse(elseValue: any): DomQuery {
+    presentOrElse(...elseValue: any): DomQuery {
         if (this.isPresent()) {
             return this;
         } else {
-            return new DomQuery(elseValue);
+            return new DomQuery(...elseValue);
         }
     }
 
