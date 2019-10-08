@@ -324,13 +324,27 @@ export class Optional<T> extends Monad<T> {
     }
 
     /**
+     * simple match, if the first order function call returns
+     * true then there is a match, if the value is not present
+     * it never matches
+     *
+     * @param fn the first order function performing the match
+     */
+    match(fn: (item: T) => boolean): boolean {
+        if(this.isAbsent()) {
+            return false
+        }
+        return fn(this.value);
+    }
+
+    /**
      * convenience function to flatmap the internal value
      * and replace it with a default in case of being absent
      *
      * @param defaultVal
      * @returns {Optional<any>}
      */
-    get<R>(defaultVal: any): Optional<R> {
+    get<R>(defaultVal: any = Optional.absent): Optional<R> {
         if (this.isAbsent()) {
             return this.getClass().fromNullable(defaultVal).flatMap();
         }

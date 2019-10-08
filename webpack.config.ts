@@ -12,7 +12,8 @@ const config: webpack.Configuration = {
     entry: {
         Monad: "./src/main/typescript/Monad.ts",
         Lang: "./src/main/typescript/Lang.ts",
-        DomQuery: "./src/main/typescript/DomQuery.ts"
+        DomQuery: "./src/main/typescript/DomQuery.ts",
+        XmlQuery: "./src/main/typescript/XmlQuery.ts"
     },
     output: {
         filename: '[name]-'+targetType+'.js',

@@ -15,18 +15,31 @@
  */
 
 import {Lang} from "./Lang";
-import {Optional} from "./Monad";
-
-class ActiveXObject {
-    private value: string;
+import {IValueHolder, Optional} from "./Monad";
 
 
-    constructor(value: string) {
-        this.value = value;
+export class ElementAttribute implements IValueHolder<string> {
+
+    constructor(private element: DomQuery, private attributeName: string) {
+    }
+
+    set value(value: string) {
+
+        let val: Element[] = this.element.get(0).presentOrElse([]).value;
+        if (!val.length) {
+            return;
+        }
+        val[0].setAttribute(this.attributeName, value);
+    }
+
+    get value(): string {
+        let val: Element[] = this.element.get(0).presentOrElse([]).value;
+        if (!val.length) {
+            return null;
+        }
+        return val[0].getAttribute(this.attributeName);
     }
 }
-
-
 
 /**
  * Monadic DomNode representation, ala jquery
@@ -40,22 +53,26 @@ class ActiveXObject {
  */
 export class DomQuery {
 
-    private rootNode: Array<Element>  = [];
+    private rootNode: Array<Element> = [];
 
-    constructor(...rootNode: Array<Element | Document | Array<any> | string >) {
+    constructor(...rootNode: Array<Element | DomQuery | Document | Array<any> | string>) {
         if (Optional.fromNullable(rootNode).isAbsent()) {
             return;
         } else {
             //we need to flatten out the arrays
 
-            for(let cnt = 0; cnt < rootNode.length; cnt++) {
-                if(Lang.instance.isString(rootNode[cnt])) {
-                    let foundElement = DomQuery.querySelectorAll(<string> rootNode[cnt]);
-                    if(!foundElement.isAbsent()) {
-                        rootNode.push(foundElement.value)
+            for (let cnt = 0; cnt < rootNode.length; cnt++) {
+                if (Lang.instance.isString(rootNode[cnt])) {
+                    let foundElement = DomQuery.querySelectorAll(<string>rootNode[cnt]);
+                    if (!foundElement.isAbsent()) {
+                        rootNode.push(...foundElement.value)
                     }
-                } else if(rootNode[cnt] instanceof DomQuery) {
-                    this.rootNode.push((<any>rootNode[cnt]).value);
+                } else if (rootNode[cnt] instanceof DomQuery) {
+                    this.rootNode.push(...(<any>rootNode[cnt]).value);
+                } else if (Lang.instance.isString(rootNode[cnt])) {
+                    let result = DomQuery.querySelectorAll(<string>rootNode[cnt]);
+                    this.rootNode.push(...result.value);
+
                 } else {
                     this.rootNode.push(<any>rootNode[cnt]);
                 }
@@ -97,7 +114,7 @@ export class DomQuery {
     }
 
     querySelectorAll(selector): DomQuery {
-        if(this.rootNode.length == 0) {
+        if (this.rootNode.length == 0) {
             return this;
         }
         let nodes = [];
@@ -115,40 +132,44 @@ export class DomQuery {
 
     static byId(selector: string | DomQuery | Element): DomQuery {
         if (Lang.instance.isString(selector)) {
-            return new DomQuery(document).querySelectorAll("#" + selector);
+            return new DomQuery(document).byId( <string> selector);
         } else {
-            return new DomQuery(<any> selector);
+            return new DomQuery(<any>selector);
         }
     }
 
-    byId(id: string): DomQuery {
-        for (let cnt = 0; cnt < this.rootNode.length; cnt++) {
+    static byTagName(selector: string | DomQuery | Element): DomQuery {
+        if (Lang.instance.isString(selector)) {
+            return new DomQuery(document).byTagName(<string>selector);
+        } else {
+            return new DomQuery(<any>selector);
+        }
+    }
+
+    byId(id: string, includeRoot?:boolean): DomQuery {
+        let res: Array<DomQuery> =  [];
+        for (let cnt = 0; includeRoot && cnt < this.rootNode.length; cnt++) {
             if (this.rootNode[cnt].id == id) {
-                return new DomQuery(this.rootNode[cnt]);
+                res.push(new DomQuery(this.rootNode[cnt]));
             }
         }
-        return this.querySelectorAll("#" + id);
+        res = res.concat(this.querySelectorAll("#" + id));
+        return new DomQuery(...res);
     }
 
     byTagName(tagName: string, includeRoot ?: boolean): DomQuery {
         let res = [];
-        for (let cnt = 0; cnt < this.rootNode.length; cnt++) {
-            if (includeRoot && this.rootNode[cnt].tagName == tagName) {
+        for (let cnt = 0;includeRoot && cnt < this.rootNode.length; cnt++) {
+            if (this.rootNode[cnt].tagName == tagName) {
                 res.push(new DomQuery(this.rootNode[cnt]));
             }
-            res = res.concat(new DomQuery(this.rootNode[cnt]).querySelectorAll("#" + tagName).allElems());
         }
-        return new DomQuery(res);
+        res = res.concat(this.querySelectorAll(tagName));
+        return new DomQuery(...res);
     }
 
-    getAttribute(attr: string): Optional<string> {
-        return Optional.fromNullable(this.asElem(0).value.getAttribute(attr));
-    }
-
-    setAttribute(attr: string, value: string) {
-        for (let cnt = 0, len = this.length; cnt < len; cnt++) {
-            this.asElem(cnt).value.setAttribute(attr, value);
-        }
+    attr(attr: string): ElementAttribute {
+        return new ElementAttribute(this, attr);
     }
 
     isMultipartCandidate(): boolean {
@@ -184,7 +205,6 @@ export class DomQuery {
     get id(): Optional<string> {
         return <Optional<string>>this.asElem(0).getIf("id");
     }
-
 
     get length(): number {
         return this.rootNode.length
@@ -242,7 +262,7 @@ export class DomQuery {
                 reArr.push(item);
             }
         });
-        return new DomQuery(... <any>reArr);
+        return new DomQuery(...<any>reArr);
     }
 
     /**
@@ -279,15 +299,6 @@ export class DomQuery {
 
     appendTo(elem: DomQuery) {
         elem.asElem(0).value.appendChild(this.asElem(0).value);
-    }
-
-
-    childNodes(): DomQuery {
-        let res = [];
-        this.each((item: Element) => {
-            res = res.concat(Lang.instance.objToArray(item.childNodes))
-        });
-        return new DomQuery(...res);
     }
 
     loadScriptEval(src, type, defer, charSet, async) {
@@ -382,13 +393,21 @@ export class DomQuery {
         return new DomQuery(...retArr);
     }
 
+    get childNodes(): DomQuery {
+        let childNodeArr: Array<Element> = [];
+        this.each((item: Element) => {
+            childNodeArr = childNodeArr.concat(Lang.instance.objToArray(item.childNodes));
+        });
+        return new DomQuery(...childNodeArr);
+    }
+
 
     copyAttrs(sourceItem: DomQuery): DomQuery {
         sourceItem.each((sourceNode: Element) => {
             for (let cnt = 0; cnt < sourceNode.attributes.length; cnt++) {
                 let value = sourceNode.attributes[cnt].value;
                 if (value) {
-                    this.setAttribute(sourceNode.attributes[cnt].name, value)
+                    this.attr(sourceNode.attributes[cnt].name).value = value;
                 }
             }
         });
@@ -406,9 +425,9 @@ export class DomQuery {
         let nodes = DomQuery.fromMarkup(markup);
 
         this.asElem(0).value.parentNode.replaceChild(nodes.asElem(0).value, this.asElem(0).value);
-        this.rootNode  = [];
+        this.rootNode = [];
         this.rootNode = this.rootNode.concat(nodes.value);
-       // this.rootNode.push(nodes.value);
+        // this.rootNode.push(nodes.value);
 
         for (let cnt = 1; cnt < nodes.length; cnt++) {
             this.insertAfter(nodes.get(cnt));
@@ -429,11 +448,12 @@ export class DomQuery {
      * Run through the given Html item and execute the inline scripts
      * (IE doesn't do this by itself)
      * @param {Node} item
+     * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      */
     runScripts(whilteListed: (val: string) => boolean = (src: string) => {
         return (src.indexOf("ln=scripts") == -1 &&
             src.indexOf("ln=javax.faces") == -1) ||
-            (src.indexOf("/jsf.js") == -1  &&
+            (src.indexOf("/jsf.js") == -1 &&
                 src.indexOf("/jsf-uncompressed.js") == -1);
     }): DomQuery {
         let _Lang = Lang.instance,
@@ -595,7 +615,7 @@ export class DomQuery {
         //fortunately a table element also works which is less critical than form elements regarding
         //the inner content
         dummyPlaceHolder.html("<table><tbody><tr><td>" + markup + "</td></tr></tbody></table>");
-        let childs = dummyPlaceHolder.querySelectorAll("td").get(0).childNodes();
+        let childs = dummyPlaceHolder.querySelectorAll("td").get(0).childNodes;
         childs.detach();
         dummyPlaceHolder.html("");
         return childs;
@@ -673,223 +693,5 @@ export class DomQuery {
 }
 
 
-export class XMLQuery {
-
-    private rootNode: Array<Element> = [];
-
-    constructor(...rootNode: Array<any>) {
-        if (Optional.fromNullable(rootNode).isAbsent()) {
-            return;
-        } else if (rootNode[0] instanceof Array && rootNode.length == 1) {
-            if (!(rootNode[0][0] instanceof DomQuery)) {
-                this.rootNode = this.rootNode.concat(rootNode[0]);
-            } else {
-                for (let cnt = 0; cnt < rootNode[0].length; cnt++) {
-                    rootNode[0][cnt].each((node: Element) => {
-                        this.rootNode.push(node);
-                    });
-                }
-            }
-        } else {
-            if (!(rootNode[0] instanceof DomQuery)) {
-                this.rootNode = this.rootNode.concat(rootNode);
-            } else {
-                for (let cnt = 0; cnt < rootNode.length; cnt++) {
-                    rootNode[cnt].each((node: Element) => {
-                        this.rootNode.push(node);
-                    });
-                }
-            }
-        }
-    }
-
-    static fromString(data: string): XMLQuery {
-        return XMLQuery.parseXML(data);
-    }
-
-    static parseXML(txt: string): XMLQuery {
-        let ret = XMLQuery._parseXML(txt);
-        return ret;
-    }
-
-    private static _parseXML(txt: string): XMLQuery {
-        //from jquery
-        let parsedXML;
-        try {
-            if ((<any>window).DOMParser) { // Standarrd
-                parsedXML = new DOMParser().parseFromString(txt, "text/xml");
-            } else { // IE
-                parsedXML = new ActiveXObject("Microsoft.XMLDOM");
-                parsedXML.async = "false";
-                parsedXML.loadXML(txt);
-            }
-        } catch (e) {
-            parsedXML = undefined;
-        }
-        let retVal = new XMLQuery(Lang.instance.objToArray(parsedXML.childNodes));
-        return retVal;
-    }
-
-    isAbsent() {
-        return !this.rootNode.length;
-    }
-
-    isPresent() {
-        return !this.isAbsent();
-    }
-
-    get length(): number {
-        return this.rootNode.length;
-    }
-
-
-    private _getIf(tagsFound: Array<Node>, path: Array<String>, currLevel: Array<Node>) {
-        let nameIdx = {};
-        let tags = path[0].split(",");
-        for (let cnt = 0; cnt < tags.length; cnt++) {
-            nameIdx[Lang.instance.trim(tags[cnt])] = true;
-        }
-
-        if (path.length == 1) {
-            for (let cnt = 0; currLevel && cnt < currLevel.length; cnt++) {
-                if ((path[0] == "*") || nameIdx[currLevel[cnt].nodeName]) {
-                    tagsFound.push(currLevel[cnt]);
-                }
-            }
-            return;
-        }
-
-        for (let cnt = 0; currLevel && cnt < currLevel.length; cnt++) {
-            if ((path[0] == "*") || nameIdx[currLevel[cnt].nodeName]) {
-
-                this._getIf(tagsFound, path.slice(1, path.length), Lang.instance.objToArray(currLevel[cnt].childNodes))
-            }
-        }
-    }
-
-    getIf(...path: Array<string>): XMLQuery {
-        let currLevel = this.rootNode;
-
-        let tagsFound = [];
-
-        for (let cnt = 0; cnt < this.rootNode.length; cnt++) {
-            this._getIf(tagsFound, path, Lang.instance.objToArray(this.rootNode[cnt].childNodes))
-        }
-        return new XMLQuery(tagsFound);
-    }
-
-    get(pos: number): XMLQuery {
-        if (pos > this.rootNode.length - 1) {
-            return XMLQuery.absent;
-        }
-        return new XMLQuery(this.rootNode[pos]);
-    }
-
-    get value(): Array<Element> {
-        return this.rootNode;
-    }
-
-    get childNodes(): XMLQuery {
-        let retVal = [];
-        this.each((item: Node) => {
-            retVal = retVal.concat(Lang.instance.objToArray(item.childNodes))
-        });
-
-        return new XMLQuery(retVal);
-    }
-
-    each(func: (item: Node, cnt?: number) => any): XMLQuery {
-        for (let cnt = 0, len = this.rootNode.length; cnt < len; cnt++) {
-            if (func(this.get(cnt).value[0], cnt) === false) {
-                break;
-            }
-        }
-        return this;
-    }
-
-
-    eachNode(func: (item: XMLQuery, cnt?: number) => any): XMLQuery {
-        for (let cnt = 0, len = this.rootNode.length; cnt < len; cnt++) {
-            if (func(this.get(cnt), cnt) === false) {
-                break;
-            }
-        }
-        return this;
-    }
-
-    private _byTagName(resArr: Array<Node>, node: Node, tagName: string) {
-        if (node && node.nodeName == tagName) {
-            resArr.push(node);
-        }
-        if (node.childNodes) {
-            let nodeArr: Array<Element> = Lang.instance.objToArray(node.childNodes);
-            for (let cnt = 0; cnt < nodeArr.length; cnt++) {
-                this._byTagName(resArr, nodeArr[cnt], tagName);
-            }
-        }
-    }
-
-    byTagName(tagName: string): XMLQuery {
-        let res = [];
-
-        for (let cnt = 0; cnt < this.rootNode.length; cnt++) {
-            this._byTagName(res, this.rootNode[cnt], tagName);
-        }
-        return new XMLQuery(res);
-    }
-
-
-    isXMLParserError(): boolean {
-
-        return this.byTagName("parsererror").isPresent();
-    }
-
-    textContent(joinstr: string): string {
-        let retStr = [];
-        this.each((item: Node) => {
-            retStr.push((<any>item).textContent);
-        });
-        return retStr.join(joinstr || " ");
-    }
-
-
-    parserErrorText(joinstr: string): string {
-        return this.byTagName("parsererror").textContent(joinstr);
-    }
-
-    getAttribute(key: string): Optional<string> {
-        if (this.rootNode.length == 0) {
-            return Optional.absent;
-        }
-
-        return Optional.fromNullable((<any>this.rootNode[0]).getAttribute(key));
-    }
-
-    toString(): string {
-        let ret = [];
-        this.each((node: any) => {
-            if (typeof (<any>window).XMLSerializer != "undefined") {
-                ret.push(new (<any>window).XMLSerializer().serializeToString(node));
-            } else if (typeof node.xml != "undefined") {
-                ret.push(node.xml);
-            }
-        });
-        return ret.join("");
-    }
-
-
-    get cDATAAsString(): string {
-        let cDataBlock = [];
-        // response may contain several blocks
-        this.eachNode((item: XMLQuery) => {
-            item.childNodes.each((node: Node) => {
-                cDataBlock.push(<string>(<any>node).data);
-            });
-        });
-        return cDataBlock.join('');
-    }
-
-    static absent = new XMLQuery();
-}
 
 
