@@ -473,10 +473,19 @@ export class DomQuery {
         return this;
     }
 
+    /**
+     * appends the current set of elements
+     * to the element or first element passed via elem
+     * @param elem
+     */
     appendTo(elem: DomQuery) {
-        //TODO what about multiple children=
-        elem.getAsElem(0).value.appendChild(this.getAsElem(0).value);
+        this.eachElem((item) => {
+            let value1: Element = <Element> elem.getAsElem(0).get(Optional.fromNullable({appendChild: (any) => {}})).value;
+            value1.appendChild(item);
+        });
     }
+
+    //TODO append prepend
 
     loadScriptEval(src, type, defer, charSet, async) {
         let xhr = new XMLHttpRequest();
