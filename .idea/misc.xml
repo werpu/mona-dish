@@ -64,6 +64,7 @@
       <textMaps />
     </LinkMapSettings>
   </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_12" default="false" project-jdk-name="9" project-jdk-type="JavaSDK" />
   <component name="SvnBranchConfigurationManager">
     <option name="mySupportsUserInfoFilter" value="true" />
   </component>
