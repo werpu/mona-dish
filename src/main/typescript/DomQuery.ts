@@ -797,6 +797,25 @@ export class DomQuery {
     }
 
     /**
+     * fires a click event on the underlying dom elements
+     */
+    click(): DomQuery {
+        this.fireEvent("click");
+        return this;
+    }
+
+    /**
+     * fires an event
+     */
+    fireEvent(eventName: string) {
+        this.eachElem((node: Element) => {
+            let event = document.createEvent('HTMLEvents');
+            event.initEvent(eventName, false, true);
+            node.dispatchEvent(event);
+        })
+    }
+
+    /**
      * builds the ie nodes properly in a placeholder
      * and bypasses a non script insert bug that way
      * @param markup the marku code
