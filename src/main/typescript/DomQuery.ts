@@ -16,6 +16,7 @@
 
 import {Lang} from "./Lang";
 import {IValueHolder, Optional} from "./Monad";
+import {XMLQuery} from "./XmlQuery";
 
 
 export class ElementAttribute implements IValueHolder<string> {
@@ -588,7 +589,7 @@ export class DomQuery {
     }
 
 
-    copyAttrs(sourceItem: DomQuery): DomQuery {
+    copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
         sourceItem.eachElem((sourceNode: Element) => {
             for (let cnt = 0; cnt < sourceNode.attributes.length; cnt++) {
                 let value = sourceNode.attributes[cnt].value;
@@ -888,7 +889,6 @@ export class DomQuery {
 
     static absent = new DomQuery();
 }
-
 
 
 
