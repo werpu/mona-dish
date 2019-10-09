@@ -800,19 +800,19 @@ export class DomQuery {
      * fires a click event on the underlying dom elements
      */
     click(): DomQuery {
-        this.fireEvent("click");
-        return this;
+        return this.fireEvent("click");
     }
 
     /**
      * fires an event
      */
-    fireEvent(eventName: string) {
+    fireEvent(eventName: string): DomQuery {
         this.eachElem((node: Element) => {
             let event = document.createEvent('HTMLEvents');
             event.initEvent(eventName, false, true);
             node.dispatchEvent(event);
-        })
+        });
+        return this;
     }
 
     /**
