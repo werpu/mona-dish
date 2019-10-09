@@ -21,6 +21,8 @@
 
 /*IMonad definitions*/
 
+import {Lang} from "./Lang";
+
 /**
  * IFunctor interface,
  * defines an interface which allows to map a functor
@@ -246,7 +248,11 @@ export class Optional<T> extends Monad<T> {
         if (this.isPresent()) {
             return this;
         } else {
-            return this.flatMap(this.getClass().fromNullable(elseValue));
+            //shortcut
+            if(elseValue == null) {
+                return Optional.absent;
+            }
+            return this.flatMap(() => elseValue);
         }
     }
 
@@ -259,7 +265,7 @@ export class Optional<T> extends Monad<T> {
         if (this.isPresent()) {
             return this;
         } else {
-            return this.flatMap(this.getClass().fromNullable(func()));
+            return this.flatMap(func);
         }
     }
 
@@ -272,6 +278,7 @@ export class Optional<T> extends Monad<T> {
         if (!(val instanceof Optional)) {
             return Optional.fromNullable(val.value);
         }
+
         return <Optional<any>> val.flatMap();
     }
 
@@ -475,7 +482,7 @@ export class Config extends Optional<any> {
     }
 
 
-    applyIf(condition: boolean,...keys: Array<any>) {
+    applyIf(condition: boolean,...keys: Array<any>): IValueHolder<any> {
         return  condition ? this.apply(keys) : {value: null};
     }
 
@@ -490,12 +497,19 @@ export class Config extends Optional<any> {
     }
 
     //empties the current config entry
-    delete(key: string) {
-        delete this.value[key];
+    delete(key: string): Config {
+        if(key in this.value) {
+            delete this.value[key];
+        }
+        return this;
     }
 
     toJson(): any {
         return JSON.stringify(this.value);
+    }
+
+    get shallowCopy(): Config {
+        return new Config(Lang.instance.mergeMaps([{}, this.value || {}]));
     }
 
     protected getClass(): any {
