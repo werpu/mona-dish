@@ -26,7 +26,7 @@ export class ElementAttribute implements IValueHolder<string> {
 
     set value(value: string) {
 
-        let val: Element[] = this.element.get(0).presentOrElse(...[]).values;
+        let val: Element[] = this.element.get(0).orElse(...[]).values;
 
         for(let cnt = 0; cnt < val.length; cnt++) {
             val[cnt].setAttribute(this.attributeName, value);
@@ -35,7 +35,7 @@ export class ElementAttribute implements IValueHolder<string> {
     }
 
     get value(): string {
-        let val: Element[] = this.element.get(0).presentOrElse(...[]).values;
+        let val: Element[] = this.element.get(0).orElse(...[]).values;
         if (!val.length) {
             return this.defaultVal;
         }
@@ -447,9 +447,12 @@ export class DomQuery {
      * no other methods are supported anymore
      * @param code
      */
-    globalEval(code: string) {
+    globalEval(code: string, nonce ?:string): DomQuery {
         let head = document.getElementsByTagName("head")[0] || document.documentElement;
         let script = document.createElement("script");
+        if(nonce) {
+            script.setAttribute("nonce", nonce);
+        }
         script.type = "text/javascript";
         script.text = code;
         head.insertBefore(script, head.firstChild);
@@ -547,7 +550,7 @@ export class DomQuery {
     }
 
 
-    presentOrElse(...elseValue: any): DomQuery {
+    orElse(...elseValue: any): DomQuery {
         if (this.isPresent()) {
             return this;
         } else {
@@ -555,7 +558,7 @@ export class DomQuery {
         }
     }
 
-    presentOrElseLazy(func: () => any): DomQuery {
+    orElseLazy(func: () => any): DomQuery {
         if (this.isPresent()) {
             return this;
         } else {
