@@ -1,4 +1,4 @@
-import webpack from 'webpack';
+import * as webpack from 'webpack';
 import * as path from 'path';
 
 const CopyPlugin = require('copy-webpack-plugin');
@@ -38,9 +38,9 @@ const config: webpack.Configuration = {
 
     },
     plugins: [
-        new CopyPlugin([
-
-        ]),
+        new webpack.SourceMapDevToolPlugin({
+            filename: "[name].js.map"
+        }),
         new FileManagerPlugin({
             onStart: {
                 delete: [
