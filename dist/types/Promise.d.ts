@@ -1,4 +1,13 @@
-import { IPromise, PromiseStatus } from "./Monad";
+export declare enum PromiseStatus {
+    PENDING = 0,
+    FULLFILLED = 1,
+    REJECTED = 2
+}
+export interface IPromise {
+    then(executorFunc: (val: any) => any): IPromise;
+    catch(executorFunc: (val: any) => any): IPromise;
+    finally(executorFunc: () => void): IPromise;
+}
 /**
  * a small (probably not 100% correct, although I tried to be correct as possible) Promise implementation
  * for systems which do not have a promise implemented

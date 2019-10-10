@@ -17,10 +17,11 @@ const config: webpack.Configuration = {
         Lang: "./src/main/typescript/Lang.ts",
         DomQuery: "./src/main/typescript/DomQuery.ts",
         XmlQuery: "./src/main/typescript/XmlQuery.ts",
-        Promise: "./src/main/typescript/Promise.ts"
+        Promise: "./src/main/typescript/Promise.ts",
+        index: "./src/main/typescript/index.ts"
     },
     output: {
-        filename: '[name]-' + targetType + '.js',
+        filename: '[name].js',
         libraryTarget: targetType,
         globalObject: 'window',
         path: path.resolve(__dirname, './target/js/'+targetType+"/")

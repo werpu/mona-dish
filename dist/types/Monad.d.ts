@@ -135,13 +135,3 @@ export declare class Config extends Optional<any> {
     private setVal;
     private buildPath;
 }
-export declare enum PromiseStatus {
-    PENDING = 0,
-    FULLFILLED = 1,
-    REJECTED = 2
-}
-export interface IPromise {
-    then(executorFunc: (val: any) => any): IPromise;
-    catch(executorFunc: (val: any) => any): IPromise;
-    finally(executorFunc: () => void): IPromise;
-}

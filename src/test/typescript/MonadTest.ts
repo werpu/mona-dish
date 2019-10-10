@@ -16,7 +16,7 @@
 
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import {Optional, Config} from "../../main/typescript/Monad";
+import {Optional, Config} from "../../main/typescript/index";
 
 //TODO saveResolveTest
 describe('optional tests', () => {

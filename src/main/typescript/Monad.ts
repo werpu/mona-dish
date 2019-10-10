@@ -573,20 +573,6 @@ export class Config extends Optional<any> {
 }
 
 
-export enum PromiseStatus {
-    PENDING, FULLFILLED, REJECTED
-}
-
-export interface IPromise {
-    then(executorFunc: (val: any) => any): IPromise;
-
-    catch(executorFunc: (val: any) => any): IPromise
-
-    finally(executorFunc: () => void): IPromise;
-
-}
-
-
 
 /*we do not implenent array, maps etc.. monads there are libraries like lodash which have been doing that for ages*/
 

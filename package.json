@@ -2,7 +2,7 @@
   "name": "mona-dish",
   "version": "0.3.0",
   "description": "TypeScript/Javascript monadish helpers which ease your programming live",
-  "main": "index.js",
+  "main": "dist/js/commonjs/index.js",
   "scripts": {
     "test": "mocha -r ts-node/register -P ./src/test/typescript/ ./src/test/typescript/**/*Test.ts",
     "build": "webpack",
