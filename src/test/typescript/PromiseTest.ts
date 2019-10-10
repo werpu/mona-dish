@@ -16,7 +16,7 @@
 
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {Promise as ShimPromise} from "../../main/typescript/Monad";
+import {Promise as ShimPromise} from "../../main/typescript/Promise";
 
 describe('promise tests', () => {
 

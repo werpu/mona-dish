@@ -26,6 +26,8 @@
     "@types/sinon": "^7.5.0",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "chai": "^4.2.0",
+    "copy-webpack-plugin": "^5.0.4",
+    "filemanager-webpack-plugin": "^2.0.5",
     "html-webpack-plugin": "^3.2.0",
     "jsdom": "^15.1.1",
     "mocha": "^6.2.1",
