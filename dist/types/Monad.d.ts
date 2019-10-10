@@ -1,4 +1,8 @@
 /**
+ * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
+ * Useful if you need the functions in another library to keep its dependencies down
+ */
+/**
  * IFunctor interface,
  * defines an interface which allows to map a functor
  * via a first order function to another functor

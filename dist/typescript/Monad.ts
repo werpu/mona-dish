@@ -21,7 +21,7 @@
 
 /*IMonad definitions*/
 
-import {Lang} from "./Lang";
+
 
 /**
  * IFunctor interface,
@@ -509,7 +509,14 @@ export class Config extends Optional<any> {
     }
 
     get shallowCopy(): Config {
-        return new Config(Lang.instance.mergeMaps([{}, this.value || {}]));
+        let mergeMaps = function(maps: any[], overwrite = true) {
+            let retVal = {};
+            this.arrForEach(maps, (item:{[key:string]:any})  => {
+                this.mixMaps(retVal, item, overwrite)
+            });
+            return retVal;
+        }
+        return new Config(mergeMaps([{}, this.value || {}]));
     }
 
     protected getClass(): any {
