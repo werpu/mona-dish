@@ -32,19 +32,18 @@ hosted under "dist".
 
 For building the project you need following
 * npm
-* gulp (npm install gulp-cli -g)
+* webpack
 
 once this is done you can build it by calling ./init.sh one time to install all the needed build dependencies,
 after that calling /build.sh rebuilds the entire project.
 
-You also can run karma based unit tests on the project by calling ./test.sh
+You also can run mocha based unit tests on the project by calling ./test.sh
 
 (note this is for unixoid systems, windows command files will be added soon, in the meanwhile simply check the command 
 sequences in the sh files for building and testing)
 
 
 ## Usage
-
 
 ### Optional
 
@@ -201,7 +200,30 @@ As you can see if values do not exist placeholders in array assignments are fill
   
 ### Promise and CancellablePromise
 
-TODO will be added soon
+Promise is just a lightweight shim of the Promise API including finally.
+Cancellable promise adds on top of that by allowing to cancel 
+(aka never hit the then/cancel phase)
+
+### DomQuery
+
+A small lightweight thin layer on top of the standardized dom apis which readds jquery like 
+monadish patterns on top of the existing dom elements.
+It omits a base parser, given that modern browsers have excellent qerying capabilits
+just with the overhead of an iterative API.
+DomQuery readds the slickness of functional patterns, which are perfect for the job of Tree Querying.
+
+### Stream
+
+work in progress.. the idea is to have streams like java does for arrays.
+(forEach, filter etc...)
+
+### XmlQuery
+
+similar to DomQuery but atm without a full query engine behind it,
+the reason for that is that the browsers do not have a universal query engine yet
+and I tried to avoid third party dependencies.
+But you get many other benefits similar to DomQuery by using XmlQuery
+
 
 ### Monad
 
