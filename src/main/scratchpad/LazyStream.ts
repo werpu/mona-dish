@@ -1,140 +1,102 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/**
- * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
- * Useful if you need the functions in another library to keep its dependencies down
- */
-
-/*IMonad definitions*/
-
-import {Lang} from "./Lang";
-
-/**
- * IFunctor interface,
- * defines an interface which allows to map a functor
- * via a first order function to another functor
- */
-export interface IFunctor<T> {
-    map<R>(fn: (data: T) => R): IFunctor<R>;
-}
-
-/**
- * IMonad definition, basically a functor with a flaptmap implementation (flatmap reduces all nested monads after a
- * function call f into a monad with the nesting level of 1
- *
- * flatmap flats nested Monads into a IMonad of the deepest nested implementation
- */
-export interface IMonad<T, M extends IMonad<any, any>> extends IFunctor<T> {
-    flatMap<T, M>(f: (T) => M): IMonad<any, any>;
-}
-
-/**
- * a stateful functor which holds a value upn which a
- * function can be applied
- *
- * as value holder of type T
- */
-export interface IIdentity<T> extends IFunctor<T> {
-    readonly value: T;
-}
-
-/**
- *  custom value holder definition, since we are not pure functional
- *  but iterative we have structures which allow the assignment of a value
- *  also not all structures are sideffect free
- */
-export interface IValueHolder<T> {
-    value: T | Array<T>;
-}
-
-/**
- * Implementation of a monad
- * (Sideffect free), no write allowed directly on the monads
- * value state
- */
-export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
-    constructor(value: T) {
-        this._value = value;
-    }
-
-    protected _value: T;
-
-    get value(): T {
-        return this._value;
-    }
-
-    map<R>(fn?: (data: T) => R): Monad<R> {
-        if (!fn) {
-            fn = (inval: any) => <R>inval;
-        }
-        let result: R = fn(this.value);
-        return new Monad(result);
-    }
-
-    flatMap<R>(fn?: (data: T) => R): Monad<any> {
-        let mapped: Monad<any> = this.map(fn);
-        while ("undefined" != typeof mapped && mapped != null && mapped.value instanceof Monad) {
-            mapped = mapped.value
-        }
-        return mapped;
-    }
-
-}
 
 /*
  * A small stream implementation, at the moment still early evaluation but i will go for a lazy pattern in the long
  * run to allow infinite data sources
  */
-export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>> {
+import {IMonad, IValueHolder, Monad} from "./Monad";
 
+class ArrayStreamDataSource<T> {
     value: Array<T>;
+    dataPos: 0;
 
-    constructor(...value: T[]) {
+    constructor(...value: Array<T>) {
         this.value = value;
     }
 
-    static of<T>(...data: Array<T>): Stream<T> {
-        return new Stream<T>(...data);
+    hasNext(): boolean {
+        return this.value.length - 1 < this.dataPos;
     }
 
+    next(): T {
+        return this.value[++this.dataPos];
+    }
+
+    reset() {
+        this.dataPos = 0;
+    }
+}
+
+
+export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>> {
+
+    dataSource: ArrayStreamDataSource<T>;
+
+    /*constructor(...value: T[]) {
+        this.value = value;
+    }*/
+
+    constructor(value: Array<T>, private predecessor?: Stream<T>, private parentCall?: Function) {
+        this.dataSource = new ArrayStreamDataSource<T>(...value);
+
+    }
+
+    static of<T>(...data: Array<T>): Stream<T> {
+        return new Stream<T>(data);
+    }
+
+    //not an endpoint or endpoint, for now endpoint
     each(fn: (data: T, pos ?: number) => void | boolean) {
-        for (let cnt = 0; cnt < this.value.length; cnt++) {
-            if (fn(this.value[cnt], cnt) === false) {
+
+        let ret = [];
+
+        while(this._hasNext()) {
+            let value = this.dataSource.next();
+            if(Optional.fromNullable(value).isAbsent()) {
+                break;
+            }
+            ret.push(value);
+            if (fn(value, this.dataSource.dataPos) === false) {
                 break;
             }
         }
-        return this;
+        return new Stream(ret);
+    }
+
+    _hasNext(): boolean {
+        if(this.dataSource != null) {
+            return this.dataSource.hasNext();
+        } else {
+            return this.predecessor._hasNext();
+        }
+    }
+
+    _next():T {
+        if(this.dataSource != null) {
+            return this.dataSource.next();
+        } else {
+            let retVal = this.predecessor._next();
+            if(this.parentCall) {
+                return this.parentCall(retVal);
+            }
+        }
     }
 
     /**
      * map the stream elements from one element to another
      *
      * @param fn mapping function
+     *
+     * lazy function
      */
     map<R>(fn?: (data: T) => R): Stream<R> {
-        if (!fn) {
-            fn = (inval: any) => <R>inval;
-        }
-        let res: R[] = [];
-        this.each((item, cnt) => {
-            res.push(fn(item))
-        });
+        let thisCall = (data: T) => {
+            if (!fn) {
+                fn = (inval: any) => <R>inval;
+            }
+            return fn(data);
+        };
 
-        return new Stream<R>(...res);
+        return new Stream<R>(null,<any> this, thisCall);
     }
 
     /*
@@ -154,6 +116,8 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * Simple Filter ... filters the data according to a Function passed down...
      *
      * @param fn filter function returning true in case of a filter match (element should be kept)
+     *
+     * lazy function
      */
     filter(fn?: (data: T) => boolean): Stream<T> {
         let res: Array<T> = [];
@@ -453,194 +417,3 @@ export class Optional<T> extends Monad<T> {
     }
 
 }
-
-/**
- * helper class to allow write access to the config
- * in certain situations (after an apply call)
- */
-class ConfigEntry<T> implements IValueHolder<T> {
-    rootElem: any;
-    key: any;
-    arrPos: number;
-
-    constructor(rootElem: any, key: any, arrPos?: number) {
-        this.rootElem = rootElem;
-        this.key = key;
-        this.arrPos = ("undefined" != typeof arrPos) ? arrPos : -1;
-    }
-
-    get value() {
-        if (this.key == "" && this.arrPos >= 0) {
-            return this.rootElem[this.arrPos];
-        } else if (this.key && this.arrPos >= 0) {
-            return this.rootElem[this.key][this.arrPos];
-        }
-        return this.rootElem[this.key];
-    }
-
-    set value(val: T) {
-        if (this.key == "" && this.arrPos >= 0) {
-            this.rootElem[this.arrPos] = val;
-            return;
-        } else if (this.key && this.arrPos >= 0) {
-            this.rootElem[this.key][this.arrPos] = val;
-            return;
-        }
-        this.rootElem[this.key] = val;
-    }
-}
-
-/**
- * Config, basically an optional wrapper for a json structure
- * (not sideeffect free, since we can alter the internal config state
- * without generating a new config), not sure if we should make it sideffect free
- * since this would swallow a lot of performane and ram
- */
-export class Config extends Optional<any> {
-    constructor(root: any) {
-        super(root);
-    }
-
-    get shallowCopy(): Config {
-        return new Config(Lang.instance.mergeMaps([{}, this.value || {}]));
-    }
-
-    get deepCopy(): Config {
-        //TODO deep copy
-
-        return null;
-    }
-
-    static fromNullable<T>(value?: any): Config {
-        return new Config(value);
-    }
-
-    /**
-     * simple merge for the root configs
-     */
-    shallowMerge(other: Config, overwrite = true) {
-        for(let key in other.value) {
-            if(overwrite  && key in this.value) {
-                this.apply(key).value = other.getIf(key).value;
-            } else if(!(key in this.value)) {
-                this.apply(key).value = other.getIf(key).value;
-            }
-        }
-    }
-
-    //TODO deep copy and deep merge
-    deepMerge(other: Config, overwrite = true) {
-        let keyStack = [];
-
-        for(let key in other) {
-            //case 1 keystack + key not in other, copy the values over and skip this iteration cycle
-            //case 2 value of other[key] not instanceof config ... copy it over, skip this iteration cycle unless overwrite is false and key exists in this
-            //case 3, other[key] instanceof Config... move one level down with keyStack + key as new keyStack (immutable to avoid sideffects)
-        }
-    }
-
-    apply(...keys: Array<any>): IValueHolder<any> {
-        if (keys.length < 1) {
-            return;
-        }
-
-        this.buildPath(keys);
-
-        let currKey = this.keyVal(keys[keys.length - 1]);
-        let arrPos = this.arrayIndex(keys[keys.length - 1]);
-        let retVal = new ConfigEntry(keys.length == 1 ? this.value : this.getIf.apply(this, keys.slice(0, keys.length - 1)).value,
-            currKey, arrPos
-        );
-
-        return retVal;
-    }
-
-    applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
-        return condition ? this.apply(keys) : {value: null};
-    }
-
-    getIf(...keys: Array<string>): Config {
-        return this.getClass().fromNullable(super.getIf.apply(this, keys).value);
-    }
-
-    get(defaultVal: any): Config {
-        return this.getClass().fromNullable(super.get(defaultVal).value);
-    }
-
-    //empties the current config entry
-    delete(key: string): Config {
-        if (key in this.value) {
-            delete this.value[key];
-        }
-        return this;
-    }
-
-    toJson(): any {
-        return JSON.stringify(this.value);
-    }
-
-    protected getClass(): any {
-        return Config;
-    }
-
-    private setVal(val: any) {
-        this._value = val;
-    }
-
-    /**
-     * builds a path
-     * @param keys
-     */
-    private buildPath(keys: Array<any>): Config {
-        let val = this;
-        let parentVal = this.getClass().fromNullable(null);
-        let parentPos = -1;
-        let alloc = function (arr: Array<any>, length: number) {
-            if (arr.length < length) {
-                for (let cnt = arr.length; cnt < length; cnt++) {
-                    arr.push({});
-                }
-            }
-        };
-
-        for (let cnt = 0; cnt < keys.length; cnt++) {
-            let currKey = this.keyVal(keys[cnt]);
-            let arrPos = this.arrayIndex(keys[cnt]);
-
-            if (currKey === "" && arrPos >= 0) {
-
-                val.setVal((val.value instanceof Array) ? val.value : []);
-                alloc(val.value, arrPos + 1);
-                if (parentPos >= 0) {
-                    parentVal.value[parentPos] = val.value;
-                }
-                parentVal = val;
-                parentPos = arrPos;
-                val = this.getClass().fromNullable(val.value[arrPos]);
-                continue;
-            }
-
-            let tempVal = <Config>val.getIf(currKey);
-            if (arrPos == -1) {
-                if (tempVal.isAbsent()) {
-                    tempVal = <Config>this.getClass().fromNullable(val.value[currKey] = {});
-                } else {
-                    val = <any>tempVal;
-                }
-            } else {
-                let arr = (tempVal.value instanceof Array) ? tempVal.value : [];
-                alloc(arr, arrPos + 1);
-                val.value[currKey] = arr;
-                tempVal = this.getClass().fromNullable(arr[arrPos]);
-            }
-            parentVal = val;
-            parentPos = arrPos;
-            val = <any>tempVal;
-        }
-
-        return this;
-    }
-}
-
-/*we do not implenent array, maps etc.. monads there are libraries like lodash which have been doing that for ages*/
-
