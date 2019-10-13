@@ -96,8 +96,7 @@ export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
 }
 
 /*
- * A small stream implementation, at the moment still early evaluation but i will go for a lazy pattern in the long
- * run to allow infinite data sources
+ * A small stream implementation
  */
 export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>> {
 
@@ -120,11 +119,6 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return this;
     }
 
-    /**
-     * map the stream elements from one element to another
-     *
-     * @param fn mapping function
-     */
     map<R>(fn?: (data: T) => R): Stream<R> {
         if (!fn) {
             fn = (inval: any) => <R>inval;
@@ -138,11 +132,8 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
     }
 
     /*
-     * flatmaps streamns...
-     * this means if some of the data is a stream itself, it is mapped back
-     * and the result is a single stream of data
-     *
-     * @param fn mapping function
+     * we need to implement it to fullfill the contract, although it is used only internally
+     * all values are flattened when accessed anyway, so there is no need to call this methiod
      */
     flatMap<R>(fn?: (data: T) => R): Stream<any> {
         let mapped: Stream<R> = this.map(fn);
@@ -150,11 +141,6 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream(...res);
     }
 
-    /**
-     * Simple Filter ... filters the data according to a Function passed down...
-     *
-     * @param fn filter function returning true in case of a filter match (element should be kept)
-     */
     filter(fn?: (data: T) => boolean): Stream<T> {
         let res: Array<T> = [];
         this.each((data) => {
@@ -165,17 +151,6 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream<T>(...res);
     }
 
-    limit(noElems: number): Stream<T> {
-        let newArr = this.value.slice(0, Math.min(noElems, this.value.length));
-        return new Stream(...newArr);
-    }
-
-    /**
-     * right reduce val3 = val1 + val2 -> val4 = val3 + val4
-     *
-     * @param fn the reduction function
-     * @param startVal starting with this value the reduction should happen
-     */
     reduce(fn: (val1: T, val2: T) => T, startVal: T = null): Optional<T> {
         let offset = startVal != null ? 0 : 1;
         let val1 = startVal != null ? startVal : this.value.length ? this.value[0] : null;
@@ -186,26 +161,15 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return Optional.fromNullable(val1);
     }
 
-    /**
-     * first element
-     */
     first(): Optional<T> {
         return this.value && this.value.length ? Optional.fromNullable(this.value[0]) : Optional.absent;
     }
 
-    /**
-     * last element
-     */
     last(): Optional<T> {
         //could be done via reduce, but is faster this way
         return Optional.fromNullable(this.value.length ? this.value[this.value.length - 1] : null);
     }
 
-    /**
-     * something matches
-     *
-     * @param fn the match function
-     */
     anyMatch(fn: (data: T) => boolean): boolean {
         for (let cnt = 0; cnt < this.value.length; cnt++) {
             if (fn(this.value[cnt])) {
@@ -215,11 +179,6 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return false;
     }
 
-    /**
-     * every single item matches
-     *
-     * @param fn match function
-     */
     allMatch(fn: (data: T) => boolean): boolean {
         if (!this.value.length) {
             return false;
@@ -233,11 +192,6 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return matches == this.value.length;
     }
 
-    /**
-     * not a single element matches
-     *
-     * @param fn match function
-     */
     noneMatch(fn: (data: T) => boolean): boolean {
         let matches = 0;
         for (let cnt = 0; cnt < this.value.length; cnt++) {
@@ -505,12 +459,6 @@ export class Config extends Optional<any> {
         return new Config(Lang.instance.mergeMaps([{}, this.value || {}]));
     }
 
-    get deepCopy(): Config {
-        //TODO deep copy
-
-        return null;
-    }
-
     static fromNullable<T>(value?: any): Config {
         return new Config(value);
     }
@@ -525,17 +473,6 @@ export class Config extends Optional<any> {
             } else if(!(key in this.value)) {
                 this.apply(key).value = other.getIf(key).value;
             }
-        }
-    }
-
-    //TODO deep copy and deep merge
-    deepMerge(other: Config, overwrite = true) {
-        let keyStack = [];
-
-        for(let key in other) {
-            //case 1 keystack + key not in other, copy the values over and skip this iteration cycle
-            //case 2 value of other[key] not instanceof config ... copy it over, skip this iteration cycle unless overwrite is false and key exists in this
-            //case 3, other[key] instanceof Config... move one level down with keyStack + key as new keyStack (immutable to avoid sideffects)
         }
     }
 
@@ -556,7 +493,7 @@ export class Config extends Optional<any> {
     }
 
     applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
-        return condition ? this.apply(keys) : {value: null};
+        return condition ? this.apply(...keys) : {value: null};
     }
 
     getIf(...keys: Array<string>): Config {
@@ -587,10 +524,6 @@ export class Config extends Optional<any> {
         this._value = val;
     }
 
-    /**
-     * builds a path
-     * @param keys
-     */
     private buildPath(keys: Array<any>): Config {
         let val = this;
         let parentVal = this.getClass().fromNullable(null);
