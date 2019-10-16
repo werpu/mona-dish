@@ -41,8 +41,11 @@ export class XMLQuery extends DomQuery {
         };
 
         let parseXML = (xml: string): Document => {
+            if(xml == null) {
+                return null;
+            }
             let domParser: DOMParser = Lang.saveResolveLazy<DOMParser>(
-                () => new DOMParser(),
+                () => new window.DOMParser(),
                 (): DOMParser =>  createIe11DomQueryShim()
             ).value;
             return domParser.parseFromString(xml, "text/xml");
@@ -73,6 +76,7 @@ export class XMLQuery extends DomQuery {
         });
         return ret.join("");
     }
+
 
 
     parserErrorText(joinstr: string): string {
