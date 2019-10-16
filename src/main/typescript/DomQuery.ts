@@ -50,7 +50,6 @@ export class ElementAttribute implements IValueHolder<string> {
         return Optional.fromNullable(this.value).isAbsent();
     }
 
-
 }
 
 /**
@@ -490,7 +489,7 @@ export class DomQuery {
                 }
                 return i > -1;
             };
-        return matchesSelector.call(toMatch,selector);
+        return matchesSelector.call(toMatch, selector);
         //return matchesSelector.call(toMatch, selector);
     }
 
@@ -504,7 +503,7 @@ export class DomQuery {
         let matched = [];
 
         this.eachElem(item => {
-            if(this._mozMatchesSelector(item, selector)) {
+            if (this._mozMatchesSelector(item, selector)) {
                 matched.push(item)
             }
         });
@@ -513,7 +512,7 @@ export class DomQuery {
 
     matchesSelector(selector: string): boolean {
         this.eachElem(item => {
-            if(!this._mozMatchesSelector(item, selector)) {
+            if (!this._mozMatchesSelector(item, selector)) {
                 return false;
             }
         });
@@ -530,10 +529,10 @@ export class DomQuery {
      */
     getIf(...nodeSelector: Array<string>): DomQuery {
 
-        let selectorStage:DomQuery = this.childNodes;
-        for(let cnt = 0; cnt < nodeSelector.length; cnt++) {
+        let selectorStage: DomQuery = this.childNodes;
+        for (let cnt = 0; cnt < nodeSelector.length; cnt++) {
             selectorStage = selectorStage.filterSelector(nodeSelector[cnt]);
-            if(selectorStage.isAbsent()) {
+            if (selectorStage.isAbsent()) {
                 return selectorStage;
             }
         }
@@ -633,7 +632,8 @@ export class DomQuery {
     appendTo(elem: DomQuery) {
         this.eachElem((item) => {
             let value1: Element = <Element>elem.orElseLazy(() => {
-                appendChild: (theItem: any) => {}
+                appendChild: (theItem: any) => {
+                }
             }).getAsElem(0).value;
             value1.appendChild(item);
         });
@@ -682,26 +682,47 @@ export class DomQuery {
         return this;
     }
 
-    insertAfter(...elem: Array<DomQuery>) {
-        let sibling = this.getAsElem(0).value;
-        for (let cnt = 0; cnt < elem.length; cnt++) {
-            elem[cnt].eachElem((myElem: Element) => {
-                sibling.parentNode.insertBefore(myElem, sibling.nextSibling);
-                sibling = <Element>sibling.nextSibling;
-                this.rootNode.push(myElem);
-            });
-        }
-        return this;
+    insertAfter(...toInsertParams: Array<DomQuery>): DomQuery {
+
+        let processed = [];
+
+        this.each(existingItem => {
+            let existingElement = existingItem.getAsElem(0).value;
+            let rootNode = existingElement.parentNode;
+            for (let cnt = 0; cnt < toInsertParams.length; cnt++) {
+                let nextSibling: Element = <any>existingElement.nextSibling;
+                toInsertParams[cnt].eachElem(insertElem => {
+                    if (nextSibling) {
+                        rootNode.insertBefore(insertElem, nextSibling);
+                        existingElement = nextSibling;
+                    } else {
+                        rootNode.appendChild(insertElem);
+                    }
+                });
+
+            }
+        });
+
+        let res = [];
+        res.push(this);
+        res.concat(toInsertParams);
+        return new DomQuery(...res);
     }
 
-    insertBefore(...elem: Array<DomQuery>) {
-        for (let cnt = 0; cnt < elem.length; cnt++) {
-            elem[cnt].eachElem((myElem: Element) => {
-                this.getAsElem(0).value.parentNode.insertBefore(myElem, this.getAsElem(0).value);
-                this.rootNode.push(myElem);
-            });
-        }
-        return this;
+    insertBefore(...toInsertParams: Array<DomQuery>): DomQuery {
+        this.each(existingItem => {
+            let existingElement = existingItem.getAsElem(0).value;
+            let rootNode = existingElement.parentNode;
+            for (let cnt = 0; cnt < toInsertParams.length; cnt++) {
+                toInsertParams[cnt].eachElem(insertElem => {
+                    rootNode.insertBefore(insertElem, existingElement);
+                });
+            }
+        });
+        let res = [];
+        res.push(this);
+        res.concat(toInsertParams);
+        return new DomQuery(...res);
     }
 
     orElse(...elseValue: any): DomQuery {
@@ -725,7 +746,7 @@ export class DomQuery {
         const lowerTagName = tagName.toLowerCase();
         let resolveItem = (item: Element) => {
 
-            if (item.tagName.toLowerCase() == lowerTagName) {
+            if ((item.tagName || "").toLowerCase() == lowerTagName) {
                 retArr.push(item);
             }
 
@@ -768,15 +789,22 @@ export class DomQuery {
      */
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery {
         let nodes = DomQuery.fromMarkup(markup);
+        let res = [];
+        let toReplace = this.getAsElem(0).value;
+        let firstInsert = nodes.get(0);
+        let parentNode = toReplace.parentNode;
+        let replaced = firstInsert.getAsElem(0).value;
+        parentNode.replaceChild(replaced, toReplace);
+        res.push(new DomQuery(replaced));
 
-        this.getAsElem(0).value.parentNode.replaceChild(nodes.getAsElem(0).value, this.getAsElem(0).value);
-        this.rootNode = [];
-        this.rootNode = this.rootNode.concat(nodes.values);
-        // this.rootNode.push(nodes.value);
+        let insertAdditionalItems = [];
 
         for (let cnt = 1; cnt < nodes.length; cnt++) {
-            this.insertAfter(nodes.get(cnt));
+            insertAdditionalItems.push(nodes.get(cnt));
+            this.rootNode.push(nodes.get(cnt).getAsElem(0).value);
         }
+
+        res.push(DomQuery.byId(replaced).insertAfter(...insertAdditionalItems));
 
         if (runEmbeddedScripts) {
             this.runScripts();
@@ -785,7 +813,7 @@ export class DomQuery {
             this.runCss();
         }
 
-        return this;
+        return new DomQuery(...res);
     }
 
     /**
