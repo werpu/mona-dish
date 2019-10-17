@@ -18,7 +18,6 @@ import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {DomQuery} from "../../main/typescript/DomQuery";
 
-
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
 
@@ -45,7 +44,6 @@ describe('DOMQuery tests', () => {
 
         let window = dom.window;
 
-
         (<any>global).window = window;
         (<any>global).body = window.document.body;
         (<any>global).document = window.document;
@@ -53,7 +51,6 @@ describe('DOMQuery tests', () => {
             language: "en-En"
         };
     });
-
 
     it('basic init', function () {
         let probe1 = new DomQuery(window.document.body);
@@ -159,6 +156,5 @@ describe('DOMQuery tests', () => {
         expect(DomQuery.querySelectorAll("#insertedAfter").isPresent()).to.be.true;
         expect(DomQuery.querySelectorAll("#insertedAfter2").isPresent()).to.be.true;
     });
-
 
 });

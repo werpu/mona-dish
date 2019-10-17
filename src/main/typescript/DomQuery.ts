@@ -1123,12 +1123,14 @@ export class DomQuery {
 
     /**
      * encodes all input elements properly into respective
-     * config entries
+     * config entries, this can be used
+     * for legacy systems, for newer usecases, use the
+     * HTML5 Form class which all newer browsers provide
      *
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-     encodeFormElement(toMerge = new Config({})): Config {
+    encodeFormElement(toMerge = new Config({})): Config {
 
         //browser behavior no element name no encoding (normal submit fails in that case)
         //https://issues.apache.org/jira/browse/MYFACES-2847

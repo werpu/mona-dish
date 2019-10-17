@@ -256,6 +256,12 @@ export class Optional<T> extends Monad<T> {
         return !absent;
     }
 
+    /**
+     * if case
+     * executes a function in case of a present vaslue
+     *
+     * @param presentRunnable the function to execute
+     */
     ifPresentLazy(presentRunnable:(val ?: Monad<T>) => void = () => {}): Monad<T> {
         this.isPresent.call(this, presentRunnable);
         return this;
