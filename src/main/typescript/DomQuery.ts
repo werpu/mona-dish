@@ -18,7 +18,6 @@ import {Lang} from "./Lang";
 import {Config, IValueHolder, Optional, Stream} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 
-
 export class ElementAttribute implements IValueHolder<string> {
 
     constructor(private element: DomQuery, private name: string, private defaultVal: string = null) {
@@ -52,9 +51,6 @@ export class ElementAttribute implements IValueHolder<string> {
     }
 
 }
-
-
-
 
 /**
  * small helper for the specialized jsf case
@@ -325,9 +321,9 @@ export class DomQuery {
      * note if you pass a function
      * this refers to the active dopmquery object
      */
-    isPresent(presentRunnable ?:(elem ?:DomQuery) => void) : boolean {
+    isPresent(presentRunnable ?: (elem ?: DomQuery) => void): boolean {
         let absent = this.isAbsent();
-        if(!absent && presentRunnable) {
+        if (!absent && presentRunnable) {
             presentRunnable.call(this, this)
         }
         return !absent;
@@ -341,7 +337,8 @@ export class DomQuery {
      *
      * @param presentRunnable
      */
-    ifPresentLazy(presentRunnable:(elem ?:DomQuery) => void = function(){}) :DomQuery {
+    ifPresentLazy(presentRunnable: (elem ?: DomQuery) => void = function () {
+    }): DomQuery {
         this.isPresent.call(this, presentRunnable);
         return this;
     }
@@ -635,7 +632,7 @@ export class DomQuery {
     //TODO append prepend
 
     /**
-     * globa eval head appendix method
+     * global eval head appendix method
      * no other methods are supported anymore
      * @param code the code to be evaled
      * @param  nonce optional  nonce key for higher security
@@ -647,9 +644,9 @@ export class DomQuery {
             script.setAttribute("nonce", nonce);
         }
         script.type = "text/javascript";
-        script.text = code;
-        head.insertBefore(script, head.firstChild);
-        head.removeChild(script);
+        script.innerHTML = code;
+        let newScriptElement = head.appendChild(script);
+        head.removeChild(newScriptElement);
         return this;
     }
 
@@ -1142,7 +1139,7 @@ export class DomQuery {
         let target = toMerge.shallowCopy;
 
         this.eachElem((element: HTMLFormElement) => {
-            if(!element.name) {//no name, no encoding
+            if (!element.name) {//no name, no encoding
                 return;
             }
             let name = element.name;
@@ -1199,7 +1196,6 @@ export class DomQuery {
                         target.apply(name).value = element.inputValue.value;
                     }
                 }
-
             }
         });
 
@@ -1207,14 +1203,12 @@ export class DomQuery {
 
     }
 
-
     private subNodes(from: number, to?: number): DomQuery {
         if (Optional.fromNullable(to).isAbsent()) {
             to = this.length;
         }
         return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
     }
-
 
 }
 
