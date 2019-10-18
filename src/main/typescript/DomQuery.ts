@@ -835,25 +835,24 @@ export class DomQuery {
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
         sourceItem.eachElem((sourceNode: Element) => {
-            for (let cnt = 0; cnt < sourceNode.attributes.length; cnt++) {
-                let value = sourceNode.attributes[cnt].value;
-                if (value) {
-                    this.attr(sourceNode.attributes[cnt].name).value = value;
-                }
+            let attrs: Array<Attr> = Lang.instance.objToArray(sourceNode.attributes);
+            for (let item of attrs) {
+                let value: string = item.value;
+                let name: string = item.name;
 
-                let formElement = <HTMLFormElement>sourceNode;
-
-                //those values are not part of the attributes
-                if ("value" in formElement) {
-                    this.resolveAttributeHolder().value = formElement.value;
+                switch(name) {
+                    case "id":
+                        this.id.value = value;
+                        break;
+                    case "disabled":
+                        this.resolveAttributeHolder("disabled").disabled = value;
+                        break;
+                    case "checked":
+                        this.resolveAttributeHolder("checked").checked = value;
+                        break;
+                    default:
+                        this.attr(name).value = value;
                 }
-                if ("checked" in formElement) {
-                    this.resolveAttributeHolder("checked").checked = formElement.checked || true;
-                }
-                if ("disabled" in formElement) {
-                    this.resolveAttributeHolder("disabled").disabled = formElement.checked || "disabled";
-                }
-
             }
         });
         return this;
@@ -1262,8 +1261,15 @@ export class DomQuery {
         }
         return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
     }
-
 }
+
+
+/**
+ * Various collectors
+ * which can be used in conjunction with Streams
+ */
+
+
 
 /**
  * A collector which bundles a full dom query stream into a single dom query element
@@ -1282,3 +1288,50 @@ export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
         return new DomQuery(...this.data);
     }
 }
+
+/**
+ * Helper form data collector
+ */
+export class FormDataCollector implements ICollector<{key: string, value: any}, FormData> {
+    finalValue: FormData = new FormData();
+
+    collect(element: { key: string; value: any }) {
+        this.finalValue.append(element.key, element.value);
+    }
+}
+
+export class QueryFormDataCollector implements ICollector<DomQuery, FormData> {
+    finalValue: FormData = new FormData();
+
+    collect(element: DomQuery) {
+        let toMerge = element.encodeFormElement();
+        if(toMerge.isPresent()) {
+            this.finalValue.append(element.name.value, toMerge.get(element.name).value);
+        }
+    }
+}
+
+export class QueryFormStringCollector implements ICollector<DomQuery, string> {
+
+    formData: [[string, string]] = <any> [];
+
+    collect(element: DomQuery) {
+        let toMerge = element.encodeFormElement();
+        if(toMerge.isPresent()) {
+            this.formData.push([element.name.value, toMerge.get(element.name).value]);
+        }
+    }
+
+    get finalValue(): string {
+        return Stream.of(...this.formData)
+            .map<string>(keyVal =>  keyVal.join("="))
+            .reduce((item1, item2) => [item1, item2].join("&"))
+            .orElse("").value;
+    }
+}
+
+/**
+ * abbreviation for DomQuery
+ */
+export const DQ = DomQuery;
+export type DQ = DomQuery;
