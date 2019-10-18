@@ -180,7 +180,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     }
 
     hasNext(): boolean {
-        if (this._limits != -1 && this.pos >= this._limits) {
+        if (this._limits != -1 && this.pos >= this._limits - 1) {
             return false;
         }
 
