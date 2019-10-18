@@ -49,6 +49,8 @@ export interface IStream<T> {
     noneMatch(fn: (data: T) => boolean): boolean;
 
     collect(collector: ICollector<T, any>): any;
+
+    value: Array<T>;
 }
 
 /**

@@ -4,7 +4,7 @@
  */
 import {IFunctor, IMonad, Monad, Optional} from "../typescript/Monad";
 import {IValueHolder} from "../typescript";
-import {ICollector, IStream} from "../typescript/Stream";
+import {ArrayCollector, ICollector, IStream} from "../typescript/Stream";
 
 /**
  * Iterateable for stream
@@ -330,6 +330,10 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
             }
         }
         return true;
+    }
+
+    get value(): Array<T> {
+        return this.collect(new ArrayCollector<T>());
     }
 
 }
