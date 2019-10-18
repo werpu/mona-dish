@@ -32,6 +32,8 @@ export interface IStream<T> {
     allMatch(fn: (data: T) => boolean): boolean;
     noneMatch(fn: (data: T) => boolean): boolean;
     collect(collector: ICollector<T, any>): any;
+    limits(end: number): IStream<T>;
+    value: Array<T>;
 }
 /**
  * A simple typescript based reimplementation of streams
@@ -41,8 +43,10 @@ export interface IStream<T> {
  */
 export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>, IStream<T> {
     value: Array<T>;
+    _limits: number;
     constructor(...value: T[]);
     static of<T>(...data: Array<T>): Stream<T>;
+    limits(end: number): Stream<T>;
     onElem(fn: (data: T, pos?: number) => void | boolean): Stream<T>;
     each(fn: (data: T, pos?: number) => void | boolean): void;
     map<R>(fn?: (data: T) => R): Stream<R>;

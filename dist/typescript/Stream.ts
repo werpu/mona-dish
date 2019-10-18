@@ -49,6 +49,10 @@ export interface IStream<T> {
     noneMatch(fn: (data: T) => boolean): boolean;
 
     collect(collector: ICollector<T, any>): any;
+
+    limits(end: number): IStream<T>;
+
+    value: Array<T>;
 }
 
 /**
@@ -60,6 +64,7 @@ export interface IStream<T> {
 export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>, IStream<T> {
 
     value: Array<T>;
+    _limits = -1;
 
     constructor(...value: T[]) {
         this.value = value;
@@ -69,8 +74,13 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream<T>(...data);
     }
 
+    limits(end: number): Stream<T> {
+        this._limits = end;
+        return this;
+    }
+
     onElem(fn: (data: T, pos ?: number) => void | boolean): Stream<T> {
-        for (let cnt = 0; cnt < this.value.length; cnt++) {
+        for (let cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             if (fn(this.value[cnt], cnt) === false) {
                 break;
             }
@@ -118,7 +128,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         let offset = startVal != null ? 0 : 1;
         let val1 = startVal != null ? startVal : this.value.length ? this.value[0] : null;
 
-        for (let cnt = offset; cnt < this.value.length; cnt++) {
+        for (let cnt = offset; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             val1 = fn(val1, this.value[cnt]);
         }
         return Optional.fromNullable(val1);
@@ -130,11 +140,13 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
 
     last(): Optional<T> {
         //could be done via reduce, but is faster this way
-        return Optional.fromNullable(this.value.length ? this.value[this.value.length - 1] : null);
+        let length = this._limits > 0 ? Math.min(this._limits, this.value.length) : this.value.length;
+
+        return Optional.fromNullable(length ? this.value[length - 1] : null);
     }
 
     anyMatch(fn: (data: T) => boolean): boolean {
-        for (let cnt = 0; cnt < this.value.length; cnt++) {
+        for (let cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             if (fn(this.value[cnt])) {
                 return true;
             }

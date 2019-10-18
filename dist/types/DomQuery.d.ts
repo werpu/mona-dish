@@ -1,6 +1,7 @@
 import { Config, Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
 import { ICollector, Stream } from "./Stream";
+import { LazyStream } from "./LazyStream";
 export declare class ElementAttribute extends ValueEmbedder<string> {
     private element;
     private name;
@@ -87,6 +88,16 @@ export declare class DomQuery {
      * binding into stream
      */
     readonly stream: Stream<DomQuery>;
+    /**
+     * fetches a lazy stream representation
+     * lazy should be applied if you have some filters etc
+     * in between, this can reduce the number of post filter operations
+     * and ram usage
+     * significantly because the operations are done lazily and stop
+     * once they hit a dead end.
+     */
+    readonly lazyStream: LazyStream<DomQuery>;
+    readonly asArray: Array<DomQuery>;
     /**
      * easy query selector all producer
      *
