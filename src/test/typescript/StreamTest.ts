@@ -88,4 +88,17 @@ describe('early stream tests', () => {
     })
 
 
+    it("must have a correct lazy limits", function () {
+
+
+
+        let last = LazyStream.of<number>(...this.probe).filter((data) => data != 5).limits(2).onElem((data) => {
+            data;
+        }).last().value;
+
+        expect(last).to.eq(2);
+
+    })
+
+
 });

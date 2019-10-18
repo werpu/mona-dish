@@ -74,10 +74,8 @@ class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
                 this.filteredNext = null;
             }
         }
-        if(this.filteredNext != null) {
-             return true;
-        }
-        return false;
+        return this.filteredNext != null;
+
     }
 
     next(): T {
@@ -204,7 +202,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 
     nextFilter(fn: (T) => boolean): T {
         if (this.hasNext()) {
-            let newVal: T | string = this.next();
+            let newVal: T = this.next();
             if (!fn(newVal)) {
                 return this.nextFilter(fn);
             }
