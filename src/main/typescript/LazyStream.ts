@@ -43,7 +43,8 @@ class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     }
 
     next(): T {
-        return this.value[++this.dataPos];
+        this.dataPos++;
+        return this.value[this.dataPos];
     }
 
     reset() {
@@ -56,7 +57,7 @@ class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
     filterFunc: (T) => boolean;
     parent: IStreamDataSource<T>;
 
-    filteredNext: T;
+    filteredNext: T = null;
 
     constructor(filterFunc: (T) => boolean, parent: IStreamDataSource<T>) {
         this.filterFunc = filterFunc;
@@ -64,7 +65,7 @@ class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
     }
 
     hasNext(): boolean {
-        while (this.parent.hasNext()) {
+        while (this.filteredNext == null && this.parent.hasNext()) {
             let next: T = <T>this.parent.next();
             if (this.filterFunc(next)) {
                 this.filteredNext = next;
@@ -73,11 +74,16 @@ class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
                 this.filteredNext = null;
             }
         }
+        if(this.filteredNext != null) {
+             return true;
+        }
         return false;
     }
 
     next(): T {
-        return this.filteredNext;
+        let ret = this.filteredNext;
+        this.filteredNext = null;
+        return ret;
     }
 
     reset(): void {
@@ -162,7 +168,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 
     protected parents: Array<IStreamDataSource<T>> = [];
     protected restoreState: Array<IStreamDataSource<T>> = [];
-    pos = 0;
+    pos = -1;
     _limits = -1;
 
     static of<T>(...values: Array<T>): LazyStream<T> {
@@ -189,13 +195,10 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     }
 
     next(): T {
-        if (this.hasNext()) {
-            let next = this.parents[0].next();
-            // @ts-ignore
-            this.pos++;
-            return next;
-        }
-        return null;
+        let next = this.parents[0].next();
+        // @ts-ignore
+        this.pos++;
+        return next;
     }
 
     reset(): void {
@@ -234,14 +237,10 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     }
 
     onElem(fn: (data: T, pos ?: number) => boolean | void): LazyStream<T> {
-        if (this.hasNext()) {
-            if (fn(this.next()) === false) {
-                this.pos = this._limits + 10;
-                return this;
-            }
-            ;
-        }
-        return this;
+        return new LazyStream(new MappedStreamDataSource((el) => {
+            fn(el, this.pos);
+            return el;
+        }, this));
     }
 
     filter(fn: (data: T) => boolean): LazyStream<T> {
@@ -258,9 +257,11 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     }
 
     //endpoint
-    each(func: (T) => void) {
+    each(fn: (T) => void | boolean) {
         while (this.hasNext()) {
-            this.onElem(func);
+            if (fn(this.next()) === false) {
+                this.pos = this._limits + 1000000000;
+            }
         }
     }
 

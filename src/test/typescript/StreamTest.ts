@@ -46,7 +46,7 @@ describe('early stream tests', () => {
         let sum = 0;
         let sum2 = stream.filter((data) => data != 5).onElem((data) => {
             sum = sum+data;
-        }).reduce((el1, el2) => el1+el2);
+        }).reduce((el1, el2) => el1+el2).value;
         expect(sum).to.eq(10);
         expect(sum2).to.eq(10);
 
@@ -54,7 +54,7 @@ describe('early stream tests', () => {
         sum = 0;
         sum2 = stream2.filter((data) => data != 5).onElem((data) => {
             sum = sum+data;
-        }).reduce((el1, el2) => el1+el2);
+        }).reduce((el1, el2) => el1+el2).value;
         expect(sum).to.eq(10);
         expect(sum2).to.eq(10);
     })
