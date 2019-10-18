@@ -16,9 +16,9 @@ export interface IPromise {
  * and catch calling order
  */
 export declare class Promise implements IPromise {
-    private value;
     status: PromiseStatus;
     protected allFuncs: Array<any>;
+    private value;
     constructor(executor: (resolve: (val?: any) => void, reject: (val?: any) => void) => void);
     static all(...promises: Array<IPromise>): IPromise;
     static race(...promises: Array<IPromise>): IPromise;
@@ -27,11 +27,11 @@ export declare class Promise implements IPromise {
     then(executorFunc: (val?: any) => any, catchfunc?: (val?: any) => any): Promise;
     catch(executorFunc: (val?: any) => void): Promise;
     finally(executorFunc: () => void): Promise;
-    private spliceLastFuncs;
     protected resolve(val?: any): void;
     protected reject(val?: any): void;
-    private transferIntoNewPromise;
     protected appyFinally(): void;
+    private spliceLastFuncs;
+    private transferIntoNewPromise;
 }
 /**
  * a cancellable promise
@@ -43,7 +43,6 @@ export declare class Promise implements IPromise {
  * operation reacts to a cancel order.
  */
 export declare class CancellablePromise extends Promise {
-    private cancellator;
     /**
      * @param executor asynchronous callback operation which triggers the callback
      * @param cancellator cancel operation, separate from the trigger operation
@@ -53,4 +52,5 @@ export declare class CancellablePromise extends Promise {
     then(executorFunc: (val?: any) => any, catchfunc?: (val?: any) => any): CancellablePromise;
     catch(executorFunc: (val?: any) => void): CancellablePromise;
     finally(executorFunc: () => void): CancellablePromise;
+    private cancellator;
 }

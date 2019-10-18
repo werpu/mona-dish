@@ -1,8 +1,4 @@
 /**
- * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
- * Useful if you need the functions in another library to keep its dependencies down
- */
-/**
  * IFunctor interface,
  * defines an interface which allows to map a functor
  * via a first order function to another functor
@@ -42,27 +38,11 @@ export interface IValueHolder<T> {
  * value state
  */
 export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
-    protected _value: T;
     constructor(value: T);
+    protected _value: T;
+    readonly value: T;
     map<R>(fn?: (data: T) => R): Monad<R>;
     flatMap<R>(fn?: (data: T) => R): Monad<any>;
-    readonly value: T;
-}
-export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>> {
-    static of<T>(...data: Array<T>): Stream<T>;
-    value: Array<T>;
-    constructor(...value: T[]);
-    each(fn: (data: T, pos?: number) => void | boolean): this;
-    map<R>(fn?: (data: T) => R): Stream<R>;
-    flatMap<R>(fn?: (data: T) => R): Stream<any>;
-    filter(fn?: (data: T) => boolean): Stream<T>;
-    reduce(fn: (val1: T, val2: T) => T, startVal?: T): Optional<T>;
-    first(): Optional<T>;
-    last(): Optional<T>;
-    anyMatch(fn: (data: T) => boolean): boolean;
-    allMatch(fn: (data: T) => boolean): boolean;
-    noneMatch(fn: (data: T) => boolean): boolean;
-    private mapStreams;
 }
 /**
  * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
@@ -70,11 +50,16 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
  * (Sideeffect free, since value assignment is not allowed)
  * */
 export declare class Optional<T> extends Monad<T> {
-    constructor(value: T);
-    static fromNullable<T>(value?: T): Optional<T>;
     static absent: Optional<any>;
+    constructor(value: T);
+    readonly value: T;
+    static fromNullable<T>(value?: T): Optional<T>;
     isAbsent(): boolean;
-    isPresent(): boolean;
+    /**
+     * any value present
+     */
+    isPresent(presentRunnable?: (val?: Monad<T>) => void): boolean;
+    ifPresentLazy(presentRunnable?: (val?: Monad<T>) => void): Monad<T>;
     orElse(elseValue: any): Optional<any>;
     /**
      * lazy, passes a function which then is lazily evaluated
@@ -83,14 +68,7 @@ export declare class Optional<T> extends Monad<T> {
      */
     orElseLazy(func: () => any): Optional<any>;
     flatMap<R>(fn?: (data: T) => R): Optional<any>;
-    /**
-     * additional syntactic sugar which is not part of the usual optional implementation
-     * but makes life easier, if you want to sacrifice typesafety and refactoring
-     * capabilities in typescript
-     */
-    private getIfPresent;
     getIf<R>(...key: string[]): Optional<R>;
-    readonly value: T;
     /**
      * simple match, if the first order function call returns
      * true then there is a match, if the value is not present
@@ -107,6 +85,7 @@ export declare class Optional<T> extends Monad<T> {
      * @returns {Optional<any>}
      */
     get<R>(defaultVal?: any): Optional<R>;
+    toJson(): string;
     /**
      * helper to override several implementations in a more fluent way
      * by having a getClass operation we can avoid direct calls into the constructor or
@@ -115,9 +94,31 @@ export declare class Optional<T> extends Monad<T> {
      * @returns {Monadish.Optional}
      */
     protected getClass(): any;
-    toJson(): string;
     protected arrayIndex(key: string): number;
     protected keyVal(key: string): string;
+    /**
+     * additional syntactic sugar which is not part of the usual optional implementation
+     * but makes life easier, if you want to sacrifice typesafety and refactoring
+     * capabilities in typescript
+     */
+    getIfPresent<R>(key: string): Optional<R>;
+}
+export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
+    static absent: ValueEmbedder<unknown>;
+    protected key: string;
+    constructor(rootElem: any, valueKey?: string);
+    value: T;
+    orElse(elseValue: any): Optional<any>;
+    orElseLazy(func: () => any): Optional<any>;
+    /**
+     * helper to override several implementations in a more fluent way
+     * by having a getClass operation we can avoid direct calls into the constructor or
+     * static methods and do not have to implement several methods which rely on the type
+     * of "this"
+     * @returns {Monadish.Optional}
+     */
+    protected getClass(): any;
+    static fromNullable<T>(value?: any, valueKey?: string): ValueEmbedder<T>;
 }
 /**
  * Config, basically an optional wrapper for a json structure
@@ -127,14 +128,18 @@ export declare class Optional<T> extends Monad<T> {
  */
 export declare class Config extends Optional<any> {
     constructor(root: any);
+    readonly shallowCopy: Config;
     static fromNullable<T>(value?: any): Config;
+    /**
+     * simple merge for the root configs
+     */
+    shallowMerge(other: Config, overwrite?: boolean): void;
     apply(...keys: Array<any>): IValueHolder<any>;
     applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any>;
     getIf(...keys: Array<string>): Config;
     get(defaultVal: any): Config;
     delete(key: string): Config;
     toJson(): any;
-    readonly shallowCopy: Config;
     protected getClass(): any;
     private setVal;
     private buildPath;

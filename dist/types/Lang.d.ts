@@ -7,6 +7,25 @@ export declare class Lang {
     private static _instance;
     static readonly instance: Lang;
     /**
+     * helper function to savely resolve anything
+     * this is not an elvis operator, it resolves
+     * a value without exception in a tree and if
+     * it is not resolvable then an optional of
+     * a default value is restored or Optional.empty
+     * if none is given
+     *
+     * usage
+     * <code>
+     *     let var: Optiona<string> = saveResolve(() => a.b.c.d.e, "foobaz")
+     * </code>
+     *
+     * @param resolverProducer a lambda which can produce the value
+     * @param defaultValue an optional default value if the producer failes to produce anything
+     * @returns an Optional of the produced value
+     */
+    static saveResolve<T>(resolverProducer: () => T, defaultValue?: T): Optional<T>;
+    static saveResolveLazy<T>(resolverProducer: () => T, defaultValue?: () => T): Optional<T>;
+    /**
      * String to array function performs a string to array transformation
      * @param {String} it the string which has to be changed into an array
      * @param {RegExp} splitter our splitter reglar expression
@@ -166,22 +185,4 @@ export declare class Lang {
      * @param theType the type to be tested for
      */
     assertType(probe: any, theType: any): boolean;
-    /**
-     * helper function to savely resolve anything
-     * this is not an elvis operator, it resolves
-     * a value without exception in a tree and if
-     * it is not resolvable then an optional of
-     * a default value is restored or Optional.empty
-     * if none is given
-     *
-     * usage
-     * <code>
-     *     let var: Optiona<string> = saveResolve(() => a.b.c.d.e, "foobaz")
-     * </code>
-     *
-     * @param resolverProducer a lambda which can produce the value
-     * @param defaultValue an optional default value if the producer failes to produce anything
-     * @returns an Optional of the produced value
-     */
-    static saveResolve<T>(resolverProducer: () => T, defaultValue?: T): Optional<T>;
 }

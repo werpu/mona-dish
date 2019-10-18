@@ -18,6 +18,7 @@ const config: webpack.Configuration = {
         DomQuery: "./src/main/typescript/DomQuery.ts",
         XmlQuery: "./src/main/typescript/XmlQuery.ts",
         Promise: "./src/main/typescript/Promise.ts",
+        Stream: "./src/main/typescript/Stream.ts",
         index: "./src/main/typescript/index.ts"
     },
     output: {

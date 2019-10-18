@@ -5,7 +5,7 @@
   "main": "dist/js/commonjs/index.js",
   "scripts": {
     "test": "mocha -r ts-node/register -P ./src/test/typescript/ ./src/test/typescript/**/*Test.ts",
-    "build": "webpack",
+    "build": "TARGET_TYPE=commonjs webpack",
     "build-umd": "TARGET_TYPE=umd webpack",
     "build-window": "TARGET_TYPE=window webpack",
     "build-common": "TARGET_TYPE=commonjs webpack",

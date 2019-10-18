@@ -21,7 +21,7 @@
 
 /*IMonad definitions*/
 
-
+import {Lang} from "./Lang";
 
 /**
  * IFunctor interface,
@@ -67,10 +67,14 @@ export interface IValueHolder<T> {
  * value state
  */
 export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
-    protected _value: T;
-
     constructor(value: T) {
         this._value = value;
+    }
+
+    protected _value: T;
+
+    get value(): T {
+        return this._value;
     }
 
     map<R>(fn?: (data: T) => R): Monad<R> {
@@ -89,132 +93,10 @@ export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
         return mapped;
     }
 
-
-    get value(): T {
-        return this._value;
-    }
-
 }
 
-/*
- * A small stream implementation
- */
-export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>{
-
-    static of<T>(... data: Array<T>): Stream<T> {
-        return new Stream<T>(... data);
-    }
-
-    value: Array<T>;
-    constructor(...value: T[]){
-        this.value = value;
-    }
-
-    each(fn: (data: T, pos ?: number) => void | boolean) {
-        for(let cnt = 0; cnt < this.value.length ; cnt++) {
-            if(fn(this.value[cnt], cnt) === false) {
-                break;
-            }
-        }
-        return this;
-    }
-
-    map<R>(fn?: (data: T) => R): Stream<R> {
-        if (!fn) {
-            fn = (inval: any) => <R>inval;
-        }
-        let res: R[] = [];
-        this.each((item, cnt) => {
-            res.push(fn(item))
-        });
-
-        return new Stream<R>(...res);
-    }
-
-    /*
-     * we need to implement it to fullfill the contract, although it is used only internally
-     * all values are flattened when accessed anyway, so there is no need to call this methiod
-     */
-    flatMap<R>(fn?: (data: T) => R): Stream<any> {
-        let mapped:Stream<R> = this.map(fn);
-        let res = this.mapStreams(mapped);
-        return new Stream(...res);
-    }
-
-    filter(fn?: (data: T) => boolean): Stream<T> {
-        let res: Array<T> = [];
-        this.each((data) => {
-            if(fn(data)) {
-                res.push(data);
-            }
-        });
-        return new Stream<T>(...res);
-    }
-
-    reduce(fn: (val1: T, val2:T) => T, startVal: T = null): Optional<T> {
-        let offset = startVal != null ? 0 : 1;
-        let val1 = startVal != null ? startVal : this.value.length ? this.value[0] : null;
-
-        for(let cnt = offset; cnt < this.value.length; cnt++) {
-            val1 = fn(val1, this.value[cnt]);
-        }
-        return Optional.fromNullable(val1);
-    }
-
-    first(): Optional<T> {
-        return this.value && this.value.length ? Optional.fromNullable(this.value[0]) : Optional.absent;
-    }
 
 
-    last(): Optional<T> {
-        //could be done via reduce, but is faster this way
-        return Optional.fromNullable(this.value.length ? this.value[this.value.length -1] : null);
-    }
-
-    anyMatch(fn: (data: T) => boolean): boolean {
-        for(let cnt = 0; cnt < this.value.length; cnt++) {
-            if(fn(this.value[cnt])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    allMatch(fn: (data: T) => boolean): boolean {
-        if(!this.value.length) {
-            return false;
-        }
-        let matches = 0;
-        for(let cnt = 0; cnt < this.value.length; cnt++) {
-            if(fn(this.value[cnt])) {
-                matches++;
-            }
-        }
-        return matches == this.value.length;
-    }
-
-    noneMatch(fn: (data: T) => boolean): boolean {
-        let matches = 0;
-        for(let cnt = 0; cnt < this.value.length; cnt++) {
-            if(fn(this.value[cnt])) {
-                matches++;
-            }
-        }
-        return matches == this.value.length;
-    }
-
-    private mapStreams<R>(mapped: Stream<R>): Array<R> {
-        let res: Array<R> = [];
-        mapped.each((data: any) => {
-            if (data instanceof Stream) {
-                res = res.concat(this.mapStreams(data));
-            } else {
-                res.push(data);
-            }
-        });
-        return res;
-    }
-}
 
 /**
  * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
@@ -223,25 +105,44 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
  * */
 export class Optional<T> extends Monad<T> {
 
+    /*default value for absent*/
+    static absent = Optional.fromNullable(null);
 
     constructor(value: T) {
         super(value);
+    }
+
+    get value(): T {
+        if (this._value instanceof Monad) {
+            return this._value.flatMap().value
+        }
+        return this._value;
     }
 
     static fromNullable<T>(value?: T): Optional<T> {
         return new Optional(value);
     }
 
-    /*default value for absent*/
-    static absent = Optional.fromNullable(null);
-
     /*syntactic sugar for absent and present checks*/
     isAbsent(): boolean {
         return "undefined" == typeof this.value || null == this.value;
     }
 
-    isPresent(): boolean {
-        return !this.isAbsent();
+    /**
+     * any value present
+     */
+    isPresent(presentRunnable ?: (val ?: Monad<T>) => void): boolean {
+        let absent = this.isAbsent();
+        if (!absent && presentRunnable) {
+            presentRunnable.call(this, this)
+        }
+        return !absent;
+    }
+
+    ifPresentLazy(presentRunnable: (val ?: Monad<T>) => void = () => {
+    }): Monad<T> {
+        this.isPresent.call(this, presentRunnable);
+        return this;
     }
 
     orElse(elseValue: any): Optional<any> {
@@ -249,7 +150,7 @@ export class Optional<T> extends Monad<T> {
             return this;
         } else {
             //shortcut
-            if(elseValue == null) {
+            if (elseValue == null) {
                 return Optional.absent;
             }
             return this.flatMap(() => elseValue);
@@ -279,21 +180,8 @@ export class Optional<T> extends Monad<T> {
             return Optional.fromNullable(val.value);
         }
 
-        return <Optional<any>> val.flatMap();
+        return <Optional<any>>val.flatMap();
     }
-
-    /**
-     * additional syntactic sugar which is not part of the usual optional implementation
-     * but makes life easier, if you want to sacrifice typesafety and refactoring
-     * capabilities in typescript
-     */
-    private getIfPresent<R>(key: string): Optional<R> {
-        if (this.isAbsent()) {
-            return this.getClass().absent;
-        }
-        return this.getClass().fromNullable(this.value[key]).flatMap();
-    }
-
 
     /*
      * elvis operation, take care, if you use this you lose typesafety and refactoring
@@ -307,7 +195,7 @@ export class Optional<T> extends Monad<T> {
             let arrPos = this.arrayIndex(key[cnt]);
 
             if (currKey === "" && arrPos >= 0) {
-                currentPos = this.getClass().fromNullable(!(currentPos.value instanceof Array ) ? null : (currentPos.value.length < arrPos ? null : currentPos.value[arrPos]));
+                currentPos = this.getClass().fromNullable(!(currentPos.value instanceof Array) ? null : (currentPos.value.length < arrPos ? null : currentPos.value[arrPos]));
                 if (currentPos.isAbsent()) {
                     return currentPos;
                 }
@@ -336,13 +224,6 @@ export class Optional<T> extends Monad<T> {
         return retVal;
     }
 
-    get value(): T {
-        if (this._value instanceof Monad) {
-            return this._value.flatMap().value
-        }
-        return this._value;
-    }
-
     /**
      * simple match, if the first order function call returns
      * true then there is a match, if the value is not present
@@ -351,7 +232,7 @@ export class Optional<T> extends Monad<T> {
      * @param fn the first order function performing the match
      */
     match(fn: (item: T) => boolean): boolean {
-        if(this.isAbsent()) {
+        if (this.isAbsent()) {
             return false
         }
         return fn(this.value);
@@ -372,6 +253,10 @@ export class Optional<T> extends Monad<T> {
         return this.getClass().fromNullable(this.value).flatMap();
     }
 
+    toJson(): string {
+        return JSON.stringify(this.value);
+    }
+
     /**
      * helper to override several implementations in a more fluent way
      * by having a getClass operation we can avoid direct calls into the constructor or
@@ -381,10 +266,6 @@ export class Optional<T> extends Monad<T> {
      */
     protected getClass(): any {
         return Optional;
-    }
-
-    toJson(): string {
-        return JSON.stringify(this.value);
     }
 
     /*helper method for getIf with array access aka <name>[<indexPos>]*/
@@ -409,44 +290,112 @@ export class Optional<T> extends Monad<T> {
         }
     }
 
+    /**
+     * additional syntactic sugar which is not part of the usual optional implementation
+     * but makes life easier, if you want to sacrifice typesafety and refactoring
+     * capabilities in typescript
+     */
+    getIfPresent<R>(key: string): Optional<R> {
+        if (this.isAbsent()) {
+            return this.getClass().absent;
+        }
+        return this.getClass().fromNullable(this.value[key]).flatMap();
+    }
 
 }
 
+export class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
+
+    /*default value for absent*/
+    static absent =  ValueEmbedder.fromNullable(null);
+
+    protected key: string;
+
+    constructor(rootElem: any, valueKey: string = "value") {
+        super(rootElem);
+
+        this.key = valueKey;
+    }
+
+    get value(): T {
+        return this._value ? <T>this._value[this.key] : null;
+    }
+
+    set value(newVal: T) {
+        if(this._value) {
+            return;
+        }
+        this._value[this.key] = newVal
+    }
+
+    orElse(elseValue: any): Optional<any> {
+        let alternative = {};
+        alternative[this.key] = elseValue;
+        return this.isPresent() ? this : new ValueEmbedder(alternative, this.key);
+    }
+
+    orElseLazy(func: () => any): Optional<any> {
+        if (this.isPresent()) {
+            return this;
+        } else {
+            let alternative = {};
+            alternative[this.key] = func();
+            return new ValueEmbedder(alternative, this.key);
+        }
+    }
+
+    /**
+     * helper to override several implementations in a more fluent way
+     * by having a getClass operation we can avoid direct calls into the constructor or
+     * static methods and do not have to implement several methods which rely on the type
+     * of "this"
+     * @returns {Monadish.Optional}
+     */
+    protected getClass(): any {
+        return ValueEmbedder;
+    }
+
+    static fromNullable<T>(value?: any, valueKey: string = "value"): ValueEmbedder<T> {
+        return new ValueEmbedder(value, valueKey);
+    }
+
+}
 
 /**
  * helper class to allow write access to the config
  * in certain situations (after an apply call)
  */
-class ConfigEntry<T> implements IValueHolder<T> {
-    rootElem: any;
-    key: any;
+class ConfigEntry<T> extends ValueEmbedder<T> {
+
+    /*default value for absent*/
+    static absent = ConfigEntry.fromNullable(null);
+
     arrPos: number;
 
-
     constructor(rootElem: any, key: any, arrPos?: number) {
-        this.rootElem = rootElem;
-        this.key = key;
+        super(rootElem, key);
+
         this.arrPos = ("undefined" != typeof arrPos) ? arrPos : -1;
     }
 
     get value() {
         if (this.key == "" && this.arrPos >= 0) {
-            return this.rootElem[this.arrPos];
+            return this._value[this.arrPos];
         } else if (this.key && this.arrPos >= 0) {
-            return this.rootElem[this.key][this.arrPos];
+            return this._value[this.key][this.arrPos];
         }
-        return this.rootElem[this.key];
+        return this._value[this.key];
     }
 
     set value(val: T) {
         if (this.key == "" && this.arrPos >= 0) {
-            this.rootElem[this.arrPos] = val;
+            this._value[this.arrPos] = val;
             return;
         } else if (this.key && this.arrPos >= 0) {
-            this.rootElem[this.key][this.arrPos] = val;
+            this._value[this.key][this.arrPos] = val;
             return;
         }
-        this.rootElem[this.key] = val;
+        this._value[this.key] = val;
     }
 }
 
@@ -461,8 +410,25 @@ export class Config extends Optional<any> {
         super(root);
     }
 
+    get shallowCopy(): Config {
+        return new Config(Lang.instance.mergeMaps([{}, this.value || {}]));
+    }
+
     static fromNullable<T>(value?: any): Config {
         return new Config(value);
+    }
+
+    /**
+     * simple merge for the root configs
+     */
+    shallowMerge(other: Config, overwrite = true) {
+        for (let key in other.value) {
+            if (overwrite && key in this.value) {
+                this.apply(key).value = other.getIf(key).value;
+            } else if (!(key in this.value)) {
+                this.apply(key).value = other.getIf(key).value;
+            }
+        }
     }
 
     apply(...keys: Array<any>): IValueHolder<any> {
@@ -481,12 +447,9 @@ export class Config extends Optional<any> {
         return retVal;
     }
 
-
-    applyIf(condition: boolean,...keys: Array<any>): IValueHolder<any> {
-        return  condition ? this.apply(keys) : {value: null};
+    applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
+        return condition ? this.apply(...keys) : {value: null};
     }
-
-
 
     getIf(...keys: Array<string>): Config {
         return this.getClass().fromNullable(super.getIf.apply(this, keys).value);
@@ -498,7 +461,7 @@ export class Config extends Optional<any> {
 
     //empties the current config entry
     delete(key: string): Config {
-        if(key in this.value) {
+        if (key in this.value) {
             delete this.value[key];
         }
         return this;
@@ -506,17 +469,6 @@ export class Config extends Optional<any> {
 
     toJson(): any {
         return JSON.stringify(this.value);
-    }
-
-    get shallowCopy(): Config {
-        let mergeMaps = function(maps: any[], overwrite = true) {
-            let retVal = {};
-            this.arrForEach(maps, (item:{[key:string]:any})  => {
-                this.mixMaps(retVal, item, overwrite)
-            });
-            return retVal;
-        }
-        return new Config(mergeMaps([{}, this.value || {}]));
     }
 
     protected getClass(): any {
@@ -539,7 +491,6 @@ export class Config extends Optional<any> {
             }
         };
 
-
         for (let cnt = 0; cnt < keys.length; cnt++) {
             let currKey = this.keyVal(keys[cnt]);
             let arrPos = this.arrayIndex(keys[cnt]);
@@ -557,10 +508,10 @@ export class Config extends Optional<any> {
                 continue;
             }
 
-            let tempVal = <Config> val.getIf(currKey);
+            let tempVal = <Config>val.getIf(currKey);
             if (arrPos == -1) {
                 if (tempVal.isAbsent()) {
-                    tempVal = <Config> this.getClass().fromNullable(val.value[currKey] = {});
+                    tempVal = <Config>this.getClass().fromNullable(val.value[currKey] = {});
                 } else {
                     val = <any>tempVal;
                 }
@@ -578,8 +529,6 @@ export class Config extends Optional<any> {
         return this;
     }
 }
-
-
 
 /*we do not implenent array, maps etc.. monads there are libraries like lodash which have been doing that for ages*/
 

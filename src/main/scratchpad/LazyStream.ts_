@@ -3,7 +3,8 @@
  * A small stream implementation, at the moment still early evaluation but i will go for a lazy pattern in the long
  * run to allow infinite data sources
  */
-import {IMonad, IValueHolder, Monad} from "./Monad";
+import {IMonad, Monad} from "./Monad";
+import {IValueHolder} from "../typescript";
 
 class ArrayStreamDataSource<T> {
     value: Array<T>;

@@ -15,8 +15,9 @@
  */
 
 import {Lang} from "./Lang";
-import {Config, IValueHolder, Optional, Stream, ValueEmbedder} from "./Monad";
+import {Config, IValueHolder, Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
+import {ICollector, Stream} from "./Stream";
 
 // @ts-ignore supression needed here due to fromnullable
 export class ElementAttribute extends ValueEmbedder<string> {
@@ -1264,5 +1265,20 @@ export class DomQuery {
 
 }
 
+/**
+ * A collector which bundles a full dom query stream into a single dom query element
+ *
+ * This connects basically our stream back into DomQuery
+ */
+export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
 
+    data: DomQuery[] =[];
 
+    collect(element: DomQuery) {
+        this.data.push(element);
+    }
+
+    get finalValue(): DomQuery {
+        return new DomQuery(...this.data);
+    }
+}

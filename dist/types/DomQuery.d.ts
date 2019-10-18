@@ -1,11 +1,14 @@
-import { IValueHolder, Optional } from "./Monad";
+import { Config, Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
-export declare class ElementAttribute implements IValueHolder<string> {
+import { ICollector, Stream } from "./Stream";
+export declare class ElementAttribute extends ValueEmbedder<string> {
     private element;
-    private attributeName;
+    private name;
     private defaultVal;
-    constructor(element: DomQuery, attributeName: string, defaultVal?: string);
+    constructor(element: DomQuery, name: string, defaultVal?: string);
     value: string;
+    protected getClass(): any;
+    static fromNullable(value?: any, valueKey?: string): ElementAttribute;
 }
 /**
  * Monadic DomNode representation, ala jquery
@@ -28,38 +31,62 @@ export declare class ElementAttribute implements IValueHolder<string> {
  *
  */
 export declare class DomQuery {
+    static absent: DomQuery;
     private rootNode;
     constructor(...rootNode: Array<Element | DomQuery | Document | Array<any> | string>);
     /**
-     * returns the nth element as domquery
-     * from the internal elements
-     * note if you try to reach a non existing element position
-     * you will get back an absent entry
+     * returns the elements of this dom tree, always as array (keep that in mind)
+     */
+    readonly value: Optional<Element>;
+    readonly values: Element[];
+    /**
+     * returns the id of the first element
+     */
+    readonly id: ValueEmbedder<string>;
+    /**
+     * length of the entire query set
+     */
+    readonly length: number;
+    /**
+     * convenience method for tagName
+     */
+    readonly tagName: Optional<string>;
+    /**
+     * convenience method for nodeName
+     */
+    readonly nodeName: Optional<string>;
+    isTag(tagName: string): boolean;
+    /**
+     * convenience property for type
      *
-     * @param index the nth index
+     * returns null in case of no type existing otherwise
+     * the type of the first element
      */
-    get(index: number): DomQuery;
+    readonly type: Optional<string>;
     /**
-     * returns the nth element as optional of an Element object
-     * @param index
+     * convenience property for name
+     *
+     * returns null in case of no type existing otherwise
+     * the name of the first element
      */
-    getAsElem(index: number, defaults?: Optional<any>): Optional<Element>;
+    readonly name: ValueEmbedder<string>;
     /**
-     * returns the value array< of all elements
+     * convenience property for value
+     *
+     * returns null in case of no type existing otherwise
+     * the value of the first element
      */
-    allElems(): Array<Element>;
+    readonly inputValue: ValueEmbedder<string>;
+    readonly elements: DomQuery;
     /**
-     * absent no values reached?
+     * todo align this api with the rest of the apis
      */
-    isAbsent(): boolean;
+    disabled: boolean;
+    readonly childNodes: DomQuery;
     /**
-     * any value present
+     * binding into stream
      */
-    isPresent(): boolean;
-    /**
-     * remove all affected nodes from this query object from the dom tree
-     */
-    delete(): void;
+    readonly stream: Stream<DomQuery>;
     /**
      * easy query selector all producer
      *
@@ -67,13 +94,6 @@ export declare class DomQuery {
      * @returns a results dom query object
      */
     static querySelectorAll(selector: string): DomQuery;
-    /**
-     * query selector all on the existing dom query object
-     *
-     * @param selector the standard selector
-     * @return a DomQuery with the results
-     */
-    querySelectorAll(selector: any): DomQuery;
     /**
      * byId producer
      *
@@ -88,6 +108,62 @@ export declare class DomQuery {
      * @return a DomQuery containing the found elements
      */
     static byTagName(selector: string | DomQuery | Element): DomQuery;
+    static globalEval(code: string): DomQuery;
+    /**
+     * builds the ie nodes properly in a placeholder
+     * and bypasses a non script insert bug that way
+     * @param markup the marku code
+     */
+    static fromMarkup(markup: string): DomQuery;
+    /**
+     * returns the nth element as domquery
+     * from the internal elements
+     * note if you try to reach a non existing element position
+     * you will get back an absent entry
+     *
+     * @param index the nth index
+     */
+    get(index: number): DomQuery;
+    /**
+     * returns the nth element as optional of an Element object
+     * @param index the number from the index
+     * @param defaults the default value if the index is overrun default Optional.absent
+     */
+    getAsElem(index: number, defaults?: Optional<any>): Optional<Element>;
+    /**
+     * returns the value array< of all elements
+     */
+    allElems(): Array<Element>;
+    /**
+     * absent no values reached?
+     */
+    isAbsent(): boolean;
+    /**
+     * should make the code clearer
+     * note if you pass a function
+     * this refers to the active dopmquery object
+     */
+    isPresent(presentRunnable?: (elem?: DomQuery) => void): boolean;
+    /**
+     * should make the code clearer
+     * note if you pass a function
+     * this refers to the active dopmquery object
+     *
+     *
+     * @param presentRunnable
+     */
+    ifPresentLazy(presentRunnable?: (elem?: DomQuery) => void): DomQuery;
+    /**
+     * remove all affected nodes from this query object from the dom tree
+     */
+    delete(): void;
+    /**
+     * query selector all on the existing dom query object
+     *
+     * @param selector the standard selector
+     * @return a DomQuery with the results
+     */
+    querySelectorAll(selector: any): DomQuery;
     /**
      * core byId method
      * @param id the id to search for
@@ -103,9 +179,10 @@ export declare class DomQuery {
     /**
      * attr accessor, usage myQuery.attr("class").value = "bla"
      * or let value myQuery.attr("class").value
-     * @param attr
+     * @param attr the attribute to set
+     * @param defaultValue the default value in case nothing is presented (defaults to null)
      */
-    attr(attr: string, noneGetValue?: string): ElementAttribute;
+    attr(attr: string, defaultValue?: string): ElementAttribute;
     /**
      * hasclass, checks for an existing class in the class attributes
      *
@@ -138,33 +215,24 @@ export declare class DomQuery {
      * @param inval
      */
     html(inval?: string): DomQuery | Optional<string>;
+    private _mozMatchesSelector;
+    /**
+     * filters the current dom query elements
+     * upon a given selector
+     *
+     * @param selector
+     */
+    filterSelector(selector: string): DomQuery;
+    matchesSelector(selector: string): boolean;
     /**
      * easy node traversal, you can pass
      * a set of node selectors which are joined as direct childs
+     *
+     * not the rootnodes are not in the getIf, those are always the child nodes
+     *
      * @param nodeSelector
      */
     getIf(...nodeSelector: Array<string>): DomQuery;
-    /**
-     * returns the elements of this dom tree, always as array (keep that in mind)
-     */
-    readonly value: Optional<Element>;
-    readonly values: Element[];
-    /**
-     * returns the id of the first element
-     */
-    readonly id: Optional<string>;
-    /**
-     * length of the entire query set
-     */
-    readonly length: number;
-    /**
-     * convenience method for tagName
-     */
-    readonly tagName: Optional<string>;
-    /**
-     * convenience method for type
-     */
-    readonly type: Optional<string>;
     eachElem(func: (item: Element, cnt?: number) => any): DomQuery;
     firstElem(func?: (item: Element, cnt?: number) => any): DomQuery;
     each(func: (item: DomQuery, cnt?: number) => any): DomQuery;
@@ -181,12 +249,12 @@ export declare class DomQuery {
      */
     filter(func: (item: DomQuery) => boolean): DomQuery;
     /**
-     * globa eval head appendix method
+     * global eval head appendix method
      * no other methods are supported anymore
-     * @param code
+     * @param code the code to be evaled
+     * @param  nonce optional  nonce key for higher security
      */
     globalEval(code: string, nonce?: string): DomQuery;
-    static globalEval(code: string): DomQuery;
     /**
      * detaches a set of nodes from their parent elements
      * in a browser independend manner
@@ -200,15 +268,25 @@ export declare class DomQuery {
      * @param elem
      */
     appendTo(elem: DomQuery): void;
-    loadScriptEval(src: any, type: any, defer: any, charSet: any, async: any): this;
-    insertAfter(...elem: Array<DomQuery>): this;
-    insertBefore(...elem: Array<DomQuery>): this;
+    /**
+     * loads and evals a script from a source uri
+     *
+     * @param src the source to be loaded and evaled
+     * @param defer in miliseconds execution default (0 == no defer)
+     * @param charSet
+     */
+    loadScriptEval(src: string, defer: number, charSet: string): this;
+    insertAfter(...toInsertParams: Array<DomQuery>): DomQuery;
+    insertBefore(...toInsertParams: Array<DomQuery>): DomQuery;
     orElse(...elseValue: any): DomQuery;
     orElseLazy(func: () => any): DomQuery;
     parents(tagName: string): DomQuery;
-    readonly childNodes: DomQuery;
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery;
-    private subNodes;
+    /**
+     * resolves an attribute holder compared
+     * @param attr
+     */
+    private resolveAttributeHolder;
     /**
      * outerhtml convenience method
      * browsers only support innerHTML but
@@ -221,13 +299,13 @@ export declare class DomQuery {
      */
     outerHTML(markup: string, runEmbeddedScripts?: boolean, runEmbeddedCss?: boolean): DomQuery;
     /**
-     * Run through the given Html item and execute the inline scripts
-     * (IE doesn't do this by itself)
-     * @param {Node} item
+     * Run through the given nodes in the DomQuery execute the inline scripts
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
+     * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
     runScripts(whilteListed?: (val: string) => boolean): DomQuery;
     runCss(): DomQuery;
+    readonly cDATAAsString: string;
     /**
      * fires a click event on the underlying dom elements
      */
@@ -238,12 +316,27 @@ export declare class DomQuery {
      * fires an event
      */
     fireEvent(eventName: string): void;
+    textContent(joinstr?: string): string;
+    innerText(joinstr?: string): string;
     /**
-     * builds the ie nodes properly in a placeholder
-     * and bypasses a non script insert bug that way
-     * @param markup the marku code
+     * encodes all input elements properly into respective
+     * config entries, this can be used
+     * for legacy systems, for newer usecases, use the
+     * HTML5 Form class which all newer browsers provide
+     *
+     * @param toMerge optional config which can be merged in
+     * @return a copy pf
      */
-    static fromMarkup(markup: string): DomQuery;
-    private encodeElement;
-    static absent: DomQuery;
+    encodeFormElement(toMerge?: Config): Config;
+    private subNodes;
+}
+/**
+ * A collector which bundles a full dom query stream into a single dom query element
+ *
+ * This connects basically our stream back into DomQuery
+ */
+export declare class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
+    data: DomQuery[];
+    collect(element: DomQuery): void;
+    readonly finalValue: DomQuery;
 }
