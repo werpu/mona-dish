@@ -23,7 +23,7 @@ describe('early stream tests', () => {
             sum = sum + data;
         });
         expect(sum).to.eq(15);
-    })
+    });
 
     it("must iterate filtered", function () {
         let stream = Stream.of<number>(...this.probe);
@@ -39,7 +39,7 @@ describe('early stream tests', () => {
             sum = sum + data;
         });
         expect(sum).to.eq(10);
-    })
+    });
 
     it("must onElem", function () {
         let stream = Stream.of<number>(...this.probe);
@@ -63,10 +63,8 @@ describe('early stream tests', () => {
         let stream = Stream.of<number>(...this.probe);
 
         let first = Stream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
-            data;
         }).first().value;
         let last = Stream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
-            data;
         }).last().value;
         expect(first).to.eq(1);
         expect(last).to.eq(4);
@@ -85,7 +83,7 @@ describe('early stream tests', () => {
         expect(first).to.eq(1);
         expect(last).to.eq(4);
 
-    })
+    });
 
     it("must have a correct limits", function () {
         let cnt = 0;
@@ -96,7 +94,7 @@ describe('early stream tests', () => {
         expect(last).to.eq(2);
         expect(cnt).to.eq(2);
 
-    })
+    });
 
     it("must have a correct lazy limits", function () {
         let last = LazyStream.of<number>(...this.probe).filter((data) => data != 5).limits(2).onElem((data) => {

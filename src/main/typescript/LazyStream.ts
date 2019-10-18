@@ -2,9 +2,8 @@
  * A small stream implementation, at the moment still early evaluation but i will go for a lazy pattern in the long
  * run to allow infinite data sources
  */
-import {IFunctor, IMonad, Monad, Optional} from "../typescript/Monad";
-import {IValueHolder} from "../typescript";
-import {ArrayCollector, ICollector, IStream} from "../typescript/Stream";
+import {IMonad, Optional} from "./Monad";
+import {ArrayCollector, ICollector, IStream} from "./Stream";
 
 /**
  * Iterateable for stream
@@ -184,7 +183,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
             return false;
         }
 
-       return this.parent.hasNext();
+        return this.parent.hasNext();
     }
 
     next(): T {
@@ -228,7 +227,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     onElem(fn: (data: T, pos ?: number) => boolean | void): LazyStream<T> {
         return new LazyStream(new MappedStreamDataSource((el) => {
             if(fn(el, this.pos) === false) {
-               this.stop();
+                this.stop();
             }
             return el;
         }, this));
