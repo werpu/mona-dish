@@ -59,5 +59,33 @@ describe('early stream tests', () => {
         expect(sum2).to.eq(10);
     })
 
+    it("must have a correct first last", function () {
+        let stream = Stream.of<number>(...this.probe);
+
+        let first = Stream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
+            data;
+        }).first().value;
+        let last = Stream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
+            data;
+        }).last().value;
+        expect(first).to.eq(1);
+        expect(last).to.eq(4);
+
+    });
+
+    it("must have a correct first last lazy", function () {
+        let stream = LazyStream.of<number>(...this.probe);
+
+        let first = LazyStream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
+            data;
+        }).first().value;
+        let last = Stream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
+            data;
+        }).last().value;
+        expect(first).to.eq(1);
+        expect(last).to.eq(4);
+
+    })
+
 
 });
