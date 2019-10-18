@@ -46,7 +46,6 @@ export class ElementAttribute extends ValueEmbedder<string> {
         return ElementAttribute;
     }
 
-
     static fromNullable(value?: any, valueKey: string = "value"): ElementAttribute {
         return new ElementAttribute(value, valueKey);
     }
@@ -88,6 +87,7 @@ const DEFAULT_JSF_WHITELIST = (src: string) => {
 export class DomQuery {
 
     static absent = new DomQuery();
+    
     private rootNode: Array<Element> = [];
 
     constructor(...rootNode: Array<Element | DomQuery | Document | Array<any> | string>) {
@@ -184,7 +184,6 @@ export class DomQuery {
         return new ValueEmbedder<string>(this.getAsElem(0).value, "name");
     }
 
-
     /**
      * convenience property for value
      *
@@ -192,10 +191,10 @@ export class DomQuery {
      * the value of the first element
      */
     get inputValue(): ValueEmbedder<string> {
-        if(this.getAsElem(0).getIf("value").isPresent()) {
+        if (this.getAsElem(0).getIf("value").isPresent()) {
             return new ValueEmbedder<string>(this.getAsElem(0).value);
         } else {
-            return <any> ValueEmbedder.absent;
+            return <any>ValueEmbedder.absent;
         }
     }
 
@@ -221,7 +220,7 @@ export class DomQuery {
     }
 
     set disabled(disabled: boolean) {
-        this.attr("disabled").value = disabled+"";
+        this.attr("disabled").value = disabled + "";
     }
 
     get childNodes(): DomQuery {
@@ -291,21 +290,26 @@ export class DomQuery {
      * @param markup the marku code
      */
     static fromMarkup(markup: string): DomQuery {
-        //TODO check if ie8 still has this problem, probably not we probably
-        //can drop this code in favor of html
-
-        //now to the non w3c compliant browsers
-        //http://blogs.perl.org/users/clinton_gormley/2010/02/forcing-ie-to-accept-script-tags-in-innerhtml.html
-        //we have to cope with deficiencies between ie and its simulations in this case
-        let dummyPlaceHolder = new DomQuery(document.createElement("div"));
-
-        //fortunately a table element also works which is less critical than form elements regarding
-        //the inner content
-        dummyPlaceHolder.html("<table><tbody><tr><td>" + markup + "</td></tr></tbody></table>");
-        let childs = dummyPlaceHolder.querySelectorAll("td").get(0).childNodes;
-        childs.detach();
-        dummyPlaceHolder.html("");
-        return childs;
+        let domParser: DOMParser = Lang.saveResolve(() => new DOMParser()).value;
+        if (domParser) {
+            let document = domParser.parseFromString(markup, "text/html");
+            return new DomQuery(document);
+        } else {
+            //https://developer.mozilla.org/de/docs/Web/API/DOMParser license creative commons
+            const doc = document.implementation.createHTMLDocument("");
+            markup = Lang.instance.trim(markup);
+            let lowerMarkup = markup.toLowerCase();
+            if (lowerMarkup.includes('<!doctype') ||
+                lowerMarkup.includes('<html') ||
+                lowerMarkup.includes('<head') || //TODO proper regexps here to avoid embedded tags with same element names to be triggered
+                lowerMarkup.includes('<body')) {
+                doc.documentElement.innerHTML = markup;
+                return new DomQuery(doc.documentElement);
+            } else {
+                doc.body.innerHTML = markup;
+                return new DomQuery(...<Array<Element>>Lang.instance.objToArray(doc.body.childNodes));
+            }
+        }
     }
 
     /**
@@ -835,25 +839,24 @@ export class DomQuery {
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
         sourceItem.eachElem((sourceNode: Element) => {
-            for (let cnt = 0; cnt < sourceNode.attributes.length; cnt++) {
-                let value = sourceNode.attributes[cnt].value;
-                if (value) {
-                    this.attr(sourceNode.attributes[cnt].name).value = value;
-                }
+            let attrs: Array<Attr> = Lang.instance.objToArray(sourceNode.attributes);
+            for (let item of attrs) {
+                let value: string = item.value;
+                let name: string = item.name;
 
-                let formElement = <HTMLFormElement>sourceNode;
-
-                //those values are not part of the attributes
-                if ("value" in formElement) {
-                    this.resolveAttributeHolder().value = formElement.value;
+                switch (name) {
+                    case "id":
+                        this.id.value = value;
+                        break;
+                    case "disabled":
+                        this.resolveAttributeHolder("disabled").disabled = value;
+                        break;
+                    case "checked":
+                        this.resolveAttributeHolder("checked").checked = value;
+                        break;
+                    default:
+                        this.attr(name).value = value;
                 }
-                if ("checked" in formElement) {
-                    this.resolveAttributeHolder("checked").checked = formElement.checked || true;
-                }
-                if ("disabled" in formElement) {
-                    this.resolveAttributeHolder("disabled").disabled = formElement.checked || "disabled";
-                }
-
             }
         });
         return this;
@@ -947,26 +950,28 @@ export class DomQuery {
 
                     } else {
                         // embedded script auto eval
-                        let test = item.text;
+                        //TODO this probably needs to be changed due to our new parsing structures
+                        //probably not needed anymore
+                        let evalText = item.text || item.innerText || item.innerHTML;
                         let go = true;
                         while (go) {
                             go = false;
-                            if (test.substring(0, 1) == " ") {
-                                test = test.substring(1);
+                            if (evalText.substring(0, 1) == " ") {
+                                evalText = evalText.substring(1);
                                 go = true;
                             }
-                            if (test.substring(0, 4) == "<!--") {
-                                test = test.substring(4);
+                            if (evalText.substring(0, 4) == "<!--") {
+                                evalText = evalText.substring(4);
                                 go = true;
                             }
-                            if (test.substring(0, 11) == "//<![CDATA[") {
-                                test = test.substring(11);
+                            if (evalText.substring(0, 11) == "//<![CDATA[") {
+                                evalText = evalText.substring(11);
                                 go = true;
                             }
                         }
                         // we have to run the script under a global context
                         //we store the script for less calls to eval
-                        finalScripts.push(test);
+                        finalScripts.push(evalText);
 
                     }
                 }
@@ -1262,8 +1267,12 @@ export class DomQuery {
         }
         return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
     }
-
 }
+
+/**
+ * Various collectors
+ * which can be used in conjunction with Streams
+ */
 
 /**
  * A collector which bundles a full dom query stream into a single dom query element
@@ -1272,7 +1281,7 @@ export class DomQuery {
  */
 export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
 
-    data: DomQuery[] =[];
+    data: DomQuery[] = [];
 
     collect(element: DomQuery) {
         this.data.push(element);
@@ -1282,3 +1291,50 @@ export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
         return new DomQuery(...this.data);
     }
 }
+
+/**
+ * Helper form data collector
+ */
+export class FormDataCollector implements ICollector<{ key: string, value: any }, FormData> {
+    finalValue: FormData = new FormData();
+
+    collect(element: { key: string; value: any }) {
+        this.finalValue.append(element.key, element.value);
+    }
+}
+
+export class QueryFormDataCollector implements ICollector<DomQuery, FormData> {
+    finalValue: FormData = new FormData();
+
+    collect(element: DomQuery) {
+        let toMerge = element.encodeFormElement();
+        if (toMerge.isPresent()) {
+            this.finalValue.append(element.name.value, toMerge.get(element.name).value);
+        }
+    }
+}
+
+export class QueryFormStringCollector implements ICollector<DomQuery, string> {
+
+    formData: [[string, string]] = <any>[];
+
+    collect(element: DomQuery) {
+        let toMerge = element.encodeFormElement();
+        if (toMerge.isPresent()) {
+            this.formData.push([element.name.value, toMerge.get(element.name).value]);
+        }
+    }
+
+    get finalValue(): string {
+        return Stream.of(...this.formData)
+            .map<string>(keyVal => keyVal.join("="))
+            .reduce((item1, item2) => [item1, item2].join("&"))
+            .orElse("").value;
+    }
+}
+
+/**
+ * abbreviation for DomQuery
+ */
+export const DQ = DomQuery;
+export type DQ = DomQuery;

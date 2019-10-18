@@ -331,6 +331,10 @@ export declare class DomQuery {
     private subNodes;
 }
 /**
+ * Various collectors
+ * which can be used in conjunction with Streams
+ */
+/**
  * A collector which bundles a full dom query stream into a single dom query element
  *
  * This connects basically our stream back into DomQuery
@@ -340,3 +344,30 @@ export declare class DomQueryCollector implements ICollector<DomQuery, DomQuery>
     collect(element: DomQuery): void;
     readonly finalValue: DomQuery;
 }
+/**
+ * Helper form data collector
+ */
+export declare class FormDataCollector implements ICollector<{
+    key: string;
+    value: any;
+}, FormData> {
+    finalValue: FormData;
+    collect(element: {
+        key: string;
+        value: any;
+    }): void;
+}
+export declare class QueryFormDataCollector implements ICollector<DomQuery, FormData> {
+    finalValue: FormData;
+    collect(element: DomQuery): void;
+}
+export declare class QueryFormStringCollector implements ICollector<DomQuery, string> {
+    formData: [[string, string]];
+    collect(element: DomQuery): void;
+    readonly finalValue: string;
+}
+/**
+ * abbreviation for DomQuery
+ */
+export declare const DQ: typeof DomQuery;
+export declare type DQ = DomQuery;

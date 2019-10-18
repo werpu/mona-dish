@@ -19,6 +19,7 @@ const config: webpack.Configuration = {
         XmlQuery: "./src/main/typescript/XmlQuery.ts",
         Promise: "./src/main/typescript/Promise.ts",
         Stream: "./src/main/typescript/Stream.ts",
+        LazyStream: "./src/main/typescript/LazyStream.ts",
         index: "./src/main/typescript/index.ts"
     },
     output: {

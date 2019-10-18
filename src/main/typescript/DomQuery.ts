@@ -87,6 +87,7 @@ const DEFAULT_JSF_WHITELIST = (src: string) => {
 export class DomQuery {
 
     static absent = new DomQuery();
+    
     private rootNode: Array<Element> = [];
 
     constructor(...rootNode: Array<Element | DomQuery | Document | Array<any> | string>) {
@@ -299,14 +300,14 @@ export class DomQuery {
             markup = Lang.instance.trim(markup);
             let lowerMarkup = markup.toLowerCase();
             if (lowerMarkup.includes('<!doctype') ||
-                lowerMarkup.includes('<html')  ||
-                lowerMarkup.includes('<head')  || //TODO proper regexps here to avoid embedded tags with same element names to be triggered
+                lowerMarkup.includes('<html') ||
+                lowerMarkup.includes('<head') || //TODO proper regexps here to avoid embedded tags with same element names to be triggered
                 lowerMarkup.includes('<body')) {
                 doc.documentElement.innerHTML = markup;
                 return new DomQuery(doc.documentElement);
             } else {
                 doc.body.innerHTML = markup;
-                return new DomQuery(... <Array<Element>> Lang.instance.objToArray(doc.body.childNodes));
+                return new DomQuery(...<Array<Element>>Lang.instance.objToArray(doc.body.childNodes));
             }
         }
     }

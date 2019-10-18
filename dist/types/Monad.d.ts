@@ -103,6 +103,14 @@ export declare class Optional<T> extends Monad<T> {
      */
     getIfPresent<R>(key: string): Optional<R>;
 }
+/**
+ * ValueEmbedder is the writeable version
+ * of optional, it basically is a wrappber
+ * around a construct which has a state
+ * and can be written to.
+ *
+ * For the readonly version see Optional
+ */
 export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
     static absent: ValueEmbedder<unknown>;
     protected key: string;
