@@ -140,7 +140,9 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
 
     last(): Optional<T> {
         //could be done via reduce, but is faster this way
-        return Optional.fromNullable(this.value.length ? this.value[this.value.length - 1] : null);
+        let length = this._limits > 0 ? Math.min(this._limits, this.value.length) : this.value.length;
+
+        return Optional.fromNullable(length ? this.value[length - 1] : null);
     }
 
     anyMatch(fn: (data: T) => boolean): boolean {
