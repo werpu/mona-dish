@@ -15,7 +15,7 @@
  */
 
 import {Lang} from "./Lang";
-import {Config, IValueHolder, Optional, Stream} from "./Monad";
+import {Config, IValueHolder, Optional, Stream, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 
 export class ElementAttribute implements IValueHolder<string> {
@@ -119,7 +119,6 @@ export class DomQuery {
      * returns the elements of this dom tree, always as array (keep that in mind)
      */
     get value(): Optional<Element> {
-
         return this.getAsElem(0);
     }
 
@@ -165,18 +164,37 @@ export class DomQuery {
     }
 
     /**
-     * convenience method for type
+     * convenience property for type
+     *
+     * returns null in case of no type existing otherwise
+     * the type of the first element
      */
     get type(): Optional<string> {
         return this.getAsElem(0).getIf("type");
     }
 
+    /**
+     * convenience property for name
+     *
+     * returns null in case of no type existing otherwise
+     * the name of the first element
+     */
     get name(): Optional<string> {
         return this.getAsElem(0).getIf("name");
     }
 
-    get inputValue(): Optional<string> {
-        return this.getAsElem(0).getIf("value");
+    /**
+     * convenience property for value
+     *
+     * returns null in case of no type existing otherwise
+     * the value of the first element
+     */
+    get inputValue(): ValueEmbedder<string> {
+        if(this.getAsElem(0).getIf("value").isPresent()) {
+            return new ValueEmbedder<string>(this.getAsElem(0).value);
+        } else {
+            return <any> ValueEmbedder.absent;
+        }
     }
 
     get elements(): DomQuery {
@@ -670,10 +688,12 @@ export class DomQuery {
      */
     appendTo(elem: DomQuery) {
         this.eachElem((item) => {
-            let value1: Element = <Element>elem.orElseLazy(() => {
-                appendChild: (theItem: any) => {
+            let value1: Element = <Element>elem.getAsElem(0).orElseLazy(() => {
+                return {
+                    appendChild: (theItem: any) => {
+                    }
                 }
-            }).getAsElem(0).value;
+            }).value;
             value1.appendChild(item);
         });
     }
@@ -811,9 +831,35 @@ export class DomQuery {
                 if (value) {
                     this.attr(sourceNode.attributes[cnt].name).value = value;
                 }
+
+                let formElement = <HTMLFormElement>sourceNode;
+
+                //those values are not part of the attributes
+                if ("value" in formElement) {
+                    this.resolveAttributeHolder().value = formElement.value;
+                }
+                if ("checked" in formElement) {
+                    this.resolveAttributeHolder("checked").checked = formElement.checked || true;
+                }
+                if ("disabled" in formElement) {
+                    this.resolveAttributeHolder("disabled").disabled = formElement.checked || "disabled";
+                }
+
             }
         });
         return this;
+    }
+
+    /**
+     * resolves an attribute holder compared
+     * @param attr
+     */
+    private resolveAttributeHolder(attrName: string = "value"): HTMLFormElement | any {
+        let ret = [];
+        ret[attrName] = null;
+        return (attrName in this.getAsElem(0).value) ?
+            this.getAsElem(0).value :
+            ret;
     }
 
     /**
@@ -1089,7 +1135,6 @@ export class DomQuery {
     }
 
     textContent(joinstr: string = ""): string {
-
         return this.stream
             .map((value: DomQuery) => {
                 let item = value.getAsElem(0).orElseLazy(() => {
@@ -1100,11 +1145,9 @@ export class DomQuery {
                 return (<any>item).textContent || "";
             })
             .reduce((text1, text2) => text1 + joinstr + text2, "").value;
-
     }
 
     innerText(joinstr: string = ""): string {
-
         return this.stream
             .map((value: DomQuery) => {
                 let item = value.getAsElem(0).orElseLazy(() => {
@@ -1196,6 +1239,7 @@ export class DomQuery {
                         target.apply(name).value = element.inputValue.value;
                     }
                 }
+
             }
         });
 
