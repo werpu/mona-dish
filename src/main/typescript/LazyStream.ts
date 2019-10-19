@@ -8,7 +8,7 @@ import {ArrayCollector, ICollector, IStream} from "./Stream";
 /**
  * Iterateable for stream
  */
-interface IStreamDataSource<T> {
+export interface IStreamDataSource<T> {
 
     /**
      * @returns true if additional data is present
@@ -242,7 +242,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     }
 
     //r must extend IStreamDataSource
-    flatMap<R>(fn: (data: T) => R): LazyStream<any> {
+    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource): LazyStream<any> {
         return new LazyStream<any>(new FlatMapStreamDataSource(<any>fn, this));
     }
 

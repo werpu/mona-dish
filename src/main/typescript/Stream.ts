@@ -2,6 +2,7 @@
  * A small stream implementation
  */
 import {IMonad, IValueHolder, Optional} from "./Monad";
+import {IStreamDataSource} from "./LazyStream";
 
 /**
  * A collector, needs to be implemented
@@ -58,7 +59,7 @@ export interface IStream<T> {
      *
      * @param fn
      */
-    flatMap<R>(fn?: (data: T) => IStream<R>): IStream<any>;
+    flatMap<R>(fn?: (data: T) => IStreamDataSource<R>): IStream<any>;
 
     /**
      * filtering, takes an element in and is processed by fn.
@@ -190,7 +191,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * all values are flattened when accessed anyway, so there is no need to call this methiod
      */
 
-    flatMap<R>(fn: (data: T) => R): Stream<any> {
+    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource): Stream<any> {
         let ret = [];
         this.each( item => {
             let strmR: any = fn(item);

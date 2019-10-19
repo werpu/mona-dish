@@ -17,8 +17,8 @@
 import {Lang} from "./Lang";
 import {Config, Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
-import {ICollector, Stream} from "./Stream";
-import {LazyStream} from "./LazyStream";
+import {ICollector, IStream, Stream} from "./Stream";
+import {IStreamDataSource, LazyStream} from "./LazyStream";
 
 // @ts-ignore supression needed here due to fromnullable
 export class ElementAttribute extends ValueEmbedder<string> {
@@ -470,11 +470,13 @@ interface IDomQuery {
  * ago, those parts look a little bit ancient and will be replaced over time.
  *
  */
-export class DomQuery implements IDomQuery {
+export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     static absent = new DomQuery();
 
     private rootNode: Array<Element> = [];
+
+    pos = -1;
 
     constructor(...rootNode: Array<Element | DomQuery | Document | Array<any> | string>) {
 
@@ -503,7 +505,7 @@ export class DomQuery implements IDomQuery {
     }
 
     /**
-     * returns the elements of this dom tree, always as array (keep that in mind)
+     * returns the first element
      */
     get value(): Optional<Element> {
         return this.getAsElem(0);
@@ -1668,6 +1670,33 @@ export class DomQuery implements IDomQuery {
             to = this.length;
         }
         return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
+    }
+
+    _limits = -1;
+
+    limits(end: number): IStream<DomQuery> {
+        this._limits = end;
+        return <any>this;
+    }
+
+    //-- internally exposed methods needed for the interconnectivity
+    hasNext() {
+        let isLimitsReached = this._limits != -1 && this.pos >= this._limits - 1;
+        let isEndOfArray = this.pos >= this.values.length - 1;
+        return !(isLimitsReached ||
+            isEndOfArray);
+    }
+
+    next(): DomQuery {
+        if (!this.hasNext()) {
+            return null;
+        }
+        this.pos++;
+        return new DomQuery(this.values[this.pos]);
+    }
+
+    reset() {
+        this.pos = -1;
     }
 }
 
