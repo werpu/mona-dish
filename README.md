@@ -217,6 +217,140 @@ DomQuery readds the slickness of functional patterns, which are perfect for the 
 work in progress.. the idea is to have streams like java does for arrays.
 (forEach, filter etc...)
 
+#### Details
+
+The streams are heavily influenced by the java streams.
+Currently two type of Streams are implemented
+* Early Streams (Streams)
+
+The default (working already)
+a simple implementation of early evaluating streams 
+ 
+* Lazy Streams (LazyStreams)
+Laziily evaluating streams, aka elements are processed at the latest possible
+stage, this is the default in Java. The advantage of those is
+you basically can process endless data without any impact on ram.
+Hence there is a set of Data Providers implemented and a general
+DataProvider interface available.
+
+Those are a work in progress, about 80% of this implementation is tested.
+
+###### Methods
+
+
+```Typescript
+/**
+ * Generic interface defining a stream
+ */
+export interface IStream<T> {
+    /**
+     * Perform the operation fn on a single element in the stream at a time
+     * then pass the stream over for further processing
+     * This is basically an intermediate point in the stream
+     * with further processing happening later, do not use
+     * this method to gather data or iterate over all date for processing
+     * (for the second case each has to be used)
+     *
+     * @param fn the processing function, if it returns false, further processing is stopped
+     */
+    onElem(fn: (data: T, pos ?: number) => void | boolean): IStream<T>;
+
+    /**
+     * Iterate over all elements in the stream and do some processing via fn
+     *
+     * @param fn takes a single element and if it returns false
+     * then further processing is stopped
+     */
+    each(fn: (data: T, pos ?: number) => void | boolean): void;
+
+    /**
+     * maps a single element into another via fn
+     * @param fn function which takes one element in and returns another
+     */
+    map<R>(fn?: (data: T) => R): IStream<R>;
+
+    /**
+     * Takes an element in and returns a set of something
+     * the set then is flatted into a single stream to be further processed
+     *
+     * @param fn
+     */
+    flatMap<R>(fn?: (data: T) => IStream<R>): IStream<any>;
+
+    /**
+     * filtering, takes an element in and is processed by fn.
+     * If it returns false then further processing on this element is skipped
+     * if it returns true it is passed down the chain.
+     *
+     * @param fn
+     */
+    filter(fn?: (data: T) => boolean): IStream<T>;
+
+    /**
+     * functional reduce... takes two elements in the stream and reduces to
+     * one from left to right
+     *
+     * @param fn the reduction function for instance (val1,val2) => val1l+val2
+     * @param startVal an optional starting value, if provided the the processing starts with this element
+     * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
+     */
+    reduce(fn: (val1: T, val2: T) => T, startVal: T): Optional<T>;
+
+    /**
+     * returns the first element in the stream is given as Optional
+     */
+    first(): Optional<T>;
+
+    /**
+     * Returns the last stream element (note in endless streams without filtering and limiting you will never reach that
+     * point hence producing an endless loop)
+     */
+    last(): Optional<T>;
+
+    /**
+     * returns true if there is at least one element where a call fn(element) produces true
+     *
+     * @param fn
+     */
+    anyMatch(fn: (data: T) => boolean): boolean;
+
+    /**
+     * returns true if all elmements produce true on a call to fn(element)
+     *
+     * @param fn
+     */
+    allMatch(fn: (data: T) => boolean): boolean;
+
+    /**
+     * returns true if no elmements produce true on a call to fn(element)
+     *
+     * @param fn
+     */
+    noneMatch(fn: (data: T) => boolean): boolean;
+
+    /**
+     * Collect the elements with a collector given
+     * There are a number of collectors provided
+     *
+     * @param collector
+     */
+    collect(collector: ICollector<T, any>): any;
+
+    /**
+     * Limits the stream to a certain number of elements
+     * 
+     * @param end the limit of the stream
+     */
+    limits(end: number): IStream<T>;
+
+    /**
+     * returns the stream collected into an array (90% use-case abbreviation
+     */
+    value: Array<T>;
+}
+
+```
+
 ### XmlQuery
 
 similar to DomQuery but atm without a full query engine behind it,
