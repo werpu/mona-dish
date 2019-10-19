@@ -1,6 +1,7 @@
 # Mona-dish
 
-A set of monadish helpers
+A set of functional programming "inspired" helpers
+
 
 ## What is it?
 
@@ -12,7 +13,9 @@ For now it is only a small set of Helpers consisting of following items:
 * Monad     ... an implementation of a Monad
 * Optional  ... a class which is derived from Javas optional but also encapsulates elvis operator like accessors
                 to cut down on code
-* Promise   ... a promise implementation for older browsers (newer ones have Promised baked in)
+* ValueEmbedder ... if you ever need something like optional but want to write the value as well
+                    this might be what you are looking for                 
+* Promise   ... a promise shim implementation for older browsers (newer ones have Promised baked in)
 * CancellablePromise ... a promise with cancel functionality
 * Configuration ... an Optional utilizing wrapper over json configurations which allow both read and write access 
                    and elvis like access to the data stored in the config
