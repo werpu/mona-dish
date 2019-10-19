@@ -599,6 +599,16 @@ interface IDomQuery {
 }
 ```
 
+* usage example
+
+```Typescript
+ let probe2 = DomQuery.querySelectorAll("div")
+                      .filter(item => item.id.match((id) => id != "id_1"));
+
+ expect(probe2.length == 3);
+```
+
+
 ### Stream
 
 work in progress.. the idea is to have streams like java does for arrays.
