@@ -17,8 +17,8 @@
 import {Lang} from "./Lang";
 import {Config, Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
-import {ICollector, IStream, Stream} from "./Stream";
-import {IStreamDataSource, LazyStream} from "./LazyStream";
+import {IStream, LazyStream, Stream} from "./Stream";
+import {ICollector, IStreamDataSource} from "./SourcesCollectors";
 
 // @ts-ignore supression needed here due to fromnullable
 export class ElementAttribute extends ValueEmbedder<string> {
@@ -1723,46 +1723,6 @@ export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
     }
 }
 
-/**
- * Helper form data collector
- */
-export class FormDataCollector implements ICollector<{ key: string, value: any }, FormData> {
-    finalValue: FormData = new FormData();
-
-    collect(element: { key: string; value: any }) {
-        this.finalValue.append(element.key, element.value);
-    }
-}
-
-export class QueryFormDataCollector implements ICollector<DomQuery, FormData> {
-    finalValue: FormData = new FormData();
-
-    collect(element: DomQuery) {
-        let toMerge = element.encodeFormElement();
-        if (toMerge.isPresent()) {
-            this.finalValue.append(element.name.value, toMerge.get(element.name).value);
-        }
-    }
-}
-
-export class QueryFormStringCollector implements ICollector<DomQuery, string> {
-
-    formData: [[string, string]] = <any>[];
-
-    collect(element: DomQuery) {
-        let toMerge = element.encodeFormElement();
-        if (toMerge.isPresent()) {
-            this.formData.push([element.name.value, toMerge.get(element.name).value]);
-        }
-    }
-
-    get finalValue(): string {
-        return Stream.of(...this.formData)
-            .map<string>(keyVal => keyVal.join("="))
-            .reduce((item1, item2) => [item1, item2].join("&"))
-            .orElse("").value;
-    }
-}
 
 /**
  * abbreviation for DomQuery

@@ -1,7 +1,7 @@
 import {describe} from "mocha";
-import {Stream} from "../../main/typescript/Stream";
+import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
-import {LazyStream} from "../../main/typescript/LazyStream";
+
 
 describe('early stream tests', () => {
 
@@ -19,7 +19,7 @@ describe('early stream tests', () => {
 
         let stream2 = LazyStream.of<number>(...this.probe);
         sum = 0;
-        stream2.each((data) => {
+        stream2.each((data: number) => {
             sum = sum + data;
         });
         expect(sum).to.eq(15);
@@ -35,7 +35,7 @@ describe('early stream tests', () => {
 
         let stream2 = LazyStream.of<number>(...this.probe);
         sum = 0;
-        stream2.filter((data) => data != 5).each((data) => {
+        stream2.filter((data) => data != 5).each((data: number) => {
             sum = sum + data;
         });
         expect(sum).to.eq(10);
@@ -44,7 +44,7 @@ describe('early stream tests', () => {
     it("must onElem", function () {
         let stream = Stream.of<number>(...this.probe);
         let sum = 0;
-        let sum2 = stream.filter((data) => data != 5).onElem((data) => {
+        let sum2: number = stream.filter((data) => data != 5).onElem((data) => {
             sum = sum + data;
         }).reduce((el1, el2) => el1 + el2).value;
         expect(sum).to.eq(10);
@@ -52,9 +52,9 @@ describe('early stream tests', () => {
 
         let stream2 = LazyStream.of<number>(...this.probe);
         sum = 0;
-        sum2 = stream2.filter((data) => data != 5).onElem((data) => {
+        sum2 = stream2.filter((data) => data != 5).onElem((data: number) => {
             sum = sum + data;
-        }).reduce((el1, el2) => el1 + el2).value;
+        }).reduce((el1: number, el2: number) => el1 + el2).value;
         expect(sum).to.eq(10);
         expect(sum2).to.eq(10);
     })
