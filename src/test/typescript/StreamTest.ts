@@ -105,4 +105,38 @@ describe('early stream tests', () => {
 
     })
 
+
+    it("must correctly lazily flatmap", function () {
+
+        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => LazyStream.of(...[data,2])).value;
+
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+    });
+
+    it("must correctly early flatmap", function () {
+
+        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => Stream.of(...[data,2])).value;
+
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+    });
+
+
+    it("must correctly flatmap intermixed", function () {
+
+        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => Stream.of(...[data,2])).value;
+
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+    });
+
+    it("must correctly flatmap intermixed2", function () {
+
+        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => LazyStream.of(...[data,2])).value;
+
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+    });
+
 });

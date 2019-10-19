@@ -145,6 +145,8 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
     value: Array<T>;
     _limits = -1;
 
+    private pos = -1;
+
     constructor(...value: T[]) {
         this.value = value;
     }
@@ -187,10 +189,14 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * we need to implement it to fullfill the contract, although it is used only internally
      * all values are flattened when accessed anyway, so there is no need to call this methiod
      */
-    flatMap<R>(fn?: (data: T) => R): Stream<any> {
-        let mapped: Stream<R> = this.map(fn);
-        let res = this.mapStreams(mapped);
-        return new Stream(...res);
+
+    flatMap<R>(fn: (data: T) => R): Stream<any> {
+        let ret = [];
+        this.each( item => {
+            let strmR: any = fn(item);
+            ret = ret.concat(... strmR.value);
+        });
+        return <Stream<any>> Stream.of(... ret);
     }
 
     filter(fn?: (data: T) => boolean): Stream<T> {
@@ -261,17 +267,27 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return collector.finalValue;
     }
 
-    private mapStreams<R>(mapped: Stream<R>): Array<R> {
-        let res: Array<R> = [];
-        mapped.each((data: any) => {
-            if (data instanceof Stream) {
-                res = res.concat(this.mapStreams(data));
-            } else {
-                res.push(data);
-            }
-        });
-        return res;
+
+    //-- internally exposed methods needed for the interconnectivity
+    hasNext() {
+        let isLimitsReached = this._limits != -1 && this.pos >= this._limits - 1;
+        let isEndOfArray = this.pos >= this.value.length - 1;
+        return !(isLimitsReached ||
+            isEndOfArray);
     }
+
+    next():T {
+        if(!this.hasNext()) {
+            return null;
+        }
+        this.pos++;
+        return this.value[this.pos];
+    }
+
+    reset() {
+        this.pos = -1;
+    }
+
 }
 
 /**
