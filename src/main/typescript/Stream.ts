@@ -255,7 +255,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
     noneMatch(fn: (data: T) => boolean): boolean {
         let matches = 0;
         for (let cnt = 0; cnt < this.value.length; cnt++) {
-            if (fn(this.value[cnt])) {
+            if (!fn(this.value[cnt])) {
                 matches++;
             }
         }

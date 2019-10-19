@@ -139,4 +139,24 @@ describe('early stream tests', () => {
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
 
+    it("must correctly pass anyMatch allMatch noneMatch", function () {
+        let anyMatch = LazyStream.of<number>(...this.probe).anyMatch((item) => item == 3);
+        let allMatch = LazyStream.of<number>(...this.probe).allMatch((item) => item < 6);
+        let noneMatch = LazyStream.of<number>(...this.probe).noneMatch((item) => item > 5);
+
+        expect(anyMatch).to.be.true;
+        expect(allMatch).to.be.true;
+        expect(noneMatch).to.be.true;
+    })
+
+    it("must correctly pass anyMatch allMatch noneMatch early", function () {
+        let anyMatch = Stream.of<number>(...this.probe).anyMatch((item) => item == 3);
+        let allMatch = Stream.of<number>(...this.probe).allMatch((item) => item < 6);
+        let noneMatch = Stream.of<number>(...this.probe).noneMatch((item) => item > 5);
+
+        expect(anyMatch).to.be.true;
+        expect(allMatch).to.be.true;
+        expect(noneMatch).to.be.true;
+    })
+
 });
