@@ -99,6 +99,13 @@ Also as convenience you now have an easier way to check for existence in nested 
                 
 ```             
   
+* or in a typesafe manner: 
+
+```Typescript
+    opt.resolve(item => item.data.value3).isAbsent()
+    opt.resolve(item => item.data.value4).value
+```  
+  
 As you can see, it is very easy to fetch cascaded data. The result of getIf always is another optional.
 To access the value of the optional, simply use the .value property.
   
