@@ -1,7 +1,7 @@
 {
   "name": "mona-dish",
   "version": "0.9.0",
-  "description": "TypeScript/Javascript monadish helpers which ease your programming live",
+  "description": "TypeScript/Javascript set of functional pattern inspired helpers, which will ease your programming live",
   "main": "dist/js/commonjs/index.js",
   "scripts": {
     "test": "mocha -r ts-node/register -P ./src/test/typescript/ ./src/test/typescript/**/*Test.ts",
