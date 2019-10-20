@@ -54,8 +54,8 @@ The idea behind optional is to get rid of undefined and null, while providing a 
 
 instead of having following constructs constantly in your code
 
-```
-if("undefined" typeof myVar or null == myVar) {
+```Typescript
+if("undefined" typeof myVar || null == myVar) {
     //do something
 }
 ```
@@ -69,8 +69,8 @@ if(Optional.fromNullable(myVar).isAbsent()) {
 ```
 
 The same goes for exists checks:
-```
-val opt = Optional.fromNullable(myVar);
+```Typescript
+let opt = Optional.fromNullable(myVar);
 if(Optional.fromNullable(myVar).isPresent()) {
     //do something
     var theValue = opt.value; //lets fetch the value
@@ -78,8 +78,8 @@ if(Optional.fromNullable(myVar).isPresent()) {
 ```
 
 Also as convenience you now have an easier way to check for existence in nested structures
-```
- var myStruct = {
+```Typescript
+ let myStruct = {
             data: {
                 value: 1,
                 value2: Optional.absent,
@@ -105,17 +105,53 @@ To access the value of the optional, simply use the .value property.
 Optional is readonly and sideffect free.
   
 For a non sideffect free implementation, you can use:
+
+### ValueEmbedder  
+  
+Optional is a purely reasonly construct, now for sideffects
+freenes having only readonly operations is fine.
+However in iterative systems we often deal with states.
+To get the conciciveness of Optional also for
+writeable states there is a class available which is inherited
+from optional and hence shares the same functionality.
+
+* ValueEmedder
+
+
+*ValueEmbeder* is basically an optional where you can write the value.
+Hence whenever something Optional is given back you will get
+a readonly value
+
+With Valueembedder, you can write something to the value
+
+* example:
+
+```Typescript
+blarg.value /*of type ValueEmbedder*/ = 'new blarg value'
+```
+  
+Trying that with optional would result in a runtime or compile
+error because optional does not expose a setter on value
+wheres on ValueEmbedder, whatever is embedded will receive 
+the new value.
+
+The embedded object must only follow the object->key notation
+aka the value must be an exposed writabble property.
+
+For special cases where you need a special implementation
+you can use the *IValueHolder* interface.  
   
 ### Configuration  
 
-Configuration basically is a non sideffect free implementation of Optional. Aka, you can assign values
-to certain points in your data representation.
+Configuration basically is a non sideffect free implementation of a nested ValueEmbedder. Aka, you can assign values
+to certain points in your data representation and even if the subtree
+does not exist it will be created.
 
 
 Example:
 
-```
-var config = new Config({
+```Typescript
+let config = new Config({
                          data: {
                              value: 1,
                              value2: Optional.absent,
@@ -158,7 +194,7 @@ config.getIf("hello", "world", "from").isAbsent() //returns now false
 
 Also the assignment of arrays is possible:
 
-```
+```Typescript
 config.apply("hello[5]", "world[3]", "from[5]").value = "me"
 
 /*
@@ -802,10 +838,13 @@ and I tried to avoid third party dependencies.
 But you get many other benefits similar to DomQuery by using XmlQuery
 
 
-### Monad
+## Examples
 
-TODO add description and examples here
+Various usage examples can be found in the tests:
 
-
+* [DomQuery, XmlQuery](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/DomQueryTest.ts)
+* [Optional, ValueEmbedder, Config](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/MonadTest.ts)
+* [Promise](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/PromiseTest.ts)
+* [Stream](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/StreamTest.ts)
                    
                    
