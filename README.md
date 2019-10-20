@@ -19,7 +19,7 @@ For now it is only a small set of Helpers consisting of following items:
 * CancellablePromise ... a promise with cancel functionality
 * Configuration ... an Optional utilizing wrapper over json configurations which allow both read and write access 
                    and elvis like access to the data stored in the config
-                   
+* Streams ... a typescript based implementation of early and lazily evaluating streams                   
 
 ## Implementation languages
               
