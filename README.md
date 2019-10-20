@@ -614,8 +614,9 @@ interface IDomQuery {
 
 ### Stream
 
-work in progress.. the idea is to have streams like java does for arrays.
+The idea is to have streams like java does for arrays.
 (forEach, filter etc...)
+
 
 #### Details
 
@@ -633,10 +634,7 @@ you basically can process endless data without any impact on ram.
 Hence there is a set of Data Providers implemented and a general
 DataProvider interface available.
 
-Those are a work in progress, about 80% of this implementation is tested.
-
-###### Methods
-
+#### API
 
 ```Typescript
 /**
@@ -653,7 +651,7 @@ export interface IStream<T> {
      *
      * @param fn the processing function, if it returns false, further processing is stopped
      */
-    onElem(fn: (data: T, pos ?: number) => void | boolean): IStream<T>;
+    onElem(fn: IteratableConsumer<T>): IStream<T>;
 
     /**
      * Iterate over all elements in the stream and do some processing via fn
@@ -661,13 +659,13 @@ export interface IStream<T> {
      * @param fn takes a single element and if it returns false
      * then further processing is stopped
      */
-    each(fn: (data: T, pos ?: number) => void | boolean): void;
+    each(fn: IteratableConsumer<T>): void;
 
     /**
      * maps a single element into another via fn
      * @param fn function which takes one element in and returns another
      */
-    map<R>(fn?: (data: T) => R): IStream<R>;
+    map<R>(fn?: Mappable<T, R>): IStream<R>;
 
     /**
      * Takes an element in and returns a set of something
@@ -675,7 +673,7 @@ export interface IStream<T> {
      *
      * @param fn
      */
-    flatMap<R>(fn?: (data: T) => IStream<R>): IStream<any>;
+    flatMap<R>(fn?: StreamMapper<T>): IStream<R>;
 
     /**
      * filtering, takes an element in and is processed by fn.
@@ -684,7 +682,7 @@ export interface IStream<T> {
      *
      * @param fn
      */
-    filter(fn?: (data: T) => boolean): IStream<T>;
+    filter(fn?: Matchable<T>): IStream<T>;
 
     /**
      * functional reduce... takes two elements in the stream and reduces to
@@ -694,7 +692,7 @@ export interface IStream<T> {
      * @param startVal an optional starting value, if provided the the processing starts with this element
      * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
      */
-    reduce(fn: (val1: T, val2: T) => T, startVal: T): Optional<T>;
+    reduce(fn: Reducable<T>, startVal: T): Optional<T>;
 
     /**
      * returns the first element in the stream is given as Optional
@@ -712,21 +710,21 @@ export interface IStream<T> {
      *
      * @param fn
      */
-    anyMatch(fn: (data: T) => boolean): boolean;
+    anyMatch(fn: Matchable<T>): boolean;
 
     /**
      * returns true if all elmements produce true on a call to fn(element)
      *
      * @param fn
      */
-    allMatch(fn: (data: T) => boolean): boolean;
+    allMatch(fn: Matchable<T>): boolean;
 
     /**
      * returns true if no elmements produce true on a call to fn(element)
      *
      * @param fn
      */
-    noneMatch(fn: (data: T) => boolean): boolean;
+    noneMatch(fn: Matchable<T>): boolean;
 
     /**
      * Collect the elements with a collector given
@@ -738,7 +736,7 @@ export interface IStream<T> {
 
     /**
      * Limits the stream to a certain number of elements
-     * 
+     *
      * @param end the limit of the stream
      */
     limits(end: number): IStream<T>;
@@ -748,7 +746,49 @@ export interface IStream<T> {
      */
     value: Array<T>;
 }
+```
 
+Ojects of type IStream are exposed at various points in the system
+
+DomQuery exposes it via get stream and get lazyStream
+
+LazyStream and Stream  have static of creation methods
+to support the stream creation frm various data types
+and data sources.
+
+
+#### Usage
+
+
+```Typescript
+beforeEach(function () {
+        this.probe = [1, 2, 3, 4, 5];
+});
+
+it("must have a correct first last lazy", function () {
+    let stream = LazyStream.of<number>(...this.probe);
+
+    let first = LazyStream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
+        data;
+    }).first().value;
+    let last = Stream.of<number>(...this.probe).filter((data) => data != 5).onElem((data) => {
+        data;
+    }).last().value;
+    expect(first).to.eq(1);
+    expect(last).to.eq(4);
+);
+```
+
+Or in conjunction with DomQuery
+
+```Typescript
+let searchRoot = DomQuery.querySelectorAll("input[type='hidden']")
+let formWindowId: Optional<string> = searchRoot
+                    .stream
+                    .map<string>(getValue)
+                    .reduce(doubleCheck, INIT); 
+
+let otherStream = LazyStream.ofDataSource(searchRoot);
 ```
 
 ### XmlQuery
