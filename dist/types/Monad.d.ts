@@ -102,6 +102,19 @@ export declare class Optional<T> extends Monad<T> {
      * capabilities in typescript
      */
     getIfPresent<R>(key: string): Optional<R>;
+    /**
+     * elvis like typesafe functional save resolver
+     * a typesafe option for getIfPresent
+     *
+     * usage myOptional.resolve(value => value.subAttr.subAttr2).orElseLazy(....)
+     * if this is resolvable without any errors an Optional with the value is returned
+     * if not, then an Optional absent is returned, also if you return Optional absent
+     * it is flatmapped into absent
+     *
+     * @param resolver the resolver function, can throw any arbitrary errors, int  the error case
+     * the resolution goes towards absent
+     */
+    resolve<V>(resolver: (item: T) => V): Optional<V>;
 }
 /**
  * ValueEmbedder is the writeable version
