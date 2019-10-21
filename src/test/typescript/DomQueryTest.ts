@@ -40,7 +40,10 @@ describe('DOMQuery tests', () => {
             </body>
             </html>
     
-    `)
+    `,  {
+            contentType: "text/html",
+            runScripts: "dangerously"
+        })
 
         let window = dom.window;
 
@@ -71,14 +74,29 @@ describe('DOMQuery tests', () => {
         expect(probe2.length == 3);
     });
 
-    it('domquery ops test2 each', () => {
+    it('global eval test', function () {
         let probe2 = DomQuery.querySelectorAll("div");
-        let noIter = 0;
-        probe2 = probe2.eachElem((item, cnt) => {
-            expect(noIter == cnt).to.be.true;
-            noIter++;
-        });
-        expect(noIter == 4).to.be.true;
+        probe2 = probe2.filter((item: DomQuery) => item.id.match((id) => id != "id_1"));
+        expect(probe2.length == 3);
+    });
+
+    it('must detach', function () {
+        let probe2 = DomQuery.querySelectorAll("div#id_1");
+        probe2.detach();
+
+        expect(DomQuery.querySelectorAll("div#id_1").isPresent()).to.be.false;
+        probe2.appendTo(DomQuery.querySelectorAll("body"));
+        expect(DomQuery.querySelectorAll("div#id_1").isPresent()).to.be.true;
+    });
+
+    it('domquery ops test2 each', () => {
+        let probe2 = DomQuery.querySelectorAll("div#id_1");
+
+        DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello'");
+        expect(probe2.html().value).to.eq("hello");
+
+        DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello2'", "nonci");
+        expect(probe2.html().value).to.eq("hello2");
     });
 
     it('domquery ops test2 eachNode', function () {
@@ -156,5 +174,7 @@ describe('DOMQuery tests', () => {
         expect(DomQuery.querySelectorAll("#insertedAfter").isPresent()).to.be.true;
         expect(DomQuery.querySelectorAll("#insertedAfter2").isPresent()).to.be.true;
     });
+
+
 
 });
