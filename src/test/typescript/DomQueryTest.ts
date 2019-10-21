@@ -17,6 +17,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {DomQuery} from "../../main/typescript/DomQuery";
+import {ArrayCollector} from "../../main/typescript";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -175,6 +176,24 @@ describe('DOMQuery tests', () => {
         expect(DomQuery.querySelectorAll("#insertedAfter2").isPresent()).to.be.true;
     });
 
+
+    it('it must stream', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll: Array<any> = probe1.stream.collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
+
+        coll = probe1.lazyStream.collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
+
+    });
+
+    it('it must have parents', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll: Array<any> = probe1.parents("body").stream.collect(new ArrayCollector());
+        expect(coll.length == 1).to.be.true;
+
+
+    });
 
 
 });

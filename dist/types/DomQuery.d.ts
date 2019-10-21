@@ -454,7 +454,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * @return a DomQuery containing the found elements
      */
     static byTagName(selector: string | DomQuery | Element): DomQuery;
-    static globalEval(code: string): DomQuery;
+    static globalEval(code: string, nonce?: string): DomQuery;
     /**
      * builds the ie nodes properly in a placeholder
      * and bypasses a non script insert bug that way
@@ -561,6 +561,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * @param inval
      */
     html(inval?: string): DomQuery | Optional<string>;
+    innerHtml: string;
     private _mozMatchesSelector;
     /**
      * filters the current dom query elements

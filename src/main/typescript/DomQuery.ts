@@ -1226,14 +1226,15 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     parents(tagName: string): DomQuery {
-        let retArr = [];
+        const retSet: Set<Element> = new Set();
+        const retArr: Array<Element> = [];
         const lowerTagName = tagName.toLowerCase();
-        let resolveItem = (item: Element) => {
 
-            if ((item.tagName || "").toLowerCase() == lowerTagName) {
+        let resolveItem = (item: Element) => {
+            if ((item.tagName || "").toLowerCase() == lowerTagName && !retSet.has(item)) {
+                retSet.add(item);
                 retArr.push(item);
             }
-
         };
 
         this.eachElem((item: Element) => {
@@ -1246,7 +1247,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 }
             }
         });
-        return new DomQuery(...retArr);
+
+        return  new DomQuery(... retArr);
     }
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {

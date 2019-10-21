@@ -4,7 +4,7 @@
   "description": "TypeScript/Javascript set of functional pattern inspired helpers, which will ease your programming live",
   "main": "dist/js/commonjs/index.js",
   "scripts": {
-    "test": "mocha -r ts-node/register -P ./src/test/typescript/ ./src/test/typescript/**/*Test.ts",
+    "test": "mocha -r ts-node/register -P ./src/ ./src/test/typescript/**/*Test.ts",
     "coverage": "nyc --reporter=html --reporter=text mocha -r ts-node/register ./**/test/typescript/**/**/*Test*.ts",
     "build": "TARGET_TYPE=commonjs webpack",
     "build-umd": "TARGET_TYPE=umd webpack",

@@ -684,8 +684,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         }
     }
 
-    static globalEval(code: string): DomQuery {
-        return new DomQuery(document).globalEval(code);
+    static globalEval(code: string, nonce?:string): DomQuery {
+        return new DomQuery(document).globalEval(code, nonce);
     }
 
     /**
@@ -939,12 +939,21 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      */
     html(inval?: string): DomQuery | Optional<string> {
         if (Optional.fromNullable(inval).isAbsent()) {
-            return this.getAsElem(0).isPresent() ? Optional.fromNullable(this.getAsElem(0).value.innerHTML) : Optional.absent;
+            return this.isPresent() ? Optional.fromNullable(this.innerHtml) : Optional.absent;
         }
-        if (this.getAsElem(0).isPresent()) {
-            this.getAsElem(0).value.innerHTML = inval;
-        }
+        this.innerHtml = inval;
+
         return this;
+    }
+
+   set innerHtml(inVal: string) {
+        this.eachElem(elem => elem.innerHTML = inVal);
+    }
+
+    get innerHtml(): string {
+        let retArr = [];
+        this.eachElem(elem => retArr.push(elem.innerHTML));
+        return retArr.join("");
     }
 
     //source: https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
@@ -964,7 +973,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 return i > -1;
             };
         return matchesSelector.call(toMatch, selector);
-        //return matchesSelector.call(toMatch, selector);
     }
 
     /**
@@ -1218,12 +1226,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     parents(tagName: string): DomQuery {
-        let retArr = [];
+        const retSet = new Set();
         const lowerTagName = tagName.toLowerCase();
         let resolveItem = (item: Element) => {
 
             if ((item.tagName || "").toLowerCase() == lowerTagName) {
-                retArr.push(item);
+                retSet.add(item);
             }
 
         };
@@ -1233,12 +1241,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 item = <Element>item.parentNode;
                 resolveItem(item);
                 //nested forms not possible, performance shortcut
-                if (tagName == "form" && retArr.length) {
+                if (tagName == "form" && retSet.size) {
                     return false;
                 }
             }
         });
-        return new DomQuery(...retArr);
+        return new DomQuery(...retSet.entries());
     }
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
