@@ -17,6 +17,7 @@
 import {describe} from "mocha";
 import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
+import {ArrayCollector} from "../../main/typescript";
 
 
 describe('early stream tests', () => {
@@ -175,4 +176,27 @@ describe('early stream tests', () => {
         expect(noneMatch).to.be.true;
     })
 
+    it("must sort correctly", function () {
+
+        let probe: Array<number> = [1,5,3,2,4];
+
+        let res = Stream.of<number>(...probe)
+            .sort((el1: number,el2: number) => el1 - el2)
+            .collect(new ArrayCollector());
+
+        expect(res.join(",")).to.eq("1,2,3,4,5");
+
+    })
+
+    it("must sort correctly lazy", function () {
+
+        let probe: Array<number> = [1,5,3,2,4];
+
+        let res = LazyStream.of<number>(...probe)
+            .sort((el1: number,el2: number) => el1 - el2)
+            .collect(new ArrayCollector());
+
+        expect(res.join(",")).to.eq("1,2,3,4,5");
+
+    })
 });
