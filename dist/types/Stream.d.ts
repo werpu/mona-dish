@@ -5,6 +5,7 @@ export declare type IteratableConsumer<T> = (data: T, pos?: number) => void | bo
 export declare type Reducable<T> = (val1: T, val2: T) => T;
 export declare type Matchable<T> = (data: T) => boolean;
 export declare type Mappable<T, R> = (data: T) => R;
+export declare type Comparator<T> = (el1: T, el2: T) => number;
 /**
  * Generic interface defining a stream
  */
@@ -91,6 +92,15 @@ export interface IStream<T> {
      */
     collect(collector: ICollector<T, any>): any;
     /**
+     * sort on the stream, this is a special case
+     * of an endpoint, so your data which is fed in needs
+     * to be limited otherwise it will fail
+     * it still returns a stream for further processing
+     *
+     * @param comparator
+     */
+    sort(comparator: Comparator<T>): IStream<T>;
+    /**
      * Limits the stream to a certain number of elements
      *
      * @param end the limit of the stream
@@ -129,6 +139,7 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     anyMatch(fn: Matchable<T>): boolean;
     allMatch(fn: Matchable<T>): boolean;
     noneMatch(fn: Matchable<T>): boolean;
+    sort(comparator: Comparator<T>): IStream<T>;
     collect(collector: ICollector<T, any>): any;
     hasNext(): boolean;
     next(): T;
@@ -186,6 +197,7 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     anyMatch(fn: Matchable<T>): boolean;
     allMatch(fn: Matchable<T>): boolean;
     noneMatch(fn: Matchable<T>): boolean;
+    sort(comparator: Comparator<T>): IStream<T>;
     readonly value: Array<T>;
     private stop;
     private isOverLimits;
