@@ -1226,14 +1226,15 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     parents(tagName: string): DomQuery {
-        const retSet = new Set();
+        const retSet: Set<Element> = new Set();
+        const retArr: Array<Element> = [];
         const lowerTagName = tagName.toLowerCase();
+
         let resolveItem = (item: Element) => {
-
-            if ((item.tagName || "").toLowerCase() == lowerTagName) {
+            if ((item.tagName || "").toLowerCase() == lowerTagName && !retSet.has(item)) {
                 retSet.add(item);
+                retArr.push(item);
             }
-
         };
 
         this.eachElem((item: Element) => {
@@ -1241,12 +1242,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 item = <Element>item.parentNode;
                 resolveItem(item);
                 //nested forms not possible, performance shortcut
-                if (tagName == "form" && retSet.size) {
+                if (tagName == "form" && retArr.length) {
                     return false;
                 }
             }
         });
-        return new DomQuery(...retSet.entries());
+
+        return  new DomQuery(... retArr);
     }
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
