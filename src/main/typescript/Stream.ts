@@ -119,6 +119,16 @@ export interface IStream<T> {
     collect(collector: ICollector<T, any>): any;
 
     /**
+     * sort on the stream, this is a special case
+     * of an endpoint, so your data which is fed in needs
+     * to be limited otherwise it will fail
+     * it still returns a stream for further processing
+     *
+     * @param comparator
+     */
+    sort(comparator: Comparator<T>): IStream<T>;
+
+    /**
      * Limits the stream to a certain number of elements
      *
      * @param end the limit of the stream

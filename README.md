@@ -747,6 +747,17 @@ export interface IStream<T> {
      * point hence producing an endless loop)
      */
     last(): Optional<T>;
+    
+    /**
+     * sort on the stream, this is a special case
+     * of an endpoint, so your data which is fed in needs
+     * to be limited otherwise it will fail
+     * it still returns a stream for further processing
+     *
+     * @param comparator
+     */
+    sort(comparator: Comparator<T>): IStream<T>;
+
 
     /**
      * returns true if there is at least one element where a call fn(element) produces true
