@@ -603,7 +603,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * todo align this api with the rest of the apis
      */
     get disabled(): boolean {
-        return !!this.attr("disabled").value;
+        return this.attr("disabled").isPresent();
     }
 
     set disabled(disabled: boolean) {
