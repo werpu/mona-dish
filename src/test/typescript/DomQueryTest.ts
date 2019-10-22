@@ -17,7 +17,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {DomQuery} from "../../main/typescript/DomQuery";
-import {ArrayCollector, Lang} from "../../main/typescript";
+import {ArrayCollector, Lang, LazyStream} from "../../main/typescript";
 import sinon = require('sinon');
 
 const jsdom = require("jsdom");
@@ -269,6 +269,21 @@ describe('DOMQuery tests', function () {
             .stream.map<number>(item => item.attr("checked").isPresent() ? 1 : 0)
             .reduce((val1, val2) => val1 + val2, 0);
         expect(count.value).to.eq(1);
+
+        expect(DomQuery.byId("id_1").inputValue.value == "id_1_val").to.be.true;
+        DomQuery.byId("id_1").inputValue.value = "booga";
+        expect(DomQuery.byId("id_1").inputValue.value == "booga").to.be.true;
+
+        expect(DomQuery.byId("id_3").inputValue.value).to.eq("textareaVal");
+
+        DomQuery.byId("id_3").inputValue.value = "hello world";
+        expect(DomQuery.byId("id_3").inputValue.value).to.eq("hello world");
+
+        let cfg = DomQuery.querySelectorAll("form").elements.encodeFormElement();
+        expect(cfg.getIf("id_1").value).to.eq("booga");
+        expect(cfg.getIf("id_2").value).to.eq("id_2_val");
+        expect(cfg.getIf("id_3").value).to.eq("hello world");
+        expect(cfg.getIf("cc_1").value).to.eq("Mastercard");
     })
 
     it("must have a proper loadScriptEval execution", function (done) {
@@ -286,8 +301,51 @@ describe('DOMQuery tests', function () {
             done();
         }, 100)
 
+    });
 
-    })
+    it("must have first etc working", function () {
+        expect(DomQuery.querySelectorAll("div").first().id.value).to.eq("id_1");
+    });
+
+    it("runscript runcss", function () {
+        DomQuery.byTagName("body").innerHtml = `
+            <div id="first"></div>
+            <div id="second"></div>
+            <div id="third"></div>
+            <div id="fourth"></div>
+            
+            <script type="text/javascript">
+                document.getElementById("first").innerHTML = "hello world";
+            </script>
+            <script type="text/javascript">
+            //<![CDATA[
+                document.getElementById("second").innerHTML = "hello world";
+            //]]>    
+            </script>
+            <script type="text/javascript">
+            <!--
+                document.getElementById("third").innerHTML = "hello world";
+            //-->   
+            </script>
+              <script type="text/javascript">
+            //<!--
+                document.getElementById("fourth").innerHTML = "hello world";
+            //-->   
+            </script>
+        
+            <style type="text/css">
+                #first {
+                    border: 1px solid black;
+                }
+            </style>
+        `;
+        let content = DomQuery.byTagName("body").runScripts().runCss();
+        expect(content.byId("first").innerHtml).to.eq("hello world");
+        expect(content.byId("second").innerHtml).to.eq("hello world");
+        expect(content.byId("third").innerHtml).to.eq("hello world");
+        expect(content.byId("fourth").innerHtml).to.eq("hello world");
+
+    });
 
     it("must have a proper loadScriptEval deferred", function (done) {
 
@@ -308,6 +366,66 @@ describe('DOMQuery tests', function () {
             expect(DomQuery.byId("id_1").innerHtml == "hello world").to.be.true;
             done();
         }, 1000)
+    })
+
+    it("it must handle events properly", function () {
+        let clicked = 0;
+        let listener = (evt: any) => {
+            clicked++;
+        };
+        let eventReceiver = DomQuery.byId("id_1");
+        eventReceiver.addEventListener("click", listener);
+        eventReceiver.click();
+
+        expect(clicked).to.eq(1);
+
+        eventReceiver.removeEventListener("click", listener);
+        eventReceiver.click();
+
+        expect(clicked).to.eq(1);
+
+    });
+
+    it("it must handle innerText properly", function () {
+
+        //jsdom bug
+        Object.defineProperty(Object.prototype, 'innerText', {
+            get() {
+                return this.textContent;
+            },
+        });
+
+        let probe = DomQuery.byId("id_1");
+        probe.innerHtml = "<div>hello</div><div>world</div>";
+        expect(probe.innerText()).to.eq("helloworld");
+    });
+    it("it must handle textContent properly", function () {
+        let probe = DomQuery.byId("id_1");
+        probe.innerHtml = "<div>hello</div><div>world</div>";
+        expect(probe.textContent()).to.eq("helloworld");
+    });
+
+    it("it must handle iterations properly", function () {
+        let probe = DomQuery.byTagName("div");
+        let resArr = probe.lazyStream.collect(new ArrayCollector());
+        expect(resArr.length).to.eq(4);
+
+        probe.reset();
+        while (probe.hasNext()) {
+            let el = probe.next();
+            expect(el.tagName.value.toLowerCase()).to.eq("div");
+        }
+        expect(probe.next()).to.eq(null);
+        let probe2 = DomQuery.byTagName("div").limits(2);
+        resArr = LazyStream.ofStreamDataSource(<any>probe2).collect(new ArrayCollector());
+        expect(resArr.length).to.eq(2);
+    });
+
+    it("it must handle subnodes properly", function () {
+        let probe = DomQuery.byTagName("div");
+        expect(probe.subNodes(1,3).length).to.eq(2);
+        probe = DomQuery.byTagName("body").childNodes.subNodes(0,2);
+        expect(probe.length).to.eq(2);
     })
 
 });

@@ -76,7 +76,16 @@ export class XMLQuery extends DomQuery {
         return ret.join("");
     }
 
-
+    get cDATAAsString(): string {
+        let cDataBlock = [];
+        // response may contain several blocks
+        this.each((item: DomQuery) => {
+            item.childNodes.eachElem((node: Node) => {
+                cDataBlock.push(<string>(<any>node).data);
+            });
+        });
+        return cDataBlock.join('');
+    }
 
     parserErrorText(joinstr: string): string {
         return this.querySelectorAll("parsererror").textContent(joinstr);
