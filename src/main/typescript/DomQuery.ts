@@ -582,6 +582,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         if (this.getAsElem(0).getIf("value").isPresent()) {
             return new ValueEmbedder<string>(this.getAsElem(0).value);
         } else {
+            if(this.isTag("textArea")) {
+                return new ValueEmbedder<string>(this.getAsElem(0).value, "innerText");
+            }
             return <any>ValueEmbedder.absent;
         }
     }
