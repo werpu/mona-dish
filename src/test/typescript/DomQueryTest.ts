@@ -225,31 +225,37 @@ describe('DOMQuery tests', function () {
     })
 
     it("must have a working input handling", function () {
-        DomQuery.querySelectorAll("body").innerHtml = `
-        <form id="blarg">
-            <div id="embed1">
-            <input type="text" id="id_1" name="id_1" value="id_1_val"></input> 
-            <input type="text" id="id_2" name="id_2" value="id_2_val" disabled="disabled"> </input>
-            <textarea type="text" id="id_3" name="id_3">textareaVal</textarea> 
-                    
-            <fieldset>
-                <input type="radio" id="mc" name="cc_1" value="Mastercard" checked="checked"></input>
-                <label for="mc"> Mastercard</label> 
-                <input type="radio" id="vi" name="cc_1" value="Visa"></input>
-                <label for="vi"> Visa</label>
-                <input type="radio" id="ae" name="cc_1" value="AmericanExpress"></input>
-                <label for="ae"> American Express</label> 
-             </fieldset>
-             </div>
-        </form>
+        DomQuery.querySelectorAll("body").innerHtml = `<form id="blarg">
+    <div id="embed1">
+        <input type="text" id="id_1" name="id_1" value="id_1_val"></input>
+        <input type="text" id="id_2" name="id_2" value="id_2_val" disabled="disabled"> </input>
+        <textarea type="text" id="id_3" name="id_3">textareaVal</textarea>
+
+        <fieldset>
+            <input type="radio" id="mc" name="cc_1" value="Mastercard" checked="checked"></input>
+            <label for="mc"> Mastercard</label>
+            <input type="radio" id="vi" name="cc_1" value="Visa"></input>
+            <label for="vi"> Visa</label>
+            <input type="radio" id="ae" name="cc_1" value="AmericanExpress"></input>
+            <label for="ae"> American Express</label>
+        </fieldset>
+        <select id="val_5" name="val_5" name="top5" size="5">
+            <option>barg</option>
+            <option>jjj</option>
+            <option selected>akaka</option>
+            <option>blon</option>
+            <option>slashs</option>
+        </select>
+    </div>
+</form>
        `;
 
         let length = DomQuery.querySelectorAll("form").elements.length;
-        expect(length == 7).to.be.true;
+        expect(length == 8).to.be.true;
         let length1 = DomQuery.querySelectorAll("body").elements.length;
-        expect(length1 == 7).to.be.true;
+        expect(length1 == 8).to.be.true;
         let length2 = DomQuery.byId("embed1").elements.length;
-        expect(length2 == 7).to.be.true;
+        expect(length2 == 8).to.be.true;
 
         let count = DomQuery.byId("embed1").elements
             .stream.map<number>(item => item.disabled ? 1 : 0)
@@ -284,6 +290,7 @@ describe('DOMQuery tests', function () {
         expect(cfg.getIf("id_2").value).to.eq("id_2_val");
         expect(cfg.getIf("id_3").value).to.eq("hello world");
         expect(cfg.getIf("cc_1").value).to.eq("Mastercard");
+        expect(cfg.getIf("val_5").value).to.eq("akaka");
     })
 
     it("must have a proper loadScriptEval execution", function (done) {
@@ -425,6 +432,9 @@ describe('DOMQuery tests', function () {
         let probe = DomQuery.byTagName("div");
         expect(probe.subNodes(1,3).length).to.eq(2);
         probe = DomQuery.byTagName("body").childNodes.subNodes(0,2);
+        expect(probe.length).to.eq(2);
+
+        probe = DomQuery.byTagName("div").subNodes(2);
         expect(probe.length).to.eq(2);
     })
 
