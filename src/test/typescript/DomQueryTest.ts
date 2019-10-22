@@ -17,7 +17,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {DomQuery} from "../../main/typescript/DomQuery";
-import {ArrayCollector} from "../../main/typescript";
+import {ArrayCollector, Lang} from "../../main/typescript";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -41,7 +41,7 @@ describe('DOMQuery tests', () => {
             </body>
             </html>
     
-    `,  {
+    `, {
             contentType: "text/html",
             runScripts: "dangerously"
         })
@@ -176,7 +176,6 @@ describe('DOMQuery tests', () => {
         expect(DomQuery.querySelectorAll("#insertedAfter2").isPresent()).to.be.true;
     });
 
-
     it('it must stream', function () {
         let probe1 = new DomQuery(document).querySelectorAll("div");
         let coll: Array<any> = probe1.stream.collect(new ArrayCollector());
@@ -192,8 +191,53 @@ describe('DOMQuery tests', () => {
         let coll: Array<any> = probe1.parents("body").stream.collect(new ArrayCollector());
         expect(coll.length == 1).to.be.true;
 
-
     });
 
+    it("must have a working insertBefore and insertAfter", function () {
+        let probe1 = new DomQuery(document).byId("id_2");
+        probe1.insertBefore(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+        probe1.insertAfter(DomQuery.fromMarkup(` <div id="id_x_0_1"></div><div id="id_x_1_1"></div>`));
+
+        expect(DomQuery.querySelectorAll("div").length).to.eq(8);
+        DomQuery.querySelectorAll("body").innerHtml = Lang.instance.trim(DomQuery.querySelectorAll("body").innerHtml.replace(/>\s*</gi, "><"));
+        expect(DomQuery.querySelectorAll("body").childNodes.length).to.eq(8);
+
+        let innerHtml = DomQuery.querySelectorAll("body").innerHtml;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+
+        expect(innerHtml.indexOf("id_x_0_1") > innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1_1") > innerHtml.indexOf("id_x_0_1")).to.be.true;
+    })
+
+    it("must have a working input handling", function () {
+        DomQuery.querySelectorAll("body").innerHtml = `
+        <form id="blarg">
+            <div id="embed1">
+            <input type="text" id="id_1" name="id_1" value="id_1_val"></input> 
+            <input type="text" id="id_2" name="id_2" value="id_2_val" disabled="disabled"> </input>
+            <textarea type="text" id="id_3" name="id_3">textareaVal</textarea> 
+                    
+            <fieldset>
+                <input type="radio" id="mc" name="cc_1" value="Mastercard" checked="checked"></input>
+                <label for="mc"> Mastercard</label> 
+                <input type="radio" id="vi" name="cc_1" value="Visa"></input>
+                <label for="vi"> Visa</label>
+                <input type="radio" id="ae" name="cc_1" value="AmericanExpress"></input>
+                <label for="ae"> American Express</label> 
+             </fieldset>
+             </div>
+        </form>
+       `;
+
+
+        let length = DomQuery.querySelectorAll("form").elements.length;
+        expect(length == 7).to.be.true;
+        let length1 = DomQuery.querySelectorAll("body").elements.length;
+        expect(length1 == 7).to.be.true;
+        let length2 = DomQuery.byId("embed1").elements.length;
+        expect(length2 == 7).to.be.true;
+    })
 
 });

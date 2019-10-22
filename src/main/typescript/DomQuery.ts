@@ -587,17 +587,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     get elements(): DomQuery {
-        let elements: Array<DomQuery> = this.each((item: DomQuery) => {
+        let elements: DomQuery = this.stream.flatMap((item: DomQuery) => {
             let formElement: HTMLFormElement = <HTMLFormElement>item.value.value;
-            return formElement.elements ? formElement.elements : null;
-        }).stream
-            .filter(item => !!item).value;
+            return new Stream(formElement.elements ? Lang.instance.objToArray(formElement.elements) : []);
+        }).filter(item => !!item).collect(new DomQueryCollector());
 
-        let res = new DomQuery(...elements);
-
-        return res
-            .orElseLazy(() => this.querySelectorAll("form").elements)
-            .orElseLazy(() => this.querySelectorAll("input, select, textarea"));
+        return elements
+            .orElseLazy(() => this.querySelectorAll("input, select, textarea, fieldset"));
     }
 
     /**
