@@ -47,7 +47,7 @@ interface IDomQuery {
     /**
      * The the value in case of inputs as changeable value
      */
-    readonly inputValue: ValueEmbedder<string>;
+    readonly inputValue: ValueEmbedder<string | boolean>;
     /**
      * the underlying form elements as domquery object
      */
@@ -412,12 +412,14 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * returns null in case of no type existing otherwise
      * the value of the first element
      */
-    readonly inputValue: ValueEmbedder<string>;
+    readonly inputValue: ValueEmbedder<string | boolean>;
+    checked: boolean;
     readonly elements: DomQuery;
     /**
      * todo align this api with the rest of the apis
      */
     disabled: boolean;
+    removeAttribute(name: string): void;
     readonly childNodes: DomQuery;
     /**
      * binding into stream
@@ -622,7 +624,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEval(src: string, defer: number, charSet: string): this;
+    loadScriptEval(src: string, defer?: number, charSet?: string): this;
     insertAfter(...toInsertParams: Array<DomQuery>): DomQuery;
     insertBefore(...toInsertParams: Array<DomQuery>): DomQuery;
     orElse(...elseValue: any): DomQuery;
@@ -652,7 +654,6 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      */
     runScripts(whilteListed?: (val: string) => boolean): DomQuery;
     runCss(): DomQuery;
-    readonly cDATAAsString: string;
     /**
      * fires a click event on the underlying dom elements
      */
@@ -675,6 +676,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * @return a copy pf
      */
     encodeFormElement(toMerge?: Config): Config;
+    readonly cDATAAsString: string;
     subNodes(from: number, to?: number): DomQuery;
     _limits: number;
     limits(end: number): IStream<DomQuery>;

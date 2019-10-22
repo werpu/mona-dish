@@ -101,7 +101,7 @@ interface IDomQuery {
     /**
      * The the value in case of inputs as changeable value
      */
-    readonly inputValue: ValueEmbedder<string>;
+    readonly inputValue: ValueEmbedder<string | boolean>;
     /**
      * the underlying form elements as domquery object
      */
@@ -578,7 +578,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * returns null in case of no type existing otherwise
      * the value of the first element
      */
-    get inputValue(): ValueEmbedder<string> {
+    get inputValue(): ValueEmbedder<string | boolean> {
         if (this.getAsElem(0).getIf("value").isPresent()) {
             return new ValueEmbedder<string>(this.getAsElem(0).value);
         } else {
@@ -586,29 +586,43 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         }
     }
 
+    get checked(): boolean {
+        return Stream.of(...this.values).allMatch(el => !!(<any>el).checked);
+    }
+
+    set checked(newChecked: boolean) {
+        this.eachElem(el => (<any>el).checked = newChecked);
+    }
+
     get elements(): DomQuery {
-        let elements: Array<DomQuery> = this.each((item: DomQuery) => {
+        let elements: DomQuery = this.stream.flatMap((item: DomQuery) => {
             let formElement: HTMLFormElement = <HTMLFormElement>item.value.value;
-            return formElement.elements ? formElement.elements : null;
-        }).stream
-            .filter(item => !!item).value;
+            return new Stream(formElement.elements ? Lang.instance.objToArray(formElement.elements) : []);
+        }).filter(item => !!item).collect(new DomQueryCollector());
 
-        let res = new DomQuery(...elements);
-
-        return res
-            .orElseLazy(() => this.querySelectorAll("form").elements)
-            .orElseLazy(() => this.querySelectorAll("input, select, textarea"));
+        return elements
+            .orElseLazy(() => this.querySelectorAll("input, select, textarea, fieldset"));
     }
 
     /**
      * todo align this api with the rest of the apis
      */
     get disabled(): boolean {
-        return !!this.attr("disabled").value;
+        return this.attr("disabled").isPresent();
     }
 
     set disabled(disabled: boolean) {
-        this.attr("disabled").value = disabled + "";
+        // this.attr("disabled").value = disabled + "";
+        if (!disabled) {
+            this.removeAttribute("disabled");
+        } else {
+            this.attr("disabled").value = "disabled";
+        }
+
+    }
+
+    removeAttribute(name: string) {
+        this.eachElem(item => item.removeAttribute(name));
     }
 
     get childNodes(): DomQuery {
@@ -635,7 +649,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * once they hit a dead end.
      */
     get lazyStream(): LazyStream<DomQuery> {
-        return LazyStream.of(...this.asArray);
+        return LazyStream.ofStreamDataSource(this);
     }
 
     get asArray(): Array<DomQuery> {
@@ -684,7 +698,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         }
     }
 
-    static globalEval(code: string, nonce?:string): DomQuery {
+    static globalEval(code: string, nonce?: string): DomQuery {
         return new DomQuery(document).globalEval(code, nonce);
     }
 
@@ -946,7 +960,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         return this;
     }
 
-   set innerHtml(inVal: string) {
+    set innerHtml(inVal: string) {
         this.eachElem(elem => elem.innerHTML = inVal);
     }
 
@@ -1130,7 +1144,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEval(src: string, defer: number = 0, charSet: string) {
+    loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8") {
         let xhr = new XMLHttpRequest();
         xhr.open("GET", src, false);
 
@@ -1140,29 +1154,27 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
         xhr.send(null);
 
+        xhr.onload = (responseData: any) => {
+            //defer also means we have to process after the ajax response
+            //has been processed
+            //we can achieve that with a small timeout, the timeout
+            //triggers after the processing is done!
+            if (!defer) {
+                this.globalEval(xhr.responseText.replace("\n", "\r\n") + "\r\n//@ sourceURL=" + src);
+            } else {
+                //TODO not ideal we maybe ought to move to something else here
+                //but since it is not in use yet, it is ok
+                setTimeout(() => {
+                    this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src);
+                }, defer);
+            }
+        };
+
+        xhr.onerror = (data: any) => {
+            throw Error(data);
+        };
         //since we are synchronous we do it after not with onReadyStateChange
 
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                //defer also means we have to process after the ajax response
-                //has been processed
-                //we can achieve that with a small timeout, the timeout
-                //triggers after the processing is done!
-                if (!defer) {
-                    this.globalEval(xhr.responseText.replace("\n", "\r\n") + "\r\n//@ sourceURL=" + src);
-                } else {
-                    //TODO not ideal we maybe ought to move to something else here
-                    //but since it is not in use yet, it is ok
-                    setTimeout(function () {
-                        this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src);
-                    }, defer);
-                }
-            } else {
-                throw Error(xhr.responseText);
-            }
-        } else {
-            throw Error("Loading of script " + src + " failed ");
-        }
         return this;
     }
 
@@ -1248,7 +1260,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
             }
         });
 
-        return  new DomQuery(... retArr);
+        return new DomQuery(...retArr);
     }
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
@@ -1366,16 +1378,17 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                         // embedded script auto eval
                         //TODO this probably needs to be changed due to our new parsing structures
                         //probably not needed anymore
-                        let evalText = item.text || item.innerText || item.innerHTML;
+                        let evalText = Lang.instance.trim(item.text || item.innerText || item.innerHTML);
                         let go = true;
+
                         while (go) {
                             go = false;
-                            if (evalText.substring(0, 1) == " ") {
-                                evalText = evalText.substring(1);
-                                go = true;
-                            }
                             if (evalText.substring(0, 4) == "<!--") {
                                 evalText = evalText.substring(4);
+                                go = true;
+                            }
+                            if (evalText.substring(0, 4) == "//<!--") {
+                                evalText = evalText.substring(6);
                                 go = true;
                             }
                             if (evalText.substring(0, 11) == "//<![CDATA[") {
@@ -1417,6 +1430,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
             //at this browser
             execScrpt = null;
         }
+        return this;
     }
 
     runCss(): DomQuery {
@@ -1474,16 +1488,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         return this;
     }
 
-    get cDATAAsString(): string {
-        let cDataBlock = [];
-        // response may contain several blocks
-        this.each((item: DomQuery) => {
-            item.childNodes.eachElem((node: Node) => {
-                cDataBlock.push(<string>(<any>node).data);
-            });
-        });
-        return cDataBlock.join('');
-    }
+
 
     /**
      * fires a click event on the underlying dom elements
@@ -1585,7 +1590,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 }).value;
                 return (<any>item).innerText || "";
             })
-            .reduce((text1, text2) => text1 + joinstr + text2, "").value;
+            .reduce((text1, text2) => [text1, text2].join(joinstr), "").value;
 
     }
 
@@ -1610,7 +1615,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         let target = toMerge.shallowCopy;
 
         this.each((element: DomQuery) => {
-            if (!element.name) {//no name, no encoding
+            if (element.name.isAbsent()) {//no name, no encoding
                 return;
             }
             let name = element.name.orElse("__none__").value;
@@ -1658,7 +1663,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 // - submit checkboxes and radio inputs only if checked
                 if ((tagName != "select" && elemType != "button"
                     && elemType != "reset" && elemType != "submit" && elemType != "image")
-                    && ((elemType != "checkbox" && elemType != "radio") || (<any>element).checked)) {
+                    && ((elemType != "checkbox" && elemType != "radio") || element.checked)) {
                     let files: any = (<any>element.value).files;
                     if (files && files.length) {
                         //xhr level2
@@ -1674,6 +1679,18 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         return target;
 
     }
+
+    get cDATAAsString(): string {
+        let cDataBlock = [];
+        // response may contain several blocks
+        this.each((item: DomQuery) => {
+            item.childNodes.eachElem((node: Node) => {
+                cDataBlock.push(<string>(<any>node).data);
+            });
+        });
+        return cDataBlock.join('');
+    }
+
 
     subNodes(from: number, to?: number): DomQuery {
         if (Optional.fromNullable(to).isAbsent()) {
@@ -1732,7 +1749,6 @@ export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
         return new DomQuery(...this.data);
     }
 }
-
 
 /**
  * abbreviation for DomQuery
