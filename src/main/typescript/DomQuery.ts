@@ -607,7 +607,17 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     set disabled(disabled: boolean) {
-        this.attr("disabled").value = disabled + "";
+       // this.attr("disabled").value = disabled + "";
+        if(!disabled) {
+            this.removeAttribute("disabled");
+        } else {
+            this.attr("disabled").value = "disabled";
+        }
+
+    }
+
+    removeAttribute(name: string) {
+        this.eachElem(item => item.removeAttribute(name));
     }
 
     get childNodes(): DomQuery {

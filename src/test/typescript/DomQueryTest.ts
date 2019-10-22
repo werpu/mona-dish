@@ -238,6 +238,26 @@ describe('DOMQuery tests', () => {
         expect(length1 == 7).to.be.true;
         let length2 = DomQuery.byId("embed1").elements.length;
         expect(length2 == 7).to.be.true;
+
+        let count = DomQuery.byId("embed1").elements
+            .stream.map<number>(item => item.disabled ? 1 : 0)
+            .reduce((val1, val2) => val1+val2, 0);
+        expect(count.value).to.eq(1);
+
+
+        DomQuery.byId("embed1").elements
+            .stream.filter(item => item.disabled)
+            .each(item => item.disabled = false);
+
+        count = DomQuery.byId("embed1").elements
+            .stream.map<number>(item => item.disabled ? 1 : 0)
+            .reduce((val1, val2) => val1+val2, 0);
+        expect(count.value).to.eq(0);
+
+        count = DomQuery.byId("embed1").elements
+            .stream.map<number>(item => item.attr("checked").isPresent() ? 1 : 0)
+            .reduce((val1, val2) => val1+val2, 0);
+        expect(count.value).to.eq(1);
     })
 
 });
