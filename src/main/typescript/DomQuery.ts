@@ -1139,7 +1139,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEval(src: string, defer: number = 0, charSet: string) {
+    loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8") {
         let xhr = new XMLHttpRequest();
         xhr.open("GET", src, false);
 
@@ -1149,29 +1149,28 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
         xhr.send(null);
 
+
+        xhr.onload = (responseData: any) => {
+            //defer also means we have to process after the ajax response
+            //has been processed
+            //we can achieve that with a small timeout, the timeout
+            //triggers after the processing is done!
+            if (!defer) {
+                this.globalEval(xhr.responseText.replace("\n", "\r\n") + "\r\n//@ sourceURL=" + src);
+            } else {
+                //TODO not ideal we maybe ought to move to something else here
+                //but since it is not in use yet, it is ok
+                setTimeout( () => {
+                    this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src);
+                }, defer);
+            }
+        };
+
+        xhr.onerror = (data:any) => {
+            throw Error(data);
+        };
         //since we are synchronous we do it after not with onReadyStateChange
 
-        if (xhr.readyState == 4) {
-            if (xhr.status == 200) {
-                //defer also means we have to process after the ajax response
-                //has been processed
-                //we can achieve that with a small timeout, the timeout
-                //triggers after the processing is done!
-                if (!defer) {
-                    this.globalEval(xhr.responseText.replace("\n", "\r\n") + "\r\n//@ sourceURL=" + src);
-                } else {
-                    //TODO not ideal we maybe ought to move to something else here
-                    //but since it is not in use yet, it is ok
-                    setTimeout(function () {
-                        this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src);
-                    }, defer);
-                }
-            } else {
-                throw Error(xhr.responseText);
-            }
-        } else {
-            throw Error("Loading of script " + src + " failed ");
-        }
         return this;
     }
 
