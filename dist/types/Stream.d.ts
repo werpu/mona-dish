@@ -40,7 +40,7 @@ export interface IStream<T> {
      *
      * @param fn
      */
-    flatMap<R>(fn?: StreamMapper<T>): IStream<R>;
+    flatMap<R>(fn?: StreamMapper<T> | ArrayMapper<T>): IStream<R>;
     /**
      * filtering, takes an element in and is processed by fn.
      * If it returns false then further processing on this element is skipped

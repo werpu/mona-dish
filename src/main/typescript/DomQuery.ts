@@ -1682,8 +1682,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         let cDataBlock = [];
         // response may contain several blocks
         return this.stream
-            .flatMap(item => item.childNodes).reduce((reduced: Array<any>, item: DomQuery) => {
+            .flatMap(item => item.childNodes.stream).reduce((reduced: Array<any>, item: DomQuery) => {
                 reduced.push((<any>item?.value?.value)?.data ?? "");
+                return reduced;
             }, []).value.join("");
 
     }
