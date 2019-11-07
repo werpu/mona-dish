@@ -15,6 +15,7 @@ import {
  * some typedefs to make the code more reabable
  */
 export type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
+export type ArrayMapper<T> = (data: T) => Array<any>;
 export type IteratableConsumer<T> = (data: T, pos ?: number) => void | boolean;
 export type Reducable<T> = (val1: T, val2: T) => T;
 export type Matchable<T> = (data: T) => boolean;
@@ -209,11 +210,11 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * all values are flattened when accessed anyway, so there is no need to call this methiod
      */
 
-    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource): Stream<any> {
+    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any> {
         let ret = [];
         this.each(item => {
             let strmR: any = fn(item);
-            ret = ret.concat(...strmR.value);
+            ret = Array.isArray(strmR) ? ret.concat(strmR) : ret.concat(...strmR.value);
         });
         return <Stream<any>>Stream.of(...ret);
     }
@@ -429,7 +430,8 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         return new LazyStream(new MappedStreamDataSource(fn, this));
     }
 
-    flatMap<StreamProducer>(fn: StreamProducer): LazyStream<any> {
+    flatMap<StreamMapper>(fn: StreamMapper | ArrayMapper<any>): LazyStream<any> {
+
         return new LazyStream<any>(new FlatMapStreamDataSource(<any>fn, this));
     }
 
