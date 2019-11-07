@@ -5,7 +5,7 @@ import { Optional } from "./Monad";
  */
 export declare class Lang {
     private static _instance;
-    static readonly instance: Lang;
+    static get instance(): Lang;
     /**
      * helper function to savely resolve anything
      * this is not an elvis operator, it resolves

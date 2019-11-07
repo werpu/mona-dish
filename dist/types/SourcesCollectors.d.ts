@@ -112,7 +112,7 @@ export declare class FlatMapStreamDataSource<T, S> implements IStreamDataSource<
 export declare class ArrayCollector<S> implements ICollector<S, Array<S>> {
     private data;
     collect(element: S): void;
-    readonly finalValue: Array<S>;
+    get finalValue(): Array<S>;
 }
 /**
  * Form data collector for key value pair streams
@@ -140,5 +140,5 @@ export declare class QueryFormDataCollector implements ICollector<DomQuery, Form
 export declare class QueryFormStringCollector implements ICollector<DomQuery, string> {
     formData: [[string, string]];
     collect(element: DomQuery): void;
-    readonly finalValue: string;
+    get finalValue(): string;
 }

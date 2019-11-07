@@ -40,7 +40,7 @@ export interface IValueHolder<T> {
 export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
     constructor(value: T);
     protected _value: T;
-    readonly value: T;
+    get value(): T;
     map<R>(fn?: (data: T) => R): Monad<R>;
     flatMap<R>(fn?: (data: T) => R): Monad<any>;
 }
@@ -52,7 +52,7 @@ export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> 
 export declare class Optional<T> extends Monad<T> {
     static absent: Optional<any>;
     constructor(value: T);
-    readonly value: T;
+    get value(): T;
     static fromNullable<T>(value?: T): Optional<T>;
     isAbsent(): boolean;
     /**
@@ -128,7 +128,8 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
     static absent: ValueEmbedder<unknown>;
     protected key: string;
     constructor(rootElem: any, valueKey?: string);
-    value: T;
+    get value(): T;
+    set value(newVal: T);
     orElse(elseValue: any): Optional<any>;
     orElseLazy(func: () => any): Optional<any>;
     /**
@@ -149,7 +150,7 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
  */
 export declare class Config extends Optional<any> {
     constructor(root: any);
-    readonly shallowCopy: Config;
+    get shallowCopy(): Config;
     static fromNullable<T>(value?: any): Config;
     /**
      * simple merge for the root configs

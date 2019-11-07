@@ -7,7 +7,8 @@ export declare class ElementAttribute extends ValueEmbedder<string> {
     private name;
     private defaultVal;
     constructor(element: DomQuery, name: string, defaultVal?: string);
-    value: string;
+    get value(): string;
+    set value(value: string);
     protected getClass(): any;
     static fromNullable(value?: any, valueKey?: string): ElementAttribute;
 }
@@ -373,24 +374,24 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
     /**
      * returns the first element
      */
-    readonly value: Optional<Element>;
-    readonly values: Element[];
+    get value(): Optional<Element>;
+    get values(): Element[];
     /**
      * returns the id of the first element
      */
-    readonly id: ValueEmbedder<string>;
+    get id(): ValueEmbedder<string>;
     /**
      * length of the entire query set
      */
-    readonly length: number;
+    get length(): number;
     /**
      * convenience method for tagName
      */
-    readonly tagName: Optional<string>;
+    get tagName(): Optional<string>;
     /**
      * convenience method for nodeName
      */
-    readonly nodeName: Optional<string>;
+    get nodeName(): Optional<string>;
     isTag(tagName: string): boolean;
     /**
      * convenience property for type
@@ -398,33 +399,35 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * returns null in case of no type existing otherwise
      * the type of the first element
      */
-    readonly type: Optional<string>;
+    get type(): Optional<string>;
     /**
      * convenience property for name
      *
      * returns null in case of no type existing otherwise
      * the name of the first element
      */
-    readonly name: ValueEmbedder<string>;
+    get name(): ValueEmbedder<string>;
     /**
      * convenience property for value
      *
      * returns null in case of no type existing otherwise
      * the value of the first element
      */
-    readonly inputValue: ValueEmbedder<string | boolean>;
-    checked: boolean;
-    readonly elements: DomQuery;
+    get inputValue(): ValueEmbedder<string | boolean>;
+    get checked(): boolean;
+    set checked(newChecked: boolean);
+    get elements(): DomQuery;
     /**
      * todo align this api with the rest of the apis
      */
-    disabled: boolean;
+    get disabled(): boolean;
+    set disabled(disabled: boolean);
     removeAttribute(name: string): void;
-    readonly childNodes: DomQuery;
+    get childNodes(): DomQuery;
     /**
      * binding into stream
      */
-    readonly stream: Stream<DomQuery>;
+    get stream(): Stream<DomQuery>;
     /**
      * fetches a lazy stream representation
      * lazy should be applied if you have some filters etc
@@ -433,8 +436,8 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * significantly because the operations are done lazily and stop
      * once they hit a dead end.
      */
-    readonly lazyStream: LazyStream<DomQuery>;
-    readonly asArray: Array<DomQuery>;
+    get lazyStream(): LazyStream<DomQuery>;
+    get asArray(): Array<DomQuery>;
     /**
      * easy query selector all producer
      *
@@ -563,7 +566,8 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * @param inval
      */
     html(inval?: string): DomQuery | Optional<string>;
-    innerHtml: string;
+    set innerHtml(inVal: string);
+    get innerHtml(): string;
     private _mozMatchesSelector;
     /**
      * filters the current dom query elements
@@ -676,7 +680,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * @return a copy pf
      */
     encodeFormElement(toMerge?: Config): Config;
-    readonly cDATAAsString: string;
+    get cDATAAsString(): string;
     subNodes(from: number, to?: number): DomQuery;
     _limits: number;
     limits(end: number): IStream<DomQuery>;
@@ -696,7 +700,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
 export declare class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
     data: DomQuery[];
     collect(element: DomQuery): void;
-    readonly finalValue: DomQuery;
+    get finalValue(): DomQuery;
 }
 /**
  * abbreviation for DomQuery

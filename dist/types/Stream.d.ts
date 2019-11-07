@@ -1,6 +1,7 @@
 import { IMonad, IValueHolder, Optional } from "./Monad";
 import { ICollector, IStreamDataSource } from "./SourcesCollectors";
 export declare type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
+export declare type ArrayMapper<T> = (data: T) => Array<any>;
 export declare type IteratableConsumer<T> = (data: T, pos?: number) => void | boolean;
 export declare type Reducable<T> = (val1: T, val2: T) => T;
 export declare type Matchable<T> = (data: T) => boolean;
@@ -126,12 +127,15 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     private pos;
     constructor(...value: T[]);
     static of<T>(...data: Array<T>): Stream<T>;
+    static ofAssoc<T>(data: {
+        [key: string]: T;
+    }): Stream<[string, T]>;
     static ofDataSource<T>(dataSource: IStreamDataSource<T>): Stream<T>;
     limits(end: number): Stream<T>;
     onElem(fn: (data: T, pos?: number) => void | boolean): Stream<T>;
     each(fn: (data: T, pos?: number) => void | boolean): void;
     map<R>(fn?: (data: T) => R): Stream<R>;
-    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource): Stream<any>;
+    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any>;
     filter(fn?: (data: T) => boolean): Stream<T>;
     reduce(fn: Reducable<T>, startVal?: T): Optional<T>;
     first(): Optional<T>;
@@ -178,6 +182,9 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     _limits: number;
     pos: number;
     static of<T>(...values: Array<T>): LazyStream<T>;
+    static ofAssoc<T>(data: {
+        [key: string]: T;
+    }): LazyStream<[string, T]>;
     static ofStreamDataSource<T>(value: IStreamDataSource<T>): LazyStream<T>;
     constructor(parent: IStreamDataSource<T>);
     hasNext(): boolean;
@@ -189,7 +196,7 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     onElem(fn: IteratableConsumer<T>): LazyStream<T>;
     filter(fn: Matchable<T>): LazyStream<T>;
     map<R>(fn: Mappable<T, R>): LazyStream<any>;
-    flatMap<StreamProducer>(fn: StreamProducer): LazyStream<any>;
+    flatMap<StreamMapper>(fn: StreamMapper | ArrayMapper<any>): LazyStream<any>;
     each(fn: IteratableConsumer<T>): void;
     reduce(fn: Reducable<T>, startVal?: T): Optional<T>;
     last(): Optional<T>;
@@ -198,7 +205,7 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     allMatch(fn: Matchable<T>): boolean;
     noneMatch(fn: Matchable<T>): boolean;
     sort(comparator: Comparator<T>): IStream<T>;
-    readonly value: Array<T>;
+    get value(): Array<T>;
     private stop;
     private isOverLimits;
 }
