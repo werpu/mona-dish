@@ -19,7 +19,6 @@ import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
 import {ArrayCollector} from "../../main/typescript";
 
-
 describe('early stream tests', () => {
 
     beforeEach(function () {
@@ -113,6 +112,27 @@ describe('early stream tests', () => {
 
     });
 
+    it("must initialize correctly from assoc array", function () {
+        let probe = {
+            key1: "val1",
+            key2: 2,
+            key3: "val3"
+        }
+
+        let arr1 = [];
+        let arr2 = [];
+
+        Stream.ofAssoc(probe).each(item => {
+            expect(item.length).to.eq(2);
+            arr1.push(item[0]);
+            arr2.push(item[1]);
+        });
+
+        expect(arr1.join(",")).to.eq("key1,key2,key3");
+        expect(arr2.join(",")).to.eq("val1,2,val3");
+
+    });
+
     it("must have a correct lazy limits", function () {
         let last = LazyStream.of<number>(...this.probe).filter((data) => data != 5).limits(2).onElem((data) => {
             data;
@@ -122,10 +142,9 @@ describe('early stream tests', () => {
 
     })
 
-
     it("must correctly lazily flatmap", function () {
 
-        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => LazyStream.of(...[data,2])).value;
+        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => LazyStream.of(...[data, 2])).value;
 
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
@@ -133,7 +152,7 @@ describe('early stream tests', () => {
 
     it("must correctly lazily flatmap with arrays", function () {
 
-        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => [data,2]).value;
+        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => [data, 2]).value;
 
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
@@ -141,7 +160,7 @@ describe('early stream tests', () => {
 
     it("must correctly early flatmap", function () {
 
-        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => Stream.of(...[data,2])).value;
+        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => Stream.of(...[data, 2])).value;
 
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
@@ -149,16 +168,15 @@ describe('early stream tests', () => {
 
     it("must correctly early flatmap with arrays", function () {
 
-        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => [data,2]).value;
+        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => [data, 2]).value;
 
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
 
-
     it("must correctly flatmap intermixed", function () {
 
-        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => Stream.of(...[data,2])).value;
+        let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => Stream.of(...[data, 2])).value;
 
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
@@ -166,7 +184,7 @@ describe('early stream tests', () => {
 
     it("must correctly flatmap intermixed2", function () {
 
-        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => LazyStream.of(...[data,2])).value;
+        let resultingArr = Stream.of<number>(...this.probe).flatMap((data) => LazyStream.of(...[data, 2])).value;
 
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
@@ -194,10 +212,10 @@ describe('early stream tests', () => {
 
     it("must sort correctly", function () {
 
-        let probe: Array<number> = [1,5,3,2,4];
+        let probe: Array<number> = [1, 5, 3, 2, 4];
 
         let res = Stream.of<number>(...probe)
-            .sort((el1: number,el2: number) => el1 - el2)
+            .sort((el1: number, el2: number) => el1 - el2)
             .collect(new ArrayCollector());
 
         expect(res.join(",")).to.eq("1,2,3,4,5");
@@ -206,10 +224,10 @@ describe('early stream tests', () => {
 
     it("must sort correctly lazy", function () {
 
-        let probe: Array<number> = [1,5,3,2,4];
+        let probe: Array<number> = [1, 5, 3, 2, 4];
 
         let res = LazyStream.of<number>(...probe)
-            .sort((el1: number,el2: number) => el1 - el2)
+            .sort((el1: number, el2: number) => el1 - el2)
             .collect(new ArrayCollector());
 
         expect(res.join(",")).to.eq("1,2,3,4,5");

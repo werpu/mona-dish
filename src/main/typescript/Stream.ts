@@ -166,6 +166,10 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream<T>(...data);
     }
 
+    static ofAssoc<T>(data: {[key: string]: T}): Stream<[string, T]> {
+        return this.of(...Object.keys(data)).map(key => [key, data[key]]);
+    }
+
     static ofDataSource<T>(dataSource: IStreamDataSource<T>) {
         let value: T[] = [];
         while (dataSource.hasNext()) {
@@ -356,6 +360,10 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 
     static of<T>(...values: Array<T>): LazyStream<T> {
         return new LazyStream<T>(new ArrayStreamDataSource(...values));
+    }
+
+    static ofAssoc<T>(data: {[key: string]: T}): LazyStream<[string, T]> {
+        return this.of(...Object.keys(data)).map(key => [key, data[key]]);
     }
 
     static ofStreamDataSource<T>(value: IStreamDataSource<T>): LazyStream<T> {
