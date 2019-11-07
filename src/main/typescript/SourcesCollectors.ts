@@ -246,15 +246,12 @@ export class ArrayCollector<S> implements ICollector<S, Array<S>> {
 /**
  * collects an assoc stream back to an assoc array
  */
-export class AssocArrayCollector<S> implements ICollector<[string, S], {[key:string]:S}> {
-    private data: {[key:string]:any} = {};
+export class AssocArrayCollector<S> implements ICollector<[string, S] | string, {[key:string]:S}> {
+
+    finalValue: {[key:string]:any} = {};
 
     collect(element: [string, S] | string) {
-        this.data[element[0] ?? <string>element] = element[1] ?? true;
-    }
-
-    get finalValue(): {[key:string]:any} {
-        return this.data;
+        this.finalValue[element[0] ?? <string>element] = element[1] ?? true;
     }
 }
 

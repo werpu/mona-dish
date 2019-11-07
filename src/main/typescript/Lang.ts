@@ -25,10 +25,7 @@ export class Lang {
     private static _instance: Lang;
 
     static get instance() {
-        if (!Lang._instance) {
-            Lang._instance = new Lang();
-        }
-        return Lang._instance;
+        return Lang._instance ?? (Lang._instance = new Lang());
     }
 
     //should be in lang, but for now here to avoid recursive imports, not sure if typescript still has a problem with those
