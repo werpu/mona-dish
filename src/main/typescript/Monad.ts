@@ -468,13 +468,6 @@ export class Config extends Optional<any> {
         }
     }
 
-    /**
-     * @deprecated use assign
-     */
-    apply(...keys: Array<any>): IValueHolder<any> {
-       return this.assign(...keys);
-    }
-
     assign(...keys): IValueHolder<any> {
         if (keys.length < 1) {
             return;
@@ -489,13 +482,6 @@ export class Config extends Optional<any> {
         );
 
         return retVal;
-    }
-
-    /**
-     * @deprecated use assignIf
-     */
-    applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
-        return condition ? this.assign(...keys) : {value: null};
     }
 
     assignIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
