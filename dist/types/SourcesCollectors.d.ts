@@ -115,6 +115,18 @@ export declare class ArrayCollector<S> implements ICollector<S, Array<S>> {
     get finalValue(): Array<S>;
 }
 /**
+ * collects an assoc stream back to an assoc array
+ */
+export declare class AssocArrayCollector<S> implements ICollector<[string, S], {
+    [key: string]: S;
+}> {
+    private data;
+    collect(element: [string, S] | string): void;
+    get finalValue(): {
+        [key: string]: any;
+    };
+}
+/**
  * Form data collector for key value pair streams
  */
 export declare class FormDataCollector implements ICollector<{

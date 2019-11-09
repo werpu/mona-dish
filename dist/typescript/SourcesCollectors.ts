@@ -244,6 +244,21 @@ export class ArrayCollector<S> implements ICollector<S, Array<S>> {
 }
 
 /**
+ * collects an assoc stream back to an assoc array
+ */
+export class AssocArrayCollector<S> implements ICollector<[string, S], {[key:string]:S}> {
+    private data: {[key:string]:any} = {};
+
+    collect(element: [string, S] | string) {
+        this.data[element[0] ?? <string>element] = element[1] ?? true;
+    }
+
+    get finalValue(): {[key:string]:any} {
+        return this.data;
+    }
+}
+
+/**
  * Form data collector for key value pair streams
  */
 export class FormDataCollector implements ICollector<{ key: string, value: any }, FormData> {

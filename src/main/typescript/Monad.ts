@@ -461,14 +461,21 @@ export class Config extends Optional<any> {
     shallowMerge(other: Config, overwrite = true) {
         for (let key in other.value) {
             if (overwrite && key in this.value) {
-                this.apply(key).value = other.getIf(key).value;
+                this.assign(key).value = other.getIf(key).value;
             } else if (!(key in this.value)) {
-                this.apply(key).value = other.getIf(key).value;
+                this.assign(key).value = other.getIf(key).value;
             }
         }
     }
 
+    /**
+     * @deprecated use assign
+     */
     apply(...keys: Array<any>): IValueHolder<any> {
+       return this.assign(...keys);
+    }
+
+    assign(...keys): IValueHolder<any> {
         if (keys.length < 1) {
             return;
         }
@@ -484,9 +491,17 @@ export class Config extends Optional<any> {
         return retVal;
     }
 
+    /**
+     * @deprecated use assignIf
+     */
     applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
-        return condition ? this.apply(...keys) : {value: null};
+        return condition ? this.assign(...keys) : {value: null};
     }
+
+    assignIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
+        return condition ? this.assign(...keys) : {value: null};
+    }
+
 
     getIf(...keys: Array<string>): Config {
         return this.getClass().fromNullable(super.getIf.apply(this, keys).value);
