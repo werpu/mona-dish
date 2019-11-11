@@ -1,8 +1,42 @@
 /**
- * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
- * Useful if you need the functions in another library to keep its dependencies down
+ * IFunctor interface,
+ * defines an interface which allows to map a functor
+ * via a first order function to another functor
  */
-import { IMonad, IOptional, IValueEmbedder, IValueHolder } from "./Types";
+export interface IFunctor<T> {
+    map<R>(fn: (data: T) => R): IFunctor<R>;
+}
+/**
+ * IMonad definition, basically a functor with a flaptmap implementation (flatmap reduces all nested monads after a
+ * function call f into a monad with the nesting level of 1
+ *
+ * flatmap flats nested Monads into a IMonad of the deepest nested implementation
+ */
+export interface IMonad<T, M extends IMonad<any, any>> extends IFunctor<T> {
+    flatMap<T, M>(f: (T: any) => M): IMonad<any, any>;
+}
+/**
+ * a stateful functor which holds a value upn which a
+ * function can be applied
+ *
+ * as value holder of type T
+ */
+export interface IIdentity<T> extends IFunctor<T> {
+    readonly value: T;
+}
+/**
+ *  custom value holder definition, since we are not pure functional
+ *  but iterative we have structures which allow the assignment of a value
+ *  also not all structures are sideffect free
+ */
+export interface IValueHolder<T> {
+    value: T | Array<T>;
+}
+/**
+ * Implementation of a monad
+ * (Sideffect free), no write allowed directly on the monads
+ * value state
+ */
 export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
     constructor(value: T);
     protected _value: T;
@@ -15,26 +49,26 @@ export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> 
  * sugar on top
  * (Sideeffect free, since value assignment is not allowed)
  * */
-export declare class Optional<T> extends Monad<T> implements IOptional<T> {
-    static absent: IOptional<any>;
+export declare class Optional<T> extends Monad<T> {
+    static absent: Optional<any>;
     constructor(value: T);
     get value(): T;
-    static fromNullable<T>(value?: T): IOptional<T>;
+    static fromNullable<T>(value?: T): Optional<T>;
     isAbsent(): boolean;
     /**
      * any value present
      */
-    isPresent(presentRunnable?: (val?: IMonad<T, any>) => void): boolean;
-    ifPresentLazy(presentRunnable?: (val?: Monad<T>) => void): IMonad<T, any>;
-    orElse(elseValue: any): IOptional<any>;
+    isPresent(presentRunnable?: (val?: Monad<T>) => void): boolean;
+    ifPresentLazy(presentRunnable?: (val?: Monad<T>) => void): Monad<T>;
+    orElse(elseValue: any): Optional<any>;
     /**
      * lazy, passes a function which then is lazily evaluated
      * instead of a direct value
      * @param func
      */
-    orElseLazy(func: () => any): IOptional<any>;
+    orElseLazy(func: () => any): Optional<any>;
     flatMap<R>(fn?: (data: T) => R): Optional<any>;
-    getIf<R>(...key: string[]): IOptional<R>;
+    getIf<R>(...key: string[]): Optional<R>;
     /**
      * simple match, if the first order function call returns
      * true then there is a match, if the value is not present
@@ -59,9 +93,9 @@ export declare class Optional<T> extends Monad<T> implements IOptional<T> {
      * of "this"
      * @returns {Monadish.Optional}
      */
-    getClass(): any;
-    arrayIndex(key: string): number;
-    keyVal(key: string): string;
+    protected getClass(): any;
+    protected arrayIndex(key: string): number;
+    protected keyVal(key: string): string;
     /**
      * additional syntactic sugar which is not part of the usual optional implementation
      * but makes life easier, if you want to sacrifice typesafety and refactoring
@@ -80,7 +114,7 @@ export declare class Optional<T> extends Monad<T> implements IOptional<T> {
      * @param resolver the resolver function, can throw any arbitrary errors, int  the error case
      * the resolution goes towards absent
      */
-    resolve<V>(resolver: (item: T) => V): IOptional<V>;
+    resolve<V>(resolver: (item: T) => V): Optional<V>;
 }
 /**
  * ValueEmbedder is the writeable version
@@ -90,7 +124,7 @@ export declare class Optional<T> extends Monad<T> implements IOptional<T> {
  *
  * For the readonly version see Optional
  */
-export declare class ValueEmbedder<T> extends Optional<T> implements IValueEmbedder<T> {
+export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
     static absent: ValueEmbedder<unknown>;
     protected key: string;
     constructor(rootElem: any, valueKey?: string);
@@ -105,6 +139,30 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueEmbed
      * of "this"
      * @returns {Monadish.Optional}
      */
-    getClass(): any;
+    protected getClass(): any;
     static fromNullable<T>(value?: any, valueKey?: string): ValueEmbedder<T>;
+}
+/**
+ * Config, basically an optional wrapper for a json structure
+ * (not sideeffect free, since we can alter the internal config state
+ * without generating a new config), not sure if we should make it sideffect free
+ * since this would swallow a lot of performane and ram
+ */
+export declare class Config extends Optional<any> {
+    constructor(root: any);
+    get shallowCopy(): Config;
+    static fromNullable<T>(value?: any): Config;
+    /**
+     * simple merge for the root configs
+     */
+    shallowMerge(other: Config, overwrite?: boolean): void;
+    apply(...keys: Array<any>): IValueHolder<any>;
+    applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any>;
+    getIf(...keys: Array<string>): Config;
+    get(defaultVal: any): Config;
+    delete(key: string): Config;
+    toJson(): any;
+    protected getClass(): any;
+    private setVal;
+    private buildPath;
 }

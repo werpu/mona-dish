@@ -1,4 +1,5 @@
-import { IMonad, IValueHolder, ICollector, IStreamDataSource, IOptional } from "./Types";
+import { IMonad, IValueHolder, Optional } from "./Monad";
+import { ICollector, IStreamDataSource } from "./SourcesCollectors";
 export declare type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
 export declare type ArrayMapper<T> = (data: T) => Array<any>;
 export declare type IteratableConsumer<T> = (data: T, pos?: number) => void | boolean;
@@ -56,16 +57,16 @@ export interface IStream<T> {
      * @param startVal an optional starting value, if provided the the processing starts with this element
      * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
      */
-    reduce(fn: Reducable<T>, startVal: T): IOptional<T>;
+    reduce(fn: Reducable<T>, startVal: T): Optional<T>;
     /**
      * returns the first element in the stream is given as Optional
      */
-    first(): IOptional<T>;
+    first(): Optional<T>;
     /**
      * Returns the last stream element (note in endless streams without filtering and limiting you will never reach that
      * point hence producing an endless loop)
      */
-    last(): IOptional<T>;
+    last(): Optional<T>;
     /**
      * returns true if there is at least one element where a call fn(element) produces true
      *
@@ -136,9 +137,9 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     map<R>(fn?: (data: T) => R): Stream<R>;
     flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any>;
     filter(fn?: (data: T) => boolean): Stream<T>;
-    reduce(fn: Reducable<T>, startVal?: T): IOptional<T>;
-    first(): IOptional<T>;
-    last(): IOptional<T>;
+    reduce(fn: Reducable<T>, startVal?: T): Optional<T>;
+    first(): Optional<T>;
+    last(): Optional<T>;
     anyMatch(fn: Matchable<T>): boolean;
     allMatch(fn: Matchable<T>): boolean;
     noneMatch(fn: Matchable<T>): boolean;
@@ -197,9 +198,9 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     map<R>(fn: Mappable<T, R>): LazyStream<any>;
     flatMap<StreamMapper>(fn: StreamMapper | ArrayMapper<any>): LazyStream<any>;
     each(fn: IteratableConsumer<T>): void;
-    reduce(fn: Reducable<T>, startVal?: T): IOptional<T>;
-    last(): IOptional<T>;
-    first(): IOptional<T>;
+    reduce(fn: Reducable<T>, startVal?: T): Optional<T>;
+    last(): Optional<T>;
+    first(): Optional<T>;
     anyMatch(fn: Matchable<T>): boolean;
     allMatch(fn: Matchable<T>): boolean;
     noneMatch(fn: Matchable<T>): boolean;

@@ -15,34 +15,21 @@
  */
 
 import {CancellablePromise} from "./Promise";
-
-import {IOptional, IValueHolder} from "./Types";
-import * as assert from "assert";
 import {Optional} from "./Monad";
-
-class TinyValueHolder<T> implements IValueHolder<T> {
-    private rootData: {[key: string]: T}
-    private key: string;
-
-    constructor(rootData: { [p: string]: any }, key: string) {
-        this.rootData = rootData;
-        this.key = key;
-    }
-
-    set value(newVal: T) {
-        this.rootData[this.key] = newVal;
-    }
-
-    get value(): T {
-        return this.rootData[this.key];
-    }
-}
 
 /**
  * Lang helpers crossported from the apache myfaces project
  */
-export module Lang {
-    
+export class Lang {
+
+    private static _instance: Lang;
+
+    static get instance() {
+        if (!Lang._instance) {
+            Lang._instance = new Lang();
+        }
+        return Lang._instance;
+    }
 
     //should be in lang, but for now here to avoid recursive imports, not sure if typescript still has a problem with those
     /**
@@ -62,7 +49,7 @@ export module Lang {
      * @param defaultValue an optional default value if the producer failes to produce anything
      * @returns an Optional of the produced value
      */
-    export function saveResolve<T>(resolverProducer: () => T, defaultValue: T = null): IOptional<T> {
+    static saveResolve<T>(resolverProducer: () => T, defaultValue: T = null): Optional<T> {
         try {
             let result = resolverProducer();
             return Optional.fromNullable(result ?? defaultValue);
@@ -71,7 +58,7 @@ export module Lang {
         }
     }
 
-    export function saveResolveLazy<T>(resolverProducer: () => T, defaultValue: () => T = null): IOptional<T> {
+    static saveResolveLazy<T>(resolverProducer: () => T, defaultValue: () => T = null): Optional<T> {
         try {
             let result = resolverProducer();
             return Optional.fromNullable(result ?? defaultValue());
@@ -84,23 +71,27 @@ export module Lang {
      * String to array function performs a string to array transformation
      * @param {String} it the string which has to be changed into an array
      * @param {RegExp} splitter our splitter reglar expression
-     * @return a trimmed array of the splitted string
+     * @return an array of the splitted string
      */
-    export function strToArray(it: string, splitter: string | RegExp = /\./gi): Array<string> {
+    strToArray(it: string, splitter: string | RegExp = /\./gi): Array<string> {
+        //	summary:
+        //		Return true if it is a String
 
-        let ret = [];
-        it.split(splitter).forEach((element => {
-            ret.push(trim(element));
-        }));
-        return ret;
+        let retArr = it.split(splitter);
+        for (let cnt = 0; cnt < retArr.length; cnt++) {
+            retArr[cnt] = this.trim(retArr[cnt]);
+        }
+        return retArr;
     }
+
+
 
     /**
      * hyperfast trim
      * http://blog.stevenlevithan.com/archives/faster-trim-javascript
      * crossported from dojo
      */
-    export function trim(str: string): string {
+    trim(str: string): string {
         str = str.replace(/^\s\s*/, '');
         let ws = /\s/, i = str.length;
 
@@ -110,6 +101,8 @@ export module Lang {
         return str.slice(0, i + 1);
     }
 
+
+
     /**
      * generic object arrays like dom definitions to array conversion method which
      * transforms any object to something array like
@@ -118,15 +111,29 @@ export module Lang {
      * @param pack
      * @returns an array converted from the object
      */
-    export function objToArray<T>(obj: any, offset: number = 0, pack: Array<T> = []): Array<T> {
-        if ("undefined" == typeof obj || null == obj) {
-            return pack ?? null;
+    objToArray<T>(obj: any, offset?: number, pack?: Array<T>): Array<T> {
+        if (!obj) {
+            return pack || null;
         }
         //since offset is numeric we cannot use the shortcut due to 0 being false
         //special condition array delivered no offset no pack
-        if ((<any>obj) instanceof Array && !offset && !pack) return obj;
-
-        return pack.concat(Array.prototype.slice.call(obj, offset));
+        if (obj instanceof Array && !offset && !pack) return obj;
+        let finalOffset =  offset ?? 0;
+        let finalPack = pack || [];
+        try {
+            return finalPack.concat(Array.prototype.slice.call(obj, finalOffset));
+        } catch (e) {
+            //ie8 (again as only browser) delivers for css 3 selectors a non convertible object
+            //we have to do it the hard way
+            //ie8 seems generally a little bit strange in its behavior some
+            //objects break the function is everything methodology of javascript
+            //and do not implement apply call, or are pseudo arrays which cannot
+            //be sliced
+            for (let cnt = finalOffset; cnt < obj.length; cnt++) {
+                finalPack.push(obj[cnt]);
+            }
+            return finalPack;
+        }
     }
 
     /**
@@ -135,18 +142,21 @@ export module Lang {
      * @param source
      * @param destination
      */
-    export function equalsIgnoreCase(source?: string, destination?: string): boolean {
-        let finalSource = source ?? "___no_value__";
-        let finalDest = destination ?? "___no_value__";
-
+    equalsIgnoreCase(source: string, destination: string): boolean {
+        //either both are not set or null
+        if (!source && !destination) {
+            return true;
+        }
+        //source or dest is set while the other is not
+        if (!source || !destination) return false;
         //in any other case we do a strong string comparison
-        return finalSource.toLowerCase() === finalDest.toLowerCase();
+        return source.toLowerCase() === destination.toLowerCase();
     }
 
     /*
      * Promise wrappers for timeout and interval
      */
-    export function timeout(timeout: number): CancellablePromise {
+    timeout(timeout: number): CancellablePromise {
         let handler: any = null;
         return new CancellablePromise((apply: Function, reject: Function) => {
             handler = setTimeout(() => {
@@ -160,7 +170,7 @@ export module Lang {
         });
     }
 
-    export function interval(timeout: number): CancellablePromise {
+    interval(timeout: number): CancellablePromise {
         let handler: any = null;
         return new CancellablePromise((apply: Function, reject: Function) => {
             handler = setInterval(() => {
@@ -180,42 +190,9 @@ export module Lang {
      * @param probe the probe to be tested for a type
      * @param theType the type to be tested for
      */
-    export function assertType(probe: any, theType: any): boolean {
-        return isString(theType) ? typeof probe == theType : probe instanceof theType;
+    public assertType(probe: any, theType: any): boolean {
+        return this.isString(theType) ? typeof probe == theType : probe instanceof theType;
     }
-
-    /*some hepers if you want to omit parts of the libary for many reasons*/
-
-    /**
-     * performs a deep copy of an object via json serialisation, the easy
-     * way, should also be more performant than doing it by hand
-     */
-    export function deepCopy(theObject: any): any {
-        return JSON.parse(JSON.stringify(theObject));
-    }
-
-    /**
-     * a helper which allows to avoid configs
-     * for simple operation, that way we can take out the entire config handling
-     * to reduce code (needed in myfaces we are going to drop configs there
-     * too heavyweight
-     * @param theObject
-     * @param data
-     */
-    export function val<T>(theObject: {[key: string]: any}, ...data: string[]): IValueHolder<T> {
-        let workPos = theObject;
-        let lastRet = null;
-        assert(data.length, "at least one property must be set othweise it cannot work");
-
-        data.forEach((key: string) => {
-            workPos[key] = workPos?.[key] ?? {};
-            lastRet = new TinyValueHolder(workPos, key);
-            workPos = workPos[key];
-        });
-
-        return lastRet ?? new TinyValueHolder(workPos, null);
-    }
-
 
     /**
      * Backported from dojo
@@ -224,16 +201,13 @@ export module Lang {
      * @param it {|Object|} the object to be checked for being a string
      * @return true in case of being a string false otherwise
      */
-    export function isString(it?: any): boolean {
+    isString(it?: any): boolean {
         //	summary:
         //		Return true if it is a String
         return !!arguments.length && it != null && (typeof it == "string" || it instanceof String); // Boolean
     }
 
-    export function isFunc(it: any): boolean {
+    isFunc(it: any): boolean {
         return it instanceof Function || typeof it === "function";
     }
-
-
 }
-
