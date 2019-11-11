@@ -1,15 +1,17 @@
 /*
  * A small stream implementation
  */
-import {IMonad, IValueHolder, Optional} from "./Monad";
+import {Optional} from "./Monad";
 import {
     ArrayCollector,
     ArrayStreamDataSource,
     FilteredStreamDatasource, FlatMapStreamDataSource,
-    ICollector,
-    IStreamDataSource,
     MappedStreamDataSource
 } from "./SourcesCollectors";
+import {
+    IMonad, IValueHolder, ICollector,
+    IStreamDataSource, IOptional,
+} from "./Types";
 
 /*
  * some typedefs to make the code more reabable
@@ -77,18 +79,18 @@ export interface IStream<T> {
      * @param startVal an optional starting value, if provided the the processing starts with this element
      * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
      */
-    reduce(fn: Reducable<T>, startVal: T): Optional<T>;
+    reduce(fn: Reducable<T>, startVal: T): IOptional<T>;
 
     /**
      * returns the first element in the stream is given as Optional
      */
-    first(): Optional<T>;
+    first(): IOptional<T>;
 
     /**
      * Returns the last stream element (note in endless streams without filtering and limiting you will never reach that
      * point hence producing an endless loop)
      */
-    last(): Optional<T>;
+    last(): IOptional<T>;
 
     /**
      * returns true if there is at least one element where a call fn(element) produces true
@@ -166,7 +168,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream<T>(...data);
     }
 
-    static ofAssoc<T>(data: {[key: string]: T}): Stream<[string, T]> {
+    static ofAssoc<T>(data: { [key: string]: T }): Stream<[string, T]> {
         return this.of(...Object.keys(data)).map(key => [key, data[key]]);
     }
 
@@ -214,7 +216,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * all values are flattened when accessed anyway, so there is no need to call this methiod
      */
 
-    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any> {
+    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any> {
         let ret = [];
         this.each(item => {
             let strmR: any = fn(item);
@@ -233,7 +235,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream<T>(...res);
     }
 
-    reduce(fn: Reducable<T>, startVal: T = null): Optional<T> {
+    reduce(fn: Reducable<T>, startVal: T = null): IOptional<T> {
         let offset = startVal != null ? 0 : 1;
         let val1 = startVal != null ? startVal : this.value.length ? this.value[0] : null;
 
@@ -243,11 +245,11 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return Optional.fromNullable(val1);
     }
 
-    first(): Optional<T> {
+    first(): IOptional<T> {
         return this.value && this.value.length ? Optional.fromNullable(this.value[0]) : Optional.absent;
     }
 
-    last(): Optional<T> {
+    last(): IOptional<T> {
         //could be done via reduce, but is faster this way
         let length = this._limits > 0 ? Math.min(this._limits, this.value.length) : this.value.length;
 
@@ -290,7 +292,6 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         let newArr = this.value.slice().sort(comparator);
         return Stream.of(...newArr);
     }
-
 
     collect(collector: ICollector<T, any>): any {
         this.each(data => collector.collect(data));
@@ -362,7 +363,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         return new LazyStream<T>(new ArrayStreamDataSource(...values));
     }
 
-    static ofAssoc<T>(data: {[key: string]: T}): LazyStream<[string, T]> {
+    static ofAssoc<T>(data: { [key: string]: T }): LazyStream<[string, T]> {
         return this.of(...Object.keys(data)).map(key => [key, data[key]]);
     }
 
@@ -452,7 +453,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         }
     }
 
-    reduce(fn: Reducable<T>, startVal: T = null): Optional<T> {
+    reduce(fn: Reducable<T>, startVal: T = null): IOptional<T> {
         if (!this.hasNext()) {
             return Optional.absent;
         }
@@ -477,14 +478,14 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         return Optional.fromNullable(value1);
     }
 
-    last(): Optional<T> {
+    last(): IOptional<T> {
         if (!this.hasNext()) {
             return Optional.absent;
         }
         return this.reduce((el1, el2) => el2);
     }
 
-    first(): Optional<T> {
+    first(): IOptional<T> {
         this.reset();
         if (!this.hasNext()) {
             return Optional.absent;

@@ -1,11 +1,9 @@
 import { CancellablePromise } from "./Promise";
-import { Optional } from "./Monad";
+import { IOptional, IValueHolder } from "./Types";
 /**
  * Lang helpers crossported from the apache myfaces project
  */
-export declare class Lang {
-    private static _instance;
-    static get instance(): Lang;
+export declare module Lang {
     /**
      * helper function to savely resolve anything
      * this is not an elvis operator, it resolves
@@ -23,21 +21,21 @@ export declare class Lang {
      * @param defaultValue an optional default value if the producer failes to produce anything
      * @returns an Optional of the produced value
      */
-    static saveResolve<T>(resolverProducer: () => T, defaultValue?: T): Optional<T>;
-    static saveResolveLazy<T>(resolverProducer: () => T, defaultValue?: () => T): Optional<T>;
+    function saveResolve<T>(resolverProducer: () => T, defaultValue?: T): IOptional<T>;
+    function saveResolveLazy<T>(resolverProducer: () => T, defaultValue?: () => T): IOptional<T>;
     /**
      * String to array function performs a string to array transformation
      * @param {String} it the string which has to be changed into an array
      * @param {RegExp} splitter our splitter reglar expression
-     * @return an array of the splitted string
+     * @return a trimmed array of the splitted string
      */
-    strToArray(it: string, splitter?: string | RegExp): Array<string>;
+    function strToArray(it: string, splitter?: string | RegExp): Array<string>;
     /**
      * hyperfast trim
      * http://blog.stevenlevithan.com/archives/faster-trim-javascript
      * crossported from dojo
      */
-    trim(str: string): string;
+    function trim(str: string): string;
     /**
      * generic object arrays like dom definitions to array conversion method which
      * transforms any object to something array like
@@ -46,23 +44,39 @@ export declare class Lang {
      * @param pack
      * @returns an array converted from the object
      */
-    objToArray<T>(obj: any, offset?: number, pack?: Array<T>): Array<T>;
+    function objToArray<T>(obj: any, offset?: number, pack?: Array<T>): Array<T>;
     /**
      * equalsIgnoreCase, case insensitive comparison of two strings
      *
      * @param source
      * @param destination
      */
-    equalsIgnoreCase(source: string, destination: string): boolean;
-    timeout(timeout: number): CancellablePromise;
-    interval(timeout: number): CancellablePromise;
+    function equalsIgnoreCase(source?: string, destination?: string): boolean;
+    function timeout(timeout: number): CancellablePromise;
+    function interval(timeout: number): CancellablePromise;
     /**
      * runtime type assertion
      *
      * @param probe the probe to be tested for a type
      * @param theType the type to be tested for
      */
-    assertType(probe: any, theType: any): boolean;
+    function assertType(probe: any, theType: any): boolean;
+    /**
+     * performs a deep copy of an object via json serialisation, the easy
+     * way, should also be more performant than doing it by hand
+     */
+    function deepCopy(theObject: any): any;
+    /**
+     * a helper which allows to avoid configs
+     * for simple operation, that way we can take out the entire config handling
+     * to reduce code (needed in myfaces we are going to drop configs there
+     * too heavyweight
+     * @param theObject
+     * @param data
+     */
+    function val<T>(theObject: {
+        [key: string]: any;
+    }, ...data: string[]): IValueHolder<T>;
     /**
      * Backported from dojo
      * a failsafe string determination method
@@ -70,6 +84,6 @@ export declare class Lang {
      * @param it {|Object|} the object to be checked for being a string
      * @return true in case of being a string false otherwise
      */
-    isString(it?: any): boolean;
-    isFunc(it: any): boolean;
+    function isString(it?: any): boolean;
+    function isFunc(it: any): boolean;
 }

@@ -1,7 +1,8 @@
-import { Config, Optional, ValueEmbedder } from "./Monad";
+import { Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
 import { IStream, LazyStream, Stream } from "./Stream";
-import { ICollector, IStreamDataSource } from "./SourcesCollectors";
+import { ICollector, IOptional, IStreamDataSource, IValueEmbedder } from "./Types";
+import { IConfig } from "./Types";
 export declare class ElementAttribute extends ValueEmbedder<string> {
     private element;
     private name;
@@ -9,14 +10,14 @@ export declare class ElementAttribute extends ValueEmbedder<string> {
     constructor(element: DomQuery, name: string, defaultVal?: string);
     get value(): string;
     set value(value: string);
-    protected getClass(): any;
+    getClass(): any;
     static fromNullable(value?: any, valueKey?: string): ElementAttribute;
 }
 interface IDomQuery {
     /**
      * reads the first element if it exists and returns an optional
      */
-    readonly value: Optional<Element>;
+    readonly value: IOptional<Element>;
     /**
      * All elements as array
      */
@@ -24,7 +25,7 @@ interface IDomQuery {
     /**
      * returns the id as settable value (See also ValueEmbedder)
      */
-    readonly id: ValueEmbedder<string>;
+    readonly id: IValueEmbedder<string>;
     /**
      * returns the length of embedded nodes (top level)
      */
@@ -32,27 +33,27 @@ interface IDomQuery {
     /**
      * the tag name of the first element
      */
-    readonly tagName: Optional<string>;
+    readonly tagName: IOptional<string>;
     /**
      * the node name of the first element
      */
-    readonly nodeName: Optional<string>;
+    readonly nodeName: IOptional<string>;
     /**
      * the type of the first element
      */
-    readonly type: Optional<string>;
+    readonly type: IOptional<string>;
     /**
      * The name as changeable value
      */
-    readonly name: ValueEmbedder<string>;
+    readonly name: IValueEmbedder<string>;
     /**
      * The the value in case of inputs as changeable value
      */
-    readonly inputValue: ValueEmbedder<string | boolean>;
+    readonly inputValue: IValueEmbedder<string | boolean>;
     /**
      * the underlying form elements as domquery object
      */
-    readonly elements: DomQuery;
+    readonly elements: IDomQuery;
     /**
      * settable flag for disabled
      */
@@ -60,7 +61,7 @@ interface IDomQuery {
     /**
      * The child nodes of this node collection as readonly attribute
      */
-    readonly childNodes: DomQuery;
+    readonly childNodes: IDomQuery;
     /**
      * an early stream representation for this DomQuery
      */
@@ -86,13 +87,13 @@ interface IDomQuery {
      *
      * @param index the nth index
      */
-    get(index: number): DomQuery;
+    get(index: number): IDomQuery;
     /**
      * returns the nth element as optional of an Element object
      * @param index the number from the index
      * @param defaults the default value if the index is overrun default Optional.absent
      */
-    getAsElem(index: number, defaults: Optional<any>): Optional<Element>;
+    getAsElem(index: number, defaults: Optional<any>): IOptional<Element>;
     /**
      * returns the value array< of all elements
      */
@@ -126,19 +127,19 @@ interface IDomQuery {
      * @param selector the standard selector
      * @return a DomQuery with the results
      */
-    querySelectorAll(selector: any): DomQuery;
+    querySelectorAll(selector: any): IDomQuery;
     /**
      * core byId method
      * @param id the id to search for
      * @param includeRoot also match the root element?
      */
-    byId(id: string, includeRoot?: boolean): DomQuery;
+    byId(id: string, includeRoot?: boolean): IDomQuery;
     /**
      * same as byId just for the tag name
      * @param tagName
      * @param includeRoot
      */
-    byTagName(tagName: string, includeRoot?: boolean): DomQuery;
+    byTagName(tagName: string, includeRoot?: boolean): IDomQuery;
     /**
      * attr accessor, usage myQuery.attr("class").value = "bla"
      * or let value myQuery.attr("class").value
@@ -157,13 +158,13 @@ interface IDomQuery {
      *
      * @param clazz the style class to append
      */
-    addClass(clazz: string): DomQuery;
+    addClass(clazz: string): IDomQuery;
     /**
      * remove the style class if in the class definitions
      *
      * @param clazz
      */
-    removeClass(clazz: string): DomQuery;
+    removeClass(clazz: string): IDomQuery;
     /**
      * checks whether we have a multipart element in our children
      */
@@ -177,7 +178,7 @@ interface IDomQuery {
      *
      * @param inval
      */
-    html(inval?: string): DomQuery | Optional<string>;
+    html(inval?: string): IDomQuery | IOptional<string>;
     /**
      * easy node traversal, you can pass
      * a set of node selectors which are joined as direct childs
@@ -186,57 +187,57 @@ interface IDomQuery {
      *
      * @param nodeSelector
      */
-    getIf(...nodeSelector: Array<string>): DomQuery;
+    getIf(...nodeSelector: Array<string>): IDomQuery;
     /**
      * iterate over each element and perform something on the element
-     * (Dom element is passed instead of DomQuery)
+     * (Dom element is passed instead of IDomQuery)
      * @param func
      */
-    eachElem(func: (item: Element, cnt?: number) => any): DomQuery;
+    eachElem(func: (item: Element, cnt?: number) => any): IDomQuery;
     /**
      * perform an operation on the first element
-     * returns a DomQuery on the first element only
+     * returns a IDomQuery on the first element only
      * @param func
      */
-    firstElem(func: (item: Element, cnt?: number) => any): DomQuery;
+    firstElem(func: (item: Element, cnt?: number) => any): IDomQuery;
     /**
-     * same as eachElem, but a DomQuery object is passed down
+     * same as eachElem, but a IDomQuery object is passed down
      *
      * @param func
      */
-    each(func: (item: DomQuery, cnt?: number) => any): DomQuery;
+    each(func: (item: IDomQuery, cnt?: number) => any): IDomQuery;
     /**
      * returns a new dom query containing only the first element max
      *
      * @param func a an optional callback function to perform an operation on the first element
      */
-    first(func: (item: DomQuery, cnt?: number) => any): DomQuery;
+    first(func: (item: IDomQuery, cnt?: number) => any): IDomQuery;
     /**
      * filter function which filters a subset
      *
      * @param func
      */
-    filter(func: (item: DomQuery) => boolean): DomQuery;
+    filter(func: (item: IDomQuery) => boolean): IDomQuery;
     /**
      * global eval head appendix method
      * no other methods are supported anymore
      * @param code the code to be evaled
      * @param  nonce optional  nonce key for higher security
      */
-    globalEval(code: string, nonce?: string): DomQuery;
+    globalEval(code: string, nonce?: string): IDomQuery;
     /**
      * detaches a set of nodes from their parent elements
      * in a browser independend manner
      * @param {Object} items the items which need to be detached
      * @return {Array} an array of nodes with the detached dom nodes
      */
-    detach(): DomQuery;
+    detach(): IDomQuery;
     /**
      * appends the current set of elements
      * to the element or first element passed via elem
      * @param elem
      */
-    appendTo(elem: DomQuery): void;
+    appendTo(elem: IDomQuery): void;
     /**
      * loads and evals a script from a source uri
      *
@@ -248,40 +249,40 @@ interface IDomQuery {
     /**
      * insert toInsert after the current element
      *
-     * @param toInsert an array of DomQuery objects
+     * @param toInsert an array of IDomQuery objects
      */
-    insertAfter(...toInsert: Array<DomQuery>): DomQuery;
+    insertAfter(...toInsert: Array<DomQuery>): IDomQuery;
     /**
      * inserts the elements before the current element
      *
      * @param toInsert
      */
-    insertBefore(...toInsert: Array<DomQuery>): DomQuery;
+    insertBefore(...toInsert: Array<DomQuery>): IDomQuery;
     /**
-     * in case the domquery is pointing to nothing the else value is taken into consideration
+     * in case the IDomQuery is pointing to nothing the else value is taken into consideration
      * als alternative
      *
      * @param elseValue the else value
      */
-    orElse(...elseValue: any): DomQuery;
+    orElse(...elseValue: any): IDomQuery;
     /**
      * the same with lazy evaluation for cases where getting the else value
      * is a heavy operation
      *
      * @param func the else provider function
      */
-    orElseLazy(func: () => any): DomQuery;
+    orElseLazy(func: () => any): IDomQuery;
     /**
      * all parents with TagName
      * @param tagName
      */
-    parents(tagName: string): DomQuery;
+    parents(tagName: string): IDomQuery;
     /**
-     * copy all attributes of sourceItem to this DomQuery items
+     * copy all attributes of sourceItem to this IDomQuery items
      *
-     * @param sourceItem the source item to copy over (can be another domquery or a parsed XML Query item)
+     * @param sourceItem the source item to copy over (can be another IDomQuery or a parsed XML Query item)
      */
-    copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery;
+    copyAttrs(sourceItem: IDomQuery | XMLQuery): IDomQuery;
     /**
      * outerhtml convenience method
      * browsers only support innerHTML but
@@ -292,21 +293,21 @@ interface IDomQuery {
      * @param runEmbeddedScripts
      * @param runEmbeddedCss
      */
-    outerHTML(markup: string, runEmbeddedScripts?: boolean, runEmbeddedCss?: boolean): DomQuery;
+    outerHTML(markup: string, runEmbeddedScripts?: boolean, runEmbeddedCss?: boolean): IDomQuery;
     /**
-     * Run through the given nodes in the DomQuery execute the inline scripts
+     * Run through the given nodes in the IDomQuery execute the inline scripts
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
-    runScripts(whilteListed: (val: string) => boolean): DomQuery;
+    runScripts(whilteListed: (val: string) => boolean): IDomQuery;
     /**
      * runs the embedded css
      */
-    runCss(): DomQuery;
+    runCss(): IDomQuery;
     /**
      * fires a click event on the underlying dom elements
      */
-    click(): DomQuery;
+    click(): IDomQuery;
     /**
      * adds an event listener
      *
@@ -314,7 +315,7 @@ interface IDomQuery {
      * @param listener
      * @param options
      */
-    addEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): DomQuery;
+    addEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): IDomQuery;
     /**
      * removes an event listener
      *
@@ -322,7 +323,7 @@ interface IDomQuery {
      * @param listener
      * @param options
      */
-    removeEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): DomQuery;
+    removeEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): IDomQuery;
     /**
      * fires an event
      */
@@ -338,13 +339,17 @@ interface IDomQuery {
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge: any): Config;
+    encodeFormElement(toMerge?: IConfig | {
+        [key: string]: any;
+    }): IConfig | {
+        [key: string]: any;
+    };
     /**
      * fetches the subnodes from ... to..
      * @param from
      * @param to
      */
-    subNodes(from: number, to?: number): DomQuery;
+    subNodes(from: number, to?: number): IDomQuery;
 }
 /**
  * Monadic DomNode representation, ala jquery
@@ -374,7 +379,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
     /**
      * returns the first element
      */
-    get value(): Optional<Element>;
+    get value(): IOptional<Element>;
     get values(): Element[];
     /**
      * returns the id of the first element
@@ -387,7 +392,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
     /**
      * convenience method for tagName
      */
-    get tagName(): Optional<string>;
+    get tagName(): IOptional<string>;
     /**
      * convenience method for nodeName
      */
@@ -399,7 +404,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * returns null in case of no type existing otherwise
      * the type of the first element
      */
-    get type(): Optional<string>;
+    get type(): IOptional<string>;
     /**
      * convenience property for name
      *
@@ -480,7 +485,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * @param index the number from the index
      * @param defaults the default value if the index is overrun default Optional.absent
      */
-    getAsElem(index: number, defaults?: Optional<any>): Optional<Element>;
+    getAsElem(index: number, defaults?: IOptional<any>): IOptional<Element>;
     /**
      * returns the value array< of all elements
      */
@@ -565,7 +570,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      *
      * @param inval
      */
-    html(inval?: string): DomQuery | Optional<string>;
+    html(inval?: string): IDomQuery | IOptional<string>;
     set innerHtml(inVal: string);
     get innerHtml(): string;
     private _mozMatchesSelector;
@@ -677,9 +682,17 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      * HTML5 Form class which all newer browsers provide
      *
      * @param toMerge optional config which can be merged in
-     * @return a copy pf
+     * @return a merged copy
+     *
+     * note the method can produce and consume two types a config or a map
+     * in both cases the output value matches the type of the input value
+     * if no input value is given a map is returned automatically
      */
-    encodeFormElement(toMerge?: Config): Config;
+    encodeFormElement(toMerge?: IConfig | {
+        [key: string]: any;
+    }): IConfig | {
+        [key: string]: any;
+    };
     get cDATAAsString(): string;
     subNodes(from: number, to?: number): DomQuery;
     _limits: number;

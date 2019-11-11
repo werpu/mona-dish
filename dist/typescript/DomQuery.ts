@@ -14,11 +14,18 @@
  * limitations under the License.
  */
 
-import {Lang} from "./Lang";
-import {Config, Optional, ValueEmbedder} from "./Monad";
+import {Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 import {IStream, LazyStream, Stream} from "./Stream";
-import {ICollector, IStreamDataSource} from "./SourcesCollectors";
+import {ICollector, IOptional, IStreamDataSource, IValueEmbedder} from "./Types";
+import {Lang} from "./Lang";
+import {IConfig, IValueHolder} from "./Types";
+import trim = Lang.trim;
+import objToArray = Lang.objToArray;
+import isString = Lang.isString;
+import equalsIgnoreCase = Lang.equalsIgnoreCase;
+import deepCopy = Lang.deepCopy;
+import val = Lang.val;
 
 // @ts-ignore supression needed here due to fromnullable
 export class ElementAttribute extends ValueEmbedder<string> {
@@ -43,7 +50,7 @@ export class ElementAttribute extends ValueEmbedder<string> {
         val[0].setAttribute(this.name, value);
     }
 
-    protected getClass(): any {
+    getClass(): any {
         return ElementAttribute;
     }
 
@@ -69,7 +76,7 @@ interface IDomQuery {
     /**
      * reads the first element if it exists and returns an optional
      */
-    readonly value: Optional<Element>;
+    readonly value: IOptional<Element>;
     /**
      * All elements as array
      */
@@ -77,7 +84,7 @@ interface IDomQuery {
     /**
      * returns the id as settable value (See also ValueEmbedder)
      */
-    readonly id: ValueEmbedder<string>;
+    readonly id: IValueEmbedder<string>;
     /**
      * returns the length of embedded nodes (top level)
      */
@@ -85,27 +92,27 @@ interface IDomQuery {
     /**
      * the tag name of the first element
      */
-    readonly tagName: Optional<string>;
+    readonly tagName: IOptional<string>;
     /**
      * the node name of the first element
      */
-    readonly nodeName: Optional<string>;
+    readonly nodeName: IOptional<string>;
     /**
      * the type of the first element
      */
-    readonly type: Optional<string>;
+    readonly type: IOptional<string>;
     /**
      * The name as changeable value
      */
-    readonly name: ValueEmbedder<string>;
+    readonly name: IValueEmbedder<string>;
     /**
      * The the value in case of inputs as changeable value
      */
-    readonly inputValue: ValueEmbedder<string | boolean>;
+    readonly inputValue: IValueEmbedder<string | boolean>;
     /**
      * the underlying form elements as domquery object
      */
-    readonly elements: DomQuery;
+    readonly elements: IDomQuery;
     /**
      * settable flag for disabled
      */
@@ -113,7 +120,7 @@ interface IDomQuery {
     /**
      * The child nodes of this node collection as readonly attribute
      */
-    readonly childNodes: DomQuery;
+    readonly childNodes: IDomQuery;
     /**
      * an early stream representation for this DomQuery
      */
@@ -141,14 +148,14 @@ interface IDomQuery {
      *
      * @param index the nth index
      */
-    get(index: number): DomQuery;
+    get(index: number): IDomQuery;
 
     /**
      * returns the nth element as optional of an Element object
      * @param index the number from the index
      * @param defaults the default value if the index is overrun default Optional.absent
      */
-    getAsElem(index: number, defaults: Optional<any>): Optional<Element>;
+    getAsElem(index: number, defaults: Optional<any>): IOptional<Element>;
 
     /**
      * returns the value array< of all elements
@@ -188,21 +195,21 @@ interface IDomQuery {
      * @param selector the standard selector
      * @return a DomQuery with the results
      */
-    querySelectorAll(selector): DomQuery;
+    querySelectorAll(selector): IDomQuery;
 
     /**
      * core byId method
      * @param id the id to search for
      * @param includeRoot also match the root element?
      */
-    byId(id: string, includeRoot?: boolean): DomQuery;
+    byId(id: string, includeRoot?: boolean): IDomQuery;
 
     /**
      * same as byId just for the tag name
      * @param tagName
      * @param includeRoot
      */
-    byTagName(tagName: string, includeRoot ?: boolean): DomQuery;
+    byTagName(tagName: string, includeRoot ?: boolean): IDomQuery;
 
     /**
      * attr accessor, usage myQuery.attr("class").value = "bla"
@@ -224,14 +231,14 @@ interface IDomQuery {
      *
      * @param clazz the style class to append
      */
-    addClass(clazz: string): DomQuery;
+    addClass(clazz: string): IDomQuery;
 
     /**
      * remove the style class if in the class definitions
      *
      * @param clazz
      */
-    removeClass(clazz: string): DomQuery;
+    removeClass(clazz: string): IDomQuery;
 
     /**
      * checks whether we have a multipart element in our children
@@ -247,7 +254,7 @@ interface IDomQuery {
      *
      * @param inval
      */
-    html(inval?: string): DomQuery | Optional<string>;
+    html(inval?: string): IDomQuery | IOptional<string>;
 
     /**
      * easy node traversal, you can pass
@@ -257,42 +264,42 @@ interface IDomQuery {
      *
      * @param nodeSelector
      */
-    getIf(...nodeSelector: Array<string>): DomQuery;
+    getIf(...nodeSelector: Array<string>): IDomQuery;
 
     /**
      * iterate over each element and perform something on the element
-     * (Dom element is passed instead of DomQuery)
+     * (Dom element is passed instead of IDomQuery)
      * @param func
      */
-    eachElem(func: (item: Element, cnt?: number) => any): DomQuery;
+    eachElem(func: (item: Element, cnt?: number) => any): IDomQuery;
 
     /**
      * perform an operation on the first element
-     * returns a DomQuery on the first element only
+     * returns a IDomQuery on the first element only
      * @param func
      */
-    firstElem(func: (item: Element, cnt?: number) => any): DomQuery;
+    firstElem(func: (item: Element, cnt?: number) => any): IDomQuery;
 
     /**
-     * same as eachElem, but a DomQuery object is passed down
+     * same as eachElem, but a IDomQuery object is passed down
      *
      * @param func
      */
-    each(func: (item: DomQuery, cnt?: number) => any): DomQuery;
+    each(func: (item: IDomQuery, cnt?: number) => any): IDomQuery;
 
     /**
      * returns a new dom query containing only the first element max
      *
      * @param func a an optional callback function to perform an operation on the first element
      */
-    first(func: (item: DomQuery, cnt?: number) => any): DomQuery;
+    first(func: (item: IDomQuery, cnt?: number) => any): IDomQuery;
 
     /**
      * filter function which filters a subset
      *
      * @param func
      */
-    filter(func: (item: DomQuery) => boolean): DomQuery;
+    filter(func: (item: IDomQuery) => boolean): IDomQuery;
 
     /**
      * global eval head appendix method
@@ -300,7 +307,7 @@ interface IDomQuery {
      * @param code the code to be evaled
      * @param  nonce optional  nonce key for higher security
      */
-    globalEval(code: string, nonce ?: string): DomQuery;
+    globalEval(code: string, nonce ?: string): IDomQuery;
 
     /**
      * detaches a set of nodes from their parent elements
@@ -308,14 +315,14 @@ interface IDomQuery {
      * @param {Object} items the items which need to be detached
      * @return {Array} an array of nodes with the detached dom nodes
      */
-    detach(): DomQuery;
+    detach(): IDomQuery;
 
     /**
      * appends the current set of elements
      * to the element or first element passed via elem
      * @param elem
      */
-    appendTo(elem: DomQuery): void;
+    appendTo(elem: IDomQuery): void;
 
     /**
      * loads and evals a script from a source uri
@@ -329,24 +336,24 @@ interface IDomQuery {
     /**
      * insert toInsert after the current element
      *
-     * @param toInsert an array of DomQuery objects
+     * @param toInsert an array of IDomQuery objects
      */
-    insertAfter(...toInsert: Array<DomQuery>): DomQuery;
+    insertAfter(...toInsert: Array<DomQuery>): IDomQuery;
 
     /**
      * inserts the elements before the current element
      *
      * @param toInsert
      */
-    insertBefore(...toInsert: Array<DomQuery>): DomQuery;
+    insertBefore(...toInsert: Array<DomQuery>): IDomQuery;
 
     /**
-     * in case the domquery is pointing to nothing the else value is taken into consideration
+     * in case the IDomQuery is pointing to nothing the else value is taken into consideration
      * als alternative
      *
      * @param elseValue the else value
      */
-    orElse(...elseValue: any): DomQuery;
+    orElse(...elseValue: any): IDomQuery;
 
     /**
      * the same with lazy evaluation for cases where getting the else value
@@ -354,20 +361,20 @@ interface IDomQuery {
      *
      * @param func the else provider function
      */
-    orElseLazy(func: () => any): DomQuery;
+    orElseLazy(func: () => any): IDomQuery;
 
     /**
      * all parents with TagName
      * @param tagName
      */
-    parents(tagName: string): DomQuery;
+    parents(tagName: string): IDomQuery;
 
     /**
-     * copy all attributes of sourceItem to this DomQuery items
+     * copy all attributes of sourceItem to this IDomQuery items
      *
-     * @param sourceItem the source item to copy over (can be another domquery or a parsed XML Query item)
+     * @param sourceItem the source item to copy over (can be another IDomQuery or a parsed XML Query item)
      */
-    copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery;
+    copyAttrs(sourceItem: IDomQuery | XMLQuery): IDomQuery;
 
     /**
      * outerhtml convenience method
@@ -379,24 +386,24 @@ interface IDomQuery {
      * @param runEmbeddedScripts
      * @param runEmbeddedCss
      */
-    outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery;
+    outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): IDomQuery;
 
     /**
-     * Run through the given nodes in the DomQuery execute the inline scripts
+     * Run through the given nodes in the IDomQuery execute the inline scripts
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
-    runScripts(whilteListed: (val: string) => boolean): DomQuery;
+    runScripts(whilteListed: (val: string) => boolean): IDomQuery;
 
     /**
      * runs the embedded css
      */
-    runCss(): DomQuery;
+    runCss(): IDomQuery;
 
     /**
      * fires a click event on the underlying dom elements
      */
-    click(): DomQuery;
+    click(): IDomQuery;
 
     /**
      * adds an event listener
@@ -405,7 +412,7 @@ interface IDomQuery {
      * @param listener
      * @param options
      */
-    addEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): DomQuery;
+    addEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): IDomQuery;
 
     /**
      * removes an event listener
@@ -414,7 +421,7 @@ interface IDomQuery {
      * @param listener
      * @param options
      */
-    removeEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): DomQuery;
+    removeEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): IDomQuery;
 
     /**
      * fires an event
@@ -440,14 +447,14 @@ interface IDomQuery {
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge): Config;
+    encodeFormElement(toMerge?: IConfig | {[key: string]: any}): IConfig | {[key: string]: any};
 
     /**
      * fetches the subnodes from ... to..
      * @param from
      * @param to
      */
-    subNodes(from: number, to?: number): DomQuery;
+    subNodes(from: number, to?: number): IDomQuery;
 }
 
 /**
@@ -486,14 +493,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
             //we need to flatten out the arrays
 
             for (let cnt = 0; cnt < rootNode.length; cnt++) {
-                if (Lang.instance.isString(rootNode[cnt])) {
+                if (isString(rootNode[cnt])) {
                     let foundElement = DomQuery.querySelectorAll(<string>rootNode[cnt]);
                     if (!foundElement.isAbsent()) {
                         rootNode.push(...foundElement.values)
                     }
                 } else if (rootNode[cnt] instanceof DomQuery) {
                     this.rootNode.push(...(<any>rootNode[cnt]).values);
-                } else if (Lang.instance.isString(rootNode[cnt])) {
+                } else if (isString(rootNode[cnt])) {
                     let result = DomQuery.querySelectorAll(<string>rootNode[cnt]);
                     this.rootNode.push(...result.values);
 
@@ -507,7 +514,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     /**
      * returns the first element
      */
-    get value(): Optional<Element> {
+    get value(): IOptional<Element> {
         return this.getAsElem(0);
     }
 
@@ -532,7 +539,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     /**
      * convenience method for tagName
      */
-    get tagName(): Optional<string> {
+    get tagName(): IOptional<string> {
         return <Optional<string>>this.getAsElem(0).getIf("tagName");
     }
 
@@ -558,8 +565,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * returns null in case of no type existing otherwise
      * the type of the first element
      */
-    get type(): Optional<string> {
-        return this.getAsElem(0).getIf("type");
+    get type(): IOptional<string> {
+        return <IOptional<string>> this.getAsElem(0).getIf("type");
     }
 
     /**
@@ -597,7 +604,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     get elements(): DomQuery {
         let elements: DomQuery = this.stream.flatMap((item: DomQuery) => {
             let formElement: HTMLFormElement = <HTMLFormElement>item.value.value;
-            return new Stream(formElement.elements ? Lang.instance.objToArray(formElement.elements) : []);
+            return new Stream(formElement.elements ? objToArray(formElement.elements) : []);
         }).filter(item => !!item).collect(new DomQueryCollector());
 
         return elements
@@ -628,7 +635,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     get childNodes(): DomQuery {
         let childNodeArr: Array<Element> = [];
         this.eachElem((item: Element) => {
-            childNodeArr = childNodeArr.concat(Lang.instance.objToArray(item.childNodes));
+            childNodeArr = childNodeArr.concat(objToArray(item.childNodes));
         });
         return new DomQuery(...childNodeArr);
     }
@@ -677,7 +684,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @return a DomQuery containing the found elements
      */
     static byId(selector: string | DomQuery | Element): DomQuery {
-        if (Lang.instance.isString(selector)) {
+        if (isString(selector)) {
             return new DomQuery(document).byId(<string>selector);
         } else {
             return new DomQuery(<any>selector);
@@ -691,7 +698,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @return a DomQuery containing the found elements
      */
     static byTagName(selector: string | DomQuery | Element): DomQuery {
-        if (Lang.instance.isString(selector)) {
+        if (isString(selector)) {
             return new DomQuery(document).byTagName(<string>selector);
         } else {
             return new DomQuery(<any>selector);
@@ -715,7 +722,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         } else {
             //https://developer.mozilla.org/de/docs/Web/API/DOMParser license creative commons
             const doc = document.implementation.createHTMLDocument("");
-            markup = Lang.instance.trim(markup);
+            markup = trim(markup);
             let lowerMarkup = markup.toLowerCase();
             if (lowerMarkup.includes('<!doctype') ||
                 lowerMarkup.includes('<html') ||
@@ -725,7 +732,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 return new DomQuery(doc.documentElement);
             } else {
                 doc.body.innerHTML = markup;
-                return new DomQuery(...<Array<Element>>Lang.instance.objToArray(doc.body.childNodes));
+                return new DomQuery(...<Array<Element>>objToArray(doc.body.childNodes));
             }
         }
     }
@@ -747,7 +754,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param index the number from the index
      * @param defaults the default value if the index is overrun default Optional.absent
      */
-    getAsElem(index: number, defaults: Optional<any> = Optional.absent): Optional<Element> {
+    getAsElem(index: number, defaults: IOptional<any> = Optional.absent): IOptional<Element> {
         return (index < this.rootNode.length) ? Optional.fromNullable(this.rootNode[index]) : defaults;
     }
 
@@ -819,7 +826,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 continue;
             }
             let res = this.rootNode[cnt].querySelectorAll(selector);
-            nodes = nodes.concat(Lang.instance.objToArray(res));
+            nodes = nodes.concat(objToArray(res));
         }
 
         return new DomQuery(...nodes);
@@ -906,7 +913,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         this.each((item) => {
             let oldClass = item.attr("class").value || "";
             if (!this.hasClass(clazz)) {
-                item.attr("class").value = Lang.instance.trim(oldClass + " " + clazz);
+                item.attr("class").value = trim(oldClass + " " + clazz);
                 return;
             }
         });
@@ -951,7 +958,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      *
      * @param inval
      */
-    html(inval?: string): DomQuery | Optional<string> {
+    html(inval?: string): IDomQuery | IOptional<string> {
         if (Optional.fromNullable(inval).isAbsent()) {
             return this.isPresent() ? Optional.fromNullable(this.innerHtml) : Optional.absent;
         }
@@ -1265,7 +1272,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
         sourceItem.eachElem((sourceNode: Element) => {
-            let attrs: Array<Attr> = Lang.instance.objToArray(sourceNode.attributes);
+            let attrs: Array<Attr> = objToArray(sourceNode.attributes);
             for (let item of attrs) {
                 let value: string = item.value;
                 let name: string = item.name;
@@ -1345,9 +1352,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
     runScripts(whilteListed: (val: string) => boolean = DEFAULT_JSF_WHITELIST): DomQuery {
-        let _Lang = Lang.instance,
-            finalScripts = [],
-            equi = _Lang.equalsIgnoreCase,
+        let finalScripts = [],
+            equi = equalsIgnoreCase,
             execScrpt = (item) => {
                 let tagName = item.tagName;
                 let itemType = item.type || "";
@@ -1379,7 +1385,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                         // embedded script auto eval
                         //TODO this probably needs to be changed due to our new parsing structures
                         //probably not needed anymore
-                        let evalText = _Lang.trim(item.text || item.innerText || item.innerHTML);
+                        let evalText = trim(item.text || item.innerText || item.innerHTML);
                         let go = true;
 
                         while (go) {
@@ -1436,8 +1442,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     runCss(): DomQuery {
 
-        const _Lang = Lang.instance,
-            applyStyle = (item: Element, style: string) => {
+        const  applyStyle = (item: Element, style: string) => {
                 let newSS: HTMLStyleElement = document.createElement("style");
                 document.getElementsByTagName("head")[0].appendChild(newSS);
 
@@ -1454,7 +1459,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
             },
 
             execCss = (item: Element) => {
-                const equalsIgnoreCase = _Lang.equalsIgnoreCase;
                 const tagName = item.tagName;
                 if (tagName && equalsIgnoreCase(tagName, "link") && equalsIgnoreCase(item.getAttribute("type"), "text/css")) {
                     applyStyle(item, "@import url('" + item.getAttribute("href") + "');");
@@ -1599,9 +1603,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * HTML5 Form class which all newer browsers provide
      *
      * @param toMerge optional config which can be merged in
-     * @return a copy pf
+     * @return a merged copy
+     *
+     * note the method can produce and consume two types a config or a map
+     * in both cases the output value matches the type of the input value
+     * if no input value is given a map is returned automatically
      */
-    encodeFormElement(toMerge = new Config({})): Config {
+    encodeFormElement(toMerge?: IConfig | {[key: string]: any}): IConfig | {[key: string]: any} {
 
         //browser behavior no element name no encoding (normal submit fails in that case)
         //https://issues.apache.org/jira/browse/MYFACES-2847
@@ -1609,8 +1617,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
             return;
         }
 
+        let isConfigurable = !! (<any>toMerge)?.prototype?.deepCopy;
+
+        //no value set we are going to initialize
         //lets keep it sideffects free
-        let target = toMerge.shallowCopy;
+        let target: IValueHolder<any> = deepCopy(toMerge?.["value"] ?? { value: {}});
 
         this.each((element: DomQuery) => {
             if (element.name.isAbsent()) {//no name, no encoding
@@ -1648,7 +1659,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                             //let subBuf = [];
                             if (selectElem.options[u].selected) {
                                 let elementOption = selectElem.options[u];
-                                target.apply(name).value = (elementOption.getAttribute("value") != null) ?
+                                val(target, name).value = (elementOption.getAttribute("value") != null) ?
                                     elementOption.value : elementOption.text;
                             }
                         }
@@ -1665,16 +1676,16 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                     let files: any = (<any>element.value).files;
                     if (files && files.length) {
                         //xhr level2
-                        target.apply(name).value = files[0];
+                        val(target, name).value = files[0];
                     } else {
-                        target.apply(name).value = element.inputValue.value;
+                        val(target, name).value = element.inputValue.value;
                     }
                 }
 
             }
         });
 
-        return target;
+        return isConfigurable ? new (<any>toMerge)?.constructor(target) : target;
 
     }
 

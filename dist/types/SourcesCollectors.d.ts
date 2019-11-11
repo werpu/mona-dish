@@ -1,42 +1,6 @@
 import { StreamMapper } from "./Stream";
 import { DomQuery } from "./DomQuery";
-/**
- * Every data source wich feeds data into the lazy stream
- * or stream generally must implement this interface
- *
- * It is basically an iteratable to the core
- */
-export interface IStreamDataSource<T> {
-    /**
-     * @returns true if additional data is present
-     */
-    hasNext(): boolean;
-    /**
-     * false if not
-     */
-    next(): T;
-    /**
-     * resets the position to the beginning
-     */
-    reset(): void;
-}
-/**
- * A collector, needs to be implemented
- */
-export interface ICollector<T, S> {
-    /**
-     * this method basically takes a single stream element
-     * and does something with it (collecting it one way or the other
-     * in most cases)
-     *
-     * @param element
-     */
-    collect(element: T): any;
-    /**
-     * the final result after all the collecting is done
-     */
-    finalValue: S;
-}
+import { ICollector, IStreamDataSource } from "./Types";
 /**
  * implementation of iteratable on top of array
  */
@@ -117,14 +81,13 @@ export declare class ArrayCollector<S> implements ICollector<S, Array<S>> {
 /**
  * collects an assoc stream back to an assoc array
  */
-export declare class AssocArrayCollector<S> implements ICollector<[string, S], {
+export declare class AssocArrayCollector<S> implements ICollector<[string, S] | string, {
     [key: string]: S;
 }> {
-    private data;
-    collect(element: [string, S] | string): void;
-    get finalValue(): {
+    finalValue: {
         [key: string]: any;
     };
+    collect(element: [string, S] | string): void;
 }
 /**
  * Form data collector for key value pair streams
