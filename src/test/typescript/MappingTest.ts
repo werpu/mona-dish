@@ -15,9 +15,8 @@
  */
 
 import {Probe1, Probe1Impl, Probe2, Probe2Impl} from "./MappingProbes";
-import {Optional, Config} from "../../main/typescript/Monad";
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
+import {expect} from 'chai';
+import {describe, it} from 'mocha';
 
 describe('mapping tests', () => {
     it('must map correctly', () => {
