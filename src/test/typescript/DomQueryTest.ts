@@ -17,10 +17,9 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {DomQuery} from "../../main/typescript/DomQuery";
-import {ArrayCollector, Config, Lang, LazyStream} from "../../main/typescript";
+import {ArrayCollector, Lang, LazyStream} from "../../main/typescript";
 import sinon = require('sinon');
 import trim = Lang.trim;
-
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -287,13 +286,13 @@ describe('DOMQuery tests', function () {
         DomQuery.byId("id_3").inputValue.value = "hello world";
         expect(DomQuery.byId("id_3").inputValue.value).to.eq("hello world");
 
-        let cfg = new Config(DomQuery.querySelectorAll("form").elements.encodeFormElement());
+        let cfg = DomQuery.querySelectorAll("form").elements.encodeFormElement();
         expect(cfg.getIf("id_1").value).to.eq("booga");
         expect(cfg.getIf("id_2").value).to.eq("id_2_val");
         expect(cfg.getIf("id_3").value).to.eq("hello world");
         expect(cfg.getIf("cc_1").value).to.eq("Mastercard");
         expect(cfg.getIf("val_5").value).to.eq("akaka");
-    });
+    })
 
     it("must have a proper loadScriptEval execution", function (done) {
 
