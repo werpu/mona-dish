@@ -151,13 +151,14 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
 export declare class Config extends Optional<any> {
     constructor(root: any);
     get shallowCopy(): Config;
+    get deepCopy(): Config;
     static fromNullable<T>(value?: any): Config;
     /**
      * simple merge for the root configs
      */
     shallowMerge(other: Config, overwrite?: boolean): void;
-    apply(...keys: Array<any>): IValueHolder<any>;
-    applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any>;
+    assign(...keys: any[]): IValueHolder<any>;
+    assignIf(condition: boolean, ...keys: Array<any>): IValueHolder<any>;
     getIf(...keys: Array<string>): Config;
     get(defaultVal: any): Config;
     delete(key: string): Config;

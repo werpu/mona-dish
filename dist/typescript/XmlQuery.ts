@@ -16,6 +16,7 @@
 
 import {Lang} from "./Lang";
 import {DomQuery} from "./DomQuery";
+import isString = Lang.isString;
 
 declare let ActiveXObject: any;
 
@@ -50,7 +51,7 @@ export class XMLQuery extends DomQuery {
             return domParser.parseFromString(xml, docType);
         };
 
-        if(Lang.instance.isString(rootNode)) {
+        if(isString(rootNode)) {
             super(parseXML(<string>rootNode))
         } else {
             super(rootNode);
@@ -67,10 +68,9 @@ export class XMLQuery extends DomQuery {
     toString(): string {
         let ret = [];
         this.eachElem((node: any) => {
-            if (typeof (<any>window).XMLSerializer != "undefined") {
-                ret.push(new (<any>window).XMLSerializer().serializeToString(node));
-            } else if (typeof node.xml != "undefined") {
-                ret.push(node.xml);
+            let serialized = (<any>window)?.XMLSerializer?.constructor()?.serializeToString(node) ?? node?.xml;
+            if(!!serialized) {
+                ret.push(serialized);
             }
         });
         return ret.join("");

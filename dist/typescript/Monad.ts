@@ -24,6 +24,7 @@
 import {Lang} from "./Lang";
 import {AssocArrayCollector} from "./SourcesCollectors";
 import {Stream} from "./Stream";
+import objAssign = Lang.objAssign;
 
 /**
  * IFunctor interface,
@@ -451,6 +452,10 @@ export class Config extends Optional<any> {
         return new Config(Stream.ofAssoc(this.value).collect(new AssocArrayCollector()));
     }
 
+    get deepCopy(): Config {
+        return new Config(objAssign({}, this.value));
+    }
+
     static fromNullable<T>(value?: any): Config {
         return new Config(value);
     }
@@ -460,15 +465,13 @@ export class Config extends Optional<any> {
      */
     shallowMerge(other: Config, overwrite = true) {
         for (let key in other.value) {
-            if (overwrite && key in this.value) {
-                this.apply(key).value = other.getIf(key).value;
-            } else if (!(key in this.value)) {
-                this.apply(key).value = other.getIf(key).value;
+            if (overwrite || !(key in this.value)) {
+                this.assign(key).value = other.getIf(key).value;
             }
         }
     }
 
-    apply(...keys: Array<any>): IValueHolder<any> {
+    assign(...keys): IValueHolder<any> {
         if (keys.length < 1) {
             return;
         }
@@ -484,9 +487,10 @@ export class Config extends Optional<any> {
         return retVal;
     }
 
-    applyIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
-        return condition ? this.apply(...keys) : {value: null};
+    assignIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
+        return condition ? this.assign(...keys) : {value: null};
     }
+
 
     getIf(...keys: Array<string>): Config {
         return this.getClass().fromNullable(super.getIf.apply(this, keys).value);
@@ -521,10 +525,10 @@ export class Config extends Optional<any> {
         let parentVal = this.getClass().fromNullable(null);
         let parentPos = -1;
         let alloc = function (arr: Array<any>, length: number) {
-            if (arr.length < length) {
-                for (let cnt = arr.length; cnt < length; cnt++) {
-                    arr.push({});
-                }
+            let length1 = arr.length;
+            let length2 = length1 + length;
+            for(let cnt = length1; cnt < length2; cnt++) {
+                arr.push({});
             }
         };
 
