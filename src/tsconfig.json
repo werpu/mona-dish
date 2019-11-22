@@ -3,7 +3,9 @@
     "target": "es5",
     "downlevelIteration": true,
     "lib": [
-      "es2015",
+      "es5",
+      "es2015.collection",
+      "es2015.promise",
       "dom"
     ],
     "sourceMap": true,
