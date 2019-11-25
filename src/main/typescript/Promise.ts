@@ -13,6 +13,35 @@ export interface IPromise {
 
 }
 
+/*
+ * Promise wrappers for timeout and interval
+ */
+export function timeout(timeout: number): CancellablePromise {
+    let handler: any = null;
+    return new CancellablePromise((apply: Function, reject: Function) => {
+        handler = setTimeout(() => apply(), timeout);
+    }, () => {
+        if (handler) {
+            clearTimeout(handler);
+            handler = null;
+        }
+    });
+}
+
+export function interval(timeout: number): CancellablePromise {
+    let handler: any = null;
+    return new CancellablePromise((apply: Function, reject: Function) => {
+        handler = setInterval(() => {
+            apply();
+        }, timeout);
+    }, () => {
+        if (handler) {
+            clearInterval(handler);
+            handler = null;
+        }
+    });
+}
+
 /**
  * a small (probably not 100% correct, although I tried to be correct as possible) Promise implementation
  * for systems which do not have a promise implemented
