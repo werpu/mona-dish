@@ -178,7 +178,7 @@ describe('promise tests', () => {
     });
 
     it("Promise chain test", (done) => {
-        var chainExecuted = false;
+        let chainExecuted = false;
         let applyPromise = new ShimPromise((apply: Function, reject: Function) => {
             setTimeout(() => {
                 apply(1);
@@ -199,7 +199,7 @@ describe('promise tests', () => {
     });
 
     it("Promise chain2 test", (done) => {
-        var chainExecuted = false;
+        let chainExecuted = false;
         let applyPromise = new ShimPromise((apply: Function, reject: Function) => {
             setTimeout(() => {
                 reject(1);

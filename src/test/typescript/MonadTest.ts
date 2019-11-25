@@ -43,7 +43,7 @@ describe('optional tests', () => {
     });
 
     it('elvis test', () => {
-        var myStruct = {
+        let myStruct = {
             data: {
                 value: 1,
                 value2: Optional.absent,
@@ -69,7 +69,7 @@ describe('optional tests', () => {
 
 
 describe('Config tests', () => {
-    var setup = function ():Config {
+    let setup = function ():Config {
         return new Config({
             data: {
                 value: 1,

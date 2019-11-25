@@ -128,7 +128,7 @@ export class Probe2Impl implements Probe2 {
 }
 
 function mixMaps(target: any, src: any): any {
-    for(var key in src) {
+    for(let key in src) {
         target[key] = src[key];
     }
     return target;

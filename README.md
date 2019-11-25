@@ -55,7 +55,7 @@ The idea behind optional is to get rid of undefined and null, while providing a 
 instead of having following constructs constantly in your code
 
 ```Typescript
-if("undefined" typeof myVar || null == myVar) {
+if("undefined" typeof mylet || null == myVar) {
     //do something
 }
 ```
@@ -73,7 +73,7 @@ The same goes for exists checks:
 let opt = Optional.fromNullable(myVar);
 if(Optional.fromNullable(myVar).isPresent()) {
     //do something
-    var theValue = opt.value; //lets fetch the value
+    let theValue = opt.value; //lets fetch the value
 }
 ```
 
@@ -91,7 +91,7 @@ Also as convenience you now have an easier way to check for existence in nested 
             ]
         };
         
-        var opt = Optional.fromNullable(myStruct);
+        let opt = Optional.fromNullable(myStruct);
         opt.getIf("data", "value3").isAbsent(); // returns true
         opt.getIf("data", "value4").value; //returns 1
         opt.getIf("data2[0]", "booga").value; //returns "hello"
