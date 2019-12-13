@@ -452,6 +452,21 @@ interface IDomQuery {
      * @param to
      */
     subNodes(from: number, to?: number): DomQuery;
+
+    /**
+     * creates a shadow roots from the existing dom elements in this query
+     * only working on supported browsers, or if a shim is installed
+     * unlike Promises I wont do my own shim on top here
+     */
+    createShadowRoot(): DomQuery;
+
+    /**
+     * attach shadow elements
+     * 1:1 mapping from attach shadow
+     *
+     * @param modeParams
+     */
+    attachShadow(modeParams: {[key: string]: string}): DomQuery
 }
 
 /**
@@ -1055,6 +1070,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     eachElem(func: (item: Element, cnt?: number) => any): DomQuery {
+
+
         for (let cnt = 0, len = this.rootNode.length; cnt < len; cnt++) {
             if (func(this.rootNode[cnt], cnt) === false) {
                 break;
@@ -1761,6 +1778,34 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     reset() {
         this.pos = -1;
+    }
+
+
+    createShadowRoot(): DomQuery {
+        let shadowRoots: DomQuery[] = [];
+        this.eachElem((item: Element) => {
+            let shadowElement: DomQuery;
+            if((<any>item)?.createShadowRoot) {
+                shadowElement = DomQuery.byId((<any>item).createShadowRoot());
+            } else {
+               throw Error("Shadow dom creation not supported by the browser, please use a shim, to gain this functionality")
+            }
+        });
+
+        return new DomQuery(...shadowRoots);
+    }
+
+    attachShadow(params: {[key: string]: string}): DomQuery {
+        let shadowRoots: DomQuery[] = [];
+        this.eachElem((item: Element) => {
+            let shadowElement: DomQuery;
+            if((<any>item)?.attachShadow) {
+                shadowElement = DomQuery.byId((<any>item).attachShadow(params));
+            } else {
+                //throw error (Shadow dom creation not supported by the browser, please use a shim, to gain this functionality)
+            }
+        });
+        return new DomQuery(...shadowRoots);
     }
 
     //from

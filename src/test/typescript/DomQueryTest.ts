@@ -439,4 +439,18 @@ describe('DOMQuery tests', function () {
         expect(probe.length).to.eq(2);
     })
 
+
+    it("it must ensure shadow dom creation works properly", function () {
+        let probe = DomQuery.byTagName("div");
+        try {
+            //probably not testable atm, mocha does not have shadow dom support
+            //we might be able to shim it in one way or the other
+            let element = probe.createShadowRoot();
+            expect(element.length).to.eq(1);
+        } catch (e) {
+            //not supported we still need to get an error here
+            expect(e.message.indexOf("not supported") != -1).to.be.true;
+        }
+    })
+
 });
