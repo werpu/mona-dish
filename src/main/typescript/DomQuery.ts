@@ -466,7 +466,7 @@ interface IDomQuery {
      *
      * @param modeParams
      */
-    attachShadow(modeParams: {[key: string]: string}): DomQuery
+    attachShadow(modeParams: { [key: string]: string }): DomQuery
 }
 
 /**
@@ -1070,7 +1070,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     eachElem(func: (item: Element, cnt?: number) => any): DomQuery {
-
 
         for (let cnt = 0, len = this.rootNode.length; cnt < len; cnt++) {
             if (func(this.rootNode[cnt], cnt) === false) {
@@ -1737,13 +1736,16 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     get cDATAAsString(): string {
         let cDataBlock = [];
+        let TYPE_CDATA_BLOCK = 4;
+
         // response may contain several blocks
-        return this.stream
-            .flatMap(item => item.childNodes.stream).reduce((reduced: Array<any>, item: DomQuery) => {
+        return this.lazyStream
+            .flatMap(item => item.childNodes.stream)
+            .filter(item => item?.value?.value?.nodeType == TYPE_CDATA_BLOCK)
+            .reduce((reduced: Array<any>, item: DomQuery) => {
                 reduced.push((<any>item?.value?.value)?.data ?? "");
                 return reduced;
             }, []).value.join("");
-
     }
 
     subNodes(from: number, to?: number): DomQuery {
@@ -1780,26 +1782,25 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         this.pos = -1;
     }
 
-
     createShadowRoot(): DomQuery {
         let shadowRoots: DomQuery[] = [];
         this.eachElem((item: Element) => {
             let shadowElement: DomQuery;
-            if((<any>item)?.createShadowRoot) {
+            if ((<any>item)?.createShadowRoot) {
                 shadowElement = DomQuery.byId((<any>item).createShadowRoot());
             } else {
-               throw Error("Shadow dom creation not supported by the browser, please use a shim, to gain this functionality")
+                throw Error("Shadow dom creation not supported by the browser, please use a shim, to gain this functionality")
             }
         });
 
         return new DomQuery(...shadowRoots);
     }
 
-    attachShadow(params: {[key: string]: string}): DomQuery {
+    attachShadow(params: { [key: string]: string }): DomQuery {
         let shadowRoots: DomQuery[] = [];
         this.eachElem((item: Element) => {
             let shadowElement: DomQuery;
-            if((<any>item)?.attachShadow) {
+            if ((<any>item)?.attachShadow) {
                 shadowElement = DomQuery.byId((<any>item).attachShadow(params));
             } else {
                 //throw error (Shadow dom creation not supported by the browser, please use a shim, to gain this functionality)
