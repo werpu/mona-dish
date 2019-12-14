@@ -33,7 +33,7 @@ import {
 export type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
 export type ArrayMapper<T> = (data: T) => Array<any>;
 export type IteratableConsumer<T> = (data: T, pos ?: number) => void | boolean;
-export type Reducable<T> = (val1: T, val2: T) => T;
+export type Reducable<T, V> = (val1: T | V, val2: T) => V;
 export type Matchable<T> = (data: T) => boolean;
 export type Mappable<T, R> = (data: T) => R;
 export type Comparator<T> = (el1: T, el2: T) => number;
@@ -93,7 +93,7 @@ export interface IStream<T> {
      * @param startVal an optional starting value, if provided the the processing starts with this element
      * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
      */
-    reduce(fn: Reducable<T>, startVal: T): Optional<T>;
+    reduce<V>(fn: Reducable<T,V>, startVal: T | V): Optional<T | V>;
 
     /**
      * returns the first element in the stream is given as Optional
@@ -249,14 +249,14 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream<T>(...res);
     }
 
-    reduce(fn: Reducable<T>, startVal: T = null): Optional<T> {
+    reduce<V>(fn: Reducable<T, V | T>, startVal: V = null): Optional<V | T> {
         let offset = startVal != null ? 0 : 1;
-        let val1 = startVal != null ? startVal : this.value.length ? this.value[0] : null;
+        let val1: V | T = startVal != null ? startVal : this.value.length ? this.value[0] : null;
 
         for (let cnt = offset; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             val1 = fn(val1, this.value[cnt]);
         }
-        return Optional.fromNullable(val1);
+        return Optional.fromNullable<V | T>(val1);
     }
 
     first(): Optional<T> {
@@ -468,7 +468,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         }
     }
 
-    reduce(fn: Reducable<T>, startVal: T = null): Optional<T> {
+    reduce<V>(fn: Reducable<T, V>, startVal: T | V = null): Optional<T | V> {
         if (!this.hasNext()) {
             return Optional.absent;
         }

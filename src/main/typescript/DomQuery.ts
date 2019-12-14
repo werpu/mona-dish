@@ -24,6 +24,25 @@ import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
 
+/**
+ *
+ *        // - submit checkboxes and radio inputs only if checked
+ if ((tagName != "select" && elemType != "button"
+ && elemType != "reset" && elemType != "submit" && elemType != "image")
+ && ((elemType != "checkbox" && elemType != "radio"
+ */
+
+enum Submittables {
+    SELECT = "select",
+    BUTTON = "button",
+    SUBMIT = "submit",
+    RESET = "reset",
+    IMAGE = "image",
+    RADIO = "radio",
+    CHECKBOX = "checkbox"
+
+}
+
 // @ts-ignore supression needed here due to fromnullable
 export class ElementAttribute extends ValueEmbedder<string> {
 
@@ -884,12 +903,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param includeRoot
      */
     byTagName(tagName: string, includeRoot ?: boolean): DomQuery {
-        let res = [];
-        for (let cnt = 0; includeRoot && cnt < this.rootNode.length; cnt++) {
-            if (this.rootNode[cnt]?.tagName == tagName) {
-                res.push(new DomQuery(this.rootNode[cnt]));
-            }
+        let res: Array<Element | DomQuery> = [];
+        if(includeRoot) {
+           res = Stream.of<any>(...(this?.rootNode ?? []))
+                .filter(element => element?.tagName == tagName)
+                .reduce<Array<Element | DomQuery>>((reduction: any, item: Element) => reduction.concat([item]),  res)
+                .value;
         }
+
         res = res.concat(this.querySelectorAll(tagName));
         return new DomQuery(...res);
     }
@@ -1715,11 +1736,21 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 // rules:
                 // - don't submit no selects (processed above), buttons, reset buttons, submit buttons,
                 // - submit checkboxes and radio inputs only if checked
-                if ((tagName != "select" && elemType != "button"
-                    && elemType != "reset" && elemType != "submit" && elemType != "image")
-                    && ((elemType != "checkbox" && elemType != "radio") || element.checked)) {
+                if (
+                    (
+                        tagName != Submittables.SELECT &&
+                        elemType != Submittables.BUTTON &&
+                        elemType != Submittables.RESET &&
+                        elemType != Submittables.SUBMIT &&
+                        elemType != Submittables.IMAGE
+                    ) && (
+                        (
+                            elemType != Submittables.CHECKBOX && elemType != Submittables.RADIO) ||
+                            element.checked
+                        )
+                    ) {
                     let files: any = (<any>element.value).files;
-                    if (files && files.length) {
+                    if (files?.length) {
                         //xhr level2
                         target.assign(name).value = files[0];
                     } else {
@@ -1731,7 +1762,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         });
 
         return target;
-
     }
 
     get cDATAAsString(): string {
