@@ -855,7 +855,7 @@ the reason for that is that the browsers do not have a universal query engine ye
 and I tried to avoid third party dependencies.
 But you get many other benefits similar to DomQuery by using XmlQuery
 
-## Extended Documenentation
+## Extended Documentation
 
 I am going to provide extended documentation on the various
 aspects of mona-dish in following supagages

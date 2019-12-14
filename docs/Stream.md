@@ -131,3 +131,11 @@ this would result in a console output of
 So nothing is returned... the items filter the number 2 upfront
 and then print out the remaining items.
 
+### Mapping and Flatmapping
+
+So what is this... To sum it quickly up
+mapping is the transformation of one element type into another
+flatmapping is, that you sometimes return a collection and want
+to streamlined it into your one dimensional stream.
+
+Thats the theory behind it
