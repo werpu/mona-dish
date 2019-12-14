@@ -860,7 +860,7 @@ But you get many other benefits similar to DomQuery by using XmlQuery
 I am going to provide extended documentation on the various
 aspects of mona-dish in following supagages
 
-* [Streams](https://github.com/werpu/mona-dish/blob/docs/Stream.md)
+* [Streams](https://github.com/werpu/mona-dish/blob/master/docs/Stream.md)
 
 
 ## Examples
