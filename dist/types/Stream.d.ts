@@ -3,7 +3,7 @@ import { ICollector, IStreamDataSource } from "./SourcesCollectors";
 export declare type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
 export declare type ArrayMapper<T> = (data: T) => Array<any>;
 export declare type IteratableConsumer<T> = (data: T, pos?: number) => void | boolean;
-export declare type Reducable<T> = (val1: T, val2: T) => T;
+export declare type Reducable<T, V> = (val1: T | V, val2: T) => V;
 export declare type Matchable<T> = (data: T) => boolean;
 export declare type Mappable<T, R> = (data: T) => R;
 export declare type Comparator<T> = (el1: T, el2: T) => number;
@@ -57,7 +57,7 @@ export interface IStream<T> {
      * @param startVal an optional starting value, if provided the the processing starts with this element
      * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
      */
-    reduce(fn: Reducable<T>, startVal: T): Optional<T>;
+    reduce<V>(fn: Reducable<T, V>, startVal: T | V): Optional<T | V>;
     /**
      * returns the first element in the stream is given as Optional
      */
@@ -137,7 +137,7 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     map<R>(fn?: (data: T) => R): Stream<R>;
     flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any>;
     filter(fn?: (data: T) => boolean): Stream<T>;
-    reduce(fn: Reducable<T>, startVal?: T): Optional<T>;
+    reduce<V>(fn: Reducable<T, V | T>, startVal?: V): Optional<V | T>;
     first(): Optional<T>;
     last(): Optional<T>;
     anyMatch(fn: Matchable<T>): boolean;
@@ -198,7 +198,7 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     map<R>(fn: Mappable<T, R>): LazyStream<any>;
     flatMap<StreamMapper>(fn: StreamMapper | ArrayMapper<any>): LazyStream<any>;
     each(fn: IteratableConsumer<T>): void;
-    reduce(fn: Reducable<T>, startVal?: T): Optional<T>;
+    reduce<V>(fn: Reducable<T, V>, startVal?: T | V): Optional<T | V>;
     last(): Optional<T>;
     first(): Optional<T>;
     anyMatch(fn: Matchable<T>): boolean;

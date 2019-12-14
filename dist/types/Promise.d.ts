@@ -8,6 +8,8 @@ export interface IPromise {
     catch(executorFunc: (val: any) => any): IPromise;
     finally(executorFunc: () => void): IPromise;
 }
+export declare function timeout(timeout: number): CancellablePromise;
+export declare function interval(timeout: number): CancellablePromise;
 /**
  * a small (probably not 100% correct, although I tried to be correct as possible) Promise implementation
  * for systems which do not have a promise implemented

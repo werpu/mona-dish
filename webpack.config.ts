@@ -2,7 +2,7 @@ import * as webpack from 'webpack';
 import * as path from 'path';
 
 const CopyPlugin = require('copy-webpack-plugin');
-const FileManagerPlugin = require('filemanager-webpack-plugin');
+const FileManagerPlugin = require('filemanager-webpack-plugin-fixed');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 export default  (env, argv) => {

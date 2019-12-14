@@ -1,4 +1,3 @@
-import { CancellablePromise } from "./Promise";
 import { Optional } from "./Monad";
 /**
  * Lang helpers crossported from the apache myfaces project
@@ -52,8 +51,6 @@ export declare module Lang {
      * @param destination
      */
     function equalsIgnoreCase(source?: string, destination?: string): boolean;
-    function timeout(timeout: number): CancellablePromise;
-    function interval(timeout: number): CancellablePromise;
     /**
      * runtime type assertion
      *

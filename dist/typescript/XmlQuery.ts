@@ -27,14 +27,13 @@ export class XMLQuery extends DomQuery {
 
     constructor(rootNode: Document | string | DomQuery, docType: SupportedType = "text/xml") {
 
-
         let createIe11DomQueryShim = (): DOMParser => {
             //at the time if wroting ie11 is the only relevant browser
             //left withut any DomQuery support
             let parser = new ActiveXObject("Microsoft.XMLDOM");
             parser.async = false;
             //we shim th dom parser from ie in
-            return <any> {
+            return <any>{
                 parseFromString: (text: string, contentType: string): Document => {
                     return parser.loadXML(text);
                 }
@@ -42,55 +41,52 @@ export class XMLQuery extends DomQuery {
         };
 
         let parseXML = (xml: string): Document => {
-            if(xml == null) {
+            if (xml == null) {
                 return null;
             }
             let domParser: DOMParser = Lang.saveResolveLazy<DOMParser>(
                 () => new window.DOMParser(),
-                (): DOMParser =>  createIe11DomQueryShim()
+                (): DOMParser => createIe11DomQueryShim()
             ).value;
             return domParser.parseFromString(xml, docType);
         };
 
-        if(isString(rootNode)) {
+        if (isString(rootNode)) {
             super(parseXML(<string>rootNode))
         } else {
             super(rootNode);
         }
     }
 
-
     isXMLParserError(): boolean {
         return this.querySelectorAll("parsererror").isPresent();
     }
-
-
 
     toString(): string {
         let ret = [];
         this.eachElem((node: any) => {
             let serialized = (<any>window)?.XMLSerializer?.constructor()?.serializeToString(node) ?? node?.xml;
-            if(!!serialized) {
+            if (!!serialized) {
                 ret.push(serialized);
             }
         });
         return ret.join("");
     }
 
-
     parserErrorText(joinstr: string): string {
         return this.querySelectorAll("parsererror").textContent(joinstr);
     }
 
     static parseXML(txt: string): XMLQuery {
-        return new  XMLQuery(txt);
+        return new XMLQuery(txt);
     }
+
     static parseHTML(txt: string): XMLQuery {
-        return new  XMLQuery(txt, "text/html");
+        return new XMLQuery(txt, "text/html");
     }
 
     static fromString(txt: string, parseType: SupportedType = "text/xml"): XMLQuery {
-        return new  XMLQuery(txt,parseType);
+        return new XMLQuery(txt, parseType);
     }
 }
 

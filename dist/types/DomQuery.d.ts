@@ -345,6 +345,21 @@ interface IDomQuery {
      * @param to
      */
     subNodes(from: number, to?: number): DomQuery;
+    /**
+     * creates a shadow roots from the existing dom elements in this query
+     * only working on supported browsers, or if a shim is installed
+     * unlike Promises I wont do my own shim on top here
+     */
+    createShadowRoot(): DomQuery;
+    /**
+     * attach shadow elements
+     * 1:1 mapping from attach shadow
+     *
+     * @param modeParams
+     */
+    attachShadow(modeParams: {
+        [key: string]: string;
+    }): DomQuery;
 }
 /**
  * Monadic DomNode representation, ala jquery
@@ -637,7 +652,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery;
     /**
      * resolves an attribute holder compared
-     * @param attr
+     * @param attrName the attribute name
      */
     private resolveAttributeHolder;
     /**
@@ -687,6 +702,12 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
     hasNext(): boolean;
     next(): DomQuery;
     reset(): void;
+    createShadowRoot(): DomQuery;
+    attachShadow(params: {
+        [key: string]: string;
+    }): DomQuery;
+    static getCaretPosition(ctrl: any): number;
+    static setCaretPosition(ctrl: any, pos: number): void;
 }
 /**
  * Various collectors

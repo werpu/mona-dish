@@ -24,6 +24,25 @@ import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
 
+/**
+ *
+ *        // - submit checkboxes and radio inputs only if checked
+ if ((tagName != "select" && elemType != "button"
+ && elemType != "reset" && elemType != "submit" && elemType != "image")
+ && ((elemType != "checkbox" && elemType != "radio"
+ */
+
+enum Submittables {
+    SELECT = "select",
+    BUTTON = "button",
+    SUBMIT = "submit",
+    RESET = "reset",
+    IMAGE = "image",
+    RADIO = "radio",
+    CHECKBOX = "checkbox"
+
+}
+
 // @ts-ignore supression needed here due to fromnullable
 export class ElementAttribute extends ValueEmbedder<string> {
 
@@ -452,6 +471,21 @@ interface IDomQuery {
      * @param to
      */
     subNodes(from: number, to?: number): DomQuery;
+
+    /**
+     * creates a shadow roots from the existing dom elements in this query
+     * only working on supported browsers, or if a shim is installed
+     * unlike Promises I wont do my own shim on top here
+     */
+    createShadowRoot(): DomQuery;
+
+    /**
+     * attach shadow elements
+     * 1:1 mapping from attach shadow
+     *
+     * @param modeParams
+     */
+    attachShadow(modeParams: { [key: string]: string }): DomQuery
 }
 
 /**
@@ -749,7 +783,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     }
 
-
     /**
      * returns the nth element as domquery
      * from the internal elements
@@ -870,12 +903,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param includeRoot
      */
     byTagName(tagName: string, includeRoot ?: boolean): DomQuery {
-        let res = [];
-        for (let cnt = 0; includeRoot && cnt < this.rootNode.length; cnt++) {
-            if (this.rootNode[cnt]?.tagName == tagName) {
-                res.push(new DomQuery(this.rootNode[cnt]));
-            }
+        let res: Array<Element | DomQuery> = [];
+        if(includeRoot) {
+           res = Stream.of<any>(...(this?.rootNode ?? []))
+                .filter(element => element?.tagName == tagName)
+                .reduce<Array<Element | DomQuery>>((reduction: any, item: Element) => reduction.concat([item]),  res)
+                .value;
         }
+
         res = res.concat(this.querySelectorAll(tagName));
         return new DomQuery(...res);
     }
@@ -1056,6 +1091,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     eachElem(func: (item: Element, cnt?: number) => any): DomQuery {
+
         for (let cnt = 0, len = this.rootNode.length; cnt < len; cnt++) {
             if (func(this.rootNode[cnt], cnt) === false) {
                 break;
@@ -1204,7 +1240,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     insertAfter(...toInsertParams: Array<DomQuery>): DomQuery {
 
-
         this.each(existingItem => {
             let existingElement = existingItem.getAsElem(0).value;
             let rootNode = existingElement.parentNode;
@@ -1313,7 +1348,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     /**
      * resolves an attribute holder compared
-     * @param attr
+     * @param attrName the attribute name
      */
     private resolveAttributeHolder(attrName: string = "value"): HTMLFormElement | any {
         let ret = [];
@@ -1334,10 +1369,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param runEmbeddedCss
      */
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery {
-        if(this.isAbsent()) {
+        if (this.isAbsent()) {
             return;
         }
 
+        let focusElementId = document?.activeElement?.id;
+        let caretPosition = (focusElementId) ? DomQuery.getCaretPosition(document.activeElement) : null;
         let nodes = DomQuery.fromMarkup(markup);
         let res = [];
         let toReplace = this.getAsElem(0).value;
@@ -1347,7 +1384,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         parentNode.replaceChild(replaced, toReplace);
         res.push(new DomQuery(replaced));
         //no replacement possible
-        if(this.isAbsent()) {
+        if (this.isAbsent()) {
             return this;
         }
 
@@ -1363,6 +1400,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         }
         if (runEmbeddedCss) {
             this.runCss();
+        }
+
+        let focusElement = DomQuery.byId(focusElementId);
+        if (focusElementId && focusElement.isPresent() &&
+            caretPosition != null && "undefined" != typeof caretPosition) {
+            focusElement.eachElem(item => DomQuery.setCaretPosition(item, caretPosition));
         }
 
         return nodes;
@@ -1549,7 +1592,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      */
     fireEvent(eventName: string) {
         this.eachElem((node: Element) => {
-            var doc;
+            let doc;
             if (node.ownerDocument) {
                 doc = node.ownerDocument;
             } else if (node.nodeType == 9) {
@@ -1561,7 +1604,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
             if (node.dispatchEvent) {
                 // Gecko-style approach (now the standard) takes more work
-                var eventClass = "";
+                let eventClass = "";
 
                 // Different events have different event classes.
                 // If this switch statement can't map an eventName to an eventClass,
@@ -1592,7 +1635,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 node.dispatchEvent(event);
             } else if ((<any>node).fireEvent) {
                 // IE-old school style, you can drop this if you don't need to support IE8 and lower
-                var event = doc.createEventObject();
+                let event = doc.createEventObject();
                 event.synthetic = true; // allow detection of synthetic events
                 (<any>node).fireEvent("on" + eventName, event);
             }
@@ -1693,11 +1736,21 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 // rules:
                 // - don't submit no selects (processed above), buttons, reset buttons, submit buttons,
                 // - submit checkboxes and radio inputs only if checked
-                if ((tagName != "select" && elemType != "button"
-                    && elemType != "reset" && elemType != "submit" && elemType != "image")
-                    && ((elemType != "checkbox" && elemType != "radio") || element.checked)) {
+                if (
+                    (
+                        tagName != Submittables.SELECT &&
+                        elemType != Submittables.BUTTON &&
+                        elemType != Submittables.RESET &&
+                        elemType != Submittables.SUBMIT &&
+                        elemType != Submittables.IMAGE
+                    ) && (
+                        (
+                            elemType != Submittables.CHECKBOX && elemType != Submittables.RADIO) ||
+                            element.checked
+                        )
+                    ) {
                     let files: any = (<any>element.value).files;
-                    if (files && files.length) {
+                    if (files?.length) {
                         //xhr level2
                         target.assign(name).value = files[0];
                     } else {
@@ -1709,18 +1762,20 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         });
 
         return target;
-
     }
 
     get cDATAAsString(): string {
         let cDataBlock = [];
+        let TYPE_CDATA_BLOCK = 4;
+
         // response may contain several blocks
-        return this.stream
-            .flatMap(item => item.childNodes.stream).reduce((reduced: Array<any>, item: DomQuery) => {
+        return this.lazyStream
+            .flatMap(item => item.childNodes.stream)
+            .filter(item => item?.value?.value?.nodeType == TYPE_CDATA_BLOCK)
+            .reduce((reduced: Array<any>, item: DomQuery) => {
                 reduced.push((<any>item?.value?.value)?.data ?? "");
                 return reduced;
             }, []).value.join("");
-
     }
 
     subNodes(from: number, to?: number): DomQuery {
@@ -1755,6 +1810,60 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     reset() {
         this.pos = -1;
+    }
+
+    createShadowRoot(): DomQuery {
+        let shadowRoots: DomQuery[] = [];
+        this.eachElem((item: Element) => {
+            let shadowElement: DomQuery;
+            if ((<any>item)?.createShadowRoot) {
+                shadowElement = DomQuery.byId((<any>item).createShadowRoot());
+            } else {
+                throw Error("Shadow dom creation not supported by the browser, please use a shim, to gain this functionality")
+            }
+        });
+
+        return new DomQuery(...shadowRoots);
+    }
+
+    attachShadow(params: { [key: string]: string }): DomQuery {
+        let shadowRoots: DomQuery[] = [];
+        this.eachElem((item: Element) => {
+            let shadowElement: DomQuery;
+            if ((<any>item)?.attachShadow) {
+                shadowElement = DomQuery.byId((<any>item).attachShadow(params));
+            } else {
+                //throw error (Shadow dom creation not supported by the browser, please use a shim, to gain this functionality)
+            }
+        });
+        return new DomQuery(...shadowRoots);
+    }
+
+    //from
+    // http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
+    static getCaretPosition(ctrl: any) {
+        let caretPos = 0;
+
+        try {
+            if ((<any>document)?.selection) {
+                ctrl.focus();
+                let selection = (<any>document).selection.createRange();
+                //the selection now is start zero
+                selection.moveStart('character', -ctrl.value.length);
+                //the caretposition is the selection start
+                caretPos = selection.text.length;
+            }
+        } catch (e) {
+            //now this is ugly, but not supported input types throw errors for selectionStart
+            //just in case someone dumps this code onto unsupported browsers
+        }
+        return caretPos;
+    }
+
+    static setCaretPosition(ctrl: any, pos: number) {
+        ctrl.focus();
+        //the selection range is our caret position
+        ctrl.setSelectionRange(pos, pos);
     }
 }
 
