@@ -117,8 +117,8 @@ Lets take again our former example and alter it a little bit
 ```Typescript
 
 LazyStream.of(...[1,2,3])
-                          .filter(item => item != 2)
-                          .each(item => console.log(item, " ")) 
+          .filter(item => item != 2)
+          .each(item => console.log(item, " ")) 
 
 ```
 
