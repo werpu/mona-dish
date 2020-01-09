@@ -244,6 +244,20 @@ export class ArrayCollector<S> implements ICollector<S, Array<S>> {
 }
 
 /**
+ * dummy collector which just triggers a run
+ * on lazy streams without collecting anything
+ */
+export class Run<S> implements ICollector<S, any> {
+    collect(element: S) {
+
+    }
+
+    get finalValue(): any {
+        return null;
+    }
+}
+
+/**
  * collects an assoc stream back to an assoc array
  */
 export class AssocArrayCollector<S> implements ICollector<[string, S] | string, {[key:string]:S}> {
