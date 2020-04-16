@@ -37,7 +37,7 @@ describe('DOMQuery tests', function () {
             </head>
             <body>
                 <div id="id_1"></div>
-                <div id="id_2"  booga="blarg"></div>
+                <div id="id_2"  booga="blarg" class="blarg2"></div>
                 <div id="id_3" class="blarg1 blarg2"></div>
                 <div id="id_4"></div>
             </body>
@@ -167,7 +167,7 @@ describe('DOMQuery tests', function () {
         element.addClass("booga").addClass("Booga2");
 
         let classdef = element.attr("class").value;
-        expect(classdef).to.eq("booga Booga2");
+        expect(classdef).to.eq("blarg2 booga Booga2");
 
         element.removeClass("booga2")
         expect(element.hasClass("booga2")).to.be.false;
@@ -178,15 +178,29 @@ describe('DOMQuery tests', function () {
     it('must perform addClass and hasClass correctly 2', function () {
         let probe1 = new DomQuery(document);
         let element = probe1.querySelectorAll(".blarg2");
+
+
         element.addClass("booga").addClass("Booga2");
 
         let classdef = element.attr("class").value;
-        expect(classdef).to.eq("blarg1 blarg2 booga Booga2");
+        expect(classdef).to.eq("blarg2 booga Booga2");
 
         element.removeClass("booga2")
         expect(element.hasClass("booga2")).to.be.false;
         expect(element.hasClass("booga")).to.be.true;
+        expect(element.hasClass("blarg2")).to.be.true;
 
+    });
+
+    it('must perform addClass and hasClass correctly 2', function () {
+        let probe1 = new DomQuery(document);
+        let element = probe1.querySelectorAll(".blarg2");
+
+
+        element.addClass("booga").addClass("Booga2");
+
+
+        expect(probe1.querySelectorAll(".Booga2").length).eq(2);
     });
 
     it('must perform insert before and insert after correctly', function () {
