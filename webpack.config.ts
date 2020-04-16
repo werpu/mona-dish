@@ -1,5 +1,6 @@
 import * as webpack from 'webpack';
 import * as path from 'path';
+import {LibraryTarget} from "webpack";
 
 const CopyPlugin = require('copy-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin-fixed');
@@ -7,11 +8,11 @@ const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 export default  (env, argv) => {
 
-    let targetType = "";
+    let targetType: LibraryTarget = null;
 
 
     let setupTargetType = function () {
-        targetType = env.TARGET_TYPE.replace(/\s+/gi, "");
+        targetType = <LibraryTarget> env.TARGET_TYPE.replace(/\s+/gi, "");
     }
     setupTargetType();
 
