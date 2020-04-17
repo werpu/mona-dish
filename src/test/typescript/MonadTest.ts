@@ -170,6 +170,28 @@ describe('Config tests', () => {
         expect(probe.resolve((root) => root.test1.testborked.test3).isAbsent()).to.be.true;
     });
 
+    it('Config append must work from single/zero element to multiple elements', () => {
+        let probe = new Config({});
+        probe.append("test1","test2","test3").value = "hello";
+        expect(probe.getIf("test1","test2","test3").value.length).to.eq(1);
+        expect(probe.getIf("test1","test2","test3").value[0]).to.eq("hello");
+        probe.append("test1","test2","test3").value = "hello2";
+        expect(probe.getIf("test1","test2","test3").value.length).to.eq(2);
+        expect(probe.getIf("test1","test2","test3").value[0]).to.eq("hello");
+        expect(probe.getIf("test1","test2","test3").value[1]).to.eq("hello2");
+        probe.assign("test1","test2","test3[0]").value = "altered";
+        //altered assignment
+        expect(probe.getIf("test1","test2","test3").value[0]).to.eq("altered");
+        expect(probe.getIf("test1","test2","test3").value[1]).to.eq("hello2");
+
+        try {
+           probe.append("test1","test2","test3[0]").value = "hello2";
+           expect(true).to.be.false;
+        } catch(ex) {
+
+        }
+    });
+
 });
 
 
