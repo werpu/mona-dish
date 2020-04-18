@@ -74,7 +74,6 @@ export default  (env, argv) => {
         ]
     }
 
-
     return config;
 }
 

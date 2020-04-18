@@ -84,16 +84,16 @@ export class TagBuilder {
         if (this.clazz) {
             window.customElements.define(this.tagName, this.clazz, this.theOptions || null);
         } else {
-            let _t = this;
+            let _t_ = this;
             window.customElements.define(this.tagName, class extends this.extendsType {
                 constructor() {
                     super();
-                    this.innerHTML = _t.markup;
+                    this.innerHTML = _t_.markup;
                 }
 
                 connectedCallback() {
-                    if (_t.connectedCallback) {
-                        _t.connectedCallback.prototype.apply(this);
+                    if (_t_.connectedCallback) {
+                        _t_.connectedCallback.apply(this);
                     }
                 }
             }, this.theOptions || null);
