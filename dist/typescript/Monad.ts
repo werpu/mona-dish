@@ -98,9 +98,6 @@ export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
 
 }
 
-
-
-
 /**
  * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
  * sugar on top
@@ -318,21 +315,19 @@ export class Optional<T> extends Monad<T> {
      * the resolution goes towards absent
      */
     resolve<V>(resolver: (item: T) => V): Optional<V> {
-        if(this.isAbsent()) {
+        if (this.isAbsent()) {
             return Optional.absent;
         }
         try {
             return Optional.fromNullable(resolver(this.value))
-        } catch(e) {
+        } catch (e) {
             return Optional.absent;
         }
     }
 
 }
 
-
 // --------------------- From here onwards we break out the sideffects free limits ------------
-
 
 /**
  * ValueEmbedder is the writeable version
@@ -345,7 +340,7 @@ export class Optional<T> extends Monad<T> {
 export class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
 
     /*default value for absent*/
-    static absent =  ValueEmbedder.fromNullable(null);
+    static absent = ValueEmbedder.fromNullable(null);
 
     protected key: string;
 
@@ -360,7 +355,7 @@ export class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
     }
 
     set value(newVal: T) {
-        if(!this._value) {
+        if (!this._value) {
             return;
         }
         this._value[this.key] = newVal
@@ -399,8 +394,6 @@ export class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
 
 }
 
-
-
 /**
  * specialized value embedder
  * for our Configuration
@@ -410,12 +403,15 @@ class ConfigEntry<T> extends ValueEmbedder<T> {
     /*default value for absent*/
     static absent = ConfigEntry.fromNullable(null);
 
+    /**
+     * arrayed value positions
+     */
     arrPos: number;
 
     constructor(rootElem: any, key: any, arrPos?: number) {
         super(rootElem, key);
 
-        this.arrPos =  arrPos ?? -1;
+        this.arrPos = arrPos ?? -1;
     }
 
     get value() {
@@ -465,12 +461,71 @@ export class Config extends Optional<any> {
     /**
      * simple merge for the root configs
      */
-    shallowMerge(other: Config, overwrite = true) {
+    shallowMerge(other: Config, overwrite = true, withAppend = false) {
         for (let key in other.value) {
-            if (overwrite || !(key in this.value)) {
-                this.assign(key).value = other.getIf(key).value;
+            if (overwrite || !(key in this.value)) {
+                if (!withAppend) {
+                    this.assign(key).value = other.getIf(key).value;
+                } else {
+                    if (Array.isArray(other.getIf(key).value)) {
+                        Stream.of(...other.getIf(key).value).each(item => this.append(key).value = item);
+                    } else {
+                        this.append(key).value = other.getIf(key).value;
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * assigns a single value as array, or appends it
+     * to an existing value mapping a single value to array
+     *
+     *
+     * usage myConfig.append("foobaz").value = "newValue"
+     *       myConfig.append("foobaz").value = "newValue2"
+     *
+     * resulting in myConfig.foobaz == ["newValue, newValue2"]
+     *
+     * @param keys
+     */
+    append(...keys): IValueHolder<any> {
+        let noKeys = keys.length < 1;
+        if (noKeys) {
+            return;
+        }
+
+        let lastKey = keys[keys.length - 1];
+        let currKey, finalKey = this.keyVal(lastKey);
+
+        let pathExists = this.getIf(...keys).isPresent();
+        this.buildPath(keys);
+
+        let finalKeyArrPos = this.arrayIndex(lastKey);
+        if (finalKeyArrPos > -1) {
+            throw Error("Append only possible on non array properties, use assign on indexed data");
+        }
+        let value = <any>this.getIf(...keys).value;
+        if (!Array.isArray(value)) {
+            value = this.assign(...keys).value = [value];
+        }
+        if (pathExists) {
+            value.push({});
+        }
+        finalKeyArrPos = value.length - 1;
+
+        let retVal = new ConfigEntry(keys.length == 1 ? this.value : this.getIf.apply(this, keys.slice(0, keys.length - 1)).value,
+            lastKey, finalKeyArrPos
+        );
+
+        return retVal;
+    }
+
+    appendIf(condition: boolean, ...keys): IValueHolder<any> {
+        if (!condition) {
+            return {value: null};
+        }
+        return this.append(...keys);
     }
 
     assign(...keys): IValueHolder<any> {
@@ -492,7 +547,6 @@ export class Config extends Optional<any> {
     assignIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
         return condition ? this.assign(...keys) : {value: null};
     }
-
 
     getIf(...keys: Array<string>): Config {
         return this.getClass().fromNullable(super.getIf.apply(this, keys).value);
@@ -522,6 +576,11 @@ export class Config extends Optional<any> {
         this._value = val;
     }
 
+    /**
+     * builds the config path
+     *
+     * @param keys a sequential array of keys containing either a key name or an array reference name[<index>]
+     */
     private buildPath(keys: Array<any>): Config {
         let val = this;
         let parentVal = this.getClass().fromNullable(null);
@@ -529,7 +588,7 @@ export class Config extends Optional<any> {
         let alloc = function (arr: Array<any>, length: number) {
             let length1 = arr.length;
             let length2 = length1 + length;
-            for(let cnt = length1; cnt < length2; cnt++) {
+            for (let cnt = length1; cnt < length2; cnt++) {
                 arr.push({});
             }
         };
