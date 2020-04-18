@@ -93,7 +93,7 @@ export class TagBuilder {
 
                 connectedCallback() {
                     if (_t.connectedCallback) {
-                        _t.connectedCallback.apply(this);
+                        _t.connectedCallback.prototype.apply(this);
                     }
                 }
             }, this.theOptions || null);
