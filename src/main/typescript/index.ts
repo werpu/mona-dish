@@ -18,4 +18,6 @@ export {
     QueryFormDataCollector
 } from "./SourcesCollectors";
 
+export  {TagBuilder} from "./TagBuilder";
+
 
