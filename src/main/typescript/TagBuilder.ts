@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 
+//poliyfill from @webcomponents/webcomponentsjs
+if("undefined" != typeof window) {
+    (function () {
+        if (void 0 === window.Reflect || void 0 === window.customElements || (<any>window.customElements).polyfillWrapFlushCallback) return;
+        const a = HTMLElement;
+        (<any>window).HTMLElement = {
+            HTMLElement: function HTMLElement() {
+                return Reflect.construct(a, [], this.constructor)
+            }
+        }.HTMLElement, HTMLElement.prototype = a.prototype, HTMLElement.prototype.constructor = HTMLElement, Object.setPrototypeOf(HTMLElement, a);
+    })();
+}
+
 /**
  * beginning custom tag support
  *
@@ -24,6 +37,7 @@
  * it follows a builder pattern to allow easier creations
  * with less code of custom tags
  */
+
 export class TagBuilder {
     tagName: string;
     connectedCallback?: Function;
