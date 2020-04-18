@@ -26,6 +26,7 @@ export default  (env, argv) => {
             XmlQuery: "./src/main/typescript/XmlQuery.ts",
             Promise: "./src/main/typescript/Promise.ts",
             Stream: "./src/main/typescript/Stream.ts",
+            TagBuilder: "./src/main/typescript/TagBuilder.ts",
             index: "./src/main/typescript/index.ts"
         },
         output: {
