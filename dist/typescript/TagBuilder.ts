@@ -15,7 +15,9 @@
  */
 
 //poliyfill from @webcomponents/webcomponentsjs
-if("undefined" != typeof window) {
+import {DomQuery} from "./DomQuery";
+
+if ("undefined" != typeof window) {
     (function () {
         if (void 0 === window.Reflect || void 0 === window.customElements || (<any>window.customElements).polyfillWrapFlushCallback) return;
         const a = HTMLElement;
@@ -63,41 +65,26 @@ export class TagBuilder {
     }
 
     withConnectedCallback(callback: Function) {
-        if (this.clazz) {
-            throw Error("Class already defined, connected callback must be set in the class");
-        }
         this.connectedCallback = callback;
         return this;
     }
 
     withDisconnectedCallback(callback: Function) {
-        if (this.clazz) {
-            throw Error("Class already defined, disconnected callback must be set in the class");
-        }
         this.disconnectedCallback = callback;
         return this;
     }
 
     withAdoptedCallback(callback: Function) {
-        if (this.clazz) {
-            throw Error("Class already defined, disconnected callback must be set in the class");
-        }
         this.adoptedCallback = callback;
         return this;
     }
 
     withAttributeChangedCallback(callback: Function) {
-        if (this.clazz) {
-            throw Error("Class already defined, disconnected callback must be set in the class");
-        }
         this.attributeChangedCallback = callback;
         return this;
     }
 
     withExtendsType(extendsType: Function) {
-        if (this.clazz) {
-            throw Error("Class already defined, extends type must be set in the class");
-        }
         this.extendsType = extendsType;
         return this;
     }
@@ -128,9 +115,39 @@ export class TagBuilder {
             throw Error("Class or markup must be defined")
         }
         if (this.clazz) {
+
+            let applyCallback = (name: string, scope: any) => {
+                let finalCallback = this[name] || (<any>this.clazz)[name];
+                if (finalCallback) {
+                    (<any>this.clazz)[name] = () => {
+                        finalCallback.apply(scope);
+                    }
+                }
+            }
+
+            applyCallback("connectedCallback", this);
+            applyCallback("disconnectedCallback", this);
+            applyCallback("adoptedCallback", this);
+            applyCallback("attributeChangedCallback", this);
+
+            //TODO how do we handle the oAttrs?
+            if (this.observedAttrs.length) {
+                Object.defineProperty(this.clazz.prototype, "observedAttributes", {
+                    get(): any {
+                        return this.observedAttrs;
+                    }
+                });
+            }
+
             window.customElements.define(this.tagName, this.clazz, this.theOptions || null);
         } else {
             let _t_ = this;
+            let applyCallback = (name: string, scope: any) => {
+                if (_t_[name]) {
+                    _t_[name].apply(DomQuery.byId(<any>scope));
+                }
+            };
+
             window.customElements.define(this.tagName, class extends this.extendsType {
                 constructor() {
                     super();
@@ -142,27 +159,19 @@ export class TagBuilder {
                 }
 
                 connectedCallback() {
-                    if (_t_.connectedCallback) {
-                        _t_.connectedCallback.apply(this);
-                    }
+                    applyCallback("connectedCallback", this);
                 }
 
                 disconnectedCallback() {
-                    if (_t_.disconnectedCallback) {
-                        _t_.disconnectedCallback.apply(this);
-                    }
+                    applyCallback("disconnectedCallback", this);
                 }
 
                 adoptedCallback() {
-                    if (_t_.adoptedCallback) {
-                        _t_.adoptedCallback.apply(this);
-                    }
+                    applyCallback("adoptedCallback", this);
                 }
 
                 attributeChangedCallback() {
-                    if (_t_.attributeChangedCallback) {
-                        _t_.attributeChangedCallback.apply(this);
-                    }
+                    applyCallback("attributeChangedCallback", this);
                 }
 
             }, this.theOptions || null);
