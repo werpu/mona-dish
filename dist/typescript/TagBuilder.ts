@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-
+//poliyfill from @webcomponents/webcomponentsjs
 if("undefined" != typeof window) {
     (function () {
         if (void 0 === window.Reflect || void 0 === window.customElements || (<any>window.customElements).polyfillWrapFlushCallback) return;
@@ -45,6 +45,10 @@ export class TagBuilder {
     extendsType: any = HTMLElement;
     theOptions: ElementDefinitionOptions | null;
     markup: string;
+    disconnectedCallback?: Function;
+    adoptedCallback ?: Function;
+    attributeChangedCallback ?: Function;
+    observedAttrs: string[] = [];
 
     static withTagName(tagName): TagBuilder {
         return new TagBuilder(tagName);
@@ -54,11 +58,39 @@ export class TagBuilder {
         this.tagName = tagName;
     }
 
-    withConnectedCallback(connectedCallback: Function) {
+    withObservedAttributes(...oAttrs) {
+        this.observedAttrs = oAttrs;
+    }
+
+    withConnectedCallback(callback: Function) {
         if (this.clazz) {
-            throw Error("Class already defined, connected type must be set in the class");
+            throw Error("Class already defined, connected callback must be set in the class");
         }
-        this.connectedCallback = connectedCallback;
+        this.connectedCallback = callback;
+        return this;
+    }
+
+    withDisconnectedCallback(callback: Function) {
+        if (this.clazz) {
+            throw Error("Class already defined, disconnected callback must be set in the class");
+        }
+        this.disconnectedCallback = callback;
+        return this;
+    }
+
+    withAdoptedCallback(callback: Function) {
+        if (this.clazz) {
+            throw Error("Class already defined, disconnected callback must be set in the class");
+        }
+        this.adoptedCallback = callback;
+        return this;
+    }
+
+    withAttributeChangedCallback(callback: Function) {
+        if (this.clazz) {
+            throw Error("Class already defined, disconnected callback must be set in the class");
+        }
+        this.attributeChangedCallback = callback;
         return this;
     }
 
@@ -105,11 +137,34 @@ export class TagBuilder {
                     this.innerHTML = _t_.markup;
                 }
 
+                static get observedAttributes() {
+                    return _t_.observedAttrs;
+                }
+
                 connectedCallback() {
                     if (_t_.connectedCallback) {
                         _t_.connectedCallback.apply(this);
                     }
                 }
+
+                disconnectedCallback() {
+                    if (_t_.disconnectedCallback) {
+                        _t_.disconnectedCallback.apply(this);
+                    }
+                }
+
+                adoptedCallback() {
+                    if (_t_.adoptedCallback) {
+                        _t_.adoptedCallback.apply(this);
+                    }
+                }
+
+                attributeChangedCallback() {
+                    if (_t_.attributeChangedCallback) {
+                        _t_.attributeChangedCallback.apply(this);
+                    }
+                }
+
             }, this.theOptions || null);
         }
     }
