@@ -117,10 +117,16 @@ export class TagBuilder {
         if (this.clazz) {
 
             let applyCallback = (name: string, scope: any) => {
-                let finalCallback = this[name] || (<any>this.clazz)[name];
+                let outerCallback = this[name];
+                let protoCallback = (<any>this.clazz.prototype)[name];
+                let finalCallback = outerCallback || protoCallback;
                 if (finalCallback) {
-                    (<any>this.clazz)[name] = () => {
-                        finalCallback.apply(scope);
+                    (<any>this.clazz.prototype)[name] = function () {
+                        if(outerCallback) {
+                            finalCallback.apply(DomQuery.byId(this));
+                        } else {
+                            protoCallback.apply(<any>this);
+                        }
                     }
                 }
             }
