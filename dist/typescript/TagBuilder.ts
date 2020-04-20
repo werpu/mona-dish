@@ -43,8 +43,8 @@ if ("undefined" != typeof window) {
 export class TagBuilder {
     tagName: string;
     connectedCallback?: Function;
-    clazz?: Function;
-    extendsType: any = HTMLElement;
+    clazz?: CustomElementConstructor;
+    extendsType: CustomElementConstructor = HTMLElement;
     theOptions: ElementDefinitionOptions | null;
     markup: string;
     disconnectedCallback?: Function;
@@ -84,7 +84,7 @@ export class TagBuilder {
         return this;
     }
 
-    withExtendsType(extendsType: Function) {
+    withExtendsType(extendsType: CustomElementConstructor) {
         this.extendsType = extendsType;
         return this;
     }
