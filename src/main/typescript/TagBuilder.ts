@@ -39,7 +39,6 @@ if ("undefined" != typeof window) {
  * it follows a builder pattern to allow easier creations
  * with less code of custom tags
  */
-
 export class TagBuilder {
     tagName: string;
     connectedCallback?: Function;
