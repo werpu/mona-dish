@@ -39,7 +39,6 @@ if ("undefined" != typeof window) {
  * it follows a builder pattern to allow easier creations
  * with less code of custom tags
  */
-
 export class TagBuilder {
     tagName: string;
     connectedCallback?: Function;
@@ -52,48 +51,58 @@ export class TagBuilder {
     attributeChangedCallback ?: Function;
     observedAttrs: string[] = [];
 
+    // noinspection JSUnusedGlobalSymbols
     static withTagName(tagName): TagBuilder {
         return new TagBuilder(tagName);
     }
 
+    // noinspection JSUnusedGlobalSymbols
     constructor(tagName: string) {
         this.tagName = tagName;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withObservedAttributes(...oAttrs) {
         this.observedAttrs = oAttrs;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withConnectedCallback(callback: Function) {
         this.connectedCallback = callback;
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withDisconnectedCallback(callback: Function) {
         this.disconnectedCallback = callback;
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withAdoptedCallback(callback: Function) {
         this.adoptedCallback = callback;
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withAttributeChangedCallback(callback: Function) {
         this.attributeChangedCallback = callback;
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withExtendsType(extendsType: CustomElementConstructor) {
         this.extendsType = extendsType;
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withOptions(theOptions) {
         this.theOptions = theOptions;
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withClass(clazz) {
         if (this.markup) {
             throw Error("Markup already defined, markup must be set in the class");
@@ -102,6 +111,7 @@ export class TagBuilder {
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     withMarkup(markup) {
         if (this.clazz) {
             throw Error("Class already defined, markup must be set in the class");
@@ -110,6 +120,7 @@ export class TagBuilder {
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     register() {
         if (!this.clazz && !this.markup) {
             throw Error("Class or markup must be defined")
@@ -123,9 +134,9 @@ export class TagBuilder {
                 if (finalCallback) {
                     (<any>this.clazz.prototype)[name] = function () {
                         if(outerCallback) {
-                            finalCallback.apply(DomQuery.byId(this));
+                            finalCallback.apply(DomQuery.byId(scope));
                         } else {
-                            protoCallback.apply(<any>this);
+                            protoCallback.apply(<any>scope);
                         }
                     }
                 }
@@ -160,22 +171,27 @@ export class TagBuilder {
                     this.innerHTML = _t_.markup;
                 }
 
+                // noinspection JSUnusedGlobalSymbols
                 static get observedAttributes() {
                     return _t_.observedAttrs;
                 }
 
+                // noinspection JSUnusedGlobalSymbols
                 connectedCallback() {
                     applyCallback("connectedCallback", this);
                 }
 
+                // noinspection JSUnusedGlobalSymbols
                 disconnectedCallback() {
                     applyCallback("disconnectedCallback", this);
                 }
 
+                // noinspection JSUnusedGlobalSymbols
                 adoptedCallback() {
                     applyCallback("adoptedCallback", this);
                 }
 
+                // noinspection JSUnusedGlobalSymbols
                 attributeChangedCallback() {
                     applyCallback("attributeChangedCallback", this);
                 }

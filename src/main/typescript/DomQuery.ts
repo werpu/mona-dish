@@ -273,6 +273,14 @@ interface IDomQuery {
     html(inval?: string): DomQuery | Optional<string>;
 
     /**
+     * dispatch event on all children
+     * just a delegated dispatchevent from the standard
+     * dom working on all queried elements in the monad level
+     *
+     * @param evt the event to be dispatched
+     */
+    dispatchEvent(evt: Event): DomQuery;
+    /**
      * easy node traversal, you can pass
      * a set of node selectors which are joined as direct childs
      *
@@ -1012,6 +1020,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         }
         this.innerHtml = inval;
 
+        return this;
+    }
+
+    /**
+     * Standard dispatch event method, delegated from node
+     */
+    dispatchEvent(evt: Event): DomQuery {
+        this.eachElem(elem => elem.dispatchEvent(evt));
         return this;
     }
 
