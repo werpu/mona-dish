@@ -127,25 +127,25 @@ export class TagBuilder {
         }
         if (this.clazz) {
 
-            let applyCallback = (name: string, scope: any) => {
+            let applyCallback = (name: string) => {
                 let outerCallback = this[name];
                 let protoCallback = (<any>this.clazz.prototype)[name];
                 let finalCallback = outerCallback || protoCallback;
                 if (finalCallback) {
                     (<any>this.clazz.prototype)[name] = function () {
                         if(outerCallback) {
-                            finalCallback.apply(DomQuery.byId(scope));
+                            finalCallback.apply(DomQuery.byId(this));
                         } else {
-                            protoCallback.apply(<any>scope);
+                            protoCallback.apply(<any>this);
                         }
                     }
                 }
             }
 
-            applyCallback("connectedCallback", this);
-            applyCallback("disconnectedCallback", this);
-            applyCallback("adoptedCallback", this);
-            applyCallback("attributeChangedCallback", this);
+            applyCallback("connectedCallback");
+            applyCallback("disconnectedCallback");
+            applyCallback("adoptedCallback");
+            applyCallback("attributeChangedCallback");
 
             //TODO how do we handle the oAttrs?
             if (this.observedAttrs.length) {
