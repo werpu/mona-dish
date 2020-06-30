@@ -63,7 +63,7 @@ export interface ICollector<T, S> {
 /**
  * defines a sequence of numbers for our stream input
  */
-export class SequenbceDataSource implements IStreamDataSource<number> {
+export class SequenceDataSource implements IStreamDataSource<number> {
 
     start: number;
     total: number;

@@ -9,7 +9,7 @@ export {
     MappedStreamDataSource,
     FilteredStreamDatasource,
     FlatMapStreamDataSource,
-    SequenbceDataSource,
+    SequenceDataSource,
     QueryFormStringCollector,
     IStreamDataSource,
     ICollector,
