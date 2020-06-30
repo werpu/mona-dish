@@ -17,7 +17,7 @@
 import {describe} from "mocha";
 import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
-import {ArrayCollector} from "../../main/typescript";
+import {ArrayCollector, SequenbceDataSource} from "../../main/typescript";
 
 describe('early stream tests', () => {
 
@@ -233,4 +233,28 @@ describe('early stream tests', () => {
         expect(res.join(",")).to.eq("1,2,3,4,5");
 
     })
+
+    it("must handle a sequence of numbers correctly", function () {
+        let datasource = new SequenbceDataSource(0, 10);
+        let res = LazyStream.ofStreamDataSource<number>(datasource)
+            .collect(new ArrayCollector());
+        expect(res.length == 10).to.be.true;
+        expect(res[0] == 0).to.be.true;
+        expect(res[9] == 9).to.be.true;
+        expect(res[4] == 4).to.be.true;
+
+
+    });
+
+    it("must handle a reduced sequence of numbers correctly", function () {
+        let datasource = new SequenbceDataSource(1, 10);
+        let res = LazyStream.ofStreamDataSource<number>(datasource)
+            .collect(new ArrayCollector());
+        expect(res.length == 9).to.be.true;
+        expect(res[0] == 1).to.be.true;
+        expect(res[8] == 9).to.be.true;
+        expect(res[4] == 5).to.be.true;
+
+
+    });
 });

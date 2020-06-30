@@ -61,6 +61,35 @@ export interface ICollector<T, S> {
 }
 
 /**
+ * defines a sequence of numbers for our stream input
+ */
+export class SequenbceDataSource implements IStreamDataSource<number> {
+
+    start: number;
+    total: number;
+    value: number;
+
+    constructor(start: number, total: number) {
+        this.total = total;
+        this.start = start;
+        this.value = start;
+    }
+
+
+    hasNext(): boolean {
+        return this.value < this.total;
+    }
+
+    next(): number {
+        return Math.min(this.value++, this.total - 1);
+    }
+
+    reset(): void {
+        this.value = 0;
+    }
+}
+
+/**
  * implementation of iteratable on top of array
  */
 export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
