@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {Stream, StreamMapper} from "./Stream";
+import {IStream, LazyStream, Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
+import {Optional} from "./Monad";
 
 /**
  * Every data source wich feeds data into the lazy stream
@@ -60,6 +61,7 @@ export interface ICollector<T, S> {
     finalValue: S;
 }
 
+
 /**
  * defines a sequence of numbers for our stream input
  */
@@ -87,6 +89,37 @@ export class SequenceDataSource implements IStreamDataSource<number> {
     reset(): void {
         this.value = 0;
     }
+}
+
+/**
+ * Multistream datasource, lets you combine multiple streams into one,
+ * note this is used internally also by the concat method
+ * of our streams
+ */
+export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
+
+    strms: IStream<IStream<T>>;
+
+    constructor(...strms: Array<IStream<T>>) {
+        this.strms = LazyStream.of(...strms);
+    }
+
+    hasNext(): boolean {
+        return this.strms.map(item => (<any>item).hasNext()).first().isPresent();
+    }
+
+    next(): T {
+        let nextHolder: Optional<IStream<T>> = this.strms.filter(item => (<any>item).hasNext()).first();
+        if(nextHolder.isPresent()) {
+            return (<any>nextHolder.value).next();
+        }
+        return null;
+    }
+
+    reset(): void {
+        this.strms.each(item => (<any>item).reset());
+    }
+
 }
 
 /**
@@ -236,8 +269,8 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
     private resolveNextNext() {
         let next = false;
         while (!next && this.inputDataSource.hasNext()) {
-            let mapped =  this.mapFunc(this.inputDataSource.next());
-            if(Array.isArray(mapped)) {
+            let mapped = this.mapFunc(this.inputDataSource.next());
+            if (Array.isArray(mapped)) {
                 this.activeDataSource = new ArrayStreamDataSource(...mapped);
             } else {
                 this.activeDataSource = mapped;
@@ -289,9 +322,9 @@ export class Run<S> implements ICollector<S, any> {
 /**
  * collects an assoc stream back to an assoc array
  */
-export class AssocArrayCollector<S> implements ICollector<[string, S] | string, {[key:string]:S}> {
+export class AssocArrayCollector<S> implements ICollector<[string, S] | string, { [key: string]: S }> {
 
-    finalValue: {[key:string]:any} = {};
+    finalValue: { [key: string]: any } = {};
 
     collect(element: [string, S] | string) {
         this.finalValue[element[0] ?? <string>element] = element[1] ?? true;

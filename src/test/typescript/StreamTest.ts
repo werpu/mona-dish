@@ -257,4 +257,20 @@ describe('early stream tests', () => {
 
 
     });
+
+    /*it("must concat correctly", function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [6, 7, 8, 9, 10];
+        let probe3: Array<number> = [11,12,13,14,15];
+        let stream1 = Stream.of<number>(...probe);
+        let stream2 = Stream.of<number>(...probe2);
+        let stream3 = Stream.of<number>(...probe3);
+
+        let finalStream = stream1.concat(stream2, stream3);
+
+        expect(finalStream.collect(new ArrayCollector()).length).to.eq(15);
+        expect(finalStream.collect(new ArrayCollector())[0]).to.eq(1);
+        expect(finalStream.collect(new ArrayCollector())[14]).to.eq(5);
+        expect(finalStream.collect(new ArrayCollector())[17]).to.eq(8);
+    });*/
 });
