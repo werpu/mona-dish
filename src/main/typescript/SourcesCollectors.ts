@@ -105,7 +105,7 @@ export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
     }
 
     hasNext(): boolean {
-        return this.strms.map(item => (<any>item).hasNext()).first().isPresent();
+        return this.strms.filter(item => (<any>item).hasNext()).first().isPresent();
     }
 
     next(): T {

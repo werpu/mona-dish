@@ -208,8 +208,8 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * concat for streams, so that you can concat two streams together
      * @param toAppend
      */
-    concat(append1: IStream<T>, ...toAppend: Array<IStream<T>>): Stream<T> {
-        let dataSource = new MultiStreamDatasource<T>(...toAppend);
+    concat(...toAppend: Array<IStream<T>>): Stream<T> {
+        let dataSource = new MultiStreamDatasource<T>(this, ...toAppend);
         return Stream.ofDataSource<T>(dataSource);
     }
 
@@ -431,7 +431,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
      * @param toAppend
      */
     concat(...toAppend: Array<IStream<T>>): LazyStream<T> {
-        this.dataSource =  new MultiStreamDatasource<T>(... toAppend);
+        this.dataSource =  new MultiStreamDatasource<T>(this, ... toAppend);
         return this;
     }
 
