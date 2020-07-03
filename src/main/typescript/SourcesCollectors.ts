@@ -91,33 +91,6 @@ export class SequenceDataSource implements IStreamDataSource<number> {
     }
 }
 
-/**
- * Multistream datasource, lets you combine multiple streams into one,
- * note this is used internally also by the concat method
- * of our streams
- */
-export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
-
-    //strms: Array<IStream<T>>;
-    datasource: Stream<T>;
-
-    constructor(...strms: Array<IStream<T>>) {
-        this.datasource = Stream.of(...strms).flatMap(item => item);
-    }
-
-    hasNext(): boolean {
-        return this.datasource.hasNext();
-    }
-
-    next(): T {
-       return this.datasource.next();
-    }
-
-    reset(): void {
-        this.datasource.reset();
-    }
-
-}
 
 /**
  * implementation of iteratable on top of array

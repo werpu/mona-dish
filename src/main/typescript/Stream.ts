@@ -24,7 +24,7 @@ import {
     FilteredStreamDatasource, FlatMapStreamDataSource,
     ICollector,
     IStreamDataSource,
-    MappedStreamDataSource, MultiStreamDatasource
+    MappedStreamDataSource
 } from "./SourcesCollectors";
 
 /*
@@ -209,8 +209,10 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * @param toAppend
      */
     concat(...toAppend: Array<IStream<T>>): Stream<T> {
-        let dataSource = new MultiStreamDatasource<T>(this, ...toAppend);
-        return Stream.ofDataSource<T>(dataSource);
+        //let dataSource = new MultiStreamDatasource<T>(this, ...toAppend);
+        //return Stream.ofDataSource<T>(dataSource);
+
+        return Stream.of(<IStream<T>> this, ...toAppend).flatMap(item => item);
     }
 
 
@@ -431,8 +433,9 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
      * @param toAppend
      */
     concat(...toAppend: Array<IStream<T>>): LazyStream<T> {
-        this.dataSource =  new MultiStreamDatasource<T>(this, ... toAppend);
-        return this;
+        //this.dataSource =  new MultiStreamDatasource<T>(this, ... toAppend);
+        //return this;
+        return LazyStream.of(<IStream<T>> this, ...toAppend).flatMap(item => item);
     }
 
     nextFilter(fn: Matchable<T>): T {
