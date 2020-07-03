@@ -98,26 +98,23 @@ export class SequenceDataSource implements IStreamDataSource<number> {
  */
 export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
 
-    strms: IStream<IStream<T>>;
+    //strms: Array<IStream<T>>;
+    datasource: Stream<T>;
 
     constructor(...strms: Array<IStream<T>>) {
-        this.strms = LazyStream.of(...strms);
+        this.datasource = Stream.of(...strms).flatMap(item => item);
     }
 
     hasNext(): boolean {
-        return this.strms.filter(item => (<any>item).hasNext()).first().isPresent();
+        return this.datasource.hasNext();
     }
 
     next(): T {
-        let nextHolder: Optional<IStream<T>> = this.strms.filter(item => (<any>item).hasNext()).first();
-        if(nextHolder.isPresent()) {
-            return (<any>nextHolder.value).next();
-        }
-        return null;
+       return this.datasource.next();
     }
 
     reset(): void {
-        this.strms.each(item => (<any>item).reset());
+        this.datasource.reset();
     }
 
 }
@@ -182,7 +179,6 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
             }
         }
         return this.filteredNext != null;
-
     }
 
     /**

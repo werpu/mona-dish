@@ -284,9 +284,10 @@ describe('early stream tests', () => {
 
         let finalStream = stream1.concat(stream2, stream3);
 
-        expect(finalStream.collect(new ArrayCollector()).length).to.eq(15);
-        expect(finalStream.collect(new ArrayCollector())[0]).to.eq(1);
-        expect(finalStream.collect(new ArrayCollector())[14]).to.eq(15);
-        expect(finalStream.collect(new ArrayCollector())[7]).to.eq(8);
+        let retArr = finalStream.collect(new ArrayCollector());
+        expect(retArr.length).to.eq(15);
+        expect(retArr[0]).to.eq(1);
+        expect(retArr[14]).to.eq(15);
+        expect(retArr[7]).to.eq(8);
     });
 });
