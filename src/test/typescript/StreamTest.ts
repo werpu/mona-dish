@@ -17,7 +17,7 @@
 import {describe} from "mocha";
 import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
-import {ArrayCollector} from "../../main/typescript";
+import {ArrayCollector, SequenceDataSource} from "../../main/typescript";
 
 describe('early stream tests', () => {
 
@@ -233,4 +233,60 @@ describe('early stream tests', () => {
         expect(res.join(",")).to.eq("1,2,3,4,5");
 
     })
+
+    it("must handle a sequence of numbers correctly", function () {
+        let datasource = new SequenceDataSource(0, 10);
+        let res = LazyStream.ofStreamDataSource<number>(datasource)
+            .collect(new ArrayCollector());
+        expect(res.length == 10).to.be.true;
+        expect(res[0] == 0).to.be.true;
+        expect(res[9] == 9).to.be.true;
+        expect(res[4] == 4).to.be.true;
+
+
+    });
+
+    it("must handle a reduced sequence of numbers correctly", function () {
+        let datasource = new SequenceDataSource(1, 10);
+        let res = LazyStream.ofStreamDataSource<number>(datasource)
+            .collect(new ArrayCollector());
+        expect(res.length == 9).to.be.true;
+        expect(res[0] == 1).to.be.true;
+        expect(res[8] == 9).to.be.true;
+        expect(res[4] == 5).to.be.true;
+
+
+    });
+
+    it("must concat correctly", function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [6, 7, 8, 9, 10];
+        let probe3: Array<number> = [11,12,13,14,15];
+        let stream1 = Stream.of<number>(...probe);
+        let stream2 = Stream.of<number>(...probe2);
+        let stream3 = Stream.of<number>(...probe3);
+
+        let finalStream = stream1.concat(stream2, stream3);
+
+        expect(finalStream.collect(new ArrayCollector()).length).to.eq(15);
+        expect(finalStream.collect(new ArrayCollector())[0]).to.eq(1);
+        expect(finalStream.collect(new ArrayCollector())[14]).to.eq(15);
+        expect(finalStream.collect(new ArrayCollector())[7]).to.eq(8);
+    });
+
+    it("must concat correctly lazily", function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [6, 7, 8, 9, 10];
+        let probe3: Array<number> = [11,12,13,14,15];
+        let stream1 = LazyStream.of<number>(...probe);
+        let stream2 = LazyStream.of<number>(...probe2);
+        let stream3 = LazyStream.of<number>(...probe3);
+
+        let finalStream = stream1.concat(stream2, stream3);
+
+        expect(finalStream.collect(new ArrayCollector()).length).to.eq(15);
+        expect(finalStream.collect(new ArrayCollector())[0]).to.eq(1);
+        expect(finalStream.collect(new ArrayCollector())[14]).to.eq(15);
+        expect(finalStream.collect(new ArrayCollector())[7]).to.eq(8);
+    });
 });
