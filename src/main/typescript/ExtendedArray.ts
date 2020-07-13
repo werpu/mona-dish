@@ -1,8 +1,13 @@
 /**
  * Array with a set of shim functions for older browsers
  * we do not extend prototype (rule #1)
+ *
+ * This is a helper which for now adds the missing flatMap, without prototype pollution
+ *
+ * that way we can avoid streams wherever we just want to go pure JS
+ * This class is self isolated, so it suffices to just dump it into a project one way or the other
+ * without anything else
  */
-
 export class ExtendedArray<T> extends Array<T> {
 
     constructor(...items: T[]) {
@@ -12,7 +17,8 @@ export class ExtendedArray<T> extends Array<T> {
         //for testing it definitely runs into this branch because we are on es5 level
         if(!(<any>Array.prototype).flatMap) {
             let flatmapFun = (<any>ExtendedArray).prototype.flatMap;
-            Object.setPrototypeOf(this, Array.prototype);
+            //unfortunately in es5 the flaptmap function is lost due to inheritance of a primitive
+            //es  class, we have to remap it back in
             this.flatMap = flatmapFun;
         }
     }
@@ -39,5 +45,4 @@ export class ExtendedArray<T> extends Array<T> {
 
         return res;
     }
-
 }
