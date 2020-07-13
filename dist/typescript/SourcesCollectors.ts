@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {Stream, StreamMapper} from "./Stream";
+import {IStream, LazyStream, Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
+import {Optional} from "./Monad";
 
 /**
  * Every data source wich feeds data into the lazy stream
@@ -59,6 +60,37 @@ export interface ICollector<T, S> {
      */
     finalValue: S;
 }
+
+
+/**
+ * defines a sequence of numbers for our stream input
+ */
+export class SequenceDataSource implements IStreamDataSource<number> {
+
+    start: number;
+    total: number;
+    value: number;
+
+    constructor(start: number, total: number) {
+        this.total = total;
+        this.start = start;
+        this.value = start;
+    }
+
+
+    hasNext(): boolean {
+        return this.value < this.total;
+    }
+
+    next(): number {
+        return Math.min(this.value++, this.total - 1);
+    }
+
+    reset(): void {
+        this.value = 0;
+    }
+}
+
 
 /**
  * implementation of iteratable on top of array
@@ -120,7 +152,6 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
             }
         }
         return this.filteredNext != null;
-
     }
 
     /**
@@ -207,8 +238,8 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
     private resolveNextNext() {
         let next = false;
         while (!next && this.inputDataSource.hasNext()) {
-            let mapped =  this.mapFunc(this.inputDataSource.next());
-            if(Array.isArray(mapped)) {
+            let mapped = this.mapFunc(this.inputDataSource.next());
+            if (Array.isArray(mapped)) {
                 this.activeDataSource = new ArrayStreamDataSource(...mapped);
             } else {
                 this.activeDataSource = mapped;
@@ -260,9 +291,9 @@ export class Run<S> implements ICollector<S, any> {
 /**
  * collects an assoc stream back to an assoc array
  */
-export class AssocArrayCollector<S> implements ICollector<[string, S] | string, {[key:string]:S}> {
+export class AssocArrayCollector<S> implements ICollector<[string, S] | string, { [key: string]: S }> {
 
-    finalValue: {[key:string]:any} = {};
+    finalValue: { [key: string]: any } = {};
 
     collect(element: [string, S] | string) {
         this.finalValue[element[0] ?? <string>element] = element[1] ?? true;

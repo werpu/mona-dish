@@ -151,11 +151,15 @@ export interface IStream<T> {
      * @param end the limit of the stream
      */
     limits(end: number): IStream<T>;
+    
+    
+    concat(...toAppend: Array<IStream<T>>): IStream<T>
 
     /**
      * returns the stream collected into an array (90% use-case abbreviation
      */
     value: Array<T>;
+
 }
 
 /**
@@ -199,6 +203,18 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         this._limits = end;
         return this;
     }
+
+    /**
+     * concat for streams, so that you can concat two streams together
+     * @param toAppend
+     */
+    concat(...toAppend: Array<IStream<T>>): Stream<T> {
+        //let dataSource = new MultiStreamDatasource<T>(this, ...toAppend);
+        //return Stream.ofDataSource<T>(dataSource);
+
+        return Stream.of(<IStream<T>> this, ...toAppend).flatMap(item => item);
+    }
+
 
     onElem(fn: (data: T, pos ?: number) => void | boolean): Stream<T> {
         for (let cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
@@ -314,7 +330,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
     }
 
     //-- internally exposed methods needed for the interconnectivity
-    hasNext() {
+    hasNext(): boolean {
         let isLimitsReached = this._limits != -1 && this.pos >= this._limits - 1;
         let isEndOfArray = this.pos >= this.value.length - 1;
         return !(isLimitsReached || isEndOfArray);
@@ -410,6 +426,16 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         this.dataSource.reset();
         this.pos = 0;
         this._limits = -1;
+    }
+
+    /**
+     * concat for streams, so that you can concat two streams together
+     * @param toAppend
+     */
+    concat(...toAppend: Array<IStream<T>>): LazyStream<T> {
+        //this.dataSource =  new MultiStreamDatasource<T>(this, ... toAppend);
+        //return this;
+        return LazyStream.of(<IStream<T>> this, ...toAppend).flatMap(item => item);
     }
 
     nextFilter(fn: Matchable<T>): T {
