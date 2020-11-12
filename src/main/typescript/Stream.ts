@@ -246,7 +246,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * all values are flattened when accessed anyway, so there is no need to call this methiod
      */
 
-    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any> {
+    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any> {
         let ret = [];
         this.each(item => {
             let strmR: any = fn(item);

@@ -23,7 +23,7 @@ export class ExtendedArray<T> extends Array<T> {
         }
     }
 
-    flatMap(mapperFunction: Function, noFallback: boolean = false): Array<T> {
+    flatMap(mapperFunction: Function, noFallback: boolean = false): ExtendedArray<T> {
 
         let res = [];
 
@@ -43,6 +43,6 @@ export class ExtendedArray<T> extends Array<T> {
         };
         this.forEach( item => remap(item) )
 
-        return res;
+        return new ExtendedArray(...res);
     }
 }

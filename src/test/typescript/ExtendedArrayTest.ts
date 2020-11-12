@@ -24,20 +24,20 @@ describe('Extended tests', function () {
 
         //second nesting level cannot be flatmapped, flatmap only works on one level usually
         //TODO this needs further investigation
-        expect(retArr.length).to.eq(7);
+        expect(retArr.length).to.eq(8);
 
     });
 
-  /*  it("must keep the order", () => {
+    it("must keep the order", () => {
         arr = new ExtendedArray<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
-        let retArr = arr.flatMap((item => item) , true);
+        let retArr = arr.flatMap((item => item) , true).flatMap((item => item) , true);
 
-        expect(retArr.length).to.eq(7);
-        let result = new ExtendedArray<any>("10", "20", "30", "40", "50", ["55", "56"], "60");
+        expect(retArr.length).to.eq(8);
+        let result = new ExtendedArray<any>("10", "20", "30", "40", "50", ["55", "56"], "60").flatMap(item => item);
 
         retArr.forEach((item, pos) => {
             expect(item).to.eq(result[pos]);
         })
 
-    });*/
+    });
 });
