@@ -280,6 +280,7 @@ interface IDomQuery {
      * @param evt the event to be dispatched
      */
     dispatchEvent(evt: Event): DomQuery;
+
     /**
      * easy node traversal, you can pass
      * a set of node selectors which are joined as direct childs
@@ -695,11 +696,19 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     get asArray(): Array<DomQuery> {
+        return [].concat(this.rootNode.filter(item => item != null)
+            .map(item => DomQuery.byId(item)));
+
+        /*return ret;
         let ret: Array<DomQuery> = [];
         this.each((item) => {
             ret.push(item);
         });
-        return ret;
+        return ret;*/
+    }
+
+    get asNodeArray(): Array<DomQuery> {
+        return [].concat(this.rootNode.filter(item => item != null));
     }
 
     /**
@@ -893,11 +902,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      */
     byId(id: string, includeRoot?: boolean): DomQuery {
         let res: Array<DomQuery> = [];
-        for (let cnt = 0; includeRoot && cnt < this.rootNode.length; cnt++) {
-            if (this.rootNode[cnt]?.id == id) {
-                res.push(new DomQuery(this.rootNode[cnt]));
-            }
+        if(includeRoot) {
+            res = res.concat(
+                (this?.rootNode || [] )
+                .filter(item => id == item.id)
+                .map(item => new DomQuery(item))
+            );
         }
+
         //for some strange kind of reason the # selector fails
         //on hidden elements we use the attributes match selector
         //that works
@@ -912,11 +924,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      */
     byTagName(tagName: string, includeRoot ?: boolean): DomQuery {
         let res: Array<Element | DomQuery> = [];
-        if(includeRoot) {
-           res = Stream.of<any>(...(this?.rootNode ?? []))
+        if (includeRoot) {
+            res = (this?.rootNode ?? [])
                 .filter(element => element?.tagName == tagName)
-                .reduce<Array<Element | DomQuery>>((reduction: any, item: Element) => reduction.concat([item]),  res)
-                .value;
+                .reduce<Array<Element | DomQuery>>((reduction: any, item: Element) => reduction.concat([item]), res);
         }
 
         res = res.concat(this.querySelectorAll(tagName));
@@ -940,21 +951,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      */
     hasClass(clazz: string) {
         let hasIt = false;
-
-        this.each((item) => {
-            let oldClass = item.attr("class").value || "";
-            if (oldClass.toLowerCase().indexOf(clazz.toLowerCase()) == -1) {
-                return;
-            } else {
-                let oldClasses = oldClass.split(/\s+/gi);
-                let found = false;
-                for (let cnt = 0; cnt < oldClasses.length && !found; cnt++) {
-                    found = oldClasses[cnt].toLowerCase() == clazz.toLowerCase();
-                }
-                hasIt = hasIt || found;
-                if (hasIt) {
-                    return false;
-                }
+        this.eachElem(node => {
+            hasIt = node.classList.contains(clazz);
+            if (hasIt) {
+                return false;
             }
         });
         return hasIt;
@@ -966,13 +966,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param clazz the style class to append
      */
     addClass(clazz: string): DomQuery {
-        this.each((item) => {
-            let oldClass = item.attr("class").value || "";
-            if (!item.hasClass(clazz)) {
-                item.attr("class").value = trim(oldClass + " " + clazz);
-                return;
-            }
-        });
+        this.eachElem(item => item.classList.add(clazz))
         return this;
     }
 
@@ -982,19 +976,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param clazz
      */
     removeClass(clazz: string): DomQuery {
-        this.each((item) => {
-            if (item.hasClass(clazz)) {
-                let oldClass = item.attr("class").value || "";
-                let newClasses = [];
-                let oldClasses = oldClass.split(/\s+/gi);
-                for (let cnt = 0; cnt < oldClasses.length; cnt++) {
-                    if (oldClasses[cnt].toLowerCase() != clazz.toLowerCase()) {
-                        newClasses.push(oldClasses[cnt]);
-                    }
-                }
-                item.attr("class").value = newClasses.join(" ");
-            }
-        });
+        this.eachElem(item => item.classList.remove(clazz));
         return this;
     }
 
@@ -1495,12 +1477,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
             let scriptElements = new DomQuery(this.filterSelector("script"), this.querySelectorAll("script"));
             //script execution order by relative pos in their dom tree
             scriptElements.stream
-                .flatMap(item => {
-                    return Stream.of(item.values)
-                })
-                .sort((node1, node2) => {
-                    return node1.compareDocumentPosition(node2) - 3; //preceding 2, following == 4
-                })
+                .flatMap(item => Stream.of(item.values))
+                .sort((node1, node2) => node1.compareDocumentPosition(node2) - 3) //preceding 2, following == 4)
                 .each(item => execScrpt(item));
 
             if (finalScripts.length) {
@@ -1554,10 +1532,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                     //compliant browsers know child nodes
                     let childNodes: NodeList = item.childNodes;
                     if (childNodes) {
-                        const len = childNodes.length;
-                        for (let cnt = 0; cnt < len; cnt++) {
-                            innerText.push((<Element>childNodes[cnt]).innerHTML || (<CharacterData>childNodes[cnt]).data);
-                        }
+                        childNodes.forEach(child => innerText.push((<Element>child).innerHTML || (<CharacterData>child).data));
                         //non compliant ones innerHTML
                     } else if (item.innerHTML) {
                         innerText.push(item.innerHTML);
@@ -1570,12 +1545,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         const scriptElements: DomQuery = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
 
         scriptElements.stream
-            .flatMap(item => {
-                return Stream.of(item.values)
-            })
-            .sort((node1, node2) => {
-                return node1.compareDocumentPosition(node2) - 3; //preceding 2, following == 4
-            })
+            .flatMap(item => Stream.of(item.values))
+            .sort((node1, node2) => node1.compareDocumentPosition(node2) - 3)
             .each(item => execCss(item));
 
         return this;
@@ -1590,16 +1561,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     }
 
     addEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): DomQuery {
-        this.eachElem((node: Element) => {
-            node.addEventListener(type, listener, options);
-        });
+        this.eachElem((node: Element) => node.addEventListener(type, listener, options));
         return this;
     }
 
     removeEventListener(type: string, listener: (evt: Event) => void, options?: boolean | EventListenerOptions): DomQuery {
-        this.eachElem((node: Element) => {
-            node.removeEventListener(type, listener, options);
-        });
+        this.eachElem((node: Element) => node.removeEventListener(type, listener, options));
         return this;
     }
 
@@ -1762,9 +1729,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                     ) && (
                         (
                             elemType != Submittables.CHECKBOX && elemType != Submittables.RADIO) ||
-                            element.checked
-                        )
-                    ) {
+                        element.checked
+                    )
+                ) {
                     let files: any = (<any>element.value).files;
                     if (files?.length) {
                         //xhr level2

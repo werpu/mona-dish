@@ -152,7 +152,6 @@ export class Promise implements IPromise {
         });
 
         return retVal;
-
     }
 
     then(executorFunc: (val?: any) => any, catchfunc?: (val?: any) => any): Promise {

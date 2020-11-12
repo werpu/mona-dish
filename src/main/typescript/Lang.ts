@@ -162,16 +162,11 @@ export module Lang {
             return to;
         }
 
-        theArgs.forEach(item => {
+        theArgs.filter(item => item != null).forEach(item => {
             let nextSource = item;
-            if (nextSource != null) { // Skip over if undefined or null
-                for (let nextKey in nextSource) {
-                    // Avoid bugs when hasOwnProperty is shadowed
-                    if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                        to[nextKey] = nextSource[nextKey];
-                    }
-                }
-            }
+            Object.keys(nextSource)
+                .filter(nextKey => Object.prototype.hasOwnProperty.call(nextSource, nextKey))
+                .forEach(nextKey => to[nextKey] = nextSource[nextKey]);
         });
         return to;
     }
