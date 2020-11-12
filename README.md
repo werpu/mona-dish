@@ -20,7 +20,9 @@ For now it is only a small set of Helpers consisting of following items:
 * Configuration ... an Optional utilizing wrapper over json configurations which allow both read and write access 
                    and elvis like access to the data stored in the config
 * Streams ... a typescript based implementation of early and lazily evaluating streams                   
-* Messaging ... a messaging bus which can break page isolation levels to allow commnication between iframes/popups/shadow dom/dom
+* DomQuery ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams
+* XmlQuery ... a jquery like XML document query selection and manipulation engine ... also supports streams
+* Messaging ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom
 
 
 ## Implementation languages
