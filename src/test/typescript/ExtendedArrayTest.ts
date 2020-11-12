@@ -20,7 +20,7 @@ describe('Extended tests', function () {
 
     it("must handle deeply nested items correctly", () => {
         arr = new ExtendedArray<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
-        let retArr = arr.flatMap((item => item) , true);
+        let retArr = arr.flatMap((item => item) , true).flatMap(item=>item);
 
         //second nesting level cannot be flatmapped, flatmap only works on one level usually
         //TODO this needs further investigation
