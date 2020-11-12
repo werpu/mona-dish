@@ -5,7 +5,7 @@ A set of functional programming "inspired" helpers
 
 ## What is it?
 
-This project is a set of small helpers which utilize monad and monad like patterns 
+This project is a set of small helpers which utilize mostly monad and monad like patterns 
 to cut down on code for essential tasks.
 
 For now it is only a small set of Helpers consisting of following items:
@@ -20,6 +20,8 @@ For now it is only a small set of Helpers consisting of following items:
 * Configuration ... an Optional utilizing wrapper over json configurations which allow both read and write access 
                    and elvis like access to the data stored in the config
 * Streams ... a typescript based implementation of early and lazily evaluating streams                   
+* Messaging ... a messaging bus which can break page isolation levels to allow commnication between iframes/popups/shadow dom/dom
+
 
 ## Implementation languages
               
@@ -854,6 +856,10 @@ similar to DomQuery but atm without a full query engine behind it,
 the reason for that is that the browsers do not have a universal query engine yet
 and I tried to avoid third party dependencies.
 But you get many other benefits similar to DomQuery by using XmlQuery
+
+### Messaging
+
+A messaging bus ... for documentation [follow this link:](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md)
 
 ## Extended Documentation
 
