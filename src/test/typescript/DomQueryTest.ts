@@ -474,7 +474,7 @@ describe('DOMQuery tests', function () {
             //probably not testable atm, mocha does not have shadow dom support
             //we might be able to shim it in one way or the other
             let element = probe.attachShadow();
-            expect(element.length).to.eq(1);
+            expect(element.length > 0).to.eq(true);
         } catch (e) {
             //not supported we still need to get an error here
             expect(e.message.indexOf("not supported") != -1).to.be.true;
