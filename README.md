@@ -83,7 +83,7 @@ if(Optional.fromNullable(myVar).isPresent()) {
 
 Also as convenience you now have an easier way to check for existence in nested structures
 ```Typescript
- let myStruct = {
+        let myStruct = {
             data: {
                 value: 1,
                 value2: Optional.absent,
@@ -869,7 +869,6 @@ I am going to provide extended documentation on the various
 aspects of mona-dish in following supagages
 
 * [Streams](https://github.com/werpu/mona-dish/blob/master/docs/Stream.md)
-
 
 ## Examples
 

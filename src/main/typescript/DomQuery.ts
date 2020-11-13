@@ -24,6 +24,7 @@ import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
 
+
 /**
  *
  *        // - submit checkboxes and radio inputs only if checked
@@ -481,12 +482,6 @@ interface IDomQuery {
      */
     subNodes(from: number, to?: number): DomQuery;
 
-    /**
-     * creates a shadow roots from the existing dom elements in this query
-     * only working on supported browsers, or if a shim is installed
-     * unlike Promises I wont do my own shim on top here
-     */
-    createShadowRoot(): DomQuery;
 
     /**
      * attach shadow elements
@@ -525,7 +520,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
 
     pos = -1;
 
-    constructor(...rootNode: Array<Element | DomQuery | Document | Array<any> | string>) {
+    constructor(...rootNode: Array<Element | ShadowRoot | DomQuery | Document | Array<any> | string>) {
 
         if (Optional.fromNullable(rootNode).isAbsent() || !rootNode.length) {
             return;
@@ -698,13 +693,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
     get asArray(): Array<DomQuery> {
         return [].concat(this.rootNode.filter(item => item != null)
             .map(item => DomQuery.byId(item)));
-
-        /*return ret;
-        let ret: Array<DomQuery> = [];
-        this.each((item) => {
-            ret.push(item);
-        });
-        return ret;*/
     }
 
     get asNodeArray(): Array<DomQuery> {
@@ -718,7 +706,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @returns a results dom query object
      */
     static querySelectorAll(selector: string): DomQuery {
-        return new DomQuery(document).querySelectorAll(selector);
+        if(selector.indexOf("/shadow/") != -1) {
+            return new DomQuery(document)._querySelectorAll(selector);
+        } else {
+            return new DomQuery(document)._querySelectorAllDeep(selector);
+        }
+
     }
 
     /**
@@ -727,9 +720,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param selector id
      * @return a DomQuery containing the found elements
      */
-    static byId(selector: string | DomQuery | Element): DomQuery {
+    static byId(selector: string | DomQuery | Element, deep = false): DomQuery {
         if (isString(selector)) {
-            return new DomQuery(document).byId(<string>selector);
+            return (!deep) ?  new DomQuery(document).byId(<string>selector) : new DomQuery(document).byIdDeep(<string> selector);
         } else {
             return new DomQuery(<any>selector);
         }
@@ -873,13 +866,22 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         });
     }
 
+    querySelectorAll(selector): DomQuery {
+        //We could merge both methods, but for now this is more readable
+        if(selector.indexOf("/shadow/") != -1) {
+            return this._querySelectorAllDeep(selector);
+        } else {
+            return this._querySelectorAll(selector);
+        }
+    }
+
     /**
-     * query selector all on the existing dom query object
+     * query selector all on the existing dom queryX object
      *
      * @param selector the standard selector
      * @return a DomQuery with the results
      */
-    querySelectorAll(selector): DomQuery {
+    private _querySelectorAll(selector): DomQuery {
         if (!this?.rootNode?.length) {
             return this;
         }
@@ -893,6 +895,30 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         }
 
         return new DomQuery(...nodes);
+    }
+
+    /*deep with a selector and a peudo /shadow/ marker to break into the next level*/
+    private _querySelectorAllDeep(selector): DomQuery {
+        if (!this?.rootNode?.length) {
+            return this;
+        }
+
+        let nodes = [];
+        let foundNodes: DomQuery = new DomQuery(...this.rootNode);
+        let selectors = selector.split(/\/shadow\//);
+
+        for(let cnt2 = 0; cnt2 < selectors.length; cnt2++) {
+            if(selectors[cnt2] == ""){
+                continue;
+            }
+            let levelSelector = selectors[cnt2];
+            foundNodes = foundNodes.querySelectorAll(levelSelector);
+            if(cnt2 <  selectors.length - 1) {
+                foundNodes = foundNodes.shadowRoot;
+            }
+        }
+
+        return foundNodes;
     }
 
     /**
@@ -914,6 +940,38 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         //on hidden elements we use the attributes match selector
         //that works
         res = res.concat(this.querySelectorAll(`[id="${id}"]`));
+        return new DomQuery(...res);
+    }
+
+
+    byIdDeep(id: string, includeRoot?: boolean): DomQuery {
+        let res: Array<DomQuery> = [];
+        if(includeRoot) {
+            res = res.concat(
+                (this?.rootNode || [] )
+                    .filter(item => id == item.id)
+                    .map(item => new DomQuery(item))
+            );
+        }
+
+        //for some strange kind of reason the # selector fails
+        //on hidden elements we use the attributes match selector
+        //that works
+
+        let isolation: DomQuery = this;
+        if(res.length) {
+            return new DomQuery(...res);
+        }
+        do {
+            let found: DomQuery = isolation.querySelectorAll(`[id="${id}"]`);
+            if (found.length) {
+                res.push(found);
+                return new DomQuery(...res);
+            }
+            isolation = isolation.querySelectorAll("* /shadow/");
+
+        } while(res.length == 0 && isolation?.length);
+
         return new DomQuery(...res);
     }
 
@@ -1366,7 +1424,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param runEmbeddedScripts
      * @param runEmbeddedCss
      */
-    outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery {
+    outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean, deep=false): DomQuery {
         if (this.isAbsent()) {
             return;
         }
@@ -1795,31 +1853,49 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         this.pos = -1;
     }
 
-    createShadowRoot(): DomQuery {
-        let shadowRoots: DomQuery[] = [];
-        this.eachElem((item: Element) => {
-            let shadowElement: DomQuery;
-            if ((<any>item)?.createShadowRoot) {
-                shadowElement = DomQuery.byId((<any>item).createShadowRoot());
-            } else {
-                throw Error("Shadow dom creation not supported by the browser, please use a shim, to gain this functionality")
-            }
-        });
-
-        return new DomQuery(...shadowRoots);
-    }
-
-    attachShadow(params: { [key: string]: string }): DomQuery {
+    attachShadow(params: { [key: string]: string } = {mode: "open"}): DomQuery {
         let shadowRoots: DomQuery[] = [];
         this.eachElem((item: Element) => {
             let shadowElement: DomQuery;
             if ((<any>item)?.attachShadow) {
                 shadowElement = DomQuery.byId((<any>item).attachShadow(params));
+                shadowRoots.push(shadowElement);
             } else {
-                //throw error (Shadow dom creation not supported by the browser, please use a shim, to gain this functionality)
+                throw new Error("Shadow dom creation not supported by the browser, please use a shim, to gain this functionality");
             }
         });
         return new DomQuery(...shadowRoots);
+    }
+
+    /**
+     * returns the embedded shadow elements
+     */
+    get shadowElements(): DomQuery {
+        let shadowElements = this.querySelectorAll("*")
+            .filter(item => item.hasShadow);
+
+
+        let mapped: Array<ShadowRoot> = (shadowElements.allElems() || []).map(element => element.shadowRoot);
+        return new DomQuery(...mapped);
+    }
+
+    get shadowRoot(): DomQuery {
+        let shadowRoots = [];
+        for(let cnt = 0; cnt < this.rootNode.length; cnt++) {
+            if(this.rootNode[cnt].shadowRoot) {
+                shadowRoots.push(this.rootNode[cnt].shadowRoot);
+            }
+        }
+        return new DomQuery(...shadowRoots);
+    }
+
+    get hasShadow(): boolean {
+        for(let cnt = 0; cnt < this.rootNode.length; cnt++) {
+            if(this.rootNode[cnt].shadowRoot) {
+                return true;
+            }
+        }
+        return false;
     }
 
     //from
