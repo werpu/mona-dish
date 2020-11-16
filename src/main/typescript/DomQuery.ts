@@ -17,7 +17,7 @@
 import {Config, Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 import {IStream, LazyStream, Stream} from "./Stream";
-import {ICollector, IStreamDataSource} from "./SourcesCollectors";
+import {ArrayCollector, ICollector, IStreamDataSource} from "./SourcesCollectors";
 import {Lang} from "./Lang";
 import trim = Lang.trim;
 import objToArray = Lang.objToArray;
@@ -639,7 +639,25 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         }).filter(item => !!item).collect(new DomQueryCollector());
 
         return elements
-            .orElseLazy(() => this.querySelectorAll("input, select, textarea, fieldset"));
+            .orElseLazy(() => this.querySelectorAll("input, checkbox, select, textarea"));
+    }
+
+    get deepElements(): DomQuery {
+
+        let query = [];
+        let elemStr = "input, select, textarea, checkbox";
+        let prefix = "";
+        for(let cnt = 0; cnt < 5; cnt++) {
+            query.push(prefix + "input, select, textarea, checkbox");
+            prefix = prefix + " * /shadow/ ";
+        }
+
+        let found = Stream.of(...query)
+            .map(query => this.querySelectorAll(query))
+            .filter(item => !item.isAbsent())
+            .collect(new ArrayCollector());
+
+        return new DomQuery(...found);
     }
 
     /**
@@ -707,9 +725,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      */
     static querySelectorAll(selector: string): DomQuery {
         if(selector.indexOf("/shadow/") != -1) {
-            return new DomQuery(document)._querySelectorAll(selector);
-        } else {
             return new DomQuery(document)._querySelectorAllDeep(selector);
+        } else {
+            return new DomQuery(document)._querySelectorAll(selector);
         }
 
     }
@@ -931,8 +949,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         if(includeRoot) {
             res = res.concat(
                 (this?.rootNode || [] )
-                .filter(item => id == item.id)
-                .map(item => new DomQuery(item))
+                    .filter(item => id == item.id)
+                    .map(item => new DomQuery(item))
             );
         }
 
@@ -1809,14 +1827,17 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         let cDataBlock = [];
         let TYPE_CDATA_BLOCK = 4;
 
+        let res: any = this.lazyStream.flatMap(item => {
+            return item.childNodes.stream
+        }).filter(item => {
+            return item?.value?.value?.nodeType == TYPE_CDATA_BLOCK;
+        }).reduce((reduced: Array<any>, item: DomQuery) => {
+            reduced.push((<any>item?.value?.value)?.data ?? "");
+            return reduced;
+        }, []).value;
+
         // response may contain several blocks
-        return this.lazyStream
-            .flatMap(item => item.childNodes.stream)
-            .filter(item => item?.value?.value?.nodeType == TYPE_CDATA_BLOCK)
-            .reduce((reduced: Array<any>, item: DomQuery) => {
-                reduced.push((<any>item?.value?.value)?.data ?? "");
-                return reduced;
-            }, []).value.join("");
+        return res.join("");
     }
 
     subNodes(from: number, to?: number): DomQuery {
