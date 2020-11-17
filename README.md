@@ -20,7 +20,7 @@ For now it is only a small set of Helpers consisting of following items:
 * Configuration ... an Optional utilizing wrapper over json configurations which allow both read and write access 
                    and elvis like access to the data stored in the config
 * Streams ... a typescript based implementation of early and lazily evaluating streams                   
-* DomQuery ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams
+* DomQuery ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams and shadow doms
 * XmlQuery ... a jquery like XML document query selection and manipulation engine ... also supports streams
 * Messaging ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom
 
@@ -851,6 +851,22 @@ let otherStream = LazyStream.ofDataSource(searchRoot);
 
 See  [StreamTest.ts](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/StreamTest.ts) in the test sources directory
  for additional examples
+ 
+### DomQuery and Shadow doms...
+
+Note this is a work in progress.
+* At the time of writing a draft of shadow dom support made it into
+DomQuery.
+* By using a deep parameter on byId or byTagName the search is embedded
+into embedded shadow doms.
+
+* Also a method querySelectorallDeep does the same for the provided querySelector 
+
+* Futhermore the standard query selector got a /shadow/ pseudo query element
+to mark a hard shadow dom boundary
+
+* DomQuery also got an attachShadow method for creating shadow doms
+ 
 
 ### XmlQuery
 
