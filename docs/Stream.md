@@ -43,14 +43,19 @@ Both methods have advantages and disadvantages
 
 Early streams, are faster on small known numbers of datasets, however
 for deep chains they might become slower again.
+Because ever step in the chain is iterated.
 
-Lazy streams are slower for small number of datasets, but they start
+Lazy streams are slower for small number of datasets because a lot of backtracking to the
+beginning of the chain is perfomed, but they start
 to outperform the early streams beyound a certain number of datasets
-and operations nesting threshold.
+and operations nesting threshold, because only one iteration is done!
 
 Also you dont have to know upfront how much data is served into the stream chain upfront,
 and hence they use less ram because the chain is triggered
 on a per item case instead of rolling over the entire collection at once.
+So theoretically lazy streams can work over an andless set of data.
+
+
 
 ### Usage
 
@@ -77,7 +82,8 @@ which perform some kind of data transformation/filtering/processing
 #### Reduction/Collection
 
 On this stage the processed data is collected into the
-expected type of representation
+expected type of representation, or simply a last final "collecting"
+operation is performed upon.
 
 
 ### Examples
@@ -138,4 +144,125 @@ mapping is the transformation of one element type into another
 flatmapping is, that you sometimes return a collection and want
 to streamlined it into your one dimensional stream.
 
-Thats the theory behind it
+Thats the theory behind it.
+Practially if you map one element to another, you use map
+if your the result of your mapping operation results in another stream
+and you want to map it into a one dimensional stream, use flatmap.
+
+####Example`for map:
+```typescript
+LazyStream.of(...[[1],[2],[3], [5,6,6]])
+          .map(item => {
+                item.push(8);
+          })
+          .collect(new ArrayCollector()) 
+```
+results in:
+
+```typescript
+[[1,8],[2,8],[3,8], [5,6,6,8]]
+````
+
+#### Example for flatmap:
+
+```typescript
+LazyStream.of(...[[1],[2],[3], [5,6,6]])
+          .flatmap(item => {
+                Stream.of(...item)
+          })
+          .colle`ct(new ArrayCollector()) 
+````
+results in:`
+```typescript
+[1,2,3,5,6,6]
+``
+whereas:
+```typescript
+LazyStream.of(...[[1],[2],[3], [5,[6],6]])
+          .flatmap(item => {
+                Stream.of(...item)
+          })
+          .collect(new ArrayCollector()) 
+```          
+results in:
+```typescript
+[1,2,3,5,[6],6] 
+```          
+because only one level is flatmapped!
+
+## Collecting the data:
+There is a generic Collectors interface which can be used
+to implement data collectors.
+
+```typescript
+/**
+ * A generic collector
+ */
+export interface ICollector<T, S> {
+    /**
+     * this method basically takes a single stream element
+     * and does something with it (collecting it one way or the other
+     * in most cases)
+     *
+     * @param element
+     */
+    collect(element: T);
+
+    /**
+     * the final result after all the collecting is done
+     */
+    finalValue: S;
+}
+```
+
+
+For convenience reasons there is a handful of data collectors
+implemented which should cover most usecases:
+
+* ArrayCollector for simple arrays
+* AssocArrayCollector collects a [key,value] tuple stream into an associative array
+* FormDataCollector collects a [key,value] tuple stream into a FormData object
+* Will be probably changed:
+    * QueryFormDataCollector FormData collector for DomQuery with encoding for sourced streams (aka domquery elements)
+    * QueryFormStringCollector FormData collector for with encoding for key value tuples
+
+### Datasources
+
+For most cases again we have predefined datasource behavior (Arrays etc..)
+but if there is a need to define a custom datasource, you have to implement following
+interface:
+
+```typescript
+/**
+ * Every data source wich feeds data into the lazy stream
+ * or stream generally must implement this interface
+ *
+ * It is basically an iteratable to the core
+ */
+export interface IStreamDataSource<T> {
+
+    /**
+     * @returns true if additional data is present
+     */
+    hasNext(): boolean;
+
+    /**
+     * false if not
+     */
+    next(): T;
+
+    /**
+     * resets the position to the beginning
+     */
+    reset(): void;
+}
+```
+
+
+following datasources are present (with some convenvenience shortcuts
+for the most common elements)
+
+* SequenceDataSource for an arbirtrary sequence of numbers
+* ArrayStreamDataSource a datasource which encapsules an array of data
+* Also some internal datasources are implemented which should not be used outside (hence not listed here)
+
