@@ -983,7 +983,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         let res: Array<DomQuery> = [];
         if (includeRoot) {
             res = res.concat(
-                LazyStream.of(...(this?.rootNode || []))
+                LazyStream.of(...(this?.rootNode ?? []))
                     .filter(item => id == item.id)
                     .map(item => new DomQuery(item))
                     .collect(new ArrayCollector())
@@ -1988,7 +1988,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         let res: Array<DomQuery> = [];
         if (includeRoot) {
             res = res.concat(
-                LazyStream.of(...(this?.rootNode || []))
+                LazyStream.of(...(this?.rootNode ?? []))
                     .filter(item => id == item.id)
                     .map(item => new DomQuery(item))
                     .collect(new ArrayCollector())
