@@ -266,3 +266,17 @@ for the most common elements)
 * ArrayStreamDataSource a datasource which encapsules an array of data
 * Also some internal datasources are implemented which should not be used outside (hence not listed here)
 
+## filter
+basically just a standard filter within the stream
+you pass a function which returns a boolean value
+and if true the element passes the filter
+
+
+### foreach and reduce
+
+This is pretty much the same as in the java streams.
+Foreach operates a final iteration on a stream of elements
+passing single elements.
+
+reduce, reduces the stream with a reduction operation into a final result
+
