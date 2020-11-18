@@ -11,18 +11,18 @@ to cut down on code for essential tasks.
 For now it is only a small set of Helpers consisting of following items:
 
 * Monad     ... an implementation of a Monad
-* Optional  ... a class which is derived from Javas optional but also encapsulates elvis operator like accessors
+* [Optional](https://github.com/werpu/mona-dish/blob/master/docs/Optional.md)  ... a class which is derived from Javas optional but also encapsulates elvis operator like accessors
                 to cut down on code
-* ValueEmbedder ... if you ever need something like optional but want to write the value as well
+* [ValueEmbedder](https://github.com/werpu/mona-dish/blob/master/docs/ValueEmbedder.md) ... if you ever need something like optional but want to write the value as well
                     this might be what you are looking for                 
 * Promise   ... a promise shim implementation for older browsers (newer ones have Promised baked in)
 * CancellablePromise ... a promise with cancel functionality
 * Configuration ... an Optional utilizing wrapper over json configurations which allow both read and write access 
                    and elvis like access to the data stored in the config
-* Streams ... a typescript based implementation of early and lazily evaluating streams                   
+* [Streams](https://github.com/werpu/mona-dish/blob/master/docs/Stream.md) ... a typescript based implementation of early and lazily evaluating streams                   
 * DomQuery ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams and shadow doms
 * XmlQuery ... a jquery like XML document query selection and manipulation engine ... also supports streams
-* Messaging ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom
+* [Messaging](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md) ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom
 
 
 ## Implementation languages
@@ -54,66 +54,11 @@ sequences in the sh files for building and testing)
 
 ### Optional
 
-The idea behind optional is to get rid of undefined and null, while providing a leaner way to access content.
+The enhanced documentation for optional can be found here:
 
-instead of having following constructs constantly in your code
+* [Optional Documentation](https://github.com/werpu/mona-dish/blob/master/docs/Optional.md)
 
-```Typescript
-if("undefined" typeof mylet || null == myVar) {
-    //do something
-}
-```
 
-you can do it now like that
-
-```
-if(Optional.fromNullable(myVar).isAbsent()) {
-    //do something
-}
-```
-
-The same goes for exists checks:
-```Typescript
-let opt = Optional.fromNullable(myVar);
-if(Optional.fromNullable(myVar).isPresent()) {
-    //do something
-    let theValue = opt.value; //lets fetch the value
-}
-```
-
-Also as convenience you now have an easier way to check for existence in nested structures
-```Typescript
-        let myStruct = {
-            data: {
-                value: 1,
-                value2: Optional.absent,
-                value4: Optional.fromNullable(1)
-            },
-            data2: [
-                {booga: "hello"},
-                "hello2"
-            ]
-        };
-        
-        let opt = Optional.fromNullable(myStruct);
-        opt.getIf("data", "value3").isAbsent(); // returns true
-        opt.getIf("data", "value4").value; //returns 1
-        opt.getIf("data2[0]", "booga").value; //returns "hello"
-        opt.getIf("data2[1]").value; //returns "hello2"
-                
-```             
-  
-* or in a typesafe manner: 
-
-```Typescript
-    opt.resolve(item => item.data.value3).isAbsent()
-    opt.resolve(item => item.data.value4).value
-```  
-  
-As you can see, it is very easy to fetch cascaded data. The result of getIf always is another optional.
-To access the value of the optional, simply use the .value property.
-  
-Optional is readonly and sideffect free.
   
 For a non sideffect free implementation, you can use:
 
@@ -128,126 +73,15 @@ from optional and hence shares the same functionality.
 
 * ValueEmedder
 
+* [ValueEmbedder Documentation](https://github.com/werpu/mona-dish/blob/master/docs/ValueEmbedder.md)
 
-*ValueEmbeder* is basically an optional where you can write the value.
-Hence whenever something Optional is given back you will get
-a readonly value
-
-With Valueembedder, you can write something to the value
-
-* example:
-
-```Typescript
-blarg.value /*of type ValueEmbedder*/ = 'new blarg value'
-```
-  
-Trying that with optional would result in a runtime or compile
-error because optional does not expose a setter on value
-wheres on ValueEmbedder, whatever is embedded will receive 
-the new value.
-
-The embedded object must only follow the object->key notation
-aka the value must be an exposed writabble property.
-
-For special cases where you need a special implementation
-you can use the *IValueHolder* interface.  
+ 
   
 ### Configuration  
 
-Configuration basically is a non sideffect free implementation of a nested ValueEmbedder. Aka, you can assign values
-to certain points in your data representation and even if the subtree
-does not exist it will be created.
+* [Configuration Documentation](https://github.com/werpu/mona-dish/blob/master/docs/Configuration.md)
 
 
-Example:
-
-```Typescript
-let config = new Config({
-                         data: {
-                             value: 1,
-                             value2: Optional.absent,
-                             value3: null
-                         },
-                         data2: [
-                             {booga: "hello"},
-                             "hello2"
-                         ]
-                     });
-                     
-config.getIf("hello", "world", "from").isAbsent() //returns true                     
-config.apply("hello", "world", "from").value = "me" //we now assign a new value under the config tree                    
-config.getIf("hello", "world", "from").value // returns  "me"     
-config.getIf("hello", "world", "from").isAbsent() //returns now false
-              
-/*
- the config data now looks like:
- {
-  data: {
-      value: 1,
-      value2: Optional.absent,
-      value3: null
-  },
-  data2: [
-      {booga: "hello"},
-      "hello2"
-  ],
-  hello: {
-      world: {
-          from: "me"
-      }
-  }
-}             
-
-*/              
-
-```
-
-
-Also the assignment of arrays is possible:
-
-```Typescript
-config.apply("hello[5]", "world[3]", "from[5]").value = "me"
-
-/*
- the config data now looks like:
- {
-  data: {
-      value: 1,
-      value2: Optional.absent,
-      value3: null
-  },
-  data2: [
-      {booga: "hello"},
-      "hello2"
-  ],
-  hello:[
-  null,
-  null,
-  null,
-  null,
-  null,
-  world: [
-        null,
-        null,
-        null,
-        from: [
-            null,
-            null,
-            null,
-            null,
-            null,
-            "me"
-        ]
-    ]
-  ]
-  
-}             
-
-*/    
-
-```
-As you can see if values do not exist placeholders in array assignments are filled in (null values in our case)  
-  
 ### Promise and CancellablePromise
 
 Promise is just a lightweight shim of the Promise API including finally.
