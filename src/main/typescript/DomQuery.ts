@@ -710,7 +710,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * once they hit a dead end.
      */
     get lazyStream(): LazyStream<DomQuery> {
-        return LazyStream.ofStreamDataSource(this);
+        return LazyStream.of(...this.asArray);
     }
 
     get asArray(): Array<DomQuery> {
@@ -723,6 +723,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         return [].concat(Stream.of(this.rootNode).filter(item => item != null).collect(new ArrayCollector()));
     }
 
+
+    static querySelectorAllDeep(selector: string) {
+        return new DomQuery(document).querySelectorAllDeep(selector);
+    }
     /**
      * easy query selector all producer
      *
@@ -1409,8 +1413,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         };
 
         this.eachElem((item: Element) => {
-            while (item.parentNode) {
-                item = <Element>item.parentNode;
+            while (item.parentNode || (<any> item).host) {
+                item = <Element>item?.parentNode ?? (<any>item)?.host;
+
                 resolveItem(item);
                 //nested forms not possible, performance shortcut
                 if (tagName == "form" && retArr.length) {
@@ -1874,6 +1879,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
     }
 
+    //TODO this part probably will be removed
+    //because we can stream from an array stream directly into the dom query
     _limits = -1;
 
     limits(end: number): IStream<DomQuery> {
