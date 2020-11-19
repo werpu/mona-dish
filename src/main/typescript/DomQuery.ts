@@ -138,13 +138,6 @@ interface IDomQuery {
      * The child nodes of this node collection as readonly attribute
      */
     readonly childNodes: DomQuery;
-
-    /**
-     * the embedded shadow roots
-     */
-    readonly shadowRoot: DomQuery;
-
-
     /**
      * an early stream representation for this DomQuery
      */
@@ -222,28 +215,18 @@ interface IDomQuery {
     querySelectorAll(selector): DomQuery;
 
     /**
-     * performs a deep search on all elements
-     * embedded shadow doms are not ingored but the search also is performed on them
-     * as isolated search entities
-     * @param selector
-     */
-    querySelectorAllDeep(selector): DomQuery;
-
-    /**
      * core byId method
      * @param id the id to search for
      * @param includeRoot also match the root element?
-     * @param deep if set to true the search also is performed in the embedded open shadow dom elements
      */
-    byId(id: string, includeRoot?: boolean, deep?: boolean): DomQuery;
+    byId(id: string, includeRoot?: boolean): DomQuery;
 
     /**
      * same as byId just for the tag name
      * @param tagName
      * @param includeRoot
-     * @param deep if set to true the search also is performed in the embedded open shadow dom elements
      */
-    byTagName(tagName: string, includeRoot ?: boolean, deep ?: boolean): DomQuery;
+    byTagName(tagName: string, includeRoot ?: boolean): DomQuery;
 
     /**
      * attr accessor, usage myQuery.attr("class").value = "bla"
@@ -976,14 +959,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
      * @param id the id to search for
      * @param includeRoot also match the root element?
      */
-    byId(id: string, includeRoot?: boolean, deep?: boolean): DomQuery {
-        if(deep) {
-            return this.byIdDeep(id, !!includeRoot);
-        }
+    byId(id: string, includeRoot?: boolean): DomQuery {
         let res: Array<DomQuery> = [];
         if (includeRoot) {
             res = res.concat(
-                LazyStream.of(...(this?.rootNode ?? []))
+                LazyStream.of(...(this?.rootNode || []))
                     .filter(item => id == item.id)
                     .map(item => new DomQuery(item))
                     .collect(new ArrayCollector())
@@ -994,6 +974,26 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         //on hidden elements we use the attributes match selector
         //that works
         res = res.concat(this.querySelectorAll(`[id="${id}"]`));
+        return new DomQuery(...res);
+    }
+
+
+    byIdDeep(id: string, includeRoot?: boolean): DomQuery {
+        let res: Array<DomQuery> = [];
+        if (includeRoot) {
+            res = res.concat(
+                LazyStream.of(...(this?.rootNode || []))
+                    .filter(item => id == item.id)
+                    .map(item => new DomQuery(item))
+                    .collect(new ArrayCollector())
+            );
+        }
+
+        let subItems = this.querySelectorAllDeep(`[id="${id}"]`);
+        if(subItems.length) {
+            res.push(subItems);
+        }
+
         return new DomQuery(...res);
     }
 
@@ -1835,7 +1835,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                         element.checked
                     )
                 ) {
-                    let files: any = (<any>element.value).files;
+                    let files: any = (<any>element.value).value?.files ?? [];
                     if (files?.length) {
                         //xhr level2
                         target.append(name).value = files[0];
@@ -1984,24 +1984,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         ctrl?.setSelectiongRange ? ctrl?.setSelectiongRange(pos, pos) : null;
     }
 
-    private byIdDeep(id: string, includeRoot?: boolean): DomQuery {
-        let res: Array<DomQuery> = [];
-        if (includeRoot) {
-            res = res.concat(
-                LazyStream.of(...(this?.rootNode ?? []))
-                    .filter(item => id == item.id)
-                    .map(item => new DomQuery(item))
-                    .collect(new ArrayCollector())
-            );
-        }
-
-        let subItems = this.querySelectorAllDeep(`[id="${id}"]`);
-        if(subItems.length) {
-            res.push(subItems);
-        }
-
-        return new DomQuery(...res);
-    }
 
 }
 
