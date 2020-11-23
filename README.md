@@ -729,4 +729,23 @@ Various usage examples can be found in the tests:
 * [Promise](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/PromiseTest.ts)
 * [Stream](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/StreamTest.ts)
                    
+
+
+# Changelog
+(Starting with version 0.18)
+
+...
+
+## Version 0.18
+Adding Extended Array, to provide
+shim like functionality without shims
+(adds several functions to the standard array
+older browsers do not support, but does not
+hook itself in like a shim)
+
+## Version 0.19
+* New messaging submodule
+* Improved documentation
+* Domquery: Shadow Dom support 
+
                    
