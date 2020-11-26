@@ -83,21 +83,21 @@ describe('Broker tests', function () {
         iframeDoc.write(iframe);
         expect(iframeDoc.querySelectorAll("#received").length > 0).to.be.true;
 
-        let msg = new Message("channel", "booga");
+        let msg = new Message( "booga");
         let iframeBroker = new Broker(contentWindow);
         let origBroker = new Broker();
         msg = applyMessageReceiver(contentWindow, msg, iframeBroker);
 
         //contentWindow.passMessage(msg);
-        origBroker.broadcast(msg);
+        origBroker.broadcast("channel", msg);
         let messageReceived = false;
 
-        origBroker.registerListener("booga", (msg: Message) => {
+        origBroker.registerListener(CHANNEL, (msg: Message) => {
             messageReceived = msg.message == "booga";
         });
 
-        msg = new Message("channel2", "booga2");
-        iframeBroker.broadcast(msg, Direction.UP);
+        msg = new Message( "booga2");
+        iframeBroker.broadcast("channel2", msg, Direction.UP);
 
         async function analyzeDelayed() {
             await delay(1000);
@@ -117,13 +117,13 @@ describe('Broker tests', function () {
         iframeDoc.write(iframe);
         expect(iframeDoc.querySelectorAll("#received").length > 0).to.be.true;
 
-        let msg = applyMessageReceiver(contentWindow, new Message("channel", "booga"));
+        let msg = applyMessageReceiver(contentWindow, new Message( "booga"));
         let broker = new Broker();
         contentWindow.passMessage(msg);
-        broker.broadcast(msg);
+        broker.broadcast("channel", msg);
 
-        msg = new Message("channel2", "booga2");
-        broker.broadcast(msg);
+        msg = new Message("booga2");
+        broker.broadcast("channel2", msg);
 
         async function analyzeDelayed() {
             await delay(400);
@@ -140,7 +140,7 @@ describe('Broker tests', function () {
             messageReceived = message.message === "booga";
         })
 
-        broker.broadcast(new Message("channel", "booga"), Direction.DOWN, false);
+        broker.broadcast("channel", new Message("booga"), Direction.DOWN, false);
         expect(messageReceived).to.be.true;
     })
 
@@ -165,13 +165,13 @@ describe('Broker tests', function () {
             broker2CallCnt++;
         });
 
-        broker1.broadcast(new Message(CHANNEL, "booga"), Direction.ALL);
+        broker1.broadcast(CHANNEL, new Message("booga"), Direction.ALL);
 
 
         expect(broker1CallCnt == 0).to.eq(true);
         expect(broker2CallCnt == 1).to.eq(true);
 
-        broker2.broadcast(new Message(CHANNEL, "booga"), Direction.ALL);
+        broker2.broadcast(CHANNEL, new Message("booga"), Direction.ALL);
 
         expect(broker1CallCnt == 1).to.eq(true);
         expect(broker2CallCnt == 1).to.eq(true);
@@ -203,12 +203,12 @@ describe('Broker tests', function () {
         });
 
         //from root broker into shadow dom
-        origBroker.broadcast(new Message(CHANNEL, "booga"));
+        origBroker.broadcast(CHANNEL, new Message("booga"));
         expect(shadowBrokerReceived).to.be.eq(1);
         expect(brokerReceived).to.eq(0);
 
         //now from shadow dom into broker
-        shadowBroker.broadcast(new Message(CHANNEL, "booga2"), Direction.UP);
+        shadowBroker.broadcast(CHANNEL, new Message("booga2"), Direction.UP);
         expect(brokerReceived).to.eq(1);
 
         //not closed shadow dom works in a way, that you basically bind the broker as external

@@ -11,11 +11,10 @@ export declare enum Direction {
  */
 export declare class Message {
     message: any;
-    channel: string;
     creationDate?: number;
     identifier?: string;
     targetOrigin?: string;
-    constructor(channel: string, message?: any, targetOrigin?: string);
+    constructor(message?: any, targetOrigin?: string);
 }
 /**
  * central message broker which uses various dom constructs
@@ -105,13 +104,14 @@ export declare class Broker {
      * broadcast a message
      * the message contains the channel and the data and some internal bookeeping data
      *
+     * @param channel the channel to broadcast to
      * @param message the message dot send
      * @param direction the direction (up, down, both)
      * @param callBrokerListeners if set to true.. the brokers on the same level are also notified
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(message: Message, direction?: Direction, callBrokerListeners?: boolean): void;
+    broadcast(channel: string, message: Message, direction?: Direction, callBrokerListeners?: boolean): void;
     /**
      * garbage collects the processed messages queue
      * usually after one second
@@ -121,7 +121,7 @@ export declare class Broker {
     private dispatchUp;
     private dispatchSameLevel;
     private dispatchDown;
-    private callListeners;
+    private msgCallListeners;
     private transformToEvent;
     private createCustomEvent;
     private messageStillActive;

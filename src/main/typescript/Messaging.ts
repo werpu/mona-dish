@@ -10,13 +10,11 @@ export enum Direction {
  */
 export class Message {
 
-    channel: string;
     creationDate?:number;
     identifier?:string;
     targetOrigin?:string;
 
-    constructor(channel: string, public message: any = {}, targetOrigin="*") {
-        this.channel = channel;
+    constructor( public message: any = {}, targetOrigin="*") {
         this.targetOrigin = targetOrigin;
         this.creationDate = new Date().getMilliseconds();
         this.identifier = new Date().getMilliseconds()+"_"+ Math.random()+"_"+ Math.random();
@@ -32,13 +30,15 @@ class MessageWrapper implements CustomEventInit<Message> {
     bubbles?: boolean;
     cancelable?: boolean;
     composed?: boolean;
+    channel: string;
 
 
-    constructor(message: Message) {
+    constructor(channel: string, message: Message) {
         this.detail = message;
         this.bubbles = true;
         this.cancelable = true;
         this.composed = true;
+        this.channel = channel;
     }
 }
 
@@ -106,17 +106,24 @@ export class Broker {
      */
     constructor(scopeElement: HTMLElement | Window | ShadowRoot = window, public name = "brokr") {
 
+        /**
+         * message relay.. identfies message events and relays them to the listeners
+         * @param event
+         */
         let evtHandler = (event: MessageEvent | CustomEvent<Message>) => {
-            let details = (<CustomEvent>event)?.detail || (<MessageEvent>event)?.data;
+            let details = (<any>event)?.detail ?? (<MessageEvent>event)?.data?.detail;
+            let channel = (<any>event)?.channel ?? (<MessageEvent>event)?.data?.channel;
+
             //javascript loses the type info in certain module types
             if (details?.identifier && details?.message) {
                 let msg: Message = details;
+                let channel = (<any> event)?.channel ?? details?._channel;
                 if (msg.identifier in this.processedMessages) {
                     return;
                 }
                 //coming in from up... we need to send it down
                 //a relayed message always has to trigger the listeners as well
-                this.broadcast(msg, Direction.DOWN, false);
+                this.broadcast(channel, msg, Direction.DOWN, false);
             }
         };
         this.msgHandler = (evt: MessageEvent) => evtHandler(evt);
@@ -180,30 +187,30 @@ export class Broker {
      * broadcast a message
      * the message contains the channel and the data and some internal bookeeping data
      *
+     * @param channel the channel to broadcast to
      * @param message the message dot send
      * @param direction the direction (up, down, both)
      * @param callBrokerListeners if set to true.. the brokers on the same level are also notified
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(message: Message, direction: Direction = Direction.ALL, callBrokerListeners = true) {
+    broadcast(channel: string, message: Message, direction: Direction = Direction.ALL, callBrokerListeners = true) {
         try {
             switch (direction) {
                 case Direction.DOWN:
-                    this.dispatchDown(message, callBrokerListeners);
+                    this.dispatchDown(channel, message, callBrokerListeners);
                     break;
                 case Direction.UP:
-                    this.dispatchUp(message, callBrokerListeners)
+                    this.dispatchUp(channel, message, callBrokerListeners)
                     break;
                 case Direction.ALL:
-                    this.dispatchBoth(message, callBrokerListeners);
+                    this.dispatchBoth(channel, message, callBrokerListeners);
                     break;
             }
         } finally {
             this.gcProcessedMessages();
         }
     }
-
 
     /**
      * garbage collects the processed messages queue
@@ -222,54 +229,56 @@ export class Broker {
     }
 
 
-    private dispatchBoth(message: Message, ignoreListeners = true) {
+    private dispatchBoth(channel: string, message: Message, ignoreListeners = true) {
 
-        this.dispatchUp(message, ignoreListeners, true);
+        this.dispatchUp(channel, message, ignoreListeners, true);
         //listeners already called
-        this.dispatchDown(message, true, false)
+        this.dispatchDown(channel, message, true, false)
     }
 
-    private dispatchUp(message: Message, ignoreListeners = true, callBrokerListeners = true) {
+    private dispatchUp(channel: string, message: Message, ignoreListeners = true, callBrokerListeners = true) {
         if (!ignoreListeners) {
-            this.callListeners(message);
+            this.msgCallListeners(channel, message);
         }
         this.processedMessages[message.identifier] = message.creationDate;
         if (window.parent != null) {
-            window.parent.postMessage(message, message.targetOrigin);
+
+            window.parent.postMessage(new MessageWrapper(channel, message), message.targetOrigin);
         }
         if (callBrokerListeners) {
-            this.dispatchSameLevel(message);
+            this.dispatchSameLevel(channel, message);
         }
     }
 
-    private dispatchSameLevel(message: Message) {
-        let event = this.transformToEvent(message, true);
+    private dispatchSameLevel(channel: string, message: Message) {
+        let event = this.transformToEvent(channel, message, true);
         //we also dispatch sideways
         window.dispatchEvent(event);
     }
 
     //a dispatch of our own should never trigger the listeners hence the default true
-    private dispatchDown(message: Message, ignoreListeners = true, callBrokerListeners = true) {
+    private dispatchDown(channel: string, message: Message, ignoreListeners = true, callBrokerListeners = true) {
         if (!ignoreListeners) {
-            this.callListeners(message);
+            this.msgCallListeners(channel, message);
         }
         this.processedMessages[message.identifier] = message.creationDate;
-        let evt = this.transformToEvent(message);
+        let evt = this.transformToEvent(channel, message);
         window.dispatchEvent(evt);
         /*we now notify all iframes lying underneath */
         document.querySelectorAll("iframe").forEach((element: HTMLIFrameElement) => {
-            element.contentWindow.postMessage(message, message.targetOrigin);
+            element.contentWindow.postMessage(new MessageWrapper(channel, message), message.targetOrigin);
         });
 
         document.querySelectorAll("[data-broker='1']").forEach((element: HTMLElement) => element.dispatchEvent(evt))
 
         if (callBrokerListeners) {
-            this.dispatchSameLevel(message);
+            this.dispatchSameLevel(channel, message);
         }
     }
 
-    private callListeners(message: Message) {
-        let listeners = this.messageListeners[message.channel];
+
+    private msgCallListeners(channel: string, message: Message) {
+        let listeners = this.messageListeners[channel];
         if (listeners?.length) {
             let callElement = (element: (msg: Message) => void) => {
                 element(message);
@@ -279,21 +288,24 @@ export class Broker {
         }
     }
 
-    private transformToEvent(message: Message, bubbles = false): CustomEvent {
-        let messageWrapper = new MessageWrapper(message);
+    private transformToEvent(channel: string, message: Message, bubbles = false): CustomEvent {
+        let messageWrapper = new MessageWrapper(channel, message);
         messageWrapper.bubbles = bubbles;
         return this.createCustomEvent(Broker.EVENT_TYPE, messageWrapper);
     }
 
-    private createCustomEvent(name: string, wrapper: any): any {
+    private createCustomEvent(name: string, wrapper: MessageWrapper): any {
         if ('undefined' == typeof window.CustomEvent) {
             let e: any = document.createEvent('HTMLEvents');
             e.detail = wrapper.detail;
+            e.channel = wrapper.channel;
             e.initEvent(name, wrapper.bubbles, wrapper.cancelable);
             return e;
 
         } else {
-            return new window.CustomEvent(name, wrapper);
+            let customEvent = new window.CustomEvent(name, wrapper);
+            (<any>customEvent).channel = wrapper.channel;
+            return customEvent;
         }
 
     }
