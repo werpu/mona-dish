@@ -54,7 +54,7 @@ Ever broker has one or more listeners listening to channels
 a channel name of * means receive all messages
 or send to
 
-shadowBroker.broadcast(new Message(CHANNEL, "booga2"), Direction.DOWN);
+shadowBroker.broadcast(CHANNEL, new Message("booga2"), Direction.DOWN);
 
 ### usage
 
@@ -88,7 +88,7 @@ For receiving and sending data perform following operation
   * Also not the issuing broker never receives the message it sends 
   * out... only the others do
   */ 
- shadowBroker.broadcast(new Message(CHANNEL, "booga2"), Direction.UP);
+ shadowBroker.broadcast(CHANNEL, new Message("booga2"), Direction.UP);
 
  shadowBroker.unregister(); //unregisters the current broker from the existing dom isolation layer
  //in case of a destruction of the layer referenced the deregistration happens automatically
@@ -132,7 +132,7 @@ export declare class Message {
  * broker.registerListener(channel, listener) registers a new listener to the current broker and channel
  * broker.unregisterListener(channel, listener) unregisters the given listener
  *
- * broker.broadcast(message, optional direction, optional callBrokerListeners)
+ * broker.broadcast(channel, message, optional direction, optional callBrokerListeners)
  * sends a message (channel included in the message object) in a direction (up, down, both)
  * and also optionally calls the listeners on the same broker (default off)
  *
@@ -192,14 +192,15 @@ export declare class Broker {
     /**
      * broadcast a message
      * the message contains the channel and the data and some internal bookeeping data
-     *
+     * @param channel the channel to broadcast to
      * @param message the message dot send
      * @param direction the direction (up, down, both)
      * @param callBrokerListeners if set to true.. the brokers on the same level are also notified
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(message: Message, direction?: Direction, callBrokerListeners?: boolean): void;
+    broadcast(channel: string, message: Message, direction?: Direction, callBrokerListeners?: boolean): void;
 }
+
 
 ```
