@@ -748,4 +748,10 @@ hook itself in like a shim)
 * Improved documentation
 * Domquery: Shadow Dom support 
 
+## Version 0.19.1
+
+* minor api change, channel now parameter in broker.broadcast instead
+of part of the message.
+
+
                    
