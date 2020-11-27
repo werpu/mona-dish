@@ -112,12 +112,11 @@ export class Broker {
          */
         let evtHandler = (event: MessageEvent | CustomEvent<Message>) => {
             let details = (<any>event)?.detail ?? (<MessageEvent>event)?.data?.detail;
-            let channel =  ((<any>event)?.data?.channel()) ?? ((<any>event)?.channel);
+            let channel =  ((<any>event)?.data?.channel) ?? ((<any>event)?.channel);
 
             //javascript loses the type info in certain module types
             if (details?.identifier && details?.message) {
                 let msg: Message = details;
-                let channel = (<any> event)?.channel ?? details?._channel;
                 if (msg.identifier in this.processedMessages) {
                     return;
                 }
