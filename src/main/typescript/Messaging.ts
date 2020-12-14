@@ -80,6 +80,7 @@ class MessageWrapper implements CustomEventInit<Message> {
  * isolated shadow doms... document
  *
  *
+ *
  */
 export class Broker {
 
@@ -189,27 +190,83 @@ export class Broker {
      * @param channel the channel to broadcast to
      * @param message the message dot send
      * @param direction the direction (up, down, both)
-     * @param callBrokerListeners if set to true.. the brokers on the same level are also notified
+     * @param callSameLevel if set to true.. the brokers on the same level are also notified
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(channel: string, message: Message, direction: Direction = Direction.ALL, callBrokerListeners = true) {
+    broadcast(channel: string, message: Message, direction: Direction = Direction.ALL, callSameLevel = true) {
         try {
             switch (direction) {
                 case Direction.DOWN:
-                    this.dispatchDown(channel, message, callBrokerListeners);
+                    this.dispatchDown(channel, message, false, callSameLevel);
                     break;
                 case Direction.UP:
-                    this.dispatchUp(channel, message, callBrokerListeners)
+                    this.dispatchUp(channel, message,false , callSameLevel)
                     break;
                 case Direction.ALL:
-                    this.dispatchBoth(channel, message, callBrokerListeners);
+                    this.dispatchBoth(channel, message);
                     break;
             }
         } finally {
             this.gcProcessedMessages();
         }
     }
+
+    /**
+     * idea... a bidirectional broadcast
+     * sends a message and waits for the first answer coming in from one of the recivers
+     * sending the message back with a messageIdentifier_broadCastId answer
+     *
+     * @param channel
+     * @param message
+     * @param direction
+     * @param callBrokerListeners
+     */
+    request(channel: string, message: Message, direction: Direction = Direction.ALL, callBrokerListeners = true): Promise<Message> {
+
+        let messageId = message.identifier;
+
+        let ret = new Promise<Message>((resolve, reject) => {
+            let timeout = null;
+            let listener = (message2: Message) => {
+                if(message2.identifier == "_r_"+messageId) {
+                    clearTimeout(timeout);
+                    this.unregisterListener(channel, listener);
+                    resolve(message2);
+                }
+            }
+            timeout = setTimeout(() => {
+                this.unregisterListener(channel, listener);
+                reject("no return value")
+            }, 3000);
+            this.registerListener(channel, listener);
+
+        });
+        setTimeout(() => this.broadcast(channel, message, direction, callBrokerListeners), 0);
+        return ret;
+    }
+
+    /**
+     * answers a bidirectional message received
+     * usage, the client can use this method, to answer an incoming message in a precise manner
+     * so that the caller sending the bidirectional message knows how to deal with it
+     * this mechanism can be used for global storages where we have one answering entity per channel delivering the
+     * requested data, the request can be done asynchronously via promises waiting for answers
+     *
+     * @param channel the channel the originating message
+     * @param request the requesting message
+     * @param answer the answer to the request
+     * @param direction the call direction
+     * @param callBrokerListeners same level?
+     */
+    answer(channel: string, request: Message, answer: Message, direction: Direction = Direction.ALL, callBrokerListeners = true) {
+        if(request.identifier.indexOf("_r_") == 0) {
+            return;
+        }
+        answer.identifier = "_r_"+request.identifier;
+        this.broadcast(channel, answer, direction, callBrokerListeners);
+    }
+
 
     /**
      * garbage collects the processed messages queue
@@ -228,9 +285,9 @@ export class Broker {
     }
 
 
-    private dispatchBoth(channel: string, message: Message, ignoreListeners = true) {
+    private dispatchBoth(channel: string, message: Message) {
 
-        this.dispatchUp(channel, message, ignoreListeners, true);
+        this.dispatchUp(channel, message, false, true);
         //listeners already called
         this.dispatchDown(channel, message, true, false)
     }

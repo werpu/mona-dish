@@ -117,7 +117,6 @@ export class Broker {
             //javascript loses the type info in certain module types
             if (details?.identifier && details?.message) {
                 let msg: Message = details;
-                //let channel = (<any> event)?.channel ?? details?._channel;
                 if (msg.identifier in this.processedMessages) {
                     return;
                 }

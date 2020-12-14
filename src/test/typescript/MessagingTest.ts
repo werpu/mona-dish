@@ -144,6 +144,22 @@ describe('Broker tests', function () {
         expect(messageReceived).to.be.true;
     })
 
+    it('bidirectional message', function() {
+        let broker = new Broker();
+        let answerReceived = false;
+        broker.registerListener("channel", (message: Message): void => {
+            setTimeout(() => broker.answer("channel", message, new Message("answer of booga")), 0);
+        })
+
+        return broker.request("channel", new Message("booga"), Direction.DOWN, false)
+            .then((message2: Message) => {
+                answerReceived = message2.message === "answer of booga";
+                expect(answerReceived).to.be.true;
+                return true;
+            });
+
+    });
+
     it('basic init', function () {
         expect(window?.document?.body).not.eq(null);
     });
@@ -165,16 +181,16 @@ describe('Broker tests', function () {
             broker2CallCnt++;
         });
 
-        broker1.broadcast(CHANNEL, new Message("booga"), Direction.ALL);
+        broker1.broadcast(CHANNEL, new Message("booga"), Direction.ALL, true);
 
-
-        expect(broker1CallCnt == 0).to.eq(true);
-        expect(broker2CallCnt == 1).to.eq(true);
-
-        broker2.broadcast(CHANNEL, new Message("booga"), Direction.ALL);
 
         expect(broker1CallCnt == 1).to.eq(true);
         expect(broker2CallCnt == 1).to.eq(true);
+
+        broker2.broadcast(CHANNEL, new Message("booga"), Direction.ALL, true);
+
+        expect(broker1CallCnt == 2).to.eq(true);
+        expect(broker2CallCnt == 2).to.eq(true);
 
     });
 
@@ -205,11 +221,11 @@ describe('Broker tests', function () {
         //from root broker into shadow dom
         origBroker.broadcast(CHANNEL, new Message("booga"));
         expect(shadowBrokerReceived).to.be.eq(1);
-        expect(brokerReceived).to.eq(0);
+        expect(brokerReceived).to.eq(1);
 
         //now from shadow dom into broker
         shadowBroker.broadcast(CHANNEL, new Message("booga2"), Direction.UP);
-        expect(brokerReceived).to.eq(1);
+        expect(brokerReceived).to.eq(2);
 
         //not closed shadow dom works in a way, that you basically bind the broker as external
         //to the external element and then use the message handler to pass the data back into
