@@ -225,7 +225,6 @@ export class Broker {
     request(channel: string, message: Message, direction: Direction = Direction.ALL, callBrokerListeners = true): Promise<Message> {
 
         let messageId = message.identifier;
-
         let ret = new Promise<Message>((resolve, reject) => {
             let timeout = null;
             let listener = (message2: Message) => {

@@ -272,7 +272,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         for (let cnt = offset; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             val1 = fn(val1, this.value[cnt]);
         }
-        return Optional.fromNullable<V | T>(val1);
+        return Optional.fromNullable<Optional<any>, V | T>(val1);
     }
 
     first(): Optional<T> {

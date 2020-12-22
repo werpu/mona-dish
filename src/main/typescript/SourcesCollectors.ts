@@ -275,6 +275,20 @@ export class ArrayCollector<S> implements ICollector<S, Array<S>> {
 }
 
 /**
+ * collects an tuple array stream into an assoc array with elements being collected into arrays
+ *
+ */
+export class ArrayAssocArrayCollector<S> implements ICollector<[string, S] | string, {[key: string]: S} > {
+    finalValue: {[key:string]: any} = {};
+
+    collect(element: [string, S] | string) {
+        let key = element?.[0] ?? <string> element;
+        this.finalValue[key] = this.finalValue?.[key] ?? [];
+        this.finalValue[key].push(element?.[1] ?? true);
+    }
+}
+
+/**
  * dummy collector which just triggers a run
  * on lazy streams without collecting anything
  */

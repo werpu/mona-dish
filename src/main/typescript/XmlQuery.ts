@@ -25,7 +25,7 @@ declare let ActiveXObject: any;
  */
 export class XMLQuery extends DomQuery {
 
-    constructor(rootNode: Document | string | DomQuery, docType: DOMParserSupportedType = "text/xml") {
+    constructor(rootNode: Document | string | DomQuery, docType: string = "text/xml") {
 
         let createIe11DomQueryShim = (): DOMParser => {
             //at the time if wroting ie11 is the only relevant browser
@@ -48,7 +48,7 @@ export class XMLQuery extends DomQuery {
                 () => new window.DOMParser(),
                 (): DOMParser => createIe11DomQueryShim()
             ).value;
-            return domParser.parseFromString(xml, docType);
+            return domParser.parseFromString(xml, <any> docType);
         };
 
         if (isString(rootNode)) {
@@ -85,7 +85,7 @@ export class XMLQuery extends DomQuery {
         return new XMLQuery(txt, "text/html");
     }
 
-    static fromString(txt: string, parseType: DOMParserSupportedType = "text/xml"): XMLQuery {
+    static fromString(txt: string, parseType: string = "text/xml"): XMLQuery {
         return new XMLQuery(txt, parseType);
     }
 }

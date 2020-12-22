@@ -119,8 +119,8 @@ export class Optional<T> extends Monad<T> {
         return this._value;
     }
 
-    static fromNullable<T>(value?: T): Optional<T> {
-        return new Optional(value);
+    static fromNullable<V extends Optional<T>, T>(value?: T): Optional<T> {
+        return <V> new Optional(value);
     }
 
     /*syntactic sugar for absent and present checks*/
@@ -388,8 +388,8 @@ export class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
         return ValueEmbedder;
     }
 
-    static fromNullable<T>(value?: any, valueKey: string = "value"): ValueEmbedder<T> {
-        return new ValueEmbedder(value, valueKey);
+    static fromNullable<V extends Optional<T>,T>(value?: any, valueKey: string = "value"): V {
+        return <any> new ValueEmbedder<T>(value, valueKey);
     }
 
 }

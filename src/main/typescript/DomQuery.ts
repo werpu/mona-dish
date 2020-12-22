@@ -44,7 +44,6 @@ enum Submittables {
 
 }
 
-// @ts-ignore supression needed here due to fromnullable
 export class ElementAttribute extends ValueEmbedder<string> {
 
     constructor(private element: DomQuery, private name: string, private defaultVal: string = null) {
@@ -71,8 +70,8 @@ export class ElementAttribute extends ValueEmbedder<string> {
         return ElementAttribute;
     }
 
-    static fromNullable(value?: any, valueKey: string = "value"): ElementAttribute {
-        return new ElementAttribute(value, valueKey);
+    static fromNullable<ElementAttribute,T>(value?: any, valueKey: string = "value"): ElementAttribute {
+        return <any> new ElementAttribute(value, valueKey);
     }
 
 }

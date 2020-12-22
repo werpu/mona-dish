@@ -142,7 +142,7 @@ describe('Broker tests', function () {
 
         broker.broadcast("channel", new Message("booga"), Direction.DOWN, false);
         expect(messageReceived).to.be.true;
-    })
+    });
 
     it('bidirectional message', function() {
         let broker = new Broker();
@@ -158,6 +158,22 @@ describe('Broker tests', function () {
                 return true;
             });
 
+    });
+
+    it( 'bidirectional message with two brokers', function() {
+        let broker = new Broker();
+        let broker2 = new Broker();
+        let answerReceived = false;
+        broker2.registerListener("channel", (message: Message): void => {
+            setTimeout(() => broker.answer("channel", message, new Message("answer of booga")), 0);
+        })
+
+        return broker.request("channel", new Message("booga"), Direction.DOWN, true)
+            .then((message2: Message) => {
+                answerReceived = message2.message === "answer of booga";
+                expect(answerReceived).to.be.true;
+                return true;
+            });
     });
 
     it('basic init', function () {
