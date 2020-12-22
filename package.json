@@ -7,12 +7,12 @@
   "scripts": {
     "test": "mocha -r ts-node/register -P ./src/ ./src/test/typescript/**/*Test.ts",
     "coverage": "nyc --reporter=html --reporter=text mocha -r ts-node/register ./**/test/typescript/**/**/*Test*.ts",
-    "build-umd": "webpack --env.TARGET_TYPE=umd",
-    "build-window": "webpack --env.TARGET_TYPE=window",
-    "build-common": "webpack --env.TARGET_TYPE=commonjs",
-    "build-system": "webpack --env.TARGET_TYPE=system",
-    "build-amd": "webpack --env.TARGET_TYPE=amd",
-    "build-amd-require": "webpack --env.TARGET_TYPE=amd-require",
+    "build-umd": "webpack --env TARGET_TYPE=umd",
+    "build-window": "webpack --env TARGET_TYPE=window",
+    "build-common": "webpack --env TARGET_TYPE=commonjs",
+    "build-system": "webpack --env TARGET_TYPE=system",
+    "build-amd": "webpack --env TARGET_TYPE=amd",
+    "build-amd-require": "webpack --env TARGET_TYPE=amd-require",
     "build": "npm run build-umd && npm run build-common && npm run build-system && npm run build-amd && npm run build-amd-require"
   },
   "keywords": [
@@ -24,29 +24,28 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
-    "@types/chai": "^4.2.11",
-    "@types/mocha": "^7.0.2",
-    "@types/sinon": "^9.0.0",
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.2.0",
+    "@types/sinon": "^9.0.9",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "chai": "^4.2.0",
-    "copy-webpack-plugin": "^5.1.1",
+    "copy-webpack-plugin": "^7.0.0",
     "filemanager-webpack-plugin-fixed": "^2.0.9",
-    "hard-source-webpack-plugin": "^0.13.1",
-    "html-webpack-plugin": "^4.2.0",
+    "html-webpack-plugin": "^4.5.0",
     "jsdom": "^16.4.0",
     "mocha": "^8.2.1",
-    "nyc": "^15.0.1",
+    "nyc": "^15.1.0",
     "request": "^2.88.2",
-    "single-spa": "^5.8.2",
-    "sinon": "^9.0.2",
-    "ts-loader": "^7.0.1",
-    "ts-node": "^8.9.0",
-    "typescript": "^4.0.5",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11",
+    "single-spa": "^5.8.3",
+    "sinon": "^9.2.2",
+    "ts-loader": "^8.0.12",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3",
+    "webpack": "^5.11.0",
+    "webpack-cli": "^4.2.0",
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "npm-check-updates": "^4.1.2"
+    "npm-check-updates": "^10.2.5"
   }
 }

@@ -83,7 +83,7 @@ describe('Broker tests', function () {
         iframeDoc.write(iframe);
         expect(iframeDoc.querySelectorAll("#received").length > 0).to.be.true;
 
-        let msg = new Message( "booga");
+        let msg = new Message("booga");
         let iframeBroker = new Broker(contentWindow);
         let origBroker = new Broker();
         msg = applyMessageReceiver(contentWindow, msg, iframeBroker);
@@ -96,7 +96,7 @@ describe('Broker tests', function () {
             messageReceived = msg.message == "booga";
         });
 
-        msg = new Message( "booga2");
+        msg = new Message("booga2");
         iframeBroker.broadcast("channel2", msg, Direction.UP);
 
         async function analyzeDelayed() {
@@ -117,7 +117,7 @@ describe('Broker tests', function () {
         iframeDoc.write(iframe);
         expect(iframeDoc.querySelectorAll("#received").length > 0).to.be.true;
 
-        let msg = applyMessageReceiver(contentWindow, new Message( "booga"));
+        let msg = applyMessageReceiver(contentWindow, new Message("booga"));
         let broker = new Broker();
         contentWindow.passMessage(msg);
         broker.broadcast("channel", msg);
@@ -144,7 +144,7 @@ describe('Broker tests', function () {
         expect(messageReceived).to.be.true;
     });
 
-    it('bidirectional message', function() {
+    it('bidirectional message', function () {
         let broker = new Broker();
         let answerReceived = false;
         broker.registerListener("channel", (message: Message): void => {
@@ -160,7 +160,7 @@ describe('Broker tests', function () {
 
     });
 
-    it( 'bidirectional message with two brokers', function() {
+    it('bidirectional message with two brokers', function () {
         let broker = new Broker();
         let broker2 = new Broker();
         let answerReceived = false;
@@ -214,14 +214,13 @@ describe('Broker tests', function () {
         //closed not possible this seals the element off entirely, this is a no go
         //also a closed shadow root is not recommended, there are other ways of achieving partial
         //isolation
-        let shadowRoot:ShadowRoot =  (<any>document.getElementById('shadow1')).attachShadow({mode: 'closed'});
+        let shadowRoot: ShadowRoot = (<any>document.getElementById('shadow1')).attachShadow({mode: 'closed'});
         expect(shadowRoot != null).to.be.true;
         shadowRoot.innerHTML = "<div class='received'>false</div>";
 
         //we now attach the brokers
         let origBroker = new Broker(window, "orig");
         let shadowBroker = new Broker(shadowRoot, "shadow");
-
 
 
         let shadowBrokerReceived = 0;
@@ -248,6 +247,17 @@ describe('Broker tests', function () {
         //your shadow Root ... the shadow root is basically an internal isolation you can pass
         //That way, but you have to do it yourself by defining a broker in your component
 
+    });
+
+    it("subelements", function () {
+        let broker1 = new Broker();
+        let broker2 = new Broker(document.getElementById("id_1"));
+        let brokerReceived = 0;
+        broker2.registerListener(CHANNEL, (msg: Message) => {
+            brokerReceived++;
+        });
+        broker1.broadcast(CHANNEL, new Message("booga"));
+        expect(brokerReceived).to.eq(1);
     });
 
 

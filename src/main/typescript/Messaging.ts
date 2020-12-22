@@ -139,6 +139,9 @@ export class Broker {
         if ((<any>scopeElement).host) {
             let host = (<ShadowRoot>scopeElement).host;
             host.setAttribute("data-broker", "1");
+        } else {
+            if(scopeElement?.["setAttribute"])
+                (<any>scopeElement).setAttribute("data-broker", "1");
         }
 
         this.rootElem.addEventListener(Broker.EVENT_TYPE, this.msgHandler, {capture: true});
@@ -318,7 +321,7 @@ export class Broker {
         }
         this.processedMessages[message.identifier] = message.creationDate;
         let evt = this.transformToEvent(channel, message);
-        window.dispatchEvent(evt);
+
         /*we now notify all iframes lying underneath */
         document.querySelectorAll("iframe").forEach((element: HTMLIFrameElement) => {
             element.contentWindow.postMessage(new MessageWrapper(channel, message), message.targetOrigin);
