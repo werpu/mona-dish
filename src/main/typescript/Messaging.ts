@@ -301,7 +301,8 @@ export class Broker {
         this.processedMessages[message.identifier] = message.creationDate;
         if (window.parent != null) {
 
-            window.parent.postMessage(new MessageWrapper(channel, message), message.targetOrigin);
+            let messageWrapper = new MessageWrapper(channel, message);
+            window.parent.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
         }
         if (callBrokerListeners) {
             this.dispatchSameLevel(channel, message);
@@ -324,7 +325,8 @@ export class Broker {
 
         /*we now notify all iframes lying underneath */
         document.querySelectorAll("iframe").forEach((element: HTMLIFrameElement) => {
-            element.contentWindow.postMessage(new MessageWrapper(channel, message), message.targetOrigin);
+            let messageWrapper = new MessageWrapper(channel, message);
+            element.contentWindow.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
         });
 
         document.querySelectorAll("[data-broker='1']").forEach((element: HTMLElement) => element.dispatchEvent(evt))
