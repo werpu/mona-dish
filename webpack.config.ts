@@ -37,6 +37,7 @@ export default  (env, argv) => {
             extensions: [".tsx", ".ts", ".js", ".json"]
         },
         mode: "production",
+        target: "es5",
         module: {
             rules: [
                 // all files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'
