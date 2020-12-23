@@ -755,6 +755,8 @@ hook itself in like a shim)
 of part of the message.
 * setting the code baseline of the compiled code to es5
 * Messaging will be finalized in version 0.20.x
+* Minor compiler issues fixed in the typings area which could
+cause typescript warnings 
 
 
 
