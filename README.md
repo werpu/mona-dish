@@ -748,10 +748,16 @@ hook itself in like a shim)
 * Improved documentation
 * Domquery: Shadow Dom support 
 
-## Version 0.19.1
+## Version 0.19.1 - 0.19.9
 
+* ongoing works in the messaging area (not fully finalized)
 * minor api change, channel now parameter in broker.broadcast instead
 of part of the message.
+* setting the code baseline of the compiled code to es5
+* Messaging will be finalized in version 0.20.x
+
+
+
 
 
                    
