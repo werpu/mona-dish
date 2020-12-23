@@ -757,6 +757,8 @@ of part of the message.
 * Messaging will be finalized in version 0.20.x
 * Minor compiler issues fixed in the typings area which could
 cause typescript warnings 
+* Bidirectional messaging which allows answer/resoponse patterns
+
 
 
 
