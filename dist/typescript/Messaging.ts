@@ -324,12 +324,12 @@ export class Broker {
         let evt = this.transformToEvent(channel, message);
 
         /*we now notify all iframes lying underneath */
-        document.querySelectorAll("iframe").forEach((element: HTMLIFrameElement) => {
+        Array.prototype.slice.call(document.querySelectorAll("iframe")).forEach((element: HTMLIFrameElement) => {
             let messageWrapper = new MessageWrapper(channel, message);
             element.contentWindow.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
         });
 
-        document.querySelectorAll("[data-broker='1']").forEach((element: HTMLElement) => element.dispatchEvent(evt))
+        Array.prototype.slice.call(document.querySelectorAll("[data-broker='1']")).forEach((element: HTMLElement) => element.dispatchEvent(evt))
 
         if (callBrokerListeners) {
             this.dispatchSameLevel(channel, message);
@@ -355,7 +355,7 @@ export class Broker {
     }
 
     private createCustomEvent(name: string, wrapper: MessageWrapper): any {
-        if ('undefined' == typeof window.CustomEvent) {
+        if ('function' != typeof window.CustomEvent) {
             let e: any = document.createEvent('HTMLEvents');
             e.detail = wrapper.detail;
             e.channel = wrapper.channel;

@@ -1637,7 +1637,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
                 } else if (tagName && equalsIgnoreCase(tagName, "style") && equalsIgnoreCase(item.getAttribute("type"), "text/css")) {
                     let innerText = [];
                     //compliant browsers know child nodes
-                    let childNodes: NodeList = item.childNodes;
+                    let childNodes: Array<Node> = Array.prototype.slice.call(item.childNodes);
                     if (childNodes) {
                         childNodes.forEach(child => innerText.push((<Element>child).innerHTML || (<CharacterData>child).data));
                         //non compliant ones innerHTML
