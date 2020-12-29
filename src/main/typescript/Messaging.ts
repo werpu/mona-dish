@@ -154,8 +154,8 @@ export class Broker {
      * scoe
      */
     unregister() {
-        this.rootElem.removeListener(Broker.EVENT_TYPE, this.msgHandler)
-        this.rootElem.removeListener(this.MSG_EVENT, this.msgHandler)
+        this.rootElem.removeEventListener(Broker.EVENT_TYPE, this.msgHandler)
+        this.rootElem.removeEventListener(this.MSG_EVENT, this.msgHandler)
     }
 
     /**
