@@ -151,7 +151,7 @@ export class Broker {
 
     /**
      * manual unregister function, to unregister as broker from the current
-     * scoe
+     * scopnpe
      */
     unregister() {
         this.rootElem.removeEventListener(Broker.EVENT_TYPE, this.msgHandler)
