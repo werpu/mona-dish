@@ -1,6 +1,3 @@
-/**
- * Message direction
- */
 export declare enum Direction {
     UP = 0,
     DOWN = 1,
@@ -16,6 +13,90 @@ export declare class Message {
     targetOrigin?: string;
     constructor(message?: any, targetOrigin?: string);
 }
+declare abstract class BaseBroker {
+    static readonly EVENT_TYPE = "brokerEvent";
+    /**
+     * we can split the listeners with the system
+     * namespace... and type (aka identifier criteria)
+     */
+    protected messageListeners: any;
+    protected processedMessages: any;
+    protected cleanupCnt: number;
+    protected rootElem: any;
+    protected msgHandler: any;
+    protected readonly TIMEOUT_IN_MS = 1000;
+    protected readonly MSG_EVENT = "message";
+    abstract register(scopeElement?: any): any;
+    abstract unregister(): any;
+    abstract broadcast(channel: string, message: Message): any;
+    /**
+     * registers a listener on a channel
+     * @param channel the channel to register the listeners for
+     * @param listener the listener to register
+     */
+    registerListener(channel: string, listener: (msg: Message) => void): void;
+    /**
+     * reserves the listener namespace and wildcard namespace for the given identifier
+     * @param identifier
+     * @private
+     */
+    private reserveListenerNS;
+    /**
+     * unregisters a listener from this channel
+     *
+     * @param channel the channel to unregister from
+     * @param listener the listener to unregister the channel from
+     */
+    unregisterListener(channel: string, listener: (msg: Message) => void): void;
+    /**
+     * answers a bidirectional message received
+     * usage, the client can use this method, to answer an incoming message in a precise manner
+     * so that the caller sending the bidirectional message knows how to deal with it
+     * this mechanism can be used for global storages where we have one answering entity per channel delivering the
+     * requested data, the request can be done asynchronously via promises waiting for answers
+     *
+     * @param channel the channel the originating message
+     * @param request the requesting message
+     * @param answer the answer to the request
+     * @param direction the call direction
+     * @param callBrokerListeners same level?
+     */
+    answer(channel: string, request: Message, answer: Message): void;
+    /**
+     * idea... a bidirectional broadcast
+     * sends a message and waits for the first answer coming in from one of the recivers
+     * sending the message back with a messageIdentifier_broadCastId answer
+     *
+     * @param channel
+     * @param message
+     * @param direction
+     * @param callBrokerListeners
+     */
+    request(channel: string, message: Message): Promise<Message>;
+}
+/**
+ * a broker which hooks into the Broadcast Channel broker
+ * either via shim or substitute lib
+ */
+export declare class BroadcastChannelBroker extends BaseBroker {
+    private brokerFactory;
+    private channelGroup;
+    private openChannels;
+    private msgListener;
+    /**
+     * @param channelGroup unique group identifier shared by all channels
+     */
+    constructor(brokerFactory?: Function, channelGroup?: string);
+    broadcast(channel: string, message: Message, includeOrigin?: boolean): void;
+    private connectToChannel;
+    registerListener(channel: string, listener: (msg: Message) => void): void;
+    register(): void;
+    private getInternalChannelName;
+    unregister(): void;
+}
+/**
+ * implementation of a messaging based transport
+ */
 /**
  * central message broker which uses various dom constructs
  * to broadcast messages into subelements
@@ -56,20 +137,8 @@ export declare class Message {
  *
  *
  */
-export declare class Broker {
+export declare class Broker extends BaseBroker {
     name: string;
-    static readonly EVENT_TYPE = "brokerEvent";
-    /**
-     * we can split the listeners with the system
-     * namespace... and type (aka identifier criteria)
-     */
-    private messageListeners;
-    private processedMessages;
-    private cleanupCnt;
-    private rootElem;
-    private msgHandler;
-    private readonly TIMEOUT_IN_MS;
-    private readonly MSG_EVENT;
     /**
      * constructor has an optional root element
      * and an internal name
@@ -85,22 +154,9 @@ export declare class Broker {
     register(scopeElement: HTMLElement | Window | ShadowRoot): void;
     /**
      * manual unregister function, to unregister as broker from the current
-     * scoe
+     * scopnpe
      */
     unregister(): void;
-    /**
-     * registers a listener on a channel
-     * @param channel the channel to register the listeners for
-     * @param listener the listener to register
-     */
-    registerListener(channel: string, listener: (msg: Message) => void): void;
-    /**
-     * unregisters a listener from this channel
-     *
-     * @param channel the channel to unregister from
-     * @param listener the listener to unregister the channel from
-     */
-    unregisterListener(channel: string, listener: (msg: Message) => void): void;
     /**
      * broadcast a message
      * the message contains the channel and the data and some internal bookeeping data
@@ -112,38 +168,12 @@ export declare class Broker {
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(channel: string, message: Message, direction?: Direction, callSameLevel?: boolean): void;
-    /**
-     * idea... a bidirectional broadcast
-     * sends a message and waits for the first answer coming in from one of the recivers
-     * sending the message back with a messageIdentifier_broadCastId answer
-     *
-     * @param channel
-     * @param message
-     * @param direction
-     * @param callBrokerListeners
-     */
-    request(channel: string, message: Message, direction?: Direction, callBrokerListeners?: boolean): Promise<Message>;
-    /**
-     * answers a bidirectional message received
-     * usage, the client can use this method, to answer an incoming message in a precise manner
-     * so that the caller sending the bidirectional message knows how to deal with it
-     * this mechanism can be used for global storages where we have one answering entity per channel delivering the
-     * requested data, the request can be done asynchronously via promises waiting for answers
-     *
-     * @param channel the channel the originating message
-     * @param request the requesting message
-     * @param answer the answer to the request
-     * @param direction the call direction
-     * @param callBrokerListeners same level?
-     */
-    answer(channel: string, request: Message, answer: Message, direction?: Direction, callBrokerListeners?: boolean): void;
+    broadcast(channel: string, message: Message): void;
     /**
      * garbage collects the processed messages queue
      * usually after one second
      */
     private gcProcessedMessages;
-    private dispatchBoth;
     private dispatchUp;
     private dispatchSameLevel;
     private dispatchDown;
@@ -151,10 +181,5 @@ export declare class Broker {
     private transformToEvent;
     private createCustomEvent;
     private messageStillActive;
-    /**
-     * reserves the listener namespace and wildcard namespace for the given identifier
-     * @param identifier
-     * @private
-     */
-    private reserveListenerNS;
 }
+export {};
