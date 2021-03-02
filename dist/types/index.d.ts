@@ -6,4 +6,4 @@ export { XMLQuery, XQ } from "./XmlQuery";
 export { Stream, LazyStream, IteratableConsumer, IStream } from "./Stream";
 export { ArrayStreamDataSource, MappedStreamDataSource, FilteredStreamDatasource, FlatMapStreamDataSource, SequenceDataSource, QueryFormStringCollector, IStreamDataSource, ICollector, ArrayCollector, AssocArrayCollector, FormDataCollector, QueryFormDataCollector } from "./SourcesCollectors";
 export { TagBuilder } from "./TagBuilder";
-export { Message, Broker, Direction } from "./Messaging";
+export { Message, Broker, BroadcastChannelBroker, Direction } from "./Messaging";
