@@ -94,6 +94,38 @@ For receiving and sending data perform following operation
  //in case of a destruction of the layer referenced the deregistration happens automatically
 ```
 
+Request and answer:
+On top of the usual channel/listener api a request
+anser api has been provided
+
+````typescript
+        let broker = new BroadcastChannelBroker();
+        let broker2 = new BroadcastChannelBroker();
+        let answerReceived = false;
+        broker2.registerListener("channel", (message: Message): void => {
+            setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
+        })
+
+        return broker.request("channel", new Message("booga"))
+            .then((message2: Message) => {
+                answerReceived = message2.message === "answer of booga";
+                expect(answerReceived).to.be.true;
+                return true;
+            }).finally(() => {
+                broker.unregister();
+                broker2.unregister();
+            });
+````
+
+As we can see here, we have two brokers and a request is sent into the channel
+and an answer is sent back. The requesting broker
+then has a promise which waits until the first answer is received
+and processes it.
+Note this is happens on a first served base if multiple answers are sent.
+If you need to collect answer data from more than one
+answer sources, you have to use a standard channel listener mechanism.
+
+The request answer mechanism is seen as a simple way to query global data
 
 
 ### API
@@ -200,7 +232,44 @@ export declare class Broker {
      *
      */
     broadcast(channel: string, message: Message, direction?: Direction, callBrokerListeners?: boolean): void;
-}
 
+    /**
+     * idea... a bidirectional broadcast
+     * sends a message and waits for the first answer coming in from one of the recivers
+     * sending the message back with a messageIdentifier_broadCastId answer
+     *
+     * @param channel
+     * @param message
+     * @param direction
+     * @param callBrokerListeners
+     */
+    request(channel: string, message: Message): Promise<Message>;
+
+    /**
+     * answers a bidirectional message received
+     * usage, the client can use this method, to answer an incoming message in a precise manner
+     * so that the caller sending the bidirectional message knows how to deal with it
+     * this mechanism can be used for global storages where we have one answering entity per channel delivering the
+     * requested data, the request can be done asynchronously via promises waiting for answers
+     *
+     * @param channel the channel the originating message
+     * @param request the requesting message
+     * @param answer the answer to the request
+     * @param direction the call direction
+     * @param callBrokerListeners same level?
+     */
+    answer(channel: string, request: Message, answer: Message);
+    
 
 ```
+Note, the standard broker works over dom mechanisms.
+However a secondary broker has been provided which 
+allows the same over export class BroadcastChannel api.
+The BroadcastChannelBroker!
+
+This broker allows to use Broadcast channels (shim 
+or native, or even passed as argument)
+and uses this transport mechanism, and addes the extended
+message response on top.
+
+

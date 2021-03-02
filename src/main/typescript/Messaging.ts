@@ -1,6 +1,8 @@
 /**
  * Message direction
  */
+import Base = Mocha.reporters.Base;
+
 export enum Direction {
     UP, DOWN, ALL
 }
@@ -10,14 +12,14 @@ export enum Direction {
  */
 export class Message {
 
-    creationDate?:number;
-    identifier?:string;
-    targetOrigin?:string;
+    creationDate?: number;
+    identifier?: string;
+    targetOrigin?: string;
 
-    constructor( public message: any = {}, targetOrigin="*") {
+    constructor(public message: any = {}, targetOrigin = "*") {
         this.targetOrigin = targetOrigin;
         this.creationDate = new Date().getMilliseconds();
-        this.identifier = new Date().getMilliseconds()+"_"+ Math.random()+"_"+ Math.random();
+        this.identifier = new Date().getMilliseconds() + "_" + Math.random() + "_" + Math.random();
     }
 }
 
@@ -41,6 +43,237 @@ class MessageWrapper implements CustomEventInit<Message> {
         this.channel = channel;
     }
 }
+
+/**
+ * defines the dispatchdirection for the transport
+ */
+enum DispatchDirection {
+    UP, DOWN, BOUNDARY_UP, BOUNDARY_DOWN
+}
+
+/**
+ * Transport layer/driver
+ */
+interface ITransport {
+    /**
+     * dispatch message di
+     */
+    dispatch(channel: string, message: Message);
+
+    /**
+     * register the transport into the system
+     */
+    register(scope: any, name: string);
+
+    /**
+     * unregisters the transport into the system
+     */
+    unregister();
+
+}
+
+
+
+
+abstract class BaseBroker {
+
+    static readonly EVENT_TYPE = "brokerEvent";
+    /**
+     * we can split the listeners with the system
+     * namespace... and type (aka identifier criteria)
+     */
+    protected messageListeners: any = {};
+    protected processedMessages: any = {};
+    protected cleanupCnt = 0;
+    protected rootElem;
+    protected msgHandler;
+
+    protected readonly TIMEOUT_IN_MS = 1000;
+    protected readonly MSG_EVENT = "message";
+
+
+    abstract register(scopeElement?: any);
+    abstract unregister();
+    abstract broadcast(channel: string, message: Message);
+
+
+    /**
+     * registers a listener on a channel
+     * @param channel the channel to register the listeners for
+     * @param listener the listener to register
+     */
+    registerListener(channel: string, listener: (msg: Message) => void) {
+        this.reserveListenerNS(channel);
+
+        //we skip the processed messages, because they originated here
+        //and already are processed
+        this.messageListeners[channel].push((msg: Message) => {
+            if (msg.identifier in this.processedMessages) {
+                return;
+            }
+            listener(msg);
+        });
+    }
+
+    /**
+     * reserves the listener namespace and wildcard namespace for the given identifier
+     * @param identifier
+     * @private
+     */
+    private reserveListenerNS(identifier: string) {
+        if (!this.messageListeners[identifier]) {
+            this.messageListeners[identifier] = [];
+        }
+        if (!this.messageListeners["*"]) {
+            this.messageListeners["*"] = [];
+        }
+    }
+
+    /**
+     * unregisters a listener from this channel
+     *
+     * @param channel the channel to unregister from
+     * @param listener the listener to unregister the channel from
+     */
+    unregisterListener(channel: string, listener: (msg: Message) => void) {
+        this.messageListeners[channel] = (this.messageListeners[channel] || []).filter((item: any) => item !== listener);
+    }
+
+    /**
+     * answers a bidirectional message received
+     * usage, the client can use this method, to answer an incoming message in a precise manner
+     * so that the caller sending the bidirectional message knows how to deal with it
+     * this mechanism can be used for global storages where we have one answering entity per channel delivering the
+     * requested data, the request can be done asynchronously via promises waiting for answers
+     *
+     * @param channel the channel the originating message
+     * @param request the requesting message
+     * @param answer the answer to the request
+     * @param direction the call direction
+     * @param callBrokerListeners same level?
+     */
+    answer(channel: string, request: Message, answer: Message) {
+        if (request.identifier.indexOf("_r_") == 0) {
+            return;
+        }
+        answer.identifier = "_r_" + request.identifier;
+        this.broadcast(channel, answer);
+    }
+
+    /**
+     * idea... a bidirectional broadcast
+     * sends a message and waits for the first answer coming in from one of the recivers
+     * sending the message back with a messageIdentifier_broadCastId answer
+     *
+     * @param channel
+     * @param message
+     * @param direction
+     * @param callBrokerListeners
+     */
+    request(channel: string, message: Message): Promise<Message> {
+
+        let messageId = message.identifier;
+        let ret = new Promise<Message>((resolve, reject) => {
+            let timeout = null;
+            let listener = (message2: Message) => {
+                if (message2.identifier == "_r_" + messageId) {
+                    clearTimeout(timeout);
+                    this.unregisterListener(channel, listener);
+                    resolve(message2);
+                }
+            }
+            timeout = setTimeout(() => {
+                this.unregisterListener(channel, listener);
+                reject("no return value")
+            }, 3000);
+            this.registerListener(channel, listener);
+
+        });
+        setTimeout(() => this.broadcast(channel, message), 0);
+        return ret;
+    }
+}
+
+/**
+ * a broker which hooks into the Broadcast Channel broker
+ * either via shim or substitute lib
+ */
+export class BroadcastChannelBroker extends BaseBroker {
+    private openChannels: [{key: string}, BroadcastChannel] = <any> {};
+    private msgListener: Function;
+
+    /**
+     * @param channelGroup unique group identifier shared by all channels
+     */
+    constructor(private brokerFactory: Function = (name) => {
+        if(window?.BroadcastChannel) {
+           return new window.BroadcastChannel(name);
+        }
+        throw Error("No Broadcast channel in the system, use a shim or provide a factory functiono" +
+            "in the constructor");
+    }, private channelGroup = "brokr") {
+        super();
+        //this is the channel
+
+        this.msgListener =  (messageData: MessageWrapper) => {
+            let event = messageData.detail;
+
+            let channel: string = messageData.channel;
+
+            if(this.messageListeners?.[channel]) {
+                this.messageListeners?.[channel].forEach(listener => {
+                    listener(event);
+                })
+            }
+        }
+    }
+
+    broadcast(channel: string, message: Message, includeOrigin = true) {
+        let internalChannelName = this.getInternalChannelName(channel);
+        this.connectToChannel(internalChannelName);
+        let messageWrapper = new MessageWrapper(channel, message);
+        this.openChannels[internalChannelName].postMessage(messageWrapper);
+        if(includeOrigin) {
+            this.msgListener(messageWrapper);
+        }
+    }
+
+
+    private connectToChannel(internalChannelName: string) {
+        if (!this.openChannels?.[internalChannelName]) {
+            this.openChannels[internalChannelName] =  this.brokerFactory(this.channelGroup);
+            this.openChannels[internalChannelName].addEventListener("message", this.msgListener);
+        }
+    }
+
+    registerListener(channel: string, listener: (msg: Message) => void) {
+        let internalChannelName = this.getInternalChannelName(channel);
+        this.connectToChannel(internalChannelName);
+        super.registerListener(channel, listener);
+    }
+
+    register() {
+        let internalChannelName = this.getInternalChannelName("*");
+        this.openChannels[internalChannelName] = this.brokerFactory(this.channelGroup);
+        this.openChannels[internalChannelName].addEventListener("message", this.msgListener);
+    }
+
+    private getInternalChannelName(name: string) {
+        return this.channelGroup + name;
+    }
+
+    unregister() {
+        Object.keys(this.openChannels).forEach((key) => this.openChannels[key].close());
+        this.openChannels = <any> {};
+    }
+
+
+}
+
+
+/**
+ * implementation of a messaging based transport
+ */
 
 /**
  * central message broker which uses various dom constructs
@@ -82,21 +315,7 @@ class MessageWrapper implements CustomEventInit<Message> {
  *
  *
  */
-export class Broker {
-
-    static readonly EVENT_TYPE = "brokerEvent";
-    /**
-     * we can split the listeners with the system
-     * namespace... and type (aka identifier criteria)
-     */
-    private messageListeners: any = {};
-    private processedMessages: any = {};
-    private cleanupCnt = 0;
-    private rootElem;
-    private msgHandler;
-
-    private readonly TIMEOUT_IN_MS = 1000;
-    private readonly MSG_EVENT = "message";
+export class Broker extends BaseBroker{
 
     /**
      * constructor has an optional root element
@@ -107,13 +326,15 @@ export class Broker {
      */
     constructor(scopeElement: HTMLElement | Window | ShadowRoot = window, public name = "brokr") {
 
+        super();
+
         /**
          * message relay.. identifies message events and relays them to the listeners
          * @param event
          */
         let evtHandler = (event: MessageEvent | CustomEvent<Message>) => {
             let details = (<any>event)?.detail ?? (<MessageEvent>event)?.data?.detail;
-            let channel =  ((<any>event)?.data?.channel) ?? ((<any>event)?.channel);
+            let channel = ((<any>event)?.data?.channel) ?? ((<any>event)?.channel);
 
             //javascript loses the type info in certain module types
             if (details?.identifier && details?.message) {
@@ -123,7 +344,7 @@ export class Broker {
                 }
                 //coming in from up... we need to send it down
                 //a relayed message always has to trigger the listeners as well
-                this.broadcast(channel, msg, Direction.DOWN, false);
+                this.broadcast(channel, msg);
             }
         };
         this.msgHandler = (evt: MessageEvent) => evtHandler(evt);
@@ -140,7 +361,7 @@ export class Broker {
             let host = (<ShadowRoot>scopeElement).host;
             host.setAttribute("data-broker", "1");
         } else {
-            if(scopeElement?.["setAttribute"])
+            if (scopeElement?.["setAttribute"])
                 (<any>scopeElement).setAttribute("data-broker", "1");
         }
 
@@ -158,33 +379,9 @@ export class Broker {
         this.rootElem.removeEventListener(this.MSG_EVENT, this.msgHandler)
     }
 
-    /**
-     * registers a listener on a channel
-     * @param channel the channel to register the listeners for
-     * @param listener the listener to register
-     */
-    registerListener(channel: string, listener: (msg: Message) => void) {
-        this.reserveListenerNS(channel);
 
-        //we skip the processed messages, because they originated here
-        //and already are processed
-        this.messageListeners[channel].push((msg: Message) => {
-            if (msg.identifier in this.processedMessages) {
-                return;
-            }
-            listener(msg);
-        });
-    }
 
-    /**
-     * unregisters a listener from this channel
-     *
-     * @param channel the channel to unregister from
-     * @param listener the listener to unregister the channel from
-     */
-    unregisterListener(channel: string, listener: (msg: Message) => void) {
-        this.messageListeners[channel] = (this.messageListeners[channel] || []).filter((item: any) => item !== listener);
-    }
+
 
     /**
      * broadcast a message
@@ -197,77 +394,19 @@ export class Broker {
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(channel: string, message: Message, direction: Direction = Direction.ALL, callSameLevel = true) {
+    broadcast(channel: string, message: Message) {
         try {
-            switch (direction) {
-                case Direction.DOWN:
-                    this.dispatchDown(channel, message, false, callSameLevel);
-                    break;
-                case Direction.UP:
-                    this.dispatchUp(channel, message,false , callSameLevel)
-                    break;
-                case Direction.ALL:
-                    this.dispatchBoth(channel, message);
-                    break;
-            }
+            this.dispatchUp(channel, message, false, true);
+            //listeners already called
+            this.dispatchDown(channel, message, true, false)
         } finally {
             this.gcProcessedMessages();
         }
     }
 
-    /**
-     * idea... a bidirectional broadcast
-     * sends a message and waits for the first answer coming in from one of the recivers
-     * sending the message back with a messageIdentifier_broadCastId answer
-     *
-     * @param channel
-     * @param message
-     * @param direction
-     * @param callBrokerListeners
-     */
-    request(channel: string, message: Message, direction: Direction = Direction.ALL, callBrokerListeners = true): Promise<Message> {
 
-        let messageId = message.identifier;
-        let ret = new Promise<Message>((resolve, reject) => {
-            let timeout = null;
-            let listener = (message2: Message) => {
-                if(message2.identifier == "_r_"+messageId) {
-                    clearTimeout(timeout);
-                    this.unregisterListener(channel, listener);
-                    resolve(message2);
-                }
-            }
-            timeout = setTimeout(() => {
-                this.unregisterListener(channel, listener);
-                reject("no return value")
-            }, 3000);
-            this.registerListener(channel, listener);
 
-        });
-        setTimeout(() => this.broadcast(channel, message, direction, callBrokerListeners), 0);
-        return ret;
-    }
 
-    /**
-     * answers a bidirectional message received
-     * usage, the client can use this method, to answer an incoming message in a precise manner
-     * so that the caller sending the bidirectional message knows how to deal with it
-     * this mechanism can be used for global storages where we have one answering entity per channel delivering the
-     * requested data, the request can be done asynchronously via promises waiting for answers
-     *
-     * @param channel the channel the originating message
-     * @param request the requesting message
-     * @param answer the answer to the request
-     * @param direction the call direction
-     * @param callBrokerListeners same level?
-     */
-    answer(channel: string, request: Message, answer: Message, direction: Direction = Direction.ALL, callBrokerListeners = true) {
-        if(request.identifier.indexOf("_r_") == 0) {
-            return;
-        }
-        answer.identifier = "_r_"+request.identifier;
-        this.broadcast(channel, answer, direction, callBrokerListeners);
-    }
 
 
     /**
@@ -284,14 +423,6 @@ export class Broker {
             newProcessedMessages[key] = this.processedMessages[key];
         }
         this.processedMessages = newProcessedMessages;
-    }
-
-
-    private dispatchBoth(channel: string, message: Message) {
-
-        this.dispatchUp(channel, message, false, true);
-        //listeners already called
-        this.dispatchDown(channel, message, true, false)
     }
 
     private dispatchUp(channel: string, message: Message, ignoreListeners = true, callBrokerListeners = true) {
@@ -372,19 +503,5 @@ export class Broker {
 
     private messageStillActive(key: string): boolean {
         return this.processedMessages[key] > ((new Date()).getMilliseconds() - this.TIMEOUT_IN_MS);
-    }
-
-    /**
-     * reserves the listener namespace and wildcard namespace for the given identifier
-     * @param identifier
-     * @private
-     */
-    private reserveListenerNS(identifier: string) {
-        if (!this.messageListeners[identifier]) {
-            this.messageListeners[identifier] = [];
-        }
-        if (!this.messageListeners["*"]) {
-            this.messageListeners["*"] = [];
-        }
     }
 }

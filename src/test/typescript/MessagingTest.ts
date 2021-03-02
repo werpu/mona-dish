@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {Broker, Direction, Message} from "../../main/typescript/Messaging";
+import {BroadcastChannelBroker, Broker, Direction, Message} from "../../main/typescript/Messaging";
+import {BroadcastChannel} from "broadcast-channel";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -65,6 +66,8 @@ describe('Broker tests', function () {
             language: "en-En"
         };
 
+
+       (<any>window)["BroadcastChannel"] = BroadcastChannel;
         /*this.xhr = sinon.useFakeXMLHttpRequest();
         this.requests = [];
         this.xhr.onCreate = (xhr) => {
@@ -97,7 +100,7 @@ describe('Broker tests', function () {
         });
 
         msg = new Message("booga2");
-        iframeBroker.broadcast("channel2", msg, Direction.UP);
+        iframeBroker.broadcast("channel2", msg);
 
         async function analyzeDelayed() {
             await delay(1000);
@@ -140,7 +143,7 @@ describe('Broker tests', function () {
             messageReceived = message.message === "booga";
         })
 
-        broker.broadcast("channel", new Message("booga"), Direction.DOWN, false);
+        broker.broadcast("channel", new Message("booga"));
         expect(messageReceived).to.be.true;
     });
 
@@ -151,7 +154,7 @@ describe('Broker tests', function () {
             setTimeout(() => broker.answer("channel", message, new Message("answer of booga")), 0);
         })
 
-        return broker.request("channel", new Message("booga"), Direction.DOWN, false)
+        return broker.request("channel", new Message("booga"))
             .then((message2: Message) => {
                 answerReceived = message2.message === "answer of booga";
                 expect(answerReceived).to.be.true;
@@ -168,7 +171,7 @@ describe('Broker tests', function () {
             setTimeout(() => broker.answer("channel", message, new Message("answer of booga")), 0);
         })
 
-        return broker.request("channel", new Message("booga"), Direction.DOWN, true)
+        return broker.request("channel", new Message("booga"))
             .then((message2: Message) => {
                 answerReceived = message2.message === "answer of booga";
                 expect(answerReceived).to.be.true;
@@ -197,13 +200,13 @@ describe('Broker tests', function () {
             broker2CallCnt++;
         });
 
-        broker1.broadcast(CHANNEL, new Message("booga"), Direction.ALL, true);
+        broker1.broadcast(CHANNEL, new Message("booga"));
 
 
         expect(broker1CallCnt == 1).to.eq(true);
         expect(broker2CallCnt == 1).to.eq(true);
 
-        broker2.broadcast(CHANNEL, new Message("booga"), Direction.ALL, true);
+        broker2.broadcast(CHANNEL, new Message("booga"));
 
         expect(broker1CallCnt == 2).to.eq(true);
         expect(broker2CallCnt == 2).to.eq(true);
@@ -239,7 +242,7 @@ describe('Broker tests', function () {
         expect(brokerReceived).to.eq(1);
 
         //now from shadow dom into broker
-        shadowBroker.broadcast(CHANNEL, new Message("booga2"), Direction.UP);
+        shadowBroker.broadcast(CHANNEL, new Message("booga2"));
         expect(brokerReceived).to.eq(2);
 
         //not closed shadow dom works in a way, that you basically bind the broker as external
@@ -261,6 +264,108 @@ describe('Broker tests', function () {
     });
 
 
-    //TODO shadow dom...
+    it("must work with Broadcast channel", function (done) {
+        let broker1 = new BroadcastChannelBroker((group: string) => new BroadcastChannel(group));
+        let broker2 = new BroadcastChannelBroker((group: string) => new BroadcastChannel(group));
 
-});
+        let brokerReceived = 0;
+        new Promise((apply, reject) => {
+            broker2.registerListener(CHANNEL, (msg: Message) => {
+                brokerReceived++;
+                apply(brokerReceived);
+            })
+            broker1.broadcast(CHANNEL, new Message("booga"));
+        }).finally(() => {
+            broker1.unregister();
+            broker2.unregister();
+            expect(brokerReceived).to.eq(1);
+            done();
+        })
+    });
+
+
+    it('shadow dom handling with Broadcast channel', async function () {
+        //closed not possible this seals the element off entirely, this is a no go
+        //also a closed shadow root is not recommended, there are other ways of achieving partial
+        //isolation
+        let shadowRoot: ShadowRoot = (<any>document.getElementById('shadow1')).attachShadow({mode: 'closed'});
+        expect(shadowRoot != null).to.be.true;
+        shadowRoot.innerHTML = "<div class='received'>false</div>";
+
+        //we now attach the brokers
+
+        let origBroker = new BroadcastChannelBroker();
+        let shadowBroker = new BroadcastChannelBroker();
+
+
+        let shadowBrokerReceived = 0;
+
+        shadowBroker.registerListener(CHANNEL, (msg: Message) => {
+            shadowBrokerReceived++;
+        });
+
+
+        let brokerReceived = 0;
+
+        origBroker.registerListener(CHANNEL, (msg: Message) => {
+            brokerReceived++;
+        });
+
+
+        //from root broker into shadow dom
+        origBroker.broadcast(CHANNEL, new Message("booga"));
+
+        await delay(100);
+
+        expect(shadowBrokerReceived).to.be.eq(1);
+        expect(brokerReceived).to.eq(1);
+
+        //now from shadow dom into broker
+
+        shadowBroker.broadcast(CHANNEL, new Message("booga2"));
+        await delay(100);
+        expect(brokerReceived).to.eq(2);
+        origBroker.unregister();
+        shadowBroker.unregister();
+
+        //not closed shadow dom works in a way, that you basically bind the broker as external
+        //to the external element and then use the message handler to pass the data back into
+        //your shadow Root ... the shadow root is basically an internal isolation you can pass
+        //That way, but you have to do it yourself by defining a broker in your component
+
+    });
+
+
+    it('basic message with broadcast', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        broker.registerListener("channel", (message: Message): void => {
+            messageReceived = message.message === "booga";
+        })
+
+        broker.broadcast("channel", new Message("booga"));
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+
+
+    it('bidirectional message with Broadcast Channel', async function () {
+        let broker = new BroadcastChannelBroker();
+        let broker2 = new BroadcastChannelBroker();
+        let answerReceived = false;
+        broker2.registerListener("channel", (message: Message): void => {
+            setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
+        })
+
+        return broker.request("channel", new Message("booga"))
+            .then((message2: Message) => {
+                answerReceived = message2.message === "answer of booga";
+                expect(answerReceived).to.be.true;
+                return true;
+            }).finally(() => {
+                broker.unregister();
+                broker2.unregister();
+            });
+    });
+})
