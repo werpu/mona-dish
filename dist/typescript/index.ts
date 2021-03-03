@@ -22,6 +22,6 @@ export {
 
 export {TagBuilder} from "./TagBuilder";
 
-export {Message, Broker, BroadcastChannelBroker, Direction} from "./Messaging";
+export {Message, Broker, BroadcastChannelBroker} from "./Messaging";
 
 

@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {BroadcastChannelBroker, Broker, Direction, Message} from "../../main/typescript/Messaging";
+import {BroadcastChannelBroker, Broker, Message} from "../../main/typescript/Messaging";
 import {BroadcastChannel} from "broadcast-channel";
 
 const jsdom = require("jsdom");

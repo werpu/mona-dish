@@ -1,8 +1,3 @@
-export declare enum Direction {
-    UP = 0,
-    DOWN = 1,
-    ALL = 2
-}
 /**
  * a standardized message to be sent over the message bus
  */
@@ -58,21 +53,26 @@ declare abstract class BaseBroker {
      * @param channel the channel the originating message
      * @param request the requesting message
      * @param answer the answer to the request
-     * @param direction the call direction
-     * @param callBrokerListeners same level?
      */
     answer(channel: string, request: Message, answer: Message): void;
+    private static getAnswerId;
+    private static isAnswer;
     /**
      * idea... a bidirectional broadcast
-     * sends a message and waits for the first answer coming in from one of the recivers
+     * sends a message and waits for the first answer coming in from one of the receivers
      * sending the message back with a messageIdentifier_broadCastId answer
      *
      * @param channel
      * @param message
-     * @param direction
-     * @param callBrokerListeners
      */
     request(channel: string, message: Message): Promise<Message>;
+    /**
+     * garbage collects the processed messages queue
+     * usually after one second
+     */
+    protected gcProcessedMessages(): void;
+    private messageStillActive;
+    protected markMessageAsProcessed(message: Message): void;
 }
 /**
  * a broker which hooks into the Broadcast Channel broker
@@ -82,9 +82,10 @@ export declare class BroadcastChannelBroker extends BaseBroker {
     private brokerFactory;
     private channelGroup;
     private openChannels;
-    private msgListener;
+    private readonly msgListener;
     /**
-     * @param channelGroup unique group identifier shared by all channels
+     * @param brokerFactory a factory generating a broker
+     * @param channelGroup a group to combine a set of channels
      */
     constructor(brokerFactory?: Function, channelGroup?: string);
     broadcast(channel: string, message: Message, includeOrigin?: boolean): void;
@@ -101,14 +102,14 @@ export declare class BroadcastChannelBroker extends BaseBroker {
  * central message broker which uses various dom constructs
  * to broadcast messages into subelements
  *
- * we use the dom event system as transport and encapsule iframe and shadow dom mechanisms in a transparent way to
+ * we use the dom event system as transport and iframe and shadow dom mechanisms in a transparent way to
  * pull this off
  *
  * usage
  *
  * broker = new Broker(optional rootElement)
  *
- * defines a message broker within a scope of rootElment (without it is window aka the current isolation level)
+ * defines a message broker within a scope of rootElement (without it is window aka the current isolation level)
  *
  * broker.registerListener(channel, listener) registers a new listener to the current broker and channel
  * broker.unregisterListener(channel, listener) unregisters the given listener
@@ -119,7 +120,7 @@ export declare class BroadcastChannelBroker extends BaseBroker {
  *
  * the flow is like
  * up messages are propagated upwards only until it reaches the outer top of the dom
- * downards, the messages are propagaed downwards only
+ * downwards, the messages are propagated downwards only
  * both the message is propagated into both directions
  *
  * Usually messages sent from the same broker are not processed within... however by setting
@@ -154,32 +155,24 @@ export declare class Broker extends BaseBroker {
     register(scopeElement: HTMLElement | Window | ShadowRoot): void;
     /**
      * manual unregister function, to unregister as broker from the current
-     * scopnpe
+     * scope
      */
     unregister(): void;
     /**
      * broadcast a message
-     * the message contains the channel and the data and some internal bookeeping data
+     * the message contains the channel and the data and some internal bookkeeping data
      *
      * @param channel the channel to broadcast to
      * @param message the message dot send
-     * @param direction the direction (up, down, both)
-     * @param callSameLevel if set to true.. the brokers on the same level are also notified
      * (for instance 2 iframes within the same parent broker)
      *
      */
     broadcast(channel: string, message: Message): void;
-    /**
-     * garbage collects the processed messages queue
-     * usually after one second
-     */
-    private gcProcessedMessages;
     private dispatchUp;
-    private dispatchSameLevel;
+    private static dispatchSameLevel;
     private dispatchDown;
     private msgCallListeners;
-    private transformToEvent;
-    private createCustomEvent;
-    private messageStillActive;
+    private static transformToEvent;
+    private static createCustomEvent;
 }
 export {};

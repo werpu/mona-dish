@@ -1,13 +1,4 @@
 /**
- * Message direction
- */
-import Base = Mocha.reporters.Base;
-
-export enum Direction {
-    UP, DOWN, ALL
-}
-
-/**
  * a standardized message to be sent over the message bus
  */
 export class Message {
@@ -44,36 +35,6 @@ class MessageWrapper implements CustomEventInit<Message> {
     }
 }
 
-/**
- * defines the dispatchdirection for the transport
- */
-enum DispatchDirection {
-    UP, DOWN, BOUNDARY_UP, BOUNDARY_DOWN
-}
-
-/**
- * Transport layer/driver
- */
-interface ITransport {
-    /**
-     * dispatch message di
-     */
-    dispatch(channel: string, message: Message);
-
-    /**
-     * register the transport into the system
-     */
-    register(scope: any, name: string);
-
-    /**
-     * unregisters the transport into the system
-     */
-    unregister();
-
-}
-
-
-
 
 abstract class BaseBroker {
 
@@ -93,7 +54,9 @@ abstract class BaseBroker {
 
 
     abstract register(scopeElement?: any);
+
     abstract unregister();
+
     abstract broadcast(channel: string, message: Message);
 
 
@@ -149,33 +112,44 @@ abstract class BaseBroker {
      * @param channel the channel the originating message
      * @param request the requesting message
      * @param answer the answer to the request
-     * @param direction the call direction
-     * @param callBrokerListeners same level?
      */
     answer(channel: string, request: Message, answer: Message) {
-        if (request.identifier.indexOf("_r_") == 0) {
+        if (BaseBroker.isAnswer(request)) {
             return;
         }
-        answer.identifier = "_r_" + request.identifier;
+        answer.identifier = BaseBroker.getAnswerId(request);
         this.broadcast(channel, answer);
+    }
+
+    private static getAnswerId(request: Message) {
+        return "_r_" + request.identifier;
+    }
+
+    private static isAnswer(request: Message) {
+        return request.identifier.indexOf("_r_") == 0;
     }
 
     /**
      * idea... a bidirectional broadcast
-     * sends a message and waits for the first answer coming in from one of the recivers
+     * sends a message and waits for the first answer coming in from one of the receivers
      * sending the message back with a messageIdentifier_broadCastId answer
      *
      * @param channel
      * @param message
-     * @param direction
-     * @param callBrokerListeners
      */
     request(channel: string, message: Message): Promise<Message> {
 
         let messageId = message.identifier;
+
         let ret = new Promise<Message>((resolve, reject) => {
             let timeout = null;
             let listener = (message2: Message) => {
+                if (message2.identifier == messageId) {
+                    //broadcast from same source, we do not want
+                    //to deal with it now
+                    return;
+                }
+
                 if (message2.identifier == "_r_" + messageId) {
                     clearTimeout(timeout);
                     this.unregisterListener(channel, listener);
@@ -189,8 +163,33 @@ abstract class BaseBroker {
             this.registerListener(channel, listener);
 
         });
-        setTimeout(() => this.broadcast(channel, message), 0);
+        this.broadcast(channel, message);
         return ret;
+    }
+
+
+    /**
+     * garbage collects the processed messages queue
+     * usually after one second
+     */
+    protected gcProcessedMessages() {
+        if ((++this.cleanupCnt) % 10 != 0) {
+            return;
+        }
+        let newProcessedMessages: any = {};
+        Object.keys(this.processedMessages).forEach(key => {
+            if (this.messageStillActive(key)) return;
+            newProcessedMessages[key] = this.processedMessages[key];
+        });
+        this.processedMessages = newProcessedMessages;
+    }
+
+    private messageStillActive(key: string): boolean {
+        return this.processedMessages[key] > ((new Date()).getMilliseconds() - this.TIMEOUT_IN_MS);
+    }
+
+    protected markMessageAsProcessed(message: Message) {
+        this.processedMessages[message.identifier] = message.creationDate;
     }
 }
 
@@ -199,49 +198,54 @@ abstract class BaseBroker {
  * either via shim or substitute lib
  */
 export class BroadcastChannelBroker extends BaseBroker {
-    private openChannels: [{key: string}, BroadcastChannel] = <any> {};
-    private msgListener: Function;
+    private openChannels: [{ key: string }, BroadcastChannel] = <any>{};
+    private readonly msgListener: Function;
 
     /**
-     * @param channelGroup unique group identifier shared by all channels
+     * @param brokerFactory a factory generating a broker
+     * @param channelGroup a group to combine a set of channels
      */
     constructor(private brokerFactory: Function = (name) => {
-        if(window?.BroadcastChannel) {
-           return new window.BroadcastChannel(name);
+        if (window?.BroadcastChannel) {
+            return new window.BroadcastChannel(name);
         }
-        throw Error("No Broadcast channel in the system, use a shim or provide a factory functiono" +
+        throw Error("No Broadcast channel in the system, use a shim or provide a factory function" +
             "in the constructor");
     }, private channelGroup = "brokr") {
         super();
         //this is the channel
 
-        this.msgListener =  (messageData: MessageWrapper) => {
-            let event = messageData.detail;
-
+        this.msgListener = (messageData: MessageWrapper) => {
+            let coreMessage = messageData.detail;
             let channel: string = messageData.channel;
 
-            if(this.messageListeners?.[channel]) {
+            if (this.messageListeners?.[channel]) {
                 this.messageListeners?.[channel].forEach(listener => {
-                    listener(event);
+                    listener(coreMessage);
                 })
             }
+            this.markMessageAsProcessed(coreMessage);
         }
     }
 
     broadcast(channel: string, message: Message, includeOrigin = true) {
-        let internalChannelName = this.getInternalChannelName(channel);
-        this.connectToChannel(internalChannelName);
-        let messageWrapper = new MessageWrapper(channel, message);
-        this.openChannels[internalChannelName].postMessage(messageWrapper);
-        if(includeOrigin) {
-            this.msgListener(messageWrapper);
+        try {
+            let internalChannelName = this.getInternalChannelName(channel);
+            this.connectToChannel(internalChannelName);
+            let messageWrapper = new MessageWrapper(channel, message);
+            this.openChannels[internalChannelName].postMessage(messageWrapper);
+            if (includeOrigin) {
+                this.msgListener(messageWrapper);
+            }
+        } finally {
+            this.gcProcessedMessages();
         }
     }
 
 
     private connectToChannel(internalChannelName: string) {
         if (!this.openChannels?.[internalChannelName]) {
-            this.openChannels[internalChannelName] =  this.brokerFactory(this.channelGroup);
+            this.openChannels[internalChannelName] = this.brokerFactory(this.channelGroup);
             this.openChannels[internalChannelName].addEventListener("message", this.msgListener);
         }
     }
@@ -264,7 +268,7 @@ export class BroadcastChannelBroker extends BaseBroker {
 
     unregister() {
         Object.keys(this.openChannels).forEach((key) => this.openChannels[key].close());
-        this.openChannels = <any> {};
+        this.openChannels = <any>{};
     }
 
 
@@ -279,14 +283,14 @@ export class BroadcastChannelBroker extends BaseBroker {
  * central message broker which uses various dom constructs
  * to broadcast messages into subelements
  *
- * we use the dom event system as transport and encapsule iframe and shadow dom mechanisms in a transparent way to
+ * we use the dom event system as transport and iframe and shadow dom mechanisms in a transparent way to
  * pull this off
  *
  * usage
  *
  * broker = new Broker(optional rootElement)
  *
- * defines a message broker within a scope of rootElment (without it is window aka the current isolation level)
+ * defines a message broker within a scope of rootElement (without it is window aka the current isolation level)
  *
  * broker.registerListener(channel, listener) registers a new listener to the current broker and channel
  * broker.unregisterListener(channel, listener) unregisters the given listener
@@ -297,7 +301,7 @@ export class BroadcastChannelBroker extends BaseBroker {
  *
  * the flow is like
  * up messages are propagated upwards only until it reaches the outer top of the dom
- * downards, the messages are propagaed downwards only
+ * downwards, the messages are propagated downwards only
  * both the message is propagated into both directions
  *
  * Usually messages sent from the same broker are not processed within... however by setting
@@ -315,7 +319,7 @@ export class BroadcastChannelBroker extends BaseBroker {
  *
  *
  */
-export class Broker extends BaseBroker{
+export class Broker extends BaseBroker {
 
     /**
      * constructor has an optional root element
@@ -372,7 +376,7 @@ export class Broker extends BaseBroker{
 
     /**
      * manual unregister function, to unregister as broker from the current
-     * scopnpe
+     * scope
      */
     unregister() {
         this.rootElem.removeEventListener(Broker.EVENT_TYPE, this.msgHandler)
@@ -380,17 +384,12 @@ export class Broker extends BaseBroker{
     }
 
 
-
-
-
     /**
      * broadcast a message
-     * the message contains the channel and the data and some internal bookeeping data
+     * the message contains the channel and the data and some internal bookkeeping data
      *
      * @param channel the channel to broadcast to
      * @param message the message dot send
-     * @param direction the direction (up, down, both)
-     * @param callSameLevel if set to true.. the brokers on the same level are also notified
      * (for instance 2 iframes within the same parent broker)
      *
      */
@@ -404,44 +403,23 @@ export class Broker extends BaseBroker{
         }
     }
 
-
-
-
-
-
-    /**
-     * garbage collects the processed messages queue
-     * usually after one second
-     */
-    private gcProcessedMessages() {
-        if ((++this.cleanupCnt) % 10 != 0) {
-            return;
-        }
-        let newProcessedMessages: any = {};
-        for (let key in this.processedMessages) {
-            if (this.messageStillActive(key)) continue;
-            newProcessedMessages[key] = this.processedMessages[key];
-        }
-        this.processedMessages = newProcessedMessages;
-    }
-
     private dispatchUp(channel: string, message: Message, ignoreListeners = true, callBrokerListeners = true) {
         if (!ignoreListeners) {
             this.msgCallListeners(channel, message);
         }
-        this.processedMessages[message.identifier] = message.creationDate;
+        this.markMessageAsProcessed(message);
         if (window.parent != null) {
 
             let messageWrapper = new MessageWrapper(channel, message);
             window.parent.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
         }
         if (callBrokerListeners) {
-            this.dispatchSameLevel(channel, message);
+            Broker.dispatchSameLevel(channel, message);
         }
     }
 
-    private dispatchSameLevel(channel: string, message: Message) {
-        let event = this.transformToEvent(channel, message, true);
+    private static dispatchSameLevel(channel: string, message: Message) {
+        let event = Broker.transformToEvent(channel, message, true);
         //we also dispatch sideways
         window.dispatchEvent(event);
     }
@@ -452,7 +430,7 @@ export class Broker extends BaseBroker{
             this.msgCallListeners(channel, message);
         }
         this.processedMessages[message.identifier] = message.creationDate;
-        let evt = this.transformToEvent(channel, message);
+        let evt = Broker.transformToEvent(channel, message);
 
         /*we now notify all iframes lying underneath */
         Array.prototype.slice.call(document.querySelectorAll("iframe")).forEach((element: HTMLIFrameElement) => {
@@ -463,7 +441,7 @@ export class Broker extends BaseBroker{
         Array.prototype.slice.call(document.querySelectorAll("[data-broker='1']")).forEach((element: HTMLElement) => element.dispatchEvent(evt))
 
         if (callBrokerListeners) {
-            this.dispatchSameLevel(channel, message);
+            Broker.dispatchSameLevel(channel, message);
         }
     }
 
@@ -479,13 +457,13 @@ export class Broker extends BaseBroker{
         }
     }
 
-    private transformToEvent(channel: string, message: Message, bubbles = false): CustomEvent {
+    private static transformToEvent(channel: string, message: Message, bubbles = false): CustomEvent {
         let messageWrapper = new MessageWrapper(channel, message);
         messageWrapper.bubbles = bubbles;
-        return this.createCustomEvent(Broker.EVENT_TYPE, messageWrapper);
+        return Broker.createCustomEvent(Broker.EVENT_TYPE, messageWrapper);
     }
 
-    private createCustomEvent(name: string, wrapper: MessageWrapper): any {
+    private static createCustomEvent(name: string, wrapper: MessageWrapper): any {
         if ('function' != typeof window.CustomEvent) {
             let e: any = document.createEvent('HTMLEvents');
             e.detail = wrapper.detail;
@@ -499,9 +477,5 @@ export class Broker extends BaseBroker{
             return customEvent;
         }
 
-    }
-
-    private messageStillActive(key: string): boolean {
-        return this.processedMessages[key] > ((new Date()).getMilliseconds() - this.TIMEOUT_IN_MS);
     }
 }
