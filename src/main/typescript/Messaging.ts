@@ -147,7 +147,13 @@ abstract class BaseBroker {
                 if (message2.identifier == messageId) {
                     //broadcast from same source, we do not want
                     //to deal with it now
-                    return;
+                    return new Promise(() => {
+                        if (message2.identifier == "_r_" + messageId) {
+                            clearTimeout(timeout);
+                            this.unregisterListener(channel, listener);
+                            resolve(message2);
+                        }
+                    });
                 }
 
                 if (message2.identifier == "_r_" + messageId) {
