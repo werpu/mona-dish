@@ -147,13 +147,7 @@ abstract class BaseBroker {
                 if (message2.identifier == messageId) {
                     //broadcast from same source, we do not want
                     //to deal with it now
-                    return new Promise(() => {
-                        if (message2.identifier == "_r_" + messageId) {
-                            clearTimeout(timeout);
-                            this.unregisterListener(channel, listener);
-                            resolve(message2);
-                        }
-                    });
+                    return;
                 }
 
                 if (message2.identifier == "_r_" + messageId) {
@@ -164,7 +158,7 @@ abstract class BaseBroker {
             }
             timeout = setTimeout(() => {
                 this.unregisterListener(channel, listener);
-                reject("no return value")
+                reject("request message performed, timeout, no return value");
             }, 3000);
             this.registerListener(channel, listener);
 
