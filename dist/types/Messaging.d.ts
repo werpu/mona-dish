@@ -23,7 +23,7 @@ declare abstract class BaseBroker {
     protected readonly MSG_EVENT = "message";
     abstract register(scopeElement?: any): any;
     abstract unregister(): any;
-    abstract broadcast(channel: string, message: Message): any;
+    abstract broadcast(channel: string, message: Message | string): any;
     /**
      * registers a listener on a channel
      * @param channel the channel to register the listeners for
@@ -54,7 +54,7 @@ declare abstract class BaseBroker {
      * @param request the requesting message
      * @param answer the answer to the request
      */
-    answer(channel: string, request: Message, answer: Message): void;
+    answer(channel: string, request: Message | string, answer: Message): void;
     private static getAnswerId;
     private static isAnswer;
     /**
@@ -65,7 +65,7 @@ declare abstract class BaseBroker {
      * @param channel
      * @param message
      */
-    request(channel: string, message: Message): Promise<Message>;
+    request(channel: string, message: Message | string): Promise<Message>;
     /**
      * garbage collects the processed messages queue
      * usually after one second
@@ -88,7 +88,7 @@ export declare class BroadcastChannelBroker extends BaseBroker {
      * @param channelGroup a group to combine a set of channels
      */
     constructor(brokerFactory?: Function, channelGroup?: string);
-    broadcast(channel: string, message: Message, includeOrigin?: boolean): void;
+    broadcast(channel: string, message: Message | string, includeOrigin?: boolean): void;
     registerListener(channel: string, listener: (msg: Message) => void): void;
     register(): void;
     unregister(): void;
@@ -165,7 +165,7 @@ export declare class Broker extends BaseBroker {
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(channel: string, message: Message): void;
+    broadcast(channel: string, message: Message | string): void;
     private dispatchUp;
     private static dispatchSameLevel;
     private dispatchDown;
