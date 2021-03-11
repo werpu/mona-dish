@@ -213,6 +213,33 @@ describe('Broker tests', function () {
 
     });
 
+    it('dual brokers in different systems sequence calls', function () {
+
+        let broker1 = new Broker();
+        let broker2 = new Broker();
+
+
+        let broker1CallCnt = 0;
+        let broker2CallCnt = 0;
+
+
+        broker1.registerListener(CHANNEL, (message: Message) => {
+            broker1CallCnt++;
+        });
+        broker2.registerListener(CHANNEL, (message: Message) => {
+            broker2CallCnt++;
+        });
+
+        broker1.broadcast(CHANNEL, new Message("booga"));
+        broker1.broadcast(CHANNEL, new Message("booga"));
+        broker1.broadcast(CHANNEL, new Message("booga"));
+
+
+        expect(broker2CallCnt == 3).to.eq(true);
+        expect(broker1CallCnt == 3).to.eq(true);
+
+    });
+
     it('shadow dom handling', function () {
         //closed not possible this seals the element off entirely, this is a no go
         //also a closed shadow root is not recommended, there are other ways of achieving partial

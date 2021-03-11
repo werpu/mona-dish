@@ -161,7 +161,6 @@ abstract class BaseBroker {
                 reject("request message performed, timeout, no return value");
             }, 3000);
             this.registerListener(channel, listener);
-
         });
         this.broadcast(channel, message);
         return ret;
