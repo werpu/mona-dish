@@ -408,6 +408,18 @@ describe('Broker tests', function () {
         broker.unregister();
     });
 
+    it('basic message with broadcast ans string', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        broker.registerListener("channel", (message: Message): void => {
+            messageReceived = message.message === "booga";
+        })
+
+        broker.broadcast("channel", "booga");
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
 
     it('bidirectional message with Broadcast Channel', async function () {
         let broker = new BroadcastChannelBroker();

@@ -57,7 +57,7 @@ abstract class BaseBroker {
 
     abstract unregister();
 
-    abstract broadcast(channel: string, message: Message);
+    abstract broadcast(channel: string, message: Message | string);
 
 
     /**
@@ -113,7 +113,11 @@ abstract class BaseBroker {
      * @param request the requesting message
      * @param answer the answer to the request
      */
-    answer(channel: string, request: Message, answer: Message) {
+    answer(channel: string, request: Message |string, answer: Message) {
+        if('string' == typeof request) {
+            request = new Message(request);
+        }
+
         if (BaseBroker.isAnswer(request)) {
             return;
         }
@@ -137,8 +141,10 @@ abstract class BaseBroker {
      * @param channel
      * @param message
      */
-    request(channel: string, message: Message): Promise<Message> {
-
+    request(channel: string, message: Message | string): Promise<Message> {
+        if('string' == typeof message) {
+            message = new Message(message);
+        }
         let messageId = message.identifier;
 
         let ret = new Promise<Message>((resolve, reject) => {
@@ -228,8 +234,11 @@ export class BroadcastChannelBroker extends BaseBroker {
         this.register();
     }
 
-    broadcast(channel: string, message: Message, includeOrigin = true) {
+    broadcast(channel: string, message: Message | string, includeOrigin = true) {
         try {
+            if('string' == typeof message) {
+                message = new Message(message);
+            }
             let messageWrapper = new MessageWrapper(channel, message);
             this.openChannels[this.channelGroup].postMessage(messageWrapper);
             if (includeOrigin) {
@@ -377,7 +386,10 @@ export class Broker extends BaseBroker {
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(channel: string, message: Message) {
+    broadcast(channel: string, message: Message | string) {
+        if('string' == typeof message) {
+            message = new Message(message);
+        }
         try {
             this.dispatchUp(channel, message, false, true);
             //listeners already called
