@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {BroadcastChannelBroker, Broker, Message} from "../../main/typescript/Messaging";
-import {BroadcastChannel} from "broadcast-channel";
+import { BroadcastChannel as BC, enforceOptions } from 'broadcast-channel';
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -67,7 +67,7 @@ describe('Broker tests', function () {
         };
 
 
-       (<any>window)["BroadcastChannel"] = BroadcastChannel;
+       (<any>window)["BroadcastChannel"] = BC;
         /*this.xhr = sinon.useFakeXMLHttpRequest();
         this.requests = [];
         this.xhr.onCreate = (xhr) => {
@@ -75,6 +75,10 @@ describe('Broker tests', function () {
         };
         (<any>global).XMLHttpRequest = this.xhr;
         (<any>window).XMLHttpRequest = this.xhr;*/
+        // enforce this config for all channels
+        enforceOptions({
+            type: 'simulate'
+        });
 
     });
 
@@ -215,9 +219,22 @@ describe('Broker tests', function () {
 
     it('dual brokers in different systems sequence calls', function () {
 
-        let broker1 = new Broker();
-        let broker2 = new Broker();
+        let chn1 = new BC("ddd");
+        let chn2 = new BC("ddd");
 
+        let chn1CallCnt = 0;
+        let chn2CallCnt = 0;
+
+        chn1.addEventListener("message", (message) => {
+            console.log(message);
+            chn1CallCnt++;
+        });
+        chn2.addEventListener("message", () => chn2CallCnt++);
+
+        let broker1 = new BroadcastChannelBroker();
+        let broker2 = new BroadcastChannelBroker();
+
+        console.log("channels created");
 
         let broker1CallCnt = 0;
         let broker2CallCnt = 0;
@@ -230,13 +247,28 @@ describe('Broker tests', function () {
             broker2CallCnt++;
         });
 
-        broker1.broadcast(CHANNEL, new Message("booga"));
-        broker1.broadcast(CHANNEL, new Message("booga"));
-        broker1.broadcast(CHANNEL, new Message("booga"));
 
 
-        expect(broker2CallCnt == 3).to.eq(true);
-        expect(broker1CallCnt == 3).to.eq(true);
+        return  (async () => {
+            await broker1.broadcast(CHANNEL, new Message("booga"));
+            await broker1.broadcast(CHANNEL, new Message("booga"));
+            await broker1.broadcast(CHANNEL, new Message("booga"));
+            await chn1.postMessage({
+                foo: 'bar'
+            });
+            await chn1.postMessage({
+                foo: 'bar'
+            });
+            await delay(200);
+            expect(chn1CallCnt == 0).to.be.true;
+            expect(chn2CallCnt == 2).to.be.true;
+
+            expect(broker1CallCnt == 3).to.eq(true);
+            expect(broker2CallCnt == 3).to.eq(true);
+            broker1.unregister();
+            broker2.unregister();
+
+        })();
 
     });
 
@@ -292,8 +324,8 @@ describe('Broker tests', function () {
 
 
     it("must work with Broadcast channel", function (done) {
-        let broker1 = new BroadcastChannelBroker((group: string) => new BroadcastChannel(group));
-        let broker2 = new BroadcastChannelBroker((group: string) => new BroadcastChannel(group));
+        let broker1 = new BroadcastChannelBroker((group: string) => new BC(group));
+        let broker2 = new BroadcastChannelBroker((group: string) => new BC(group));
 
         let brokerReceived = 0;
         new Promise((apply, reject) => {

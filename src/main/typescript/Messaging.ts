@@ -199,7 +199,7 @@ abstract class BaseBroker {
  */
 export class BroadcastChannelBroker extends BaseBroker {
     private openChannels: [{ key: string }, BroadcastChannel] = <any>{};
-    private readonly msgListener: Function;
+    private msgListener: Function;
 
     /**
      * @param brokerFactory a factory generating a broker
@@ -213,8 +213,6 @@ export class BroadcastChannelBroker extends BaseBroker {
             "in the constructor");
     }, private channelGroup = "brokr") {
         super();
-        //this is the channel
-
         this.msgListener = (messageData: MessageWrapper) => {
             let coreMessage = messageData.detail;
             let channel: string = messageData.channel;
@@ -225,15 +223,15 @@ export class BroadcastChannelBroker extends BaseBroker {
                 })
             }
             this.markMessageAsProcessed(coreMessage);
+            return true;
         }
+        this.register();
     }
 
     broadcast(channel: string, message: Message, includeOrigin = true) {
         try {
-            let internalChannelName = this.getInternalChannelName(channel);
-            this.connectToChannel(internalChannelName);
             let messageWrapper = new MessageWrapper(channel, message);
-            this.openChannels[internalChannelName].postMessage(messageWrapper);
+            this.openChannels[this.channelGroup].postMessage(messageWrapper);
             if (includeOrigin) {
                 this.msgListener(messageWrapper);
             }
@@ -243,35 +241,21 @@ export class BroadcastChannelBroker extends BaseBroker {
     }
 
 
-    private connectToChannel(internalChannelName: string) {
-        if (!this.openChannels?.[internalChannelName]) {
-            this.openChannels[internalChannelName] = this.brokerFactory(this.channelGroup);
-            this.openChannels[internalChannelName].addEventListener("message", this.msgListener);
-        }
-    }
 
     registerListener(channel: string, listener: (msg: Message) => void) {
-        let internalChannelName = this.getInternalChannelName(channel);
-        this.connectToChannel(internalChannelName);
         super.registerListener(channel, listener);
     }
 
     register() {
-        let internalChannelName = this.getInternalChannelName("*");
-        this.openChannels[internalChannelName] = this.brokerFactory(this.channelGroup);
-        this.openChannels[internalChannelName].addEventListener("message", this.msgListener);
-    }
-
-    private getInternalChannelName(name: string) {
-        return this.channelGroup + name;
+        if(!this.openChannels[this.channelGroup]) {
+            this.openChannels[this.channelGroup] = this.brokerFactory(this.channelGroup);
+        }
+        this.openChannels[this.channelGroup].addEventListener("message", this.msgListener);
     }
 
     unregister() {
-        Object.keys(this.openChannels).forEach((key) => this.openChannels[key].close());
-        this.openChannels = <any>{};
+        this.openChannels[this.channelGroup].close();
     }
-
-
 }
 
 
