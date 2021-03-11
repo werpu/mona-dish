@@ -82,17 +82,15 @@ export declare class BroadcastChannelBroker extends BaseBroker {
     private brokerFactory;
     private channelGroup;
     private openChannels;
-    private readonly msgListener;
+    private msgListener;
     /**
      * @param brokerFactory a factory generating a broker
      * @param channelGroup a group to combine a set of channels
      */
     constructor(brokerFactory?: Function, channelGroup?: string);
     broadcast(channel: string, message: Message, includeOrigin?: boolean): void;
-    private connectToChannel;
     registerListener(channel: string, listener: (msg: Message) => void): void;
     register(): void;
-    private getInternalChannelName;
     unregister(): void;
 }
 /**
