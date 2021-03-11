@@ -1,6 +1,6 @@
 {
   "name": "mona-dish",
-  "version": "0.19.17",
+  "version": "0.19.18",
   "description": "TypeScript/Javascript set of functional pattern inspired helpers, which will ease your programming live",
   "main": "dist/js/commonjs/index.js",
   "types": "dist/types/index.d.ts",
