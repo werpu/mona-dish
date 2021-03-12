@@ -82,7 +82,7 @@ export declare class BroadcastChannelBroker extends BaseBroker {
     private brokerFactory;
     private channelGroup;
     private openChannels;
-    private msgListener;
+    private readonly msgListener;
     /**
      * @param brokerFactory a factory generating a broker
      * @param channelGroup a group to combine a set of channels

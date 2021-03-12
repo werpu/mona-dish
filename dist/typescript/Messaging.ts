@@ -1,6 +1,7 @@
 /**
  * a standardized message to be sent over the message bus
  */
+
 export class Message {
 
     creationDate?: number;
@@ -205,7 +206,7 @@ abstract class BaseBroker {
  */
 export class BroadcastChannelBroker extends BaseBroker {
     private openChannels: [{ key: string }, BroadcastChannel] = <any>{};
-    private msgListener: Function;
+    private readonly msgListener: Function;
 
     /**
      * @param brokerFactory a factory generating a broker
@@ -239,6 +240,11 @@ export class BroadcastChannelBroker extends BaseBroker {
             if('string' == typeof message) {
                 message = new Message(message);
             }
+            //we now run a quick remapping to avoid
+            //serialisation errors
+            let msgString = JSON.stringify(<Message> message);
+            message = <Message> JSON.parse(msgString);
+
             let messageWrapper = new MessageWrapper(channel, message);
             this.openChannels[this.channelGroup].postMessage(messageWrapper);
             if (includeOrigin) {
