@@ -112,6 +112,10 @@ export interface IStream<T> {
      * returns the stream collected into an array (90% use-case abbreviation
      */
     value: Array<T>;
+    /**
+     * returns an observable of the given stream
+     */
+    [Symbol.iterator](): Iterator<T>;
 }
 /**
  * A simple typescript based reimplementation of streams
@@ -153,6 +157,7 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     collect(collector: ICollector<T, any>): any;
     hasNext(): boolean;
     next(): T;
+    [Symbol.iterator](): Iterator<T>;
     reset(): void;
 }
 /**
@@ -217,6 +222,7 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     noneMatch(fn: Matchable<T>): boolean;
     sort(comparator: Comparator<T>): IStream<T>;
     get value(): Array<T>;
+    [Symbol.iterator](): Iterator<T>;
     private stop;
     private isOverLimits;
 }

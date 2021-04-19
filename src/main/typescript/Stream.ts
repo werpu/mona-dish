@@ -27,13 +27,14 @@ import {
     MappedStreamDataSource
 } from "./SourcesCollectors";
 
+
 /*
  * some typedefs to make the code more reabable
  */
 export type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
 export type ArrayMapper<T> = (data: T) => Array<any>;
 export type IteratableConsumer<T> = (data: T, pos ?: number) => void | boolean;
-export type Reducable<T, V> = (val1: T | V, val2: T) => V;
+export type Reducable<T, V> = (val1: T | V, val2: T) => V;
 export type Matchable<T> = (data: T) => boolean;
 export type Mappable<T, R> = (data: T) => R;
 export type Comparator<T> = (el1: T, el2: T) => number;
@@ -93,7 +94,7 @@ export interface IStream<T> {
      * @param startVal an optional starting value, if provided the the processing starts with this element
      * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
      */
-    reduce<V>(fn: Reducable<T,V>, startVal: T | V): Optional<T | V>;
+    reduce<V>(fn: Reducable<T, V>, startVal: T | V): Optional<T | V>;
 
     /**
      * returns the first element in the stream is given as Optional
@@ -151,14 +152,20 @@ export interface IStream<T> {
      * @param end the limit of the stream
      */
     limits(end: number): IStream<T>;
-    
-    
+
+
     concat(...toAppend: Array<IStream<T>>): IStream<T>
 
     /**
      * returns the stream collected into an array (90% use-case abbreviation
      */
     value: Array<T>;
+
+    /**
+     * returns an observable of the given stream
+     */
+    [Symbol.iterator](): Iterator<T>;
+
 
 }
 
@@ -186,7 +193,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return new Stream<T>(...data);
     }
 
-    static ofAssoc<T>(data: {[key: string]: T}): Stream<[string, T]> {
+    static ofAssoc<T>(data: { [key: string]: T }): Stream<[string, T]> {
         return this.of(...Object.keys(data)).map(key => [key, data[key]]);
     }
 
@@ -212,7 +219,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         //let dataSource = new MultiStreamDatasource<T>(this, ...toAppend);
         //return Stream.ofDataSource<T>(dataSource);
 
-        return Stream.of(<IStream<T>> this, ...toAppend).flatMap(item => item);
+        return Stream.of(<IStream<T>>this, ...toAppend).flatMap(item => item);
     }
 
 
@@ -344,10 +351,23 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return this.value[this.pos];
     }
 
+    [Symbol.iterator]() : Iterator<T> {
+        return {
+            next: () => {
+                let done = !this.hasNext();
+                let val = this.next();
+                return {
+                    done: done,
+                    value: <T>val
+                }
+            }
+        }
+    }
+
+
     reset() {
         this.pos = -1;
     }
-
 }
 
 /**
@@ -394,7 +414,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         return new LazyStream<T>(new ArrayStreamDataSource(...values));
     }
 
-    static ofAssoc<T>(data: {[key: string]: T}): LazyStream<[string, T]> {
+    static ofAssoc<T>(data: { [key: string]: T }): LazyStream<[string, T]> {
         return this.of(...Object.keys(data)).map(key => [key, data[key]]);
     }
 
@@ -435,7 +455,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     concat(...toAppend: Array<IStream<T>>): LazyStream<T> {
         //this.dataSource =  new MultiStreamDatasource<T>(this, ... toAppend);
         //return this;
-        return LazyStream.of(<IStream<T>> this, ...toAppend).flatMap(item => item);
+        return LazyStream.of(<IStream<T>>this, ...toAppend).flatMap(item => item);
     }
 
     nextFilter(fn: Matchable<T>): T {
@@ -494,7 +514,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         }
     }
 
-    reduce<V>(fn: Reducable<T, V>, startVal: T | V = null): Optional<T | V> {
+    reduce<V>(fn: Reducable<T, V>, startVal: T | V = null): Optional<T | V> {
         if (!this.hasNext()) {
             return Optional.absent;
         }
@@ -569,6 +589,19 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 
     get value(): Array<T> {
         return this.collect(new ArrayCollector<T>());
+    }
+
+    [Symbol.iterator]() : Iterator<T> {
+        return {
+            next: () => {
+                let done = !this.hasNext();
+                let val = this.next();
+                return {
+                    done: done,
+                    value: <T>val
+                }
+            }
+        }
     }
 
     private stop() {

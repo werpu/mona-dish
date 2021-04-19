@@ -832,6 +832,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         return (index < this.rootNode.length) ? new DomQuery(this.rootNode[index]) : DomQuery.absent;
     }
 
+
+
     /**
      * returns the nth element as optional of an Element object
      * @param index the number from the index

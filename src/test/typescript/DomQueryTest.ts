@@ -20,6 +20,7 @@ import {DomQuery} from "../../main/typescript/DomQuery";
 import {ArrayCollector, Lang, LazyStream} from "../../main/typescript";
 import sinon = require('sinon');
 import trim = Lang.trim;
+import {from} from "rxjs";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -81,6 +82,32 @@ describe('DOMQuery tests', function () {
         expect(probe3.length == 5).to.be.true;
         //still under discussion (we might index to avoid doubles)
         expect(probe4.length == 6).to.be.true;
+    });
+
+    it('proper iterator api and rxjs mapping', function () {
+        let probe1 = new DomQuery(window.document.body);
+        let probe2 = DomQuery.querySelectorAll("div");
+
+        let o1 = from(probe1.stream);
+        let o2 = from(probe2.stream);
+
+        let cnt1 = 0;
+        let isDQuery = false;
+        let cnt2 = 0;
+
+        o1.subscribe((item: any) => {
+            cnt1++;
+        });
+
+        o2.subscribe((item: any) => {
+            cnt2++;
+            isDQuery = (item.length == 1) && (item instanceof DomQuery)
+        })
+
+        expect(probe1.length).to.be.eq(1);
+        expect(probe2.length == 4).to.be.true;
+        expect(isDQuery).to.be.true;
+
     });
 
     it('domquery ops test filter', function () {

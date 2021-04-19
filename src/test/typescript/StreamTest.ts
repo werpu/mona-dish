@@ -18,6 +18,7 @@ import {describe} from "mocha";
 import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
 import {ArrayCollector, SequenceDataSource} from "../../main/typescript";
+import {from} from "rxjs";
 
 describe('early stream tests', () => {
 
@@ -289,5 +290,74 @@ describe('early stream tests', () => {
         expect(retArr[0]).to.eq(1);
         expect(retArr[14]).to.eq(15);
         expect(retArr[7]).to.eq(8);
+    });
+    it("must work with rxjs and early streams", () => {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [6, 7, 8, 9, 10];
+
+        let stream1 = Stream.of<number>(...probe).filter(item => {
+            return item != 2;
+        });
+        let stream2 = Stream.of<number>(...probe2);
+
+
+        let o1 = from(stream1);
+        let o2 = from(stream2);
+
+
+        let cnt1 = 0;
+        let val1  = 0;
+        o1.subscribe(value => {
+            cnt1++;
+            val1 = value;
+        })
+        //one item filtered
+        expect(cnt1 == probe.length - 1).to.be.true;
+        expect(val1).to.eq(5);
+
+
+        let cnt2 = 0;
+        let val2  = 0;
+        o2.subscribe(value => {
+            cnt2++;
+            val2 = value;
+        })
+
+        expect(cnt2 == probe2.length).to.be.true;
+        expect(val2).to.eq(10);
+    });
+
+    it("must work with rxjs and Lazy Streams", () => {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [6, 7, 8, 9, 10];
+
+        let stream1 = LazyStream.of<number>(...probe).filter(item => {
+            return item != 2;
+        });;
+        let stream2 = LazyStream.of<number>(...probe2);
+
+        let o1 = from(stream1);
+        let o2 = from(stream2);
+
+
+        let cnt1 = 0;
+        let val1  = 0;
+        o1.subscribe(value => {
+            cnt1++;
+            val1 = value;
+        })
+
+        expect(cnt1 == probe.length - 1).to.be.true;
+        expect(val1).to.eq(5);
+
+        let cnt2 = 0;
+        let val2  = 0;
+        o2.subscribe(value => {
+            cnt2++;
+            val2 = value;
+        })
+
+        expect(cnt2 == probe.length).to.be.true;
+        expect(val2).to.eq(10);
     });
 });

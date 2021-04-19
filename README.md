@@ -748,7 +748,7 @@ hook itself in like a shim)
 * Improved documentation
 * Domquery: Shadow Dom support 
 
-## Version 0.19.1 - 0.19.9
+## Version 0.19.1 - 0.19.22
 
 * ongoing works in the messaging area (not fully finalized)
 * minor api change, channel now parameter in broker.broadcast instead
@@ -759,6 +759,18 @@ of part of the message.
 cause typescript warnings 
 * Bidirectional messaging which allows answer/resoponse patterns
 * Reenabling ie11 compatibility
+* basing the messaging on top of the broadcast channel as universal base, the messaging
+is basically a broadcast channel++ with additoonal functionality
+  
+## Version 0.20.++ 
+* Rxjs connectivity, rxjs is a more popular framework than mona-dish
+but both have a heavy functional overlap. It makes sense
+  to open monadish for rjxs in both directions to be able
+  to combine both frameworks easily
+* RXJS forward connectivity enabled via iterable implementation!
+you can basially now use streams as iterables
+  
+
 
 
 
