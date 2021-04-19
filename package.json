@@ -1,6 +1,6 @@
 {
   "name": "mona-dish",
-  "version": "0.19.22",
+  "version": "0.20.0",
   "description": "TypeScript/Javascript set of functional pattern inspired helpers, which will ease your programming live",
   "main": "dist/js/commonjs/index.js",
   "types": "dist/types/index.d.ts",
@@ -47,8 +47,5 @@
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2",
     "npm-check-updates": "^11.4.1"
-  },
-  "dependencies": {
-
   }
 }
