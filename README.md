@@ -770,7 +770,7 @@ but both have a heavy functional overlap. It makes sense
   to open monadish for rjxs in both directions to be able
   to combine both frameworks easily
 * RXJS forward connectivity enabled via iterable implementation!
-you can basially now use streams as iterables
+you can basically now use streams as iterables
   
 
 
