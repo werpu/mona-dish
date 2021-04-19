@@ -719,6 +719,8 @@ I am going to provide extended documentation on the various
 aspects of mona-dish in following supagages
 
 * [Streams](https://github.com/werpu/mona-dish/blob/master/docs/Stream.md)
+* [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/RxJS.md)
+
 
 ## Examples
 
