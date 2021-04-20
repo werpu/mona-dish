@@ -27,7 +27,9 @@ export default  (env, argv) => {
             Promise: "./src/main/typescript/Promise.ts",
             Stream: "./src/main/typescript/Stream.ts",
             TagBuilder: "./src/main/typescript/TagBuilder.ts",
-            index: "./src/main/typescript/index.ts"
+            Messaging: "./src/main/typescript/Messaging.ts",
+            index: "./src/main/typescript/index.ts",
+            index_core: "./src/main/typescript/index_core.ts"
         },
         output: {
             filename: '[name].js',
