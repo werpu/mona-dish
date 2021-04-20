@@ -58,11 +58,11 @@ In this example 2 lazy streams are provided
 and then mapped via thge from operator straight into rxjs
 
 
-### Domquery and XML Query
+### DomQuery and XML Query
 
 For the time being due to technical limitations only streams
 can be mapped, so you can use the stream property to map 
-a Domquery and XMLQuery object or a Configuration straight
+a DomQuery and XMLQuery object or a Configuration straight
 into an RxJS Observer:
 
 ```typescript
@@ -71,8 +71,8 @@ into an RxJS Observer:
     
     //now we connect our dom query object
     //with rjxs via the from function
-    let rx1 = from(probe1);
-    let rx2 = from(probe2);
+    let rx1 = from(probe1.stream);
+    let rx2 = from(probe2.stream);
     
     let cnt1 = 0;
     let isDQuery = false;

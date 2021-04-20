@@ -23,7 +23,7 @@ import trim = Lang.trim;
 import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
-import {observable, Observable, Subscriber} from "rxjs";
+//import {observable, Observable, Subscriber} from "rxjs";
 
 
 
@@ -492,9 +492,9 @@ interface IDomQuery {
      */
     attachShadow(modeParams: { [key: string]: string }): DomQuery
 
-    observable: Observable<DomQuery>;
+    //observable: Observable<DomQuery>;
 
-    observableElem: Observable<Element>;
+    //observableElem: Observable<Element>;
 }
 
 /**
@@ -746,7 +746,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         } else {
             return new DomQuery(document)._querySelectorAll(selector);
         }
-
     }
 
     /**
@@ -1586,7 +1585,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         // we have to run the script under a global context
                         //we store the script for less calls to eval
                         finalScripts.push(evalText);
-
                     }
                 }
             };
@@ -2013,7 +2011,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         }
     }
     
-    [observable](): Observable<DomQuery> {
+    /*[observable](): Observable<DomQuery> {
         return this.observable;
     }
 
@@ -2041,7 +2039,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             }
         };
         return new Observable(observerFunc);
-    }
+    }*/
 
 }
 

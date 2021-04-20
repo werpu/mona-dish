@@ -1,6 +1,5 @@
 import { IMonad, IValueHolder, Optional } from "./Monad";
 import { ICollector, IStreamDataSource } from "./SourcesCollectors";
-import { Observable } from "rxjs";
 export declare type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
 export declare type ArrayMapper<T> = (data: T) => Array<any>;
 export declare type IteratableConsumer<T> = (data: T, pos?: number) => void | boolean;
@@ -117,7 +116,6 @@ export interface IStream<T> {
      * returns an observable of the given stream
      */
     [Symbol.iterator](): Iterator<T>;
-    observable: Observable<T>;
 }
 /**
  * A simple typescript based reimplementation of streams
@@ -160,7 +158,6 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     hasNext(): boolean;
     next(): T;
     [Symbol.iterator](): Iterator<T>;
-    get observable(): Observable<T>;
     reset(): void;
 }
 /**
@@ -226,7 +223,6 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     sort(comparator: Comparator<T>): IStream<T>;
     get value(): Array<T>;
     [Symbol.iterator](): Iterator<T>;
-    get observable(): Observable<T>;
     private stop;
     private isOverLimits;
 }

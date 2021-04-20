@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import {IStream, LazyStream, Stream, StreamMapper} from "./Stream";
+import {Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
-import {Optional} from "./Monad";
-import {Observer} from "rxjs";
-import {Promise} from "./Promise";
 
 /**
  * Every data source wich feeds data into the lazy stream

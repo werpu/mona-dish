@@ -114,8 +114,8 @@ describe('DOMQuery tests', function () {
         let probe1 = new DomQuery(window.document.body);
         let probe2 = DomQuery.querySelectorAll("div");
 
-        let o1 = from(probe1);
-        let o2 = from(probe2);
+        let o1 = from(probe1.stream);
+        let o2 = from(probe2.stream);
 
         let cnt1 = 0;
         let isDQuery = false;
