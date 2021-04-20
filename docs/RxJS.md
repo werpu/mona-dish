@@ -70,9 +70,9 @@ into an RxJS Observer:
     let probe2 = DomQuery.querySelectorAll("div");
     
     //now we connect our dom query object
-    //with rjxs by providing streams to the from method!
-    let rx1 = from(probe1.stream);
-    let rx2 = from(probe2.stream);
+    //with rjxs via the from function
+    let rx1 = from(probe1);
+    let rx2 = from(probe2);
     
     let cnt1 = 0;
     let isDQuery = false;

@@ -2,6 +2,7 @@ import { Config, Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
 import { IStream, LazyStream, Stream } from "./Stream";
 import { ICollector, IStreamDataSource } from "./SourcesCollectors";
+import { Observable } from "rxjs";
 export declare class ElementAttribute extends ValueEmbedder<string> {
     private element;
     private name;
@@ -362,6 +363,8 @@ interface IDomQuery {
     attachShadow(modeParams: {
         [key: string]: string;
     }): DomQuery;
+    observable: Observable<DomQuery>;
+    observableElem: Observable<Element>;
 }
 /**
  * Monadic DomNode representation, ala jquery
@@ -383,7 +386,7 @@ interface IDomQuery {
  * ago, those parts look a little bit ancient and will be replaced over time.
  *
  */
-export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
+export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterable<DomQuery> {
     static absent: DomQuery;
     private rootNode;
     pos: number;
@@ -747,6 +750,9 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> 
      *
      */
     static setCaretPosition(ctrl: any, pos: number): void;
+    [Symbol.iterator](): Iterator<DomQuery, any, undefined>;
+    get observable(): Observable<DomQuery>;
+    get observableElem(): Observable<Element>;
 }
 /**
  * Various collectors

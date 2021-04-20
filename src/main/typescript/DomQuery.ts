@@ -23,6 +23,8 @@ import trim = Lang.trim;
 import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
+import {observable, Observable, Subscriber} from "rxjs";
+
 
 
 /**
@@ -489,6 +491,10 @@ interface IDomQuery {
      * @param modeParams
      */
     attachShadow(modeParams: { [key: string]: string }): DomQuery
+
+    observable: Observable<DomQuery>;
+
+    observableElem: Observable<Element>;
 }
 
 /**
@@ -511,7 +517,7 @@ interface IDomQuery {
  * ago, those parts look a little bit ancient and will be replaced over time.
  *
  */
-export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
+export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterable<DomQuery> {
 
     static absent = new DomQuery();
 
@@ -540,6 +546,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
             }
         }
     }
+
+
 
     /**
      * returns the first element
@@ -1992,6 +2000,48 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery> {
         ctrl?.setSelectiongRange ? ctrl?.setSelectiongRange(pos, pos) : null;
     }
 
+    [Symbol.iterator](): Iterator<DomQuery, any, undefined> {
+        return {
+            next: () => {
+                let done = !this.hasNext();
+                let val = this.next();
+                return {
+                    done: done,
+                    value: <DomQuery>val
+                }
+            }
+        }
+    }
+    
+    [observable](): Observable<DomQuery> {
+        return this.observable;
+    }
+
+    get observable(): Observable<DomQuery> {
+        let observerFunc = (observer:Subscriber<DomQuery>) => {
+            try {
+                this.each(dqNode => {
+                    observer.next(dqNode);
+                });
+            } catch (e) {
+                observer.error(e);
+            }
+        };
+        return new Observable(observerFunc);
+    }
+
+    get observableElem(): Observable<Element> {
+        let observerFunc = (observer:Subscriber<Element>) => {
+            try {
+                this.eachElem(node => {
+                    observer.next(node);
+                });
+            } catch (e) {
+                observer.error(e);
+            }
+        };
+        return new Observable(observerFunc);
+    }
 
 }
 

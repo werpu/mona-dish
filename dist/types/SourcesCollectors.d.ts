@@ -8,11 +8,11 @@ import { DomQuery } from "./DomQuery";
  */
 export interface IStreamDataSource<T> {
     /**
-     * @returns true if additional data is present
+     * @returns true if additional data is present false if not
      */
     hasNext(): boolean;
     /**
-     * false if not
+     * returns the next element in the stream
      */
     next(): T;
     /**
@@ -61,7 +61,7 @@ export declare class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     reset(): void;
 }
 /**
- * an intermediate data source wich prefilters
+ * an intermediate data source which prefilters
  * incoming stream data
  * and lets only the data out which
  * passes the filter function check

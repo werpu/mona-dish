@@ -17,6 +17,8 @@
 import {IStream, LazyStream, Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
 import {Optional} from "./Monad";
+import {Observer} from "rxjs";
+import {Promise} from "./Promise";
 
 /**
  * Every data source wich feeds data into the lazy stream
@@ -27,12 +29,12 @@ import {Optional} from "./Monad";
 export interface IStreamDataSource<T> {
 
     /**
-     * @returns true if additional data is present
+     * @returns true if additional data is present false if not
      */
     hasNext(): boolean;
 
     /**
-     * false if not
+     * returns the next element in the stream
      */
     next(): T;
 
@@ -118,7 +120,7 @@ export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
 }
 
 /**
- * an intermediate data source wich prefilters
+ * an intermediate data source which prefilters
  * incoming stream data
  * and lets only the data out which
  * passes the filter function check

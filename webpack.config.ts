@@ -1,6 +1,8 @@
 import * as webpack from 'webpack';
 import * as path from 'path';
+import {repeatWhen} from "rxjs/operators";
 
+const TerserPlugin = require('terser-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin-fixed');
 
@@ -45,7 +47,14 @@ export default  (env, argv) => {
             ]
 
         },
+        optimization: {
+            minimizer: [new TerserPlugin({ extractComments: false })],
+        },
+        externals: {
+            "rxjs": "RxJS"
+        },
         plugins: [
+
             new webpack.SourceMapDevToolPlugin({
                 filename: "[name].js.map"
             }),

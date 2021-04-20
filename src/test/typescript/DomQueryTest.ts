@@ -110,6 +110,32 @@ describe('DOMQuery tests', function () {
 
     });
 
+    it('proper iterator api and rxjs mapping with observable', function () {
+        let probe1 = new DomQuery(window.document.body);
+        let probe2 = DomQuery.querySelectorAll("div");
+
+        let o1 = from(probe1);
+        let o2 = from(probe2);
+
+        let cnt1 = 0;
+        let isDQuery = false;
+        let cnt2 = 0;
+
+        o1.subscribe((item: any) => {
+            cnt1++;
+        });
+
+        o2.subscribe((item: any) => {
+            cnt2++;
+            isDQuery = (item.length == 1) && (item instanceof DomQuery)
+        })
+
+        expect(probe1.length).to.be.eq(1);
+        expect(probe2.length == 4).to.be.true;
+        expect(isDQuery).to.be.true;
+
+    });
+
     it('domquery ops test filter', function () {
         let probe2 = DomQuery.querySelectorAll("div");
         probe2 = probe2.filter((item: DomQuery) => item.id.match((id) => id != "id_1"));
@@ -422,7 +448,6 @@ describe('DOMQuery tests', function () {
         `);
         setTimeout(() => {
             expect(DomQuery.byId("id_1").innerHtml == "hello world").to.be.false;
-
         }, 100)
 
         setTimeout(() => {

@@ -26,6 +26,7 @@ import {
     IStreamDataSource,
     MappedStreamDataSource
 } from "./SourcesCollectors";
+import {from, Observable} from "rxjs";
 
 
 /*
@@ -166,7 +167,7 @@ export interface IStream<T> {
      */
     [Symbol.iterator](): Iterator<T>;
 
-
+    observable: Observable<T>;
 }
 
 /**
@@ -364,6 +365,9 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         }
     }
 
+    get observable(): Observable<T> {
+        return from(this);
+    }
 
     reset() {
         this.pos = -1;
@@ -602,6 +606,10 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
                 }
             }
         }
+    }
+
+    get observable(): Observable<T> {
+        return from(this);
     }
 
     private stop() {
