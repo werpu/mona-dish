@@ -8,7 +8,7 @@ A set of functional programming "inspired" helpers
 This project is a set of small helpers which utilize mostly monad and monad like patterns 
 to cut down on code for essential tasks.
 
-For now it is only a small set of Helpers consisting of following items:
+For now, it is only a small set of Helpers consisting of following items:
 
 * Monad     ... an implementation of a Monad
 * [Optional](https://github.com/werpu/mona-dish/blob/master/docs/Optional.md)  ... a class which is derived from Javas optional but also encapsulates elvis operator like accessors
@@ -20,7 +20,7 @@ For now it is only a small set of Helpers consisting of following items:
 * Configuration ... an Optional utilizing wrapper over json configurations which allow both read and write access 
                    and elvis like access to the data stored in the config
 * [Streams](https://github.com/werpu/mona-dish/blob/master/docs/Stream.md) ... a typescript based implementation of early and lazily evaluating streams                   
-* DomQuery ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams and shadow doms
+* DomQuery ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams and shadow dom trees
 * XmlQuery ... a jquery like XML document query selection and manipulation engine ... also supports streams
 * [Messaging](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md) ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom
 
@@ -29,9 +29,9 @@ For now it is only a small set of Helpers consisting of following items:
               
 Everything is implemented in typescript and can be used straight from the source directories "src/main/typescript".
 
-However also javascript transpilations for various packacking systems and ecmascript levels are in place as well hosted under "dist".
+However, also javascript transpilations for various packaging systems and ecmascript levels are in place as well hosted under "dist".
 
-If you want a cleaner cut between your own typescript sources and the mona-dish sources there is a d.ts file also,
+If you want a cleaner cut between your own typescript sources, and the mona-dish sources there is a d.ts file also,
 hosted under "dist".
 
 
@@ -64,14 +64,14 @@ For a non sideffect free implementation, you can use:
 
 ### ValueEmbedder  
   
-Optional is a purely reasonly construct, now for sideffects
-freenes having only readonly operations is fine.
-However in iterative systems we often deal with states.
-To get the conciciveness of Optional also for
+Optional is a purely readonly construct, now for sideffect
+free-ness, having only readonly operations is fine.
+However, in iterative systems we often deal with states.
+To get the conciseness of Optional also for
 writeable states there is a class available which is inherited
 from optional and hence shares the same functionality.
 
-* ValueEmedder
+* ValueEmbedder
 
 * [ValueEmbedder Documentation](https://github.com/werpu/mona-dish/blob/master/docs/ValueEmbedder.md)
 
@@ -90,11 +90,11 @@ Cancellable promise adds on top of that by allowing to cancel
 
 ### DomQuery
 
-A small lightweight thin layer on top of the standardized dom apis which readds jquery like 
-monadish patterns on top of the existing dom elements.
-It omits a base parser, given that modern browsers have excellent qerying capabilits
+A small lightweight thin layer on top of the standardized dom apis which re-adds jquery like 
+mona-dish patterns on top of the existing dom elements.
+It omits a base parser, given that modern browsers have excellent querying capabilities
 just with the overhead of an iterative API.
-DomQuery readds the slickness of functional patterns, which are perfect for the job of Tree Querying.
+DomQuery re-adds the slickness of functional patterns, which are perfect for the job of Tree Querying.
 
 ```Typescript
 interface IDomQuery {
@@ -502,14 +502,14 @@ The idea is to have streams like java does for arrays.
 #### Details
 
 The streams are heavily influenced by the java streams.
-Currently two type of Streams are implemented
-* Early Streams (Streams)
+Currently, two type of streams are implemented
+* Early streams (Streams)
 
 The default (working already)
 a simple implementation of early evaluating streams 
  
 * Lazy Streams (LazyStreams)
-Laziily evaluating streams, aka elements are processed at the latest possible
+Lazily evaluating streams, aka elements are processed at the latest possible
 stage, this is the default in Java. The advantage of those is
 you basically can process endless data without any impact on ram.
 Hence there is a set of Data Providers implemented and a general
@@ -640,7 +640,7 @@ export interface IStream<T> {
 }
 ```
 
-Ojects of type IStream are exposed at various points in the system
+Objects of type IStream are exposed at various points in the system
 
 DomQuery exposes it via get stream and get lazyStream
 
@@ -683,31 +683,31 @@ let formWindowId: Optional<string> = searchRoot
 let otherStream = LazyStream.ofDataSource(searchRoot);
 ```
 
-See  [StreamTest.ts](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/StreamTest.ts) in the test sources directory
+See  [StreamTest.ts](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/StreamTest.ts) in the "test sources" directory
  for additional examples
  
-### DomQuery and Shadow doms...
+### DomQuery and Shadow dom trees...
 
 Note this is a work in progress.
 * At the time of writing a draft of shadow dom support made it into
 DomQuery.
 * By using a deep parameter on byId or byTagName the search is embedded
-into embedded shadow doms.
+into embedded shadow dom trees.
 
-* Also a method querySelectorallDeep does the same for the provided querySelector 
+* Also, a method querySelectorallDeep does the same for the provided querySelector 
 
-* Futhermore the standard query selector got a /shadow/ pseudo query element
+* Furthermore, the standard query selector got a /shadow/ pseudo query element
 to mark a hard shadow dom boundary
 
-* DomQuery also got an attachShadow method for creating shadow doms
+* DomQuery also got an attachShadow method for creating shadow dom trees
  
 
 ### XmlQuery
 
 similar to DomQuery but atm without a full query engine behind it,
-the reason for that is that the browsers do not have a universal query engine yet
-and I tried to avoid third party dependencies.
-But you get many other benefits similar to DomQuery by using XmlQuery
+the reason for that is, that the browsers do not have a universal query engine, yet.
+Also, I tried to avoid third party dependencies.
+You, also, will get many other benefits similar to DomQuery by using XmlQuery
 
 ### Messaging
 
@@ -716,7 +716,7 @@ A messaging bus ... for documentation [follow this link:](https://github.com/wer
 ## Extended Documentation
 
 I am going to provide extended documentation on the various
-aspects of mona-dish in following supagages
+aspects of mona-dish in following subpages
 
 * [Streams](https://github.com/werpu/mona-dish/blob/master/docs/Stream.md)
 * [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/RxJS.md)
@@ -748,7 +748,7 @@ hook itself in like a shim)
 ## Version 0.19
 * New messaging submodule
 * Improved documentation
-* Domquery: Shadow Dom support 
+* DomQuery: Shadow Dom support 
 
 ## Version 0.19.1 - 0.19.22
 
@@ -757,17 +757,17 @@ hook itself in like a shim)
 of part of the message.
 * setting the code baseline of the compiled code to es5
 * Messaging will be finalized in version 0.20.x
-* Minor compiler issues fixed in the typings area which could
+* Minor compiler issues fixed in the "typings" area which could
 cause typescript warnings 
-* Bidirectional messaging which allows answer/resoponse patterns
-* Reenabling ie11 compatibility
+* Bidirectional messaging which allows answer/response patterns
+* Re-enabling IE11 compatibility
 * basing the messaging on top of the broadcast channel as universal base, the messaging
-is basically a broadcast channel++ with additoonal functionality
+is basically a broadcast channel++ with additional functionality
   
 ## Version 0.20.++ 
 * Rxjs connectivity, rxjs is a more popular framework than mona-dish
 but both have a heavy functional overlap. It makes sense
-  to open monadish for rjxs in both directions to be able
+  to open mona-dish for rjxs in both directions to be able
   to combine both frameworks easily
 * RXJS forward connectivity enabled via iterable implementation!
 you can basically now use streams as iterables
