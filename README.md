@@ -772,6 +772,12 @@ but both have a heavy functional overlap. It makes sense
 * RXJS forward connectivity enabled via iterable implementation!
 you can basically now use streams as iterables
   
+* 20.3 Adding basic rxjs support for streams
+* 20.4 Adding rxjs connectivity apis for the messages, brokerchannels now can be 
+exported as Subjects
+  
+
+
 
 
 
