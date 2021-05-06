@@ -1,6 +1,7 @@
 /**
  * a standardized message to be sent over the message bus
  */
+import {Observable, Subject} from "rxjs";
 
 export class Message {
 
@@ -45,7 +46,9 @@ abstract class BaseBroker {
      * namespace... and type (aka identifier criteria)
      */
     protected messageListeners: any = {};
+    protected subjects: any = {};
     protected processedMessages: any = {};
+
     protected cleanupCnt = 0;
     protected rootElem;
     protected msgHandler;
@@ -80,6 +83,39 @@ abstract class BaseBroker {
     }
 
     /**
+     * binding into rxjs
+     * produces a subject which can be used via next calls to send messages
+     * on the other hand we
+     * @param channel
+     */
+    asSubject(channel: string): Subject<Message> {
+        this.reserveSubjectNS(channel);
+        let subject = this.subjects[channel];
+        let oldNext = subject.next;
+        let lastMsg = null;
+        subject.next = (msg: Message | MessageWrapper) => {
+            //We use a recursive call to let the broadcaster handle
+            //The wrapper conversion and then again call us here
+            //that way both directions are handled.. next calls the broker
+            //and a broadcast calls next
+            if((<MessageWrapper>msg)?.detail) {
+                oldNext.call(subject, (<MessageWrapper>msg)?.detail);
+            } else {
+                this.broadcast(channel, <Message> msg);
+            }
+        }
+        return subject;
+    }
+
+    /**
+     * returns an observable on the baseBroker
+     * @param channel
+     */
+    asObservable(channel: string): Observable<Message> {
+        return this.asSubject(channel).asObservable();
+    }
+
+    /**
      * reserves the listener namespace and wildcard namespace for the given identifier
      * @param identifier
      * @private
@@ -90,6 +126,15 @@ abstract class BaseBroker {
         }
         if (!this.messageListeners["*"]) {
             this.messageListeners["*"] = [];
+        }
+    }
+
+    private reserveSubjectNS(identifier: string) {
+        if (!this.subjects[identifier]) {
+            this.subjects[identifier] = new Subject();
+        }
+        if (!this.subjects["*"]) {
+            this.subjects["*"] = new Subject();
         }
     }
 
@@ -208,6 +253,7 @@ export class BroadcastChannelBroker extends BaseBroker {
     private openChannels: [{ key: string }, BroadcastChannel] = <any>{};
     private readonly msgListener: Function;
 
+
     /**
      * @param brokerFactory a factory generating a broker
      * @param channelGroup a group to combine a set of channels
@@ -246,6 +292,11 @@ export class BroadcastChannelBroker extends BaseBroker {
             message = <Message> JSON.parse(msgString);
 
             let messageWrapper = new MessageWrapper(channel, message);
+
+            if(this?.subjects[channel]) {
+                this.subjects[channel].next(messageWrapper);
+            }
+
             this.openChannels[this.channelGroup].postMessage(messageWrapper);
             if (includeOrigin) {
                 this.msgListener(messageWrapper);
@@ -254,6 +305,8 @@ export class BroadcastChannelBroker extends BaseBroker {
             this.gcProcessedMessages();
         }
     }
+
+
 
 
 
@@ -396,6 +449,11 @@ export class Broker extends BaseBroker {
         if('string' == typeof message) {
             message = new Message(message);
         }
+
+        if(this?.subjects[channel]) {
+            this.subjects[channel].next(new MessageWrapper(channel, message));
+        }
+
         try {
             this.dispatchUp(channel, message, false, true);
             //listeners already called

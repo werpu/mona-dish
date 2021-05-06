@@ -408,6 +408,54 @@ describe('Broker tests', function () {
         broker.unregister();
     });
 
+
+
+    it('basic message with subjects and rxjs', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        broker.registerListener("channel", (message: Message): void => {
+            messageReceived = message.message === "booga";
+        })
+
+        let messageSubject = broker.asSubject("channel");
+        messageSubject.next(new Message("booga"));
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+    it('basic message with subjects and rxjs second test', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+
+        let messageSubject = broker.asSubject("channel");
+        messageSubject.subscribe(message => {
+            messageReceived = message.message === "booga";
+        })
+
+        broker.broadcast("channel", new Message("booga"));
+
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+
+
+    it('basic message with subjects and rxjs third test', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+
+        let messageSubject = broker.asSubject("channel");
+        messageSubject.subscribe(message => {
+            messageReceived = message.message === "booga";
+        })
+
+        messageSubject.next(new Message("booga"));
+
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+
     it('basic message with broadcast ans string', async function () {
         let broker = new BroadcastChannelBroker();
         let messageReceived = false;

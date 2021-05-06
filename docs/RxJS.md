@@ -91,3 +91,16 @@ into an RxJS Observer:
     expect(probe2.length == 4).to.be.true;
     expect(isDQuery).to.be.true;
 ```
+
+## Messages and RxJs connectivity
+
+To enable a forward compatibility between messages and rxjs
+the Brokers now have a asSubject(<channel>) Api.
+This enables to treat rxjs messages as subjects and works in both directions
+aka... 
+
+* a broadcast calls an observer on the subject
+* a next call triggers a listener on the broker
+* a next call also triggers an observer on the subject
+
+
