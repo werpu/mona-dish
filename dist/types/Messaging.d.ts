@@ -1,6 +1,7 @@
 /**
  * a standardized message to be sent over the message bus
  */
+import { Observable, Subject } from "rxjs";
 export declare class Message {
     message: any;
     creationDate?: number;
@@ -15,6 +16,7 @@ declare abstract class BaseBroker {
      * namespace... and type (aka identifier criteria)
      */
     protected messageListeners: any;
+    protected subjects: any;
     protected processedMessages: any;
     protected cleanupCnt: number;
     protected rootElem: any;
@@ -31,11 +33,24 @@ declare abstract class BaseBroker {
      */
     registerListener(channel: string, listener: (msg: Message) => void): void;
     /**
+     * binding into rxjs
+     * produces a subject which can be used via next calls to send messages
+     * on the other hand we
+     * @param channel
+     */
+    asSubject(channel: string): Subject<Message>;
+    /**
+     * returns an observable on the baseBroker
+     * @param channel
+     */
+    asObservable(channel: string): Observable<Message>;
+    /**
      * reserves the listener namespace and wildcard namespace for the given identifier
      * @param identifier
      * @private
      */
     private reserveListenerNS;
+    private reserveSubjectNS;
     /**
      * unregisters a listener from this channel
      *
