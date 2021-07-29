@@ -1,12 +1,13 @@
 import * as webpack from 'webpack';
 import * as path from 'path';
-import {repeatWhen} from "rxjs/operators";
+//import {repeatWhen} from "rxjs/operators";
 
 const TerserPlugin = require('terser-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
+//const CopyPlugin = require('copy-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin-fixed');
 
-export default  (env, argv) => {
+
+export default  (env: any) => {
 
     let targetType: any = null;
 
@@ -35,6 +36,7 @@ export default  (env, argv) => {
             filename: '[name].js',
             libraryTarget: targetType,
             globalObject: 'window',
+            chunkFormat: 'commonjs',
             path: path.resolve(__dirname, './target/js/'+targetType+"/")
         },
         resolve: {
