@@ -273,3 +273,92 @@ and uses this transport mechanism, and addes the extended
 message response on top.
 
 
+## Messaging Encryption
+### General Info
+Given that we can use various means of transport, encrypting the messages
+might become mandatory (some transports use other means of storage)
+
+For this a basic crypto api has been enabled but without a full implementation.
+
+The head is to pass a basic crypto object into the constructor of the Broker
+which then is used for encryption and decryption of the messages.
+
+Whatever you use and how you encrypt the messages is up to you.
+However note basic message data is passed, and this does not necessarily mean
+that you can expect strings.
+
+Also the return object just is returned as is, and the only requirement must be
+it must by json stringifyable.
+
+Also some factories were added to ease the broker construction.
+
+So in the end we have a very simple api as following:
+
+### API
+
+```typescript
+/**
+ * generic crypto interface
+ * to encrypt messages before they are sent
+ * to the message bus oder the underlying bus system
+ *
+ * The idea is to make it as easy as possible, you can use for instance crypto js to
+ * handle everything
+ */
+export interface Crypto {
+    
+    /**
+     * note anything can be passed
+     *
+     * @param data the data to be encrypted
+     * @returns the encrypted data in any format, important is decode must be able to handle it
+     */
+    encode(data: any): any;
+
+    /**
+     * @param data the encrypted data in the format you expect it to be
+     * @returns the unencrypted data
+     */
+    decode(data: any): any;
+}
+```
+
+A very simple example of such an implementation is
+provided for JSON:
+
+````typescript
+/**
+ * Bason JSON stringify encryption impl
+ */
+export class JSONCrypto implements Crypto {
+    
+    decode(data: any): any {
+        if(data?.encryptedData) {
+            return JSON.parse(data.encryptedData);
+        }
+        return data;
+    }
+
+    encode(data: any) {
+        return {
+            encryptedData: JSON.stringify(data)
+        }
+    }
+}
+````
+### Usage
+
+The usage comes down to pass a new crypto object
+into the constructor for the Broker. For convenience purposes
+we have now added Factories to make it easier to pass the objects down.
+
+````typescript
+let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
+let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build(); 
+````
+
+The rest then is handled transparently.
+
+
+
+

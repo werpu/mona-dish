@@ -499,7 +499,6 @@ describe('Broker tests', function () {
         let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
         let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
 
-        broker2.crypto = crypto;
         let answerReceived = false;
 
         broker2.registerListener("channel", (message: Message): void => {
