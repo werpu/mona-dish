@@ -3,11 +3,61 @@
  */
 import {Observable, Subject} from "rxjs";
 
+/**
+ * generic crypto interface
+ * to encrypt messages before they are sent
+ * to the message bus oder the underlying bus system
+ *
+ * The idea is to make it as easy as possible, you can use for instance crypto js to
+ * handle everything
+ */
+export interface Crypto {
+    encode(data: any): any;
+    decode(data: any): any;
+}
+
+/**
+ * Default implementation = no encryption
+ */
+export class NoCrypto implements Crypto {
+    decode(data: any): string {
+        return data;
+    }
+
+    encode(data: any): any {
+        return data;
+    }
+}
+
+/**
+ * basic json stringify encryption impl
+ */
+export class JSONCrypto implements Crypto {
+    decode(data: any): any {
+        if(data?.encryptedData) {
+            return JSON.parse(data.encryptedData);
+        }
+        return data;
+    }
+
+    encode(data: any) {
+        return {
+            encryptedData: JSON.stringify(data)
+        }
+    }
+}
+
+//TODO dynamic encryptor which flushes the messages before changing the keys
+//that way we can rotate and change internal crypto keys on the fly
+
+let noEncryption = new NoCrypto();
+
 export class Message {
 
     creationDate?: number;
     identifier?: string;
     targetOrigin?: string;
+    encoded: boolean = false;
 
     constructor(public message: any = {}, targetOrigin = "*") {
         this.targetOrigin = targetOrigin;
@@ -26,7 +76,6 @@ class MessageWrapper implements CustomEventInit<Message> {
     cancelable?: boolean;
     composed?: boolean;
     channel: string;
-
 
     constructor(channel: string, message: Message) {
         this.detail = message;
@@ -56,6 +105,10 @@ abstract class BaseBroker {
     protected readonly TIMEOUT_IN_MS = 1000;
     protected readonly MSG_EVENT = "message";
 
+    //must be public because we also must have the option
+    //to set it outside of the constructor
+    crypto = noEncryption;
+
 
     abstract register(scopeElement?: any);
 
@@ -78,6 +131,16 @@ abstract class BaseBroker {
             if (msg.identifier in this.processedMessages) {
                 return;
             }
+            if(msg?.encoded || msg?.["detail"]?.encoded) {
+                if(msg?.["detail"]) {
+                    msg["detail"].message = this.crypto.decode(msg["detail"].message);
+                    msg["detail"].encoded = false;
+                } else {
+                    msg.message = this.crypto.decode(msg.message);
+                    msg.encoded = false;
+                }
+
+            }
             listener(msg);
         });
     }
@@ -92,7 +155,7 @@ abstract class BaseBroker {
         this.reserveSubjectNS(channel);
         let subject = this.subjects[channel];
         let oldNext = subject.next;
-        let lastMsg = null;
+
         subject.next = (msg: Message | MessageWrapper) => {
             //We use a recursive call to let the broadcaster handle
             //The wrapper conversion and then again call us here
@@ -107,6 +170,7 @@ abstract class BaseBroker {
         return subject;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * returns an observable on the baseBroker
      * @param channel
@@ -245,6 +309,16 @@ abstract class BaseBroker {
     }
 }
 
+let broadCastChannelBrokerGenerator = (name) => {
+    if (window?.BroadcastChannel) {
+        return new window.BroadcastChannel(name);
+    }
+    throw Error("No Broadcast channel in the system, use a shim or provide a factory function" +
+        "in the constructor");
+};
+
+const DEFAULT_CHANNEL_GROUP = "brokr";
+
 /**
  * a broker which hooks into the Broadcast Channel broker
  * either via shim or substitute lib
@@ -257,16 +331,15 @@ export class BroadcastChannelBroker extends BaseBroker {
     /**
      * @param brokerFactory a factory generating a broker
      * @param channelGroup a group to combine a set of channels
+     * @param crypto a crypto class
      */
-    constructor(private brokerFactory: Function = (name) => {
-        if (window?.BroadcastChannel) {
-            return new window.BroadcastChannel(name);
-        }
-        throw Error("No Broadcast channel in the system, use a shim or provide a factory function" +
-            "in the constructor");
-    }, private channelGroup = "brokr") {
+    constructor(private brokerFactory: Function = broadCastChannelBrokerGenerator, private channelGroup = DEFAULT_CHANNEL_GROUP, public crypto: Crypto = noEncryption) {
         super();
         this.msgListener = (messageData: MessageWrapper) => {
+            if(messageData.detail.encoded) {
+                messageData.detail.message = <any> this.crypto.decode(messageData.detail.message);
+                messageData.detail.encoded = false;
+            }
             let coreMessage = messageData.detail;
             let channel: string = messageData.channel;
 
@@ -278,6 +351,7 @@ export class BroadcastChannelBroker extends BaseBroker {
             this.markMessageAsProcessed(coreMessage);
             return true;
         }
+        this.crypto = crypto;
         this.register();
     }
 
@@ -292,6 +366,8 @@ export class BroadcastChannelBroker extends BaseBroker {
             message = <Message> JSON.parse(msgString);
 
             let messageWrapper = new MessageWrapper(channel, message);
+            messageWrapper.detail.message = this.crypto.encode(messageWrapper.detail.message);
+            messageWrapper.detail.encoded = true;
 
             if(this?.subjects[channel]) {
                 this.subjects[channel].next(messageWrapper);
@@ -305,10 +381,6 @@ export class BroadcastChannelBroker extends BaseBroker {
             this.gcProcessedMessages();
         }
     }
-
-
-
-
 
     registerListener(channel: string, listener: (msg: Message) => void) {
         super.registerListener(channel, listener);
@@ -324,6 +396,36 @@ export class BroadcastChannelBroker extends BaseBroker {
     unregister() {
         this.openChannels[this.channelGroup].close();
     }
+}
+
+// noinspection JSUnusedGlobalSymbols
+/**
+ * Helper factory to create a broadcast channel broker
+ */
+export class BroadcastChannelBrokerFactory {
+   private broadCastChannelGenerator: Function = broadCastChannelBrokerGenerator;
+   private channelGroup = DEFAULT_CHANNEL_GROUP;
+   private crypto = noEncryption;
+
+   withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerFactory {
+       this.broadCastChannelGenerator = generatorFunc;
+       return this;
+    }
+
+    withChannelGroup(channelGroup: string): BroadcastChannelBrokerFactory {
+       this.channelGroup = channelGroup;
+       return this;
+    }
+
+    withCrypto(crypto: Crypto): BroadcastChannelBrokerFactory {
+       this.crypto = crypto;
+       return this;
+    }
+
+    build(): BroadcastChannelBroker {
+       return new BroadcastChannelBroker(this.broadCastChannelGenerator, this.channelGroup, this.crypto);
+    }
+
 }
 
 
@@ -379,8 +481,9 @@ export class Broker extends BaseBroker {
      *
      * @param scopeElement
      * @param name
+     * @param crypto
      */
-    constructor(scopeElement: HTMLElement | Window | ShadowRoot = window, public name = "brokr") {
+    constructor(scopeElement: HTMLElement | Window | ShadowRoot = window, public name = "brokr", crypto: Crypto = noEncryption) {
 
         super();
 
@@ -390,6 +493,7 @@ export class Broker extends BaseBroker {
          */
         let evtHandler = (event: MessageEvent | CustomEvent<Message>) => {
             let details = (<any>event)?.detail ?? (<MessageEvent>event)?.data?.detail;
+            //TODO possible crypto hook, needs unit testing
             let channel = ((<any>event)?.data?.channel) ?? ((<any>event)?.channel);
 
             //javascript loses the type info in certain module types
@@ -400,10 +504,16 @@ export class Broker extends BaseBroker {
                 }
                 //coming in from up... we need to send it down
                 //a relayed message always has to trigger the listeners as well
-                this.broadcast(channel, msg);
+                if((<any>event)?.detail) {
+                    this.broadcast(channel, msg);
+                } else {
+                    this.broadcast(channel, msg);
+                }
+
             }
         };
         this.msgHandler = (evt: MessageEvent) => evtHandler(evt);
+        this.crypto = crypto;
         this.register(scopeElement);
     }
 
@@ -443,15 +553,21 @@ export class Broker extends BaseBroker {
      * @param channel the channel to broadcast to
      * @param message the message dot send
      * (for instance 2 iframes within the same parent broker)
-     *
      */
     broadcast(channel: string, message: Message | string) {
         if('string' == typeof message) {
             message = new Message(message);
         }
+        //message.message = this.crypto.encode(message);
+        //message.encoded = true;
 
         if(this?.subjects[channel]) {
-            this.subjects[channel].next(new MessageWrapper(channel, message));
+            let messageWrapper = new MessageWrapper(channel, message);
+            if(!messageWrapper.detail.encoded) {
+                messageWrapper.detail.message = this.crypto.encode(messageWrapper.detail.message);
+                messageWrapper.detail.encoded = true;
+            }
+            this.subjects[channel].next(messageWrapper);
         }
 
         try {
@@ -538,4 +654,34 @@ export class Broker extends BaseBroker {
         }
 
     }
+}
+
+// noinspection JSUnusedGlobalSymbols
+/**
+ * Helper factory to create a dom broker
+ */
+export class BrokerFactory {
+    private scopeElement: HTMLElement | Window | ShadowRoot = window;
+    private channelGroup = DEFAULT_CHANNEL_GROUP;
+    private crypto = noEncryption;
+
+    withScopeElement(scopeElement: HTMLElement | Window | ShadowRoot): BrokerFactory {
+        this.scopeElement = scopeElement;
+        return this;
+    }
+
+    withChannelGroup(channelGroup: string): BrokerFactory {
+        this.channelGroup = channelGroup;
+        return this;
+    }
+
+    withCrypto(crypto: Crypto): BrokerFactory {
+        this.crypto = crypto;
+        return this;
+    }
+
+    build(): Broker {
+        return new Broker(this.scopeElement, this.channelGroup, this.crypto);
+    }
+
 }

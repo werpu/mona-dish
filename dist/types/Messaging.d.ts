@@ -2,11 +2,40 @@
  * a standardized message to be sent over the message bus
  */
 import { Observable, Subject } from "rxjs";
+/**
+ * generic crypto interface
+ * to encrypt messages before they are sent
+ * to the message bus oder the underlying bus system
+ *
+ * The idea is to make it as easy as possible, you can use for instance crypto js to
+ * handle everything
+ */
+export interface Crypto {
+    encode(data: any): any;
+    decode(data: any): any;
+}
+/**
+ * Default implementation = no encryption
+ */
+export declare class NoCrypto implements Crypto {
+    decode(data: any): string;
+    encode(data: any): any;
+}
+/**
+ * basic json stringify encryption impl
+ */
+export declare class JSONCrypto implements Crypto {
+    decode(data: any): any;
+    encode(data: any): {
+        encryptedData: string;
+    };
+}
 export declare class Message {
     message: any;
     creationDate?: number;
     identifier?: string;
     targetOrigin?: string;
+    encoded: boolean;
     constructor(message?: any, targetOrigin?: string);
 }
 declare abstract class BaseBroker {
@@ -23,6 +52,7 @@ declare abstract class BaseBroker {
     protected msgHandler: any;
     protected readonly TIMEOUT_IN_MS = 1000;
     protected readonly MSG_EVENT = "message";
+    crypto: NoCrypto;
     abstract register(scopeElement?: any): any;
     abstract unregister(): any;
     abstract broadcast(channel: string, message: Message | string): any;
@@ -96,17 +126,31 @@ declare abstract class BaseBroker {
 export declare class BroadcastChannelBroker extends BaseBroker {
     private brokerFactory;
     private channelGroup;
+    crypto: Crypto;
     private openChannels;
     private readonly msgListener;
     /**
      * @param brokerFactory a factory generating a broker
      * @param channelGroup a group to combine a set of channels
+     * @param crypto a crypto class
      */
-    constructor(brokerFactory?: Function, channelGroup?: string);
+    constructor(brokerFactory?: Function, channelGroup?: string, crypto?: Crypto);
     broadcast(channel: string, message: Message | string, includeOrigin?: boolean): void;
     registerListener(channel: string, listener: (msg: Message) => void): void;
     register(): void;
     unregister(): void;
+}
+/**
+ * Helper factory to create a broadcast channel broker
+ */
+export declare class BroadcastChannelBrokerFactory {
+    private broadCastChannelGenerator;
+    private channelGroup;
+    private crypto;
+    withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerFactory;
+    withChannelGroup(channelGroup: string): BroadcastChannelBrokerFactory;
+    withCrypto(crypto: Crypto): BroadcastChannelBrokerFactory;
+    build(): BroadcastChannelBroker;
 }
 /**
  * implementation of a messaging based transport
@@ -159,8 +203,9 @@ export declare class Broker extends BaseBroker {
      *
      * @param scopeElement
      * @param name
+     * @param crypto
      */
-    constructor(scopeElement?: HTMLElement | Window | ShadowRoot, name?: string);
+    constructor(scopeElement?: HTMLElement | Window | ShadowRoot, name?: string, crypto?: Crypto);
     /**
      * register the current broker into a scope defined by wnd
      * @param scopeElement
@@ -178,7 +223,6 @@ export declare class Broker extends BaseBroker {
      * @param channel the channel to broadcast to
      * @param message the message dot send
      * (for instance 2 iframes within the same parent broker)
-     *
      */
     broadcast(channel: string, message: Message | string): void;
     private dispatchUp;
@@ -187,5 +231,17 @@ export declare class Broker extends BaseBroker {
     private msgCallListeners;
     private static transformToEvent;
     private static createCustomEvent;
+}
+/**
+ * Helper factory to create a dom broker
+ */
+export declare class BrokerFactory {
+    private scopeElement;
+    private channelGroup;
+    private crypto;
+    withScopeElement(scopeElement: HTMLElement | Window | ShadowRoot): BrokerFactory;
+    withChannelGroup(channelGroup: string): BrokerFactory;
+    withCrypto(crypto: Crypto): BrokerFactory;
+    build(): Broker;
 }
 export {};

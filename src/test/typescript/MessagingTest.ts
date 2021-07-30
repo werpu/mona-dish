@@ -1,6 +1,12 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {BroadcastChannelBroker, Broker, Message} from "../../main/typescript/Messaging";
+import {
+    BroadcastChannelBroker,
+    BroadcastChannelBrokerFactory,
+    Broker,
+    JSONCrypto,
+    Message
+} from "../../main/typescript/Messaging";
 import { BroadcastChannel as BC, enforceOptions } from 'broadcast-channel';
 
 const jsdom = require("jsdom");
@@ -487,4 +493,32 @@ describe('Broker tests', function () {
                 broker2.unregister();
             });
     });
+
+    it('crypto test 1', async function () {
+        let crypto = new JSONCrypto();
+        let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
+        let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
+
+        broker2.crypto = crypto;
+        let answerReceived = false;
+
+        broker2.registerListener("channel", (message: Message): void => {
+            setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
+        })
+
+        return broker.request("channel", new Message("booga"))
+            .then((message2: Message) => {
+                answerReceived = message2.message === "answer of booga";
+                expect(answerReceived).to.be.true;
+                return true;
+            }).finally(() => {
+                broker.unregister();
+                broker2.unregister();
+            });
+
+
+
+    });
+
+
 })
