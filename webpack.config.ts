@@ -21,7 +21,7 @@ export default  (env: any) => {
         entry: {
             Monad: "./src/main/typescript/Monad.ts",
             Lang: "./src/main/typescript/Lang.ts",
-            DomQuery: "./src/main/typescript/DomQuery.ts",
+            DomQuery: "./src/main/typescript/DomQuery.md",
             XmlQuery: "./src/main/typescript/XmlQuery.ts",
             Promise: "./src/main/typescript/Promise.ts",
             Stream: "./src/main/typescript/Stream.ts",

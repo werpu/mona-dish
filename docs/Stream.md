@@ -262,9 +262,37 @@ export interface IStreamDataSource<T> {
 following datasources are present (with some convenvenience shortcuts
 for the most common elements)
 
-* SequenceDataSource for an arbirtrary sequence of numbers
-* ArrayStreamDataSource a datasource which encapsules an array of data
+* SequenceDataSource for an arbitrary sequence of numbers
+* ArrayStreamDataSource a datasource which encapsulates an array of data
 * Also some internal datasources are implemented which should not be used outside (hence not listed here)
+
+## of, ofAssoc
+
+For convenience reasons you dont have to explicitly define a datasource in many cases
+static helper methods provide some quick initialisation methods:
+
+```typescript
+
+        let arrayProbe = [1,2,3,4];
+        //inttialize a stream on a given arbitrary array
+        let stream2 = LazyStream.of<number>(...arrayProbe);
+                
+        //iterate over an assoc array
+        let assocArrayProbe = {
+            key1: "val1",
+            key2: 2,
+            key3: "val3"
+        }
+        
+        Stream.ofAssoc(assocArrayProbe).each(item => {
+          //each entry is a two dimensional array with key value entries  
+          expect(item.length).to.eq(2);
+          arr1.push(item[0]);
+          arr2.push(item[1]);
+        });
+
+```
+
 
 ## filter
 basically just a standard filter within the stream
@@ -280,3 +308,139 @@ passing single elements.
 
 reduce, reduces the stream with a reduction operation into a final result
 
+
+
+
+
+### API
+
+```Typescript
+/**
+ * Generic interface defining a stream
+ */
+export interface IStream<T> {
+    /**
+     * Perform the operation fn on a single element in the stream at a time
+     * then pass the stream over for further processing
+     * This is basically an intermediate point in the stream
+     * with further processing happening later, do not use
+     * this method to gather data or iterate over all date for processing
+     * (for the second case each has to be used)
+     *
+     * @param fn the processing function, if it returns false, further processing is stopped
+     */
+    onElem(fn: IteratableConsumer<T>): IStream<T>;
+
+    /**
+     * Iterate over all elements in the stream and do some processing via fn
+     *
+     * @param fn takes a single element and if it returns false
+     * then further processing is stopped
+     */
+    each(fn: IteratableConsumer<T>): void;
+
+    /**
+     * maps a single element into another via fn
+     * @param fn function which takes one element in and returns another
+     */
+    map<R>(fn?: Mappable<T, R>): IStream<R>;
+
+    /**
+     * Takes an element in and returns a set of something
+     * the set then is flatted into a single stream to be further processed
+     *
+     * @param fn
+     */
+    flatMap<R>(fn?: StreamMapper<T>): IStream<R>;
+
+    /**
+     * filtering, takes an element in and is processed by fn.
+     * If it returns false then further processing on this element is skipped
+     * if it returns true it is passed down the chain.
+     *
+     * @param fn
+     */
+    filter(fn?: Matchable<T>): IStream<T>;
+
+    /**
+     * functional reduce... takes two elements in the stream and reduces to
+     * one from left to right
+     *
+     * @param fn the reduction function for instance (val1,val2) => val1l+val2
+     * @param startVal an optional starting value, if provided the the processing starts with this element
+     * and further goes down into the stream, if not, then the first two elements are taken as reduction starting point
+     */
+    reduce(fn: Reducable<T>, startVal: T): Optional<T>;
+
+    /**
+     * returns the first element in the stream is given as Optional
+     */
+    first(): Optional<T>;
+
+    /**
+     * Returns the last stream element (note in endless streams without filtering and limiting you will never reach that
+     * point hence producing an endless loop)
+     */
+    last(): Optional<T>;
+    
+    /**
+     * sort on the stream, this is a special case
+     * of an endpoint, so your data which is fed in needs
+     * to be limited otherwise it will fail
+     * it still returns a stream for further processing
+     *
+     * @param comparator
+     */
+    sort(comparator: Comparator<T>): IStream<T>;
+
+
+    /**
+     * returns true if there is at least one element where a call fn(element) produces true
+     *
+     * @param fn
+     */
+    anyMatch(fn: Matchable<T>): boolean;
+
+    /**
+     * returns true if all elmements produce true on a call to fn(element)
+     *
+     * @param fn
+     */
+    allMatch(fn: Matchable<T>): boolean;
+
+    /**
+     * returns true if no elmements produce true on a call to fn(element)
+     *
+     * @param fn
+     */
+    noneMatch(fn: Matchable<T>): boolean;
+
+    /**
+     * Collect the elements with a collector given
+     * There are a number of collectors provided
+     *
+     * @param collector
+     */
+    collect(collector: ICollector<T, any>): any;
+
+    /**
+     * Limits the stream to a certain number of elements
+     *
+     * @param end the limit of the stream
+     */
+    limits(end: number): IStream<T>;
+
+    /**
+     * returns the stream collected into an array (90% use-case abbreviation
+     */
+    value: Array<T>;
+}
+```
+
+Objects of type IStream are exposed at various points in the system
+
+DomQuery exposes it via get stream and get lazyStream
+
+LazyStream and Stream  have static of creation methods
+to support the stream creation frm various data types
+and data sources.

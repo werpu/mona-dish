@@ -1,11 +1,11 @@
 # RxJS Connectivity
 In recent years, rxjs has become a very popular
-way of adressing data transformations and event handling
+way of addressing data transformations and event handling
 in a reactive way.
 It uses the observer pattern.
 
 Theoretically the overlap between rxjs and mona-dish is high
-but both have different strenghts in other subparts.
+but both have different strengths in other sub-parts.
 Where they overlap is mostly in iteration filtering etc...
 
 While RxJS is a reactive api, awaiting a fixed 
