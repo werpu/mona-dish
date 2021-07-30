@@ -11,7 +11,17 @@ import { Observable, Subject } from "rxjs";
  * handle everything
  */
 export interface Crypto {
+    /**
+     * note anything can be passed
+     *
+     * @param data the data to be encrypted
+     * @returns the encrypted data in any format, important is decode must be able to handle it
+     */
     encode(data: any): any;
+    /**
+     * @param data the encrypted data in the format you expect it to be
+     * @returns the unencrypted data
+     */
     decode(data: any): any;
 }
 /**
