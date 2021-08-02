@@ -538,8 +538,9 @@ describe('Broker tests', function () {
         expect(decrypted).to.eq(toEncrypt);
         await delay(50);
         try {
-            decrypted = expiringCrypto.decode(encrypted);
+            expiringCrypto.decode(encrypted);
         } catch (e) {
+            //expected
             return true;
         }
         expect(true).to.be .false;

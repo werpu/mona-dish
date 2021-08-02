@@ -54,6 +54,7 @@ export class ExpiringCrypto implements Crypto {
     private static MAX_GC_CYCLES = 10;
     private gcCycleCnt = 0;
     private storedMessages: { [key: string]: number } = {};
+    private lastCall = 0;
 
     /**
      * @param timeout timeout in miliseconds until a message is expired
@@ -68,15 +69,30 @@ export class ExpiringCrypto implements Crypto {
         //if ((this.gcCycleCnt++ % ExpiringCrypto.MAX_GC_CYCLES) === 0) {
 
         const currTime = new Date().getTime();
-        this.storedMessages = LazyStream.ofAssoc(this.storedMessages)
-            .filter(data => data[1] >= currTime).collect(new AssocArrayCollector());
+        if(this.gcLimitReached(currTime)) {
+            this.storedMessages = LazyStream.ofAssoc(this.storedMessages)
+                .filter(data => data[1] >= currTime).collect(new AssocArrayCollector());
+        }
+        this.lastCall = currTime;
+
 
         let rotatingEncoded = this.hashSum.encode(data);
         if (!this.storedMessages?.[rotatingEncoded.toString()]) {
             throw Error("An item was tried to be decryted which either was expired or invalid");
         }
         return this.parentCrypto.decode(data);
-        4
+    }
+
+    /**
+     * trigger function to determine whether the gc needs to cycle again, this is either time or call based
+     * the gc itself collects only on expiration dates
+     * The idea is to run this operation only occasionally because it is costly
+     *
+     * @param currTime
+     * @private
+     */
+    private gcLimitReached(currTime: number) {
+        return (this.lastCall + this.timeout) < currTime || ((++this.gcCycleCnt) % ExpiringCrypto.MAX_GC_CYCLES == 0);
     }
 
     encode(data: any): any {
