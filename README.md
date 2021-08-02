@@ -23,7 +23,7 @@ For now, it is only a small set of Helpers consisting of following items:
 * [DomQuery](https://github.com/werpu/mona-dish/blob/master/docs/DomQuery.md) ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams and shadow dom trees
 * XmlQuery ... a jquery like XML document query selection and manipulation engine ... also supports streams
 * [Messaging](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md) ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom
-* [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md) ... RxJS bindings 
+* [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/RxJS.md) ... RxJS bindings 
 
 
 ## Implementation languages
