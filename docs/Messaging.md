@@ -189,7 +189,7 @@ export declare class Message {
  */
 export declare class Broker {
     name: string;
-   
+
     /**
      * constructor has an optional root element
      * and an internal name
@@ -198,22 +198,26 @@ export declare class Broker {
      * @param name
      */
     constructor(scopeElement?: HTMLElement | Window | ShadowRoot, name?: string);
+
     /**
      * register the current broker into a scope defined by wnd
      * @param scopeElement
      */
     register(scopeElement: HTMLElement | Window | ShadowRoot): void;
+
     /**
      * manual unregister function, to unregister as broker from the current
      * scoe
      */
     unregister(): void;
+
     /**
      * registers a listener on a channel
      * @param channel the channel to register the listeners for
      * @param listener the listener to register
      */
     registerListener(channel: string, listener: (msg: Message) => void): void;
+
     /**
      * unregisters a listener from this channel
      *
@@ -221,6 +225,7 @@ export declare class Broker {
      * @param listener the listener to unregister the channel from
      */
     unregisterListener(channel: string, listener: (msg: Message) => void): void;
+
     /**
      * broadcast a message
      * the message contains the channel and the data and some internal bookeeping data
@@ -259,8 +264,8 @@ export declare class Broker {
      * @param callBrokerListeners same level?
      */
     answer(channel: string, request: Message, answer: Message);
-    
 
+}
 ```
 Note, the standard broker works over dom mechanisms.
 However a secondary broker has been provided which 
@@ -322,18 +327,33 @@ export interface Crypto {
     decode(data: any): any;
 }
 ```
+For some crypto implementations a generic hash generator which needs to be provided can come in handy
+for this reason whe have provided a hash api without concrete implementation for now:
+
+```typescript
+/**
+ * generic hash interface which provides
+ * exactly one method a hash encode which returns a string hash value of encoded data
+ */
+export interface Hash {
+    encode(encodedData: string): string;
+}
+```
+
+
 
 A very simple example of such an implementation is
 provided for JSON:
 
 ````typescript
+// noinspection JSAnnotator
 /**
  * Bason JSON stringify encryption impl
  */
 export class JSONCrypto implements Crypto {
-    
+
     decode(data: any): any {
-        if(data?.encryptedData) {
+        if (data?.encryptedData) {
             return JSON.parse(data.encryptedData);
         }
         return data;
@@ -359,6 +379,17 @@ let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
 
 The rest then is handled transparently.
 
+### Crypto Extensions
 
+Here we can find several raw implementations of the basic crypto functionality without
+binding ourselves to a specific crypto lib.
+
+For now we have provided following
+
+* JSONCrypto an implementation for encoding and decoding into JSON
+* ExpiringCrypto a crypto decorator which provides an expiration mechanism so that messages and keys can timeout
+this is useful for rotating key constructs
+
+See the code for further details and also how to implement your own crypto implementation.
 
 

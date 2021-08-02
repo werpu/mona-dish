@@ -53,7 +53,8 @@ export default  (env: any) => {
             minimizer: [new TerserPlugin({ extractComments: false })],
         },
         externals: {
-            "rxjs": "rxjs"
+            "rxjs": "rxjs",
+            "crypto-js": "crypto-js"
         },
         plugins: [
 

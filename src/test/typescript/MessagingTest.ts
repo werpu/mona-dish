@@ -4,10 +4,10 @@ import {
     BroadcastChannelBroker,
     BroadcastChannelBrokerFactory,
     Broker,
-    JSONCrypto,
     Message
 } from "../../main/typescript/Messaging";
 import { BroadcastChannel as BC, enforceOptions } from 'broadcast-channel';
+import {JSONCrypto} from "../../main/typescript/CryptoExtensions";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;

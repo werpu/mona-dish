@@ -16,12 +16,13 @@ export {
     ArrayCollector,
     AssocArrayCollector,
     FormDataCollector,
-    QueryFormDataCollector
+    QueryFormDataCollector,
 } from "./SourcesCollectors";
 
 
 export {TagBuilder} from "./TagBuilder";
 
-export {Message, Broker, BroadcastChannelBroker} from "./Messaging";
+export {Message, Broker, BroadcastChannelBroker, Crypto, NoCrypto, Hash} from "./Messaging";
+export {JSONCrypto, ExpiringCrypto} from "./CryptoExtensions";
 
 

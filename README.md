@@ -134,7 +134,7 @@ it("must have a correct first last lazy", function () {
     }).last().value;
     expect(first).to.eq(1);
     expect(last).to.eq(4);
-);
+});
 ```
 
 Or in conjunction with DomQuery
