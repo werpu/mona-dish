@@ -73,8 +73,10 @@ export class ExpiringCrypto implements Crypto {
 
         const currTime = new Date().getTime();
         if(this.gcLimitReached(currTime)) {
-            this.storedMessages = LazyStream.ofAssoc(this.storedMessages)
-                .filter(data => data[1] >= currTime).collect(new AssocArrayCollector());
+            this.storedMessages = LazyStream
+                .ofAssoc(this.storedMessages)
+                .filter(data => data[1] >= currTime)
+                .collect(new AssocArrayCollector());
         }
         this.lastCall = currTime;
 
