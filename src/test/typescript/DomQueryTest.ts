@@ -16,7 +16,7 @@
 
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {DomQuery} from "../../main/typescript/DomQuery";
+import {DomQuery, DomQueryCollector} from "../../main/typescript";
 import {ArrayCollector, Lang, LazyStream} from "../../main/typescript";
 import sinon = require('sinon');
 import trim = Lang.trim;
@@ -279,6 +279,15 @@ describe('DOMQuery tests', function () {
         coll = probe1.lazyStream.collect(new ArrayCollector());
         expect(coll.length == 4).to.be.true;
 
+    });
+
+    it('it must stream to a domquery', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll: DomQuery = probe1.stream.collect(new DomQueryCollector());
+        expect(coll.length == 4).to.be.true;
+
+        coll = probe1.lazyStream.collect(new DomQueryCollector());
+        expect(coll.length == 4).to.be.true;
     });
 
     it('it must have parents', function () {

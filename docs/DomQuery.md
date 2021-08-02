@@ -18,6 +18,47 @@ let probe2 = DomQuery.querySelectorAll("div")
 expect(probe2.length == 3);
 ```
 
+## DomQuery and Streams
+
+Most of the time, you won´t have to touch the stream api
+because DomQuery provides almost the entire functionality of what
+Streams provide. But there are cases where you have to transform
+a domquery statastructure into a stream and vice vera
+
+### DomQuery into Streams
+
+Every domquery has a readonly stream and lazystream  property, which shows 
+a stream representation of the DomQuery. 
+
+Example
+
+````typescript
+let probe1 = new DomQuery(document).querySelectorAll("div");
+let coll: Array<any> = probe1.stream.collect(new ArrayCollector());
+expect(coll.length == 4).to.be.true;
+
+coll = probe1.lazyStream.collect(new ArrayCollector());
+expect(coll.length == 4).to.be.true;
+````
+
+Streams can also be used to connect the DomQuery into RxJS (see RxJS below)
+
+### Streams into DomQuery
+
+You either can pass an array collected from the stream into DomQuery
+or can use the DomQuery collector to get a DomQuery object from a strea,
+
+Example
+
+````typescript
+let probe1 = new DomQuery(document).querySelectorAll("div");
+let coll: DomQuery = probe1.stream.collect(new DomQueryCollector());
+expect(coll.length == 4).to.be.true;
+
+coll = probe1.lazyStream.collect(new DomQueryCollector());
+expect(coll.length == 4).to.be.true;
+````
+
 ## DomQuery and Shadow dom trees...
 
 * At the time of writing a draft of shadow dom support made it into
@@ -40,7 +81,7 @@ can be mapped, so you can use the stream property to map
 a DomQuery and XMLQuery object or a Configuration straight
 into an RxJS Observer.
 
-See [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md) for further info on this topic.
+See [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/RxJS.md) for further info on this topic.
 
 
 ## API:
