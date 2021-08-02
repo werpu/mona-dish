@@ -7,7 +7,7 @@ import {
     Message
 } from "../../main/typescript/Messaging";
 import { BroadcastChannel as BC, enforceOptions } from 'broadcast-channel';
-import {JSONCrypto} from "../../main/typescript/CryptoExtensions";
+import {JSONCrypto} from "../../main/typescript";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -40,6 +40,7 @@ describe('Broker tests', function () {
     beforeEach(function () {
 
 
+        // noinspection HtmlUnknownAttribute
         let dom = new JSDOM(`
             <!DOCTYPE html>
         <html lang="en">
@@ -158,6 +159,7 @@ describe('Broker tests', function () {
     });
 
     it('bidirectional message', function () {
+        // noinspection DuplicatedCode
         let broker = new Broker();
         let answerReceived = false;
         broker.registerListener("channel", (message: Message): void => {
@@ -175,6 +177,7 @@ describe('Broker tests', function () {
 
     it('bidirectional message with two brokers', function () {
         let broker = new Broker();
+        // noinspection DuplicatedCode
         let broker2 = new Broker();
         let answerReceived = false;
         broker2.registerListener("channel", (message: Message): void => {
@@ -203,10 +206,10 @@ describe('Broker tests', function () {
         let broker2CallCnt = 0;
 
 
-        broker1.registerListener(CHANNEL, (message: Message) => {
+        broker1.registerListener(CHANNEL, () => {
             broker1CallCnt++;
         });
-        broker2.registerListener(CHANNEL, (message: Message) => {
+        broker2.registerListener(CHANNEL, () => {
             broker2CallCnt++;
         });
 
@@ -246,10 +249,10 @@ describe('Broker tests', function () {
         let broker2CallCnt = 0;
 
 
-        broker1.registerListener(CHANNEL, (message: Message) => {
+        broker1.registerListener(CHANNEL, () => {
             broker1CallCnt++;
         });
-        broker2.registerListener(CHANNEL, (message: Message) => {
+        broker2.registerListener(CHANNEL, () => {
             broker2CallCnt++;
         });
 
@@ -292,12 +295,12 @@ describe('Broker tests', function () {
 
 
         let shadowBrokerReceived = 0;
-        shadowBroker.registerListener(CHANNEL, (msg: Message) => {
+        shadowBroker.registerListener(CHANNEL, () => {
             shadowBrokerReceived++;
         });
 
         let brokerReceived = 0;
-        origBroker.registerListener(CHANNEL, (msg: Message) => {
+        origBroker.registerListener(CHANNEL, () => {
             brokerReceived++;
         });
 
@@ -321,7 +324,7 @@ describe('Broker tests', function () {
         let broker1 = new Broker();
         let broker2 = new Broker(document.getElementById("id_1"));
         let brokerReceived = 0;
-        broker2.registerListener(CHANNEL, (msg: Message) => {
+        broker2.registerListener(CHANNEL, () => {
             brokerReceived++;
         });
         broker1.broadcast(CHANNEL, new Message("booga"));
@@ -334,8 +337,8 @@ describe('Broker tests', function () {
         let broker2 = new BroadcastChannelBroker((group: string) => new BC(group));
 
         let brokerReceived = 0;
-        new Promise((apply, reject) => {
-            broker2.registerListener(CHANNEL, (msg: Message) => {
+        new Promise((apply) => {
+            broker2.registerListener(CHANNEL, () => {
                 brokerReceived++;
                 apply(brokerReceived);
             })
@@ -365,14 +368,14 @@ describe('Broker tests', function () {
 
         let shadowBrokerReceived = 0;
 
-        shadowBroker.registerListener(CHANNEL, (msg: Message) => {
+        shadowBroker.registerListener(CHANNEL, () => {
             shadowBrokerReceived++;
         });
 
 
         let brokerReceived = 0;
 
-        origBroker.registerListener(CHANNEL, (msg: Message) => {
+        origBroker.registerListener(CHANNEL, () => {
             brokerReceived++;
         });
 
@@ -478,6 +481,7 @@ describe('Broker tests', function () {
     it('bidirectional message with Broadcast Channel', async function () {
         let broker = new BroadcastChannelBroker();
         let broker2 = new BroadcastChannelBroker();
+        // noinspection DuplicatedCode
         let answerReceived = false;
         broker2.registerListener("channel", (message: Message): void => {
             setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
@@ -498,7 +502,7 @@ describe('Broker tests', function () {
         let crypto = new JSONCrypto();
         let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
         let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
-
+        // noinspection DuplicatedCode
         let answerReceived = false;
 
         broker2.registerListener("channel", (message: Message): void => {
