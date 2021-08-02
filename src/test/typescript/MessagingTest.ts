@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
+import * as CryptoJS from "crypto-js";
 import {
     BroadcastChannelBroker,
     BroadcastChannelBrokerFactory,
@@ -7,7 +8,7 @@ import {
     Message
 } from "../../main/typescript/Messaging";
 import {BroadcastChannel as BC, enforceOptions} from 'broadcast-channel';
-import {JSONCrypto} from "../../main/typescript";
+import {ExpiringCrypto, Hash, JSONCrypto} from "../../main/typescript";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
@@ -514,5 +515,33 @@ describe('Broker tests', function () {
                 broker.unregister();
                 broker2.unregister();
             });
+    });
+
+    it('Crypto Timer Extension test 1', async function() {
+        let encodeCalled = false;
+        //we use a small dynamically generated implementation for the hash
+        let hashSum: Hash =  {
+            encode: (encodedData: string): string => {
+                encodeCalled = true;
+                return CryptoJS.SHA256 (encodedData);
+            }
+        };
+
+        let expiringCrypto = new ExpiringCrypto(20 /*ms*/, new JSONCrypto(), hashSum);
+
+        let toEncrypt = "hello world";
+        let encrypted = expiringCrypto.encode(toEncrypt);
+        expect(encrypted).not.to.eq(toEncrypt);
+        let decrypted = expiringCrypto.decode(encrypted);
+        expect(decrypted).to.eq(toEncrypt);
+        decrypted = expiringCrypto.decode(encrypted);
+        expect(decrypted).to.eq(toEncrypt);
+        await delay(50);
+        try {
+            decrypted = expiringCrypto.decode(encrypted);
+        } catch (e) {
+            return true;
+        }
+        expect(true).to.be .false;
     });
 })

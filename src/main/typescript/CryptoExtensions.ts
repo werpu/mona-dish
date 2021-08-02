@@ -65,11 +65,14 @@ export class ExpiringCrypto implements Crypto {
     }
 
     decode(data: any): any {
-        if ((this.gcCycleCnt++ % ExpiringCrypto.MAX_GC_CYCLES) === 0) {
-            this.storedMessages = LazyStream.ofAssoc(this.storedMessages).filter(data => data[1] > this.timeout).collect(new AssocArrayCollector());
-        }
+        //if ((this.gcCycleCnt++ % ExpiringCrypto.MAX_GC_CYCLES) === 0) {
+
+        const currTime = new Date().getTime();
+        this.storedMessages = LazyStream.ofAssoc(this.storedMessages)
+            .filter(data => data[1] >= currTime).collect(new AssocArrayCollector());
+
         let rotatingEncoded = this.hashSum.encode(data);
-        if (!this.storedMessages?.[rotatingEncoded]) {
+        if (!this.storedMessages?.[rotatingEncoded.toString()]) {
             throw Error("An item was tried to be decryted which either was expired or invalid");
         }
         return this.parentCrypto.decode(data);
@@ -81,7 +84,7 @@ export class ExpiringCrypto implements Crypto {
         //ok use the hashsum really only to store expirations, theoretically there could be a second message which does not invalidate the first one
         //but this is very unlikely unless a message is sent over and over again, in this case we have a timeout extension anyway!
         let rotatingEncoded = this.hashSum.encode(encoded);
-        this.storedMessages[rotatingEncoded] = (new Date().getMilliseconds()) + this.timeout;
+        this.storedMessages[rotatingEncoded.toString()] = (new Date().getTime()) + this.timeout;
         return encoded;
     }
 }

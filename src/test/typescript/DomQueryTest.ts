@@ -541,5 +541,4 @@ describe('DOMQuery tests', function () {
             expect(e.message.indexOf("not supported") != -1).to.be.true;
         }
     })
-
 });
