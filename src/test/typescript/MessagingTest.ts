@@ -6,7 +6,7 @@ import {
     Broker,
     Message
 } from "../../main/typescript/Messaging";
-import { BroadcastChannel as BC, enforceOptions } from 'broadcast-channel';
+import {BroadcastChannel as BC, enforceOptions} from 'broadcast-channel';
 import {JSONCrypto} from "../../main/typescript";
 
 const jsdom = require("jsdom");
@@ -41,23 +41,21 @@ describe('Broker tests', function () {
 
 
         // noinspection HtmlUnknownAttribute
-        let dom = new JSDOM(`
-            <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <title>Title</title>
-            </head>
-            <body>
-                <div id="id_1"></div>
-                <div id="id_2"  booga="blarg" class="blarg2"></div>
-                <div id="id_3" class="blarg1 blarg2"></div>
-                <div id="id_4"></div>
-                <iframe id="iframe1"></iframe>
-                <div id="shadow1"></div>
-            </body>
-            </html>
-    
+        let dom = new JSDOM(`<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="id_1"></div>
+<div id="id_2" booga="blarg" class="blarg2"></div>
+<div id="id_3" class="blarg1 blarg2"></div>
+<div id="id_4"></div>
+<iframe id="iframe1"></iframe>
+<div id="shadow1"></div>
+</body>
+</html>
     `, {
             contentType: "text/html",
             runScripts: "dangerously"
@@ -74,7 +72,7 @@ describe('Broker tests', function () {
         };
 
 
-       (<any>window)["BroadcastChannel"] = BC;
+        (<any>window)["BroadcastChannel"] = BC;
         /*this.xhr = sinon.useFakeXMLHttpRequest();
         this.requests = [];
         this.xhr.onCreate = (xhr) => {
@@ -234,8 +232,7 @@ describe('Broker tests', function () {
         let chn1CallCnt = 0;
         let chn2CallCnt = 0;
 
-        chn1.addEventListener("message", (message) => {
-            console.log(message);
+        chn1.addEventListener("message", () => {
             chn1CallCnt++;
         });
         chn2.addEventListener("message", () => chn2CallCnt++);
@@ -257,8 +254,7 @@ describe('Broker tests', function () {
         });
 
 
-
-        return  (async () => {
+        return (async () => {
             await broker1.broadcast(CHANNEL, new Message("booga"));
             await broker1.broadcast(CHANNEL, new Message("booga"));
             await broker1.broadcast(CHANNEL, new Message("booga"));
@@ -320,7 +316,7 @@ describe('Broker tests', function () {
 
     });
 
-    it("subelements", function () {
+    it("must handle sub-elements correctly", function () {
         let broker1 = new Broker();
         let broker2 = new Broker(document.getElementById("id_1"));
         let brokerReceived = 0;
@@ -418,7 +414,6 @@ describe('Broker tests', function () {
     });
 
 
-
     it('basic message with subjects and rxjs', async function () {
         let broker = new BroadcastChannelBroker();
         let messageReceived = false;
@@ -432,6 +427,7 @@ describe('Broker tests', function () {
         expect(messageReceived).to.be.true;
         broker.unregister();
     });
+
     it('basic message with subjects and rxjs second test', async function () {
         let broker = new BroadcastChannelBroker();
         let messageReceived = false;
@@ -518,10 +514,5 @@ describe('Broker tests', function () {
                 broker.unregister();
                 broker2.unregister();
             });
-
-
-
     });
-
-
 })

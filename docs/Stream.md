@@ -1,13 +1,12 @@
 # The mona-dish streaming api
 
-* note this documentation is a work in progress, i will 
+* note this documentation is a work in progress, I will 
 add additional information as my time allows. So stay tuned.
 
 The mona-dish streaming api was heavily inspired by
-the java streaming api, which allows to 
-use finite and infinite collections and perform operations
+the java streaming api, which allows using finite and infinite collections and perform operations
 on the data in a functional manner.
-Same as in java the mona-disn api has lazy and early streams.
+Same as in java the mona-dish api has lazy and early streams.
 
 Both stream types have their upside and downsides.
 
@@ -15,9 +14,9 @@ Both stream types have their upside and downsides.
 
 What are streams.
 The idea of streams is heavily influenced by the lisp way of handling collections
-lazily. In Lisp you basically have collections which can be seen
+lazily. In Lisp, you basically have collections which can be seen
 as Stream of data on which operations can be performed. 
-The advantage of this method is that practially you do not have to know
+The advantage of this method is that practically you do not have to know
 upfront how much data you process and the entire data
 processing is performed in small chunks of monadish operations.
 
@@ -28,11 +27,11 @@ Now why here in mona-dish? Simple, the pattern is exactly what mona-dish
 tries to cover. Functional monadish patterns. And frankly spoken
 I needed it for the apache myfaces javascript codebase.
 
-So to stay save licenswise, I implemented streams within the context of this project.
+So to stay save licence - wise, I implemented streams within the context of this project.
 
 ## Early and Lazy streams
 
-What is the difference. In lazy streams each operation is peformed at
+What is the difference. In lazy streams each operation is performed at
 the latest point possible in time (most of the time during collecting the data but not necessarily so)
 in the order the operations were performed.
 
@@ -46,14 +45,14 @@ for deep chains they might become slower again.
 Because ever step in the chain is iterated.
 
 Lazy streams are slower for small number of datasets because a lot of backtracking to the
-beginning of the chain is perfomed, but they start
-to outperform the early streams beyound a certain number of datasets
+beginning of the chain is performed, but they start
+to outperform the early streams beyond a certain number of datasets
 and operations nesting threshold, because only one iteration is done!
 
-Also you dont have to know upfront how much data is served into the stream chain upfront,
+Also, you don't have to know upfront how much data is served into the stream chain upfront,
 and hence they use less ram because the chain is triggered
 on a per item case instead of rolling over the entire collection at once.
-So theoretically lazy streams can work over an andless set of data.
+So theoretically lazy streams can work over an endless set of data.
 
 
 
@@ -108,7 +107,7 @@ would result in following result
 resultArr == [1, 3]; //would result in true
 ```
 
-So in our example we wilter a simple array and remove the number two
+So in our example we have a simple array and remove the number two
 and collect the results of this operation in a new Array.
 
 #### iteration over a collection
@@ -119,7 +118,7 @@ of other things, which do nothing to influence the stream items themselves.
 
 So basically an endpoint which does not expect a result.
 
-Lets take again our former example and alter it a little bit
+Let's take again our former example and alter it slightly
 ```Typescript
 
 LazyStream.of(...[1,2,3])
@@ -137,16 +136,16 @@ this would result in a console output of
 So nothing is returned... the items filter the number 2 upfront
 and then print out the remaining items.
 
-### Mapping and Flatmapping
+### Mapping and Flat Maps
 
 So what is this... To sum it quickly up
 mapping is the transformation of one element type into another
 flatmapping is, that you sometimes return a collection and want
-to streamlined it into your one dimensional stream.
+to streamline it into your one dimensional stream.
 
-Thats the theory behind it.
-Practially if you map one element to another, you use map
-if your the result of your mapping operation results in another stream
+That's the theory behind it.
+Practically if you map one element to another, you use map
+to transform elements and then the result of your mapping operation results in another stream,
 and you want to map it into a one dimensional stream, use flatmap.
 
 ####Example`for map:
@@ -217,18 +216,18 @@ export interface ICollector<T, S> {
 
 
 For convenience reasons there is a handful of data collectors
-implemented which should cover most usecases:
+implemented which should cover most use-cases:
 
 * ArrayCollector for simple arrays
 * AssocArrayCollector collects a [key,value] tuple stream into an associative array
 * FormDataCollector collects a [key,value] tuple stream into a FormData object
 * Will be probably changed:
-    * QueryFormDataCollector FormData collector for DomQuery with encoding for sourced streams (aka domquery elements)
+    * QueryFormDataCollector FormData collector for DomQuery with encoding for sourced streams (aka DomQuery elements)
     * QueryFormStringCollector FormData collector for with encoding for key value tuples
 
-### Datasources
+### Data Sources
 
-For most cases again we have predefined datasource behavior (Arrays etc..)
+For most cases again we have predefined datasource behavior (Arrays etc…)
 but if there is a need to define a custom datasource, you have to implement following
 interface:
 
@@ -259,16 +258,16 @@ export interface IStreamDataSource<T> {
 ```
 
 
-following datasources are present (with some convenvenience shortcuts
+following data sources are present (with some convenience shortcuts
 for the most common elements)
 
 * SequenceDataSource for an arbitrary sequence of numbers
 * ArrayStreamDataSource a datasource which encapsulates an array of data
-* Also some internal datasources are implemented which should not be used outside (hence not listed here)
+* Also, some internal data sources are implemented which should not be used outside (hence not listed here)
 
 ## of, ofAssoc
 
-For convenience reasons you dont have to explicitly define a datasource in many cases
+For convenience reasons you don't have to explicitly define a datasource in many cases
 static helper methods provide some quick initialisation methods:
 
 ```typescript
