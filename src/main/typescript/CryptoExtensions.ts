@@ -35,19 +35,18 @@ export class JSONCrypto implements Crypto {
 
 
 /**
- * a class with rotating crypto keys and a timeout functionality which drops decodes after a certain period of time
+ * a class with  timeout functionality which blocks decodes after a certain period of time
  * if the message is not decoded by then
- * We use MD5 sums as identifier generation after encryption to make sure
+ * We use hash as identifier generation after encryption to make sure
  * a trace was possible
  *
- * every 10th encode or so we drop stale messages which are not used anymore.
  * The idea behind this is to have a generic wrapper which allows messages with dynamic encryption
  * where keys/salts only exist for a certain period of time before expiring!
  * That way someone who implements such a scheme does not have to take care about the bookeeping mechanisms!
+ * Or you can use crypto mechanisms which do not have expiring keys and still expire them automatically
  *
  * I will leave it up to the system integrator to provide a rotating crypto class, because this is highly
  * implementation dependent. But it helps to have a wrapper!
- *
  */
 export class ExpiringCrypto implements Crypto {
 
@@ -65,6 +64,10 @@ export class ExpiringCrypto implements Crypto {
 
     }
 
+    /**
+     * decode implementation with a timeout hook install
+     * @param data
+     */
     decode(data: any): any {
         //if ((this.gcCycleCnt++ % ExpiringCrypto.MAX_GC_CYCLES) === 0) {
 
@@ -87,6 +90,7 @@ export class ExpiringCrypto implements Crypto {
      * trigger function to determine whether the gc needs to cycle again, this is either time or call based
      * the gc itself collects only on expiration dates
      * The idea is to run this operation only occasionally because it is costly
+     * We also could have used timeouts etc.. but those would need shutdown/destroy cleanups
      *
      * @param currTime
      * @private
@@ -95,6 +99,12 @@ export class ExpiringCrypto implements Crypto {
         return (this.lastCall + this.timeout) < currTime || ((++this.gcCycleCnt) % ExpiringCrypto.MAX_GC_CYCLES == 0);
     }
 
+    /**
+     * encode with a timeout hook installed
+     * calls the encode of the delegated object
+     *
+     * @param data
+     */
     encode(data: any): any {
         let encoded = this.parentCrypto.encode(data);
         //ok use the hashsum really only to store expirations, theoretically there could be a second message which does not invalidate the first one
