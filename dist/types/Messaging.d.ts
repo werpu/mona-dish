@@ -25,20 +25,18 @@ export interface Crypto {
     decode(data: any): any;
 }
 /**
+ * generic hash interface which provides
+ * exactly one method a hash encode which returns a string hash value of encoded data
+ */
+export interface Hash {
+    encode(encodedData: string): string;
+}
+/**
  * Default implementation = no encryption
  */
 export declare class NoCrypto implements Crypto {
     decode(data: any): string;
     encode(data: any): any;
-}
-/**
- * basic json stringify encryption impl
- */
-export declare class JSONCrypto implements Crypto {
-    decode(data: any): any;
-    encode(data: any): {
-        encryptedData: string;
-    };
 }
 export declare class Message {
     message: any;

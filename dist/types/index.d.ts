@@ -4,6 +4,7 @@ export { Config, Monad, IValueHolder, IFunctor, IMonad, IIdentity, Optional, Val
 export { CancellablePromise, Promise, IPromise, PromiseStatus } from "./Promise";
 export { XMLQuery, XQ } from "./XmlQuery";
 export { Stream, LazyStream, IteratableConsumer, IStream } from "./Stream";
-export { ArrayStreamDataSource, MappedStreamDataSource, FilteredStreamDatasource, FlatMapStreamDataSource, SequenceDataSource, QueryFormStringCollector, IStreamDataSource, ICollector, ArrayCollector, AssocArrayCollector, FormDataCollector, QueryFormDataCollector } from "./SourcesCollectors";
+export { ArrayStreamDataSource, MappedStreamDataSource, FilteredStreamDatasource, FlatMapStreamDataSource, SequenceDataSource, QueryFormStringCollector, IStreamDataSource, ICollector, ArrayCollector, AssocArrayCollector, FormDataCollector, QueryFormDataCollector, } from "./SourcesCollectors";
 export { TagBuilder } from "./TagBuilder";
-export { Message, Broker, BroadcastChannelBroker } from "./Messaging";
+export { Message, Broker, BroadcastChannelBroker, Crypto, NoCrypto, Hash } from "./Messaging";
+export { JSONCrypto, ExpiringCrypto } from "./CryptoExtensions";
