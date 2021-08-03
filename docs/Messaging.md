@@ -88,6 +88,35 @@ For receiving and sending data perform following operation
 * for sending use the broadcast method!
 
 
+### Transports and Broker Types
+
+To transmit messages within a browser there can be various means of transport.
+I am aware that there is no one fits for all solution.
+When I started this module, I thought to provide such a solution but after doing research
+I came to the conclusion that basic channel messaging already is covered by third party libraries
+and partially browser apis. 
+So I left it open  what to use and provided two basic implementations
+
+Both broker types implement the same core api
+they have the same channel/channel group functionality (something which extends on existing mechanisms)
+but they do not relay messages automatically, if you want to relay messages you 
+have to add specialized listeners which then relay the mssage from one broker system into another.
+
+However normally this is not needed, once settled on a transport you hardly mix other transports in!
+
+
+#### The basic Broker
+This is a simple broker which uses basic dom mechanisms to relay the messages
+
+#### The BroadcastChannelBroker
+
+Which uses an existing (almost every browser by now has one) implementation 
+of the broadcast channel api.
+For browsers which do not use it, shims are available:
+[see this link](https://www.npmjs.com/package/broadcast-channel)
+
+
+
 ### Example:
 
 ```typescript
