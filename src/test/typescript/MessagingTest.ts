@@ -157,6 +157,23 @@ describe('Broker tests', function () {
         expect(messageReceived).to.be.true;
     });
 
+    it('basic message different broker groups', function () {
+        let broker = new Broker(window, "aaa");
+        let broker2 = new Broker(window, "bbb")
+        let messageReceived = false;
+        let messageReceived2 = false;
+        broker.registerListener("channel", (message: Message): void => {
+            messageReceived = message.message === "booga";
+        });
+        broker2.registerListener("channel", (message: Message): void => {
+            messageReceived2 = message.message === "booga";
+        });
+
+        broker.broadcast("channel", new Message("booga"));
+        expect(messageReceived).to.be.true;
+        expect(messageReceived2).to.be.false;
+    });
+
     it('bidirectional message', function () {
         // noinspection DuplicatedCode
         let broker = new Broker();
@@ -288,7 +305,7 @@ describe('Broker tests', function () {
 
         //we now attach the brokers
         let origBroker = new Broker(window, "orig");
-        let shadowBroker = new Broker(shadowRoot, "shadow");
+        let shadowBroker = new Broker(shadowRoot, "orig");
 
 
         let shadowBrokerReceived = 0;

@@ -133,8 +133,8 @@ abstract class BaseBroker {
             if (msg.identifier in this.processedMessages) {
                 return;
             }
-            if(msg?.encoded || msg?.["detail"]?.encoded) {
-                if(msg?.["detail"]) {
+            if (msg?.encoded || msg?.["detail"]?.encoded) {
+                if (msg?.["detail"]) {
                     msg["detail"].message = this.crypto.decode(msg["detail"].message);
                     msg["detail"].encoded = false;
                 } else {
@@ -163,10 +163,10 @@ abstract class BaseBroker {
             //The wrapper conversion and then again call us here
             //that way both directions are handled.. next calls the broker
             //and a broadcast calls next
-            if((<MessageWrapper>msg)?.detail) {
+            if ((<MessageWrapper>msg)?.detail) {
                 oldNext.call(subject, (<MessageWrapper>msg)?.detail);
             } else {
-                this.broadcast(channel, <Message> msg);
+                this.broadcast(channel, <Message>msg);
             }
         }
         return subject;
@@ -225,8 +225,8 @@ abstract class BaseBroker {
      * @param request the requesting message
      * @param answer the answer to the request
      */
-    answer(channel: string, request: Message |string, answer: Message) {
-        if('string' == typeof request) {
+    answer(channel: string, request: Message | string, answer: Message) {
+        if ('string' == typeof request) {
             request = new Message(request);
         }
 
@@ -254,7 +254,7 @@ abstract class BaseBroker {
      * @param message
      */
     request(channel: string, message: Message | string): Promise<Message> {
-        if('string' == typeof message) {
+        if ('string' == typeof message) {
             message = new Message(message);
         }
         let messageId = message.identifier;
@@ -338,8 +338,8 @@ export class BroadcastChannelBroker extends BaseBroker {
     constructor(private brokerFactory: Function = broadCastChannelBrokerGenerator, private channelGroup = DEFAULT_CHANNEL_GROUP, public crypto: Crypto = noEncryption) {
         super();
         this.msgListener = (messageData: MessageWrapper) => {
-            if(messageData.detail.encoded) {
-                messageData.detail.message = <any> this.crypto.decode(messageData.detail.message);
+            if (messageData.detail.encoded) {
+                messageData.detail.message = <any>this.crypto.decode(messageData.detail.message);
                 messageData.detail.encoded = false;
             }
             let coreMessage = messageData.detail;
@@ -359,19 +359,19 @@ export class BroadcastChannelBroker extends BaseBroker {
 
     broadcast(channel: string, message: Message | string, includeOrigin = true) {
         try {
-            if('string' == typeof message) {
+            if ('string' == typeof message) {
                 message = new Message(message);
             }
             //we now run a quick remapping to avoid
             //serialisation errors
-            let msgString = JSON.stringify(<Message> message);
-            message = <Message> JSON.parse(msgString);
+            let msgString = JSON.stringify(<Message>message);
+            message = <Message>JSON.parse(msgString);
 
             let messageWrapper = new MessageWrapper(channel, message);
             messageWrapper.detail.message = this.crypto.encode(messageWrapper.detail.message);
             messageWrapper.detail.encoded = true;
 
-            if(this?.subjects[channel]) {
+            if (this?.subjects[channel]) {
                 this.subjects[channel].next(messageWrapper);
             }
 
@@ -389,7 +389,7 @@ export class BroadcastChannelBroker extends BaseBroker {
     }
 
     register() {
-        if(!this.openChannels[this.channelGroup]) {
+        if (!this.openChannels[this.channelGroup]) {
             this.openChannels[this.channelGroup] = this.brokerFactory(this.channelGroup);
         }
         this.openChannels[this.channelGroup].addEventListener("message", this.msgListener);
@@ -405,27 +405,27 @@ export class BroadcastChannelBroker extends BaseBroker {
  * Helper factory to create a broadcast channel broker
  */
 export class BroadcastChannelBrokerFactory {
-   private broadCastChannelGenerator: Function = broadCastChannelBrokerGenerator;
-   private channelGroup = DEFAULT_CHANNEL_GROUP;
-   private crypto = noEncryption;
+    private broadCastChannelGenerator: Function = broadCastChannelBrokerGenerator;
+    private channelGroup = DEFAULT_CHANNEL_GROUP;
+    private crypto = noEncryption;
 
-   withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerFactory {
-       this.broadCastChannelGenerator = generatorFunc;
-       return this;
+    withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerFactory {
+        this.broadCastChannelGenerator = generatorFunc;
+        return this;
     }
 
     withChannelGroup(channelGroup: string): BroadcastChannelBrokerFactory {
-       this.channelGroup = channelGroup;
-       return this;
+        this.channelGroup = channelGroup;
+        return this;
     }
 
     withCrypto(crypto: Crypto): BroadcastChannelBrokerFactory {
-       this.crypto = crypto;
-       return this;
+        this.crypto = crypto;
+        return this;
     }
 
     build(): BroadcastChannelBroker {
-       return new BroadcastChannelBroker(this.broadCastChannelGenerator, this.channelGroup, this.crypto);
+        return new BroadcastChannelBroker(this.broadCastChannelGenerator, this.channelGroup, this.crypto);
     }
 
 }
@@ -482,10 +482,10 @@ export class Broker extends BaseBroker {
      * and an internal name
      *
      * @param scopeElement
-     * @param name
+     * @param brokerGroup
      * @param crypto
      */
-    constructor(scopeElement: HTMLElement | Window | ShadowRoot = window, public name = "brokr", crypto: Crypto = noEncryption) {
+    constructor(scopeElement: HTMLElement | Window | ShadowRoot = window, public brokerGroup = "brokr", crypto: Crypto = noEncryption) {
 
         super();
 
@@ -506,7 +506,7 @@ export class Broker extends BaseBroker {
                 }
                 //coming in from up... we need to send it down
                 //a relayed message always has to trigger the listeners as well
-                if((<any>event)?.detail) {
+                if ((<any>event)?.detail) {
                     this.broadcast(channel, msg);
                 } else {
                     this.broadcast(channel, msg);
@@ -533,9 +533,9 @@ export class Broker extends BaseBroker {
                 (<any>scopeElement).setAttribute("data-broker", "1");
         }
 
-        this.rootElem.addEventListener(Broker.EVENT_TYPE, this.msgHandler, {capture: true});
+        this.rootElem.addEventListener(this.brokerGroup + "__||__" + Broker.EVENT_TYPE, this.msgHandler, {capture: true});
         /*dom message usable by iframes*/
-        this.rootElem.addEventListener(this.MSG_EVENT, this.msgHandler, {capture: true});
+        this.rootElem.addEventListener(this.brokerGroup + "__||__" + Broker.EVENT_TYPE + this.MSG_EVENT, this.msgHandler, {capture: true});
     }
 
     /**
@@ -543,9 +543,10 @@ export class Broker extends BaseBroker {
      * scope
      */
     unregister() {
-        this.rootElem.removeEventListener(Broker.EVENT_TYPE, this.msgHandler)
-        this.rootElem.removeEventListener(this.MSG_EVENT, this.msgHandler)
+        this.rootElem.removeEventListener(this.brokerGroup + "__||__" + Broker.EVENT_TYPE, this.msgHandler)
+        this.rootElem.removeEventListener(this.brokerGroup + "__||__" + this.MSG_EVENT, this.msgHandler)
     }
+
 
 
     /**
@@ -557,15 +558,15 @@ export class Broker extends BaseBroker {
      * (for instance 2 iframes within the same parent broker)
      */
     broadcast(channel: string, message: Message | string) {
-        if('string' == typeof message) {
+        if ('string' == typeof message) {
             message = new Message(message);
         }
         //message.message = this.crypto.encode(message);
         //message.encoded = true;
 
-        if(this?.subjects[channel]) {
+        if (this?.subjects[channel]) {
             let messageWrapper = new MessageWrapper(channel, message);
-            if(!messageWrapper.detail.encoded) {
+            if (!messageWrapper.detail.encoded) {
                 messageWrapper.detail.message = this.crypto.encode(messageWrapper.detail.message);
                 messageWrapper.detail.encoded = true;
             }
@@ -581,6 +582,7 @@ export class Broker extends BaseBroker {
         }
     }
 
+
     private dispatchUp(channel: string, message: Message, ignoreListeners = true, callBrokerListeners = true) {
         if (!ignoreListeners) {
             this.msgCallListeners(channel, message);
@@ -592,12 +594,12 @@ export class Broker extends BaseBroker {
             window.parent.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
         }
         if (callBrokerListeners) {
-            Broker.dispatchSameLevel(channel, message);
+            this.dispatchSameLevel(channel, message);
         }
     }
 
-    private static dispatchSameLevel(channel: string, message: Message) {
-        let event = Broker.transformToEvent(channel, message, true);
+    private dispatchSameLevel(channel: string, message: Message) {
+        let event = this.transformToEvent(channel, message, true);
         //we also dispatch sideways
         window.dispatchEvent(event);
     }
@@ -608,7 +610,7 @@ export class Broker extends BaseBroker {
             this.msgCallListeners(channel, message);
         }
         this.processedMessages[message.identifier] = message.creationDate;
-        let evt = Broker.transformToEvent(channel, message);
+        let evt = this.transformToEvent(channel, message);
 
         /*we now notify all iframes lying underneath */
         Array.prototype.slice.call(document.querySelectorAll("iframe")).forEach((element: HTMLIFrameElement) => {
@@ -619,7 +621,7 @@ export class Broker extends BaseBroker {
         Array.prototype.slice.call(document.querySelectorAll("[data-broker='1']")).forEach((element: HTMLElement) => element.dispatchEvent(evt))
 
         if (callBrokerListeners) {
-            Broker.dispatchSameLevel(channel, message);
+            this.dispatchSameLevel(channel, message);
         }
     }
 
@@ -635,10 +637,10 @@ export class Broker extends BaseBroker {
         }
     }
 
-    private static transformToEvent(channel: string, message: Message, bubbles = false): CustomEvent {
+    private transformToEvent(channel: string, message: Message, bubbles = false): CustomEvent {
         let messageWrapper = new MessageWrapper(channel, message);
         messageWrapper.bubbles = bubbles;
-        return Broker.createCustomEvent(Broker.EVENT_TYPE, messageWrapper);
+        return Broker.createCustomEvent(this.brokerGroup + "__||__" + Broker.EVENT_TYPE, messageWrapper);
     }
 
     private static createCustomEvent(name: string, wrapper: MessageWrapper): any {

@@ -32,23 +32,46 @@ to bundle the library application
 
 ## Usage
 
-### Brokers
+### Brokers,  Channel Groups, Channels, Messages and Listeners
 
+
+#### Broker
 Brokers are the central hook point into the message bus
 they are responsible for sending and receiving the messages
 and for distributing them over the boundaries.
 
 Every isolation layer needs one or more brokers (usually one)
 
-### Messages
+
+Brokers being able to communicate with each other, usually 
+are combined in channel groups.
+
+#### Channel Group
+
+A channel group is an identifier which
+combines a set of brokers which can share channels.
+
+Channel groups are isolated from each other
+
+
+#### Channel
+A Channel is a communication channel to share messages.
+Messages sent to a channel can be listened to by all receivers
+registered into a broker.
+
+
+Per default all brokers share a common broker group so in normal
+cases you only have to deal with brokers and channels.
+But sometimes it is desireable to have another layer of isolation
+granularity hence the concect of channel groups was introduced
+
+
+
+#### Messages
 
 Messages: Message units containing data and the channel name they should be sent to
 
-### Channels
-
-channels: String identifiers for the bus... to where to distribute the messages to
-
-### Listeners
+#### Listeners
 
 Ever broker has one or more listeners listening to channels
 a channel name of * means receive all messages
@@ -69,7 +92,7 @@ For receiving and sending data perform following operation
 
 ```typescript
  let broker1 = new Broker();//define a broker with a window context
- let shadowBroker = new Broker(shadowRoot, "shadow");    //define a broker with a shadow root reference and a name
+ let shadowBroker = new Broker(shadowRoot, "shadow");    //define a broker with a shadow root reference and a channel grup
 
  /*
   * registers a listener on the channel
