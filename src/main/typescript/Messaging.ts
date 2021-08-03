@@ -412,18 +412,18 @@ export class BroadcastChannelBroker extends BaseBroker {
 /**
  * Helper factory to create a broadcast channel broker
  */
-export class BroadcastChannelBrokerFactory {
+export class BroadcastChannelBrokerBuilder {
     private broadCastChannelGenerator: Function = broadCastChannelBrokerGenerator;
     private channelGroup = DEFAULT_CHANNEL_GROUP;
     private crypto = noEncryption;
     private listeners: Array<any> = [];
 
-    withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerFactory {
+    withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerBuilder {
         this.broadCastChannelGenerator = generatorFunc;
         return this;
     }
 
-    withListener(channel: string, ...listeners: Function[]): BroadcastChannelBrokerFactory {
+    withListener(channel: string, ...listeners: Function[]): BroadcastChannelBrokerBuilder {
         Stream.of(...listeners).each(listener => {
             this.listeners.push({
                 channel: channel,
@@ -433,12 +433,12 @@ export class BroadcastChannelBrokerFactory {
         return this;
     }
 
-    withChannelGroup(channelGroup: string): BroadcastChannelBrokerFactory {
+    withChannelGroup(channelGroup: string): BroadcastChannelBrokerBuilder {
         this.channelGroup = channelGroup;
         return this;
     }
 
-    withCrypto(crypto: Crypto): BroadcastChannelBrokerFactory {
+    withCrypto(crypto: Crypto): BroadcastChannelBrokerBuilder {
         this.crypto = crypto;
         return this;
     }
@@ -688,18 +688,18 @@ export class Broker extends BaseBroker {
 /**
  * Helper factory to create a dom broker
  */
-export class BrokerFactory {
+export class BrokerBuilder {
     private scopeElement: HTMLElement | Window | ShadowRoot = window;
     private channelGroup = DEFAULT_CHANNEL_GROUP;
     private crypto = noEncryption;
     private listeners: Array<any> = [];
 
-    withScopeElement(scopeElement: HTMLElement | Window | ShadowRoot): BrokerFactory {
+    withScopeElement(scopeElement: HTMLElement | Window | ShadowRoot): BrokerBuilder {
         this.scopeElement = scopeElement;
         return this;
     }
 
-    withListener(channel: string, ...listeners: Function[]): BrokerFactory {
+    withListener(channel: string, ...listeners: Function[]): BrokerBuilder {
         Stream.of(...listeners).each(listener => {
             this.listeners.push({
                 channel: channel,
@@ -710,12 +710,12 @@ export class BrokerFactory {
     }
 
 
-    withChannelGroup(channelGroup: string): BrokerFactory {
+    withChannelGroup(channelGroup: string): BrokerBuilder {
         this.channelGroup = channelGroup;
         return this;
     }
 
-    withCrypto(crypto: Crypto): BrokerFactory {
+    withCrypto(crypto: Crypto): BrokerBuilder {
         this.crypto = crypto;
         return this;
     }

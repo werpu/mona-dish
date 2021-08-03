@@ -3,7 +3,7 @@ import {describe, it} from 'mocha';
 import * as CryptoJS from "crypto-js";
 import {
     BroadcastChannelBroker,
-    BroadcastChannelBrokerFactory,
+    BroadcastChannelBrokerBuilder,
     Broker,
     Message
 } from "../../main/typescript/Messaging";
@@ -514,8 +514,8 @@ describe('Broker tests', function () {
 
     it('crypto test 1', async function () {
         let crypto = new JSONCrypto();
-        let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
-        let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
+        let broker = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
+        let broker2 = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
         // noinspection DuplicatedCode
         let answerReceived = false;
 

@@ -422,15 +422,15 @@ export class JSONCrypto implements Crypto {
 
 The usage comes down to pass a new crypto object
 into the constructor for the Broker. For convenience purposes
-we have now added Factories to make it easier to pass the objects down.
+we have now added builders to make it easier to pass the objects down.
 This also comes back to the original idea of mona-dish to provide
 monadish functional interfaces.
 (as you can see most Broker Methods return the - this object
 so that it allows chaining of method calls)
 
 ````typescript
-let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build().broadcast(...).broadcast(...);
-let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
+let broker = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build().broadcast(...).broadcast(...);
+let broker2 = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
 
 ````
 
