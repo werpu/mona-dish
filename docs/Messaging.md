@@ -240,7 +240,7 @@ export declare class Message {
  *
  */
 export declare class Broker {
-    name: string;
+    channelGroup: string;
 
     /**
      * constructor has an optional root element
@@ -255,20 +255,20 @@ export declare class Broker {
      * register the current broker into a scope defined by wnd
      * @param scopeElement
      */
-    register(scopeElement: HTMLElement | Window | ShadowRoot): void;
+    register(scopeElement: HTMLElement | Window | ShadowRoot): Broker;
 
     /**
      * manual unregister function, to unregister as broker from the current
      * scoe
      */
-    unregister(): void;
+    unregister(): BaseBroker;
 
     /**
      * registers a listener on a channel
      * @param channel the channel to register the listeners for
      * @param listener the listener to register
      */
-    registerListener(channel: string, listener: (msg: Message) => void): void;
+    registerListener(channel: string, listener: (msg: Message) => void): Broker;
 
     /**
      * unregisters a listener from this channel
@@ -276,7 +276,7 @@ export declare class Broker {
      * @param channel the channel to unregister from
      * @param listener the listener to unregister the channel from
      */
-    unregisterListener(channel: string, listener: (msg: Message) => void): void;
+    unregisterListener(channel: string, listener: (msg: Message) => void): Broker;
 
     /**
      * broadcast a message
@@ -288,7 +288,7 @@ export declare class Broker {
      * (for instance 2 iframes within the same parent broker)
      *
      */
-    broadcast(channel: string, message: Message, direction?: Direction, callBrokerListeners?: boolean): void;
+    broadcast(channel: string, message: Message, direction?: Direction, callBrokerListeners?: boolean): Broker;
 
     /**
      * idea... a bidirectional broadcast
@@ -315,7 +315,7 @@ export declare class Broker {
      * @param direction the call direction
      * @param callBrokerListeners same level?
      */
-    answer(channel: string, request: Message, answer: Message);
+    answer(channel: string, request: Message, answer: Message): Broker;
 
 }
 ```
@@ -423,10 +423,15 @@ export class JSONCrypto implements Crypto {
 The usage comes down to pass a new crypto object
 into the constructor for the Broker. For convenience purposes
 we have now added Factories to make it easier to pass the objects down.
+This also comes back to the original idea of mona-dish to provide
+monadish functional interfaces.
+(as you can see most Broker Methods return the - this object
+so that it allows chaining of method calls)
 
 ````typescript
-let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
-let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build(); 
+let broker = new BroadcastChannelBrokerFactory().withCrypto(crypto).build().broadcast(...).broadcast(...);
+let broker2 = new BroadcastChannelBrokerFactory().withCrypto(crypto).build();
+
 ````
 
 The rest then is handled transparently.

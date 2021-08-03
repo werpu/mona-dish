@@ -2,6 +2,7 @@
  * a standardized message to be sent over the message bus
  */
 import {Observable, Subject} from "rxjs";
+import {Stream} from "./Stream";
 
 /**
  * generic crypto interface
@@ -112,11 +113,11 @@ abstract class BaseBroker {
     crypto = noEncryption;
 
 
-    abstract register(scopeElement?: any);
+    abstract register(scopeElement?: any): BaseBroker;
 
-    abstract unregister();
+    abstract unregister(): BaseBroker;
 
-    abstract broadcast(channel: string, message: Message | string);
+    abstract broadcast(channel: string, message: Message | string): BaseBroker;
 
 
     /**
@@ -124,7 +125,7 @@ abstract class BaseBroker {
      * @param channel the channel to register the listeners for
      * @param listener the listener to register
      */
-    registerListener(channel: string, listener: (msg: Message) => void) {
+    registerListener(channel: string, listener: (msg: Message) => void): BaseBroker {
         this.reserveListenerNS(channel);
 
         //we skip the processed messages, because they originated here
@@ -145,6 +146,7 @@ abstract class BaseBroker {
             }
             listener(msg);
         });
+        return this;
     }
 
     /**
@@ -210,8 +212,9 @@ abstract class BaseBroker {
      * @param channel the channel to unregister from
      * @param listener the listener to unregister the channel from
      */
-    unregisterListener(channel: string, listener: (msg: Message) => void) {
+    unregisterListener(channel: string, listener: (msg: Message) => void): BaseBroker {
         this.messageListeners[channel] = (this.messageListeners[channel] || []).filter((item: any) => item !== listener);
+        return this;
     }
 
     /**
@@ -225,7 +228,7 @@ abstract class BaseBroker {
      * @param request the requesting message
      * @param answer the answer to the request
      */
-    answer(channel: string, request: Message | string, answer: Message) {
+    answer(channel: string, request: Message | string, answer: Message): BaseBroker {
         if ('string' == typeof request) {
             request = new Message(request);
         }
@@ -235,6 +238,7 @@ abstract class BaseBroker {
         }
         answer.identifier = BaseBroker.getAnswerId(request);
         this.broadcast(channel, answer);
+        return this;
     }
 
     private static getAnswerId(request: Message) {
@@ -357,7 +361,7 @@ export class BroadcastChannelBroker extends BaseBroker {
         this.register();
     }
 
-    broadcast(channel: string, message: Message | string, includeOrigin = true) {
+    broadcast(channel: string, message: Message | string, includeOrigin = true): BaseBroker {
         try {
             if ('string' == typeof message) {
                 message = new Message(message);
@@ -382,21 +386,25 @@ export class BroadcastChannelBroker extends BaseBroker {
         } finally {
             this.gcProcessedMessages();
         }
+        return this;
     }
 
-    registerListener(channel: string, listener: (msg: Message) => void) {
+    registerListener(channel: string, listener: (msg: Message) => void): BaseBroker {
         super.registerListener(channel, listener);
+        return <BaseBroker>this;
     }
 
-    register() {
+    register(): BaseBroker {
         if (!this.openChannels[this.channelGroup]) {
             this.openChannels[this.channelGroup] = this.brokerFactory(this.channelGroup);
         }
         this.openChannels[this.channelGroup].addEventListener("message", this.msgListener);
+        return <BaseBroker>this;
     }
 
-    unregister() {
+    unregister(): BaseBroker {
         this.openChannels[this.channelGroup].close();
+        return <BaseBroker>this;
     }
 }
 
@@ -408,9 +416,20 @@ export class BroadcastChannelBrokerFactory {
     private broadCastChannelGenerator: Function = broadCastChannelBrokerGenerator;
     private channelGroup = DEFAULT_CHANNEL_GROUP;
     private crypto = noEncryption;
+    private listeners: Array<any> = [];
 
     withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerFactory {
         this.broadCastChannelGenerator = generatorFunc;
+        return this;
+    }
+
+    withListener(channel: string, ...listeners: Function[]): BroadcastChannelBrokerFactory {
+        Stream.of(...listeners).each(listener => {
+            this.listeners.push({
+                channel: channel,
+                listener: listener
+            })
+        });
         return this;
     }
 
@@ -425,9 +444,12 @@ export class BroadcastChannelBrokerFactory {
     }
 
     build(): BroadcastChannelBroker {
-        return new BroadcastChannelBroker(this.broadCastChannelGenerator, this.channelGroup, this.crypto);
+        let broker = new BroadcastChannelBroker(this.broadCastChannelGenerator, this.channelGroup, this.crypto);
+        Stream.of(...this.listeners).each(listenerItem => {
+            broker.registerListener(listenerItem.channel, listenerItem.listener);
+        });
+        return broker;
     }
-
 }
 
 
@@ -523,7 +545,7 @@ export class Broker extends BaseBroker {
      * register the current broker into a scope defined by wnd
      * @param scopeElement
      */
-    register(scopeElement: HTMLElement | Window | ShadowRoot) {
+    register(scopeElement: HTMLElement | Window | ShadowRoot): BaseBroker {
         this.rootElem = (<any>scopeElement).host ? (<any>scopeElement).host : scopeElement;
         if ((<any>scopeElement).host) {
             let host = (<ShadowRoot>scopeElement).host;
@@ -536,17 +558,18 @@ export class Broker extends BaseBroker {
         this.rootElem.addEventListener(this.brokerGroup + "__||__" + Broker.EVENT_TYPE, this.msgHandler, {capture: true});
         /*dom message usable by iframes*/
         this.rootElem.addEventListener(this.brokerGroup + "__||__" + Broker.EVENT_TYPE + this.MSG_EVENT, this.msgHandler, {capture: true});
+        return <any>this;
     }
 
     /**
      * manual unregister function, to unregister as broker from the current
      * scope
      */
-    unregister() {
+    unregister(): BaseBroker {
         this.rootElem.removeEventListener(this.brokerGroup + "__||__" + Broker.EVENT_TYPE, this.msgHandler)
         this.rootElem.removeEventListener(this.brokerGroup + "__||__" + this.MSG_EVENT, this.msgHandler)
+        return <any>this;
     }
-
 
 
     /**
@@ -557,7 +580,7 @@ export class Broker extends BaseBroker {
      * @param message the message dot send
      * (for instance 2 iframes within the same parent broker)
      */
-    broadcast(channel: string, message: Message | string) {
+    broadcast(channel: string, message: Message | string): BaseBroker {
         if ('string' == typeof message) {
             message = new Message(message);
         }
@@ -580,6 +603,7 @@ export class Broker extends BaseBroker {
         } finally {
             this.gcProcessedMessages();
         }
+        return this;
     }
 
 
@@ -668,11 +692,23 @@ export class BrokerFactory {
     private scopeElement: HTMLElement | Window | ShadowRoot = window;
     private channelGroup = DEFAULT_CHANNEL_GROUP;
     private crypto = noEncryption;
+    private listeners: Array<any> = [];
 
     withScopeElement(scopeElement: HTMLElement | Window | ShadowRoot): BrokerFactory {
         this.scopeElement = scopeElement;
         return this;
     }
+
+    withListener(channel: string, ...listeners: Function[]): BrokerFactory {
+        Stream.of(...listeners).each(listener => {
+            this.listeners.push({
+                channel: channel,
+                listener: listener
+            })
+        });
+        return this;
+    }
+
 
     withChannelGroup(channelGroup: string): BrokerFactory {
         this.channelGroup = channelGroup;
@@ -685,7 +721,10 @@ export class BrokerFactory {
     }
 
     build(): Broker {
-        return new Broker(this.scopeElement, this.channelGroup, this.crypto);
+        let broker = new Broker(this.scopeElement, this.channelGroup, this.crypto);
+        Stream.of(...this.listeners).each(listenerItem => {
+            broker.registerListener(listenerItem.channel, listenerItem.listener);
+        });
+        return broker;
     }
-
 }
