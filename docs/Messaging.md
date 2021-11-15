@@ -429,9 +429,10 @@ monadish functional interfaces.
 so that it allows chaining of method calls)
 
 ````typescript
-let broker = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build().broadcast(...).broadcast(...);
+let broker = new BroadcastChannelBrokerBuilder()
+    .withCrypto(crypto).build()
+    .broadcast(...).broadcast(...);
 let broker2 = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
-
 ````
 
 The rest then is handled transparently.
@@ -441,7 +442,7 @@ The rest then is handled transparently.
 Here we can find several raw implementations of the basic crypto functionality without
 binding ourselves to a specific crypto lib.
 
-For now we have provided following
+For now, we have provided following
 
 * JSONCrypto an implementation for encoding and decoding into JSON
 * ExpiringCrypto a crypto decorator which provides an expiration mechanism so that messages and keys can timeout
