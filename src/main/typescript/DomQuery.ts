@@ -25,6 +25,16 @@ import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
 //import {observable, Observable, Subscriber} from "rxjs";
 
+/**
+ * in order to poss custom parameters we need to extend the mutation observer init
+ */
+export interface WAIT_OPTS extends MutationObserverInit {
+    timeout ?: number;
+    /**
+     * interval on non legacy browsers
+     */
+    interval ?: number;
+}
 
 
 /**
@@ -45,6 +55,68 @@ enum Submittables {
     CHECKBOX = "checkbox"
 
 }
+
+/**
+ * helper to fix a common problem that a system has to wait until a certain condition is reached
+ * depening on the browser this uses either the mutation observer or a semi compatible interval as fallback
+ * @param condition
+ */
+function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean, options: WAIT_OPTS = { attributes: true, childList: true, subtree: true, timeout: 500, interval: 100 }): Promise<DomQuery> {
+    const ret = new Promise<DomQuery>((success, error) => {
+        const MUT_ERROR = new Error("Mutation observer timeout");
+        console.log(window.MutationObserver)
+        if('undefined' != typeof window.MutationObserver) {
+            const mutTimeout = setTimeout(() => {
+                return error(MUT_ERROR);
+            }, options.timeout);
+            const callback: MutationCallback = (mutationList: MutationRecord[], observer: MutationObserver) => {
+                const found = new DomQuery(mutationList.map((mut: MutationRecord) => mut.target)).first(condition);
+                if(found.isPresent()) {
+                    clearTimeout(mutTimeout);
+                    success(found);
+                }
+            }
+
+            const observer = new window.MutationObserver(callback);
+            // browsers might ignore it, but we cannot break the api in the case
+            // hence no timeout is passed
+            let observableOpts = {... options};
+            delete observableOpts.timeout;
+            root.eachElem(item => {
+                observer.observe(item, observableOpts)
+            })
+        } else { //fallback for legacy browsers without mutation observer
+            //we do the same but for now ignore the options on the dom query
+            let interval = setInterval(() => {
+                let found = null;
+                if(options.childList) {
+                    found = (condition(root)) ? root:  root.childNodes.first(condition);
+                } else if(options.subtree) {
+                    found = (condition(root)) ? root: root.querySelectorAll(" * ").first(condition);
+                } else {
+                    found = (condition(root)) ? root: DomQuery.absent;
+                }
+                if(found.isPresent()) {
+                    if(timeout) {
+                        clearTimeout(timeout);
+                        clearInterval(interval);
+                        interval = null;
+                        success(found);
+                    }
+                }
+            }, options.interval);
+            let timeout = setTimeout(() => {
+                if(interval) {
+                    clearInterval(interval);
+                    error(MUT_ERROR);
+                }
+            }, options.timeout)
+
+        }
+    });
+    return ret;
+}
+
 
 export class ElementAttribute extends ValueEmbedder<string> {
 
@@ -1930,6 +2002,16 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
     /**
+     * helper to fix a common dom problem
+     * we have to wait until a certain condition is met, in most of the cases we just want to know whether an element is present in the subdome before being able to proceed
+     * @param condition
+     * @param options
+     */
+    async waitUntilDom(condition: (element: DomQuery) => boolean, options: WAIT_OPTS = { attributes: true, childList: true, subtree: true, timeout: 500, interval: 100 }): Promise<DomQuery> {
+        return waitUntilDom(this, condition, options);
+    }
+
+    /**
      * returns the embedded shadow elements
      */
     get shadowElements(): DomQuery {
@@ -1998,6 +2080,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         ctrl?.setSelectiongRange ? ctrl?.setSelectiongRange(pos, pos) : null;
     }
 
+    /**
+     * Implementation of an iterator
+     * to allow loops over dom query collections
+     */
     [Symbol.iterator](): Iterator<DomQuery, any, undefined> {
         return {
             next: () => {
@@ -2010,7 +2096,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             }
         }
     }
-    
+
+
     /*[observable](): Observable<DomQuery> {
         return this.observable;
     }
@@ -2043,6 +2130,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
 }
 
+
+
 /**
  * Various collectors
  * which can be used in conjunction with Streams
@@ -2071,3 +2160,4 @@ export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
  */
 export const DQ = DomQuery;
 export type DQ = DomQuery;
+

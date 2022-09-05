@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import {expect} from 'chai';
+var jasmineCo = require('jasmine-co');
+import {expect, should} from 'chai';
 import {describe, it} from 'mocha';
 import {DomQuery, DomQueryCollector} from "../../main/typescript";
 import {ArrayCollector, Lang, LazyStream} from "../../main/typescript";
 import sinon = require('sinon');
 import trim = Lang.trim;
-import {from} from "rxjs";
+import {delay, from} from "rxjs";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
+(global as any).window = {}
 
 describe('DOMQuery tests', function () {
-
+    jasmineCo.install();
     beforeEach(function () {
 
         let dom = new JSDOM(`
@@ -51,6 +52,7 @@ describe('DOMQuery tests', function () {
 
         let window = dom.window;
 
+        (<any>global).dom = dom;
         (<any>global).window = window;
         (<any>global).body = window.document.body;
         (<any>global).document = window.document;
@@ -541,4 +543,38 @@ describe('DOMQuery tests', function () {
             expect(e.message.indexOf("not supported") != -1).to.be.true;
         }
     })
+
+
+    it('it must have a working wait for dom with mut observer', async function() {
+            let probe = DomQuery.byId('id_1');
+            setTimeout(() => probe.innerHtml = 'true', 300);
+            let ret = await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            delete window.MutationObserver;
+            delete global.MutationObserver;
+            probe.innerHtml = "";
+            setTimeout(() => probe.innerHtml = 'true', 300);
+            let ret2 = await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            expect(ret.isPresent() && ret2.isPresent());
+    });
+
+    it('it must have a timeout', async function() {
+        let probe = DomQuery.byId('booga');
+        try {
+            setTimeout(() => probe.innerHtml = 'true', 300);
+            await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            expect.fail("must have a timeout");
+        } catch (ex) {
+            expect(!!ex);
+        }
+        try {
+            delete window.MutationObserver;
+            delete global.MutationObserver;
+            probe.innerHtml = "";
+            setTimeout(() => probe.innerHtml = 'true', 300);
+            await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            expect.fail("must have a timeout");
+        } catch (ex2) {
+            expect(!!ex2);
+        }
+    });
 });
