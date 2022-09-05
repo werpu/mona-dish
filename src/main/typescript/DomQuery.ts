@@ -564,6 +564,12 @@ interface IDomQuery {
      */
     attachShadow(modeParams: { [key: string]: string }): DomQuery
 
+
+    /**
+     * wait until a condition on the dom is reached
+     */
+    waitUntilDom(condition: (element: DomQuery) => boolean, options: WAIT_OPTS): Promise<DomQuery>;
+
     //observable: Observable<DomQuery>;
 
     //observableElem: Observable<Element>;
