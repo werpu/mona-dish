@@ -239,7 +239,8 @@ exported as Subjects
 * 0.20.7 Adding encryption extension points to the messaging api
 * 0.20.8 extension refinements tests for the extensions documentation updates
 
-
+## Version 0.30.++ 
+* 0.30.0 adding a mutation observer
   
 
 

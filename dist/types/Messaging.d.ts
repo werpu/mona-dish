@@ -61,15 +61,15 @@ declare abstract class BaseBroker {
     protected readonly TIMEOUT_IN_MS = 1000;
     protected readonly MSG_EVENT = "message";
     crypto: NoCrypto;
-    abstract register(scopeElement?: any): any;
-    abstract unregister(): any;
-    abstract broadcast(channel: string, message: Message | string): any;
+    abstract register(scopeElement?: any): BaseBroker;
+    abstract unregister(): BaseBroker;
+    abstract broadcast(channel: string, message: Message | string): BaseBroker;
     /**
      * registers a listener on a channel
      * @param channel the channel to register the listeners for
      * @param listener the listener to register
      */
-    registerListener(channel: string, listener: (msg: Message) => void): void;
+    registerListener(channel: string, listener: (msg: Message) => void): BaseBroker;
     /**
      * binding into rxjs
      * produces a subject which can be used via next calls to send messages
@@ -95,7 +95,7 @@ declare abstract class BaseBroker {
      * @param channel the channel to unregister from
      * @param listener the listener to unregister the channel from
      */
-    unregisterListener(channel: string, listener: (msg: Message) => void): void;
+    unregisterListener(channel: string, listener: (msg: Message) => void): BaseBroker;
     /**
      * answers a bidirectional message received
      * usage, the client can use this method, to answer an incoming message in a precise manner
@@ -107,7 +107,7 @@ declare abstract class BaseBroker {
      * @param request the requesting message
      * @param answer the answer to the request
      */
-    answer(channel: string, request: Message | string, answer: Message): void;
+    answer(channel: string, request: Message | string, answer: Message): BaseBroker;
     private static getAnswerId;
     private static isAnswer;
     /**
@@ -143,21 +143,23 @@ export declare class BroadcastChannelBroker extends BaseBroker {
      * @param crypto a crypto class
      */
     constructor(brokerFactory?: Function, channelGroup?: string, crypto?: Crypto);
-    broadcast(channel: string, message: Message | string, includeOrigin?: boolean): void;
-    registerListener(channel: string, listener: (msg: Message) => void): void;
-    register(): void;
-    unregister(): void;
+    broadcast(channel: string, message: Message | string, includeOrigin?: boolean): BaseBroker;
+    registerListener(channel: string, listener: (msg: Message) => void): BaseBroker;
+    register(): BaseBroker;
+    unregister(): BaseBroker;
 }
 /**
  * Helper factory to create a broadcast channel broker
  */
-export declare class BroadcastChannelBrokerFactory {
+export declare class BroadcastChannelBrokerBuilder {
     private broadCastChannelGenerator;
     private channelGroup;
     private crypto;
-    withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerFactory;
-    withChannelGroup(channelGroup: string): BroadcastChannelBrokerFactory;
-    withCrypto(crypto: Crypto): BroadcastChannelBrokerFactory;
+    private listeners;
+    withGeneratorFunc(generatorFunc: Function): BroadcastChannelBrokerBuilder;
+    withListener(channel: string, ...listeners: Function[]): BroadcastChannelBrokerBuilder;
+    withChannelGroup(channelGroup: string): BroadcastChannelBrokerBuilder;
+    withCrypto(crypto: Crypto): BroadcastChannelBrokerBuilder;
     build(): BroadcastChannelBroker;
 }
 /**
@@ -204,26 +206,26 @@ export declare class BroadcastChannelBrokerFactory {
  *
  */
 export declare class Broker extends BaseBroker {
-    name: string;
+    brokerGroup: string;
     /**
      * constructor has an optional root element
      * and an internal name
      *
      * @param scopeElement
-     * @param name
+     * @param brokerGroup
      * @param crypto
      */
-    constructor(scopeElement?: HTMLElement | Window | ShadowRoot, name?: string, crypto?: Crypto);
+    constructor(scopeElement?: HTMLElement | Window | ShadowRoot, brokerGroup?: string, crypto?: Crypto);
     /**
      * register the current broker into a scope defined by wnd
      * @param scopeElement
      */
-    register(scopeElement: HTMLElement | Window | ShadowRoot): void;
+    register(scopeElement: HTMLElement | Window | ShadowRoot): BaseBroker;
     /**
      * manual unregister function, to unregister as broker from the current
      * scope
      */
-    unregister(): void;
+    unregister(): BaseBroker;
     /**
      * broadcast a message
      * the message contains the channel and the data and some internal bookkeeping data
@@ -232,24 +234,26 @@ export declare class Broker extends BaseBroker {
      * @param message the message dot send
      * (for instance 2 iframes within the same parent broker)
      */
-    broadcast(channel: string, message: Message | string): void;
+    broadcast(channel: string, message: Message | string): BaseBroker;
     private dispatchUp;
-    private static dispatchSameLevel;
+    private dispatchSameLevel;
     private dispatchDown;
     private msgCallListeners;
-    private static transformToEvent;
+    private transformToEvent;
     private static createCustomEvent;
 }
 /**
  * Helper factory to create a dom broker
  */
-export declare class BrokerFactory {
+export declare class BrokerBuilder {
     private scopeElement;
     private channelGroup;
     private crypto;
-    withScopeElement(scopeElement: HTMLElement | Window | ShadowRoot): BrokerFactory;
-    withChannelGroup(channelGroup: string): BrokerFactory;
-    withCrypto(crypto: Crypto): BrokerFactory;
+    private listeners;
+    withScopeElement(scopeElement: HTMLElement | Window | ShadowRoot): BrokerBuilder;
+    withListener(channel: string, ...listeners: Function[]): BrokerBuilder;
+    withChannelGroup(channelGroup: string): BrokerBuilder;
+    withCrypto(crypto: Crypto): BrokerBuilder;
     build(): Broker;
 }
 export {};

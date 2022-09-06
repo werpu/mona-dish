@@ -64,7 +64,6 @@ enum Submittables {
 function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean, options: WAIT_OPTS = { attributes: true, childList: true, subtree: true, timeout: 500, interval: 100 }): Promise<DomQuery> {
     const ret = new Promise<DomQuery>((success, error) => {
         const MUT_ERROR = new Error("Mutation observer timeout");
-        console.log(window.MutationObserver)
         if('undefined' != typeof window.MutationObserver) {
             const mutTimeout = setTimeout(() => {
                 return error(MUT_ERROR);
@@ -567,6 +566,9 @@ interface IDomQuery {
 
     /**
      * wait until a condition on the dom is reached
+     *
+     * @return a promise on the affected elements where the condition
+     * @throws an error in case of a timeout
      */
     waitUntilDom(condition: (element: DomQuery) => boolean, options: WAIT_OPTS): Promise<DomQuery>;
 

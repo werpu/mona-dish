@@ -2,6 +2,16 @@ import { Config, Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
 import { IStream, LazyStream, Stream } from "./Stream";
 import { ICollector, IStreamDataSource } from "./SourcesCollectors";
+/**
+ * in order to poss custom parameters we need to extend the mutation observer init
+ */
+export interface WAIT_OPTS extends MutationObserverInit {
+    timeout?: number;
+    /**
+     * interval on non legacy browsers
+     */
+    interval?: number;
+}
 export declare class ElementAttribute extends ValueEmbedder<string> {
     private element;
     private name;
@@ -362,6 +372,13 @@ interface IDomQuery {
     attachShadow(modeParams: {
         [key: string]: string;
     }): DomQuery;
+    /**
+     * wait until a condition on the dom is reached
+     *
+     * @return a promise on the affected elements where the condition
+     * @throws an error in case of a timeout
+     */
+    waitUntilDom(condition: (element: DomQuery) => boolean, options: WAIT_OPTS): Promise<DomQuery>;
 }
 /**
  * Monadic DomNode representation, ala jquery
@@ -730,6 +747,13 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
         [key: string]: string;
     }): DomQuery;
     /**
+     * helper to fix a common dom problem
+     * we have to wait until a certain condition is met, in most of the cases we just want to know whether an element is present in the subdome before being able to proceed
+     * @param condition
+     * @param options
+     */
+    waitUntilDom(condition: (element: DomQuery) => boolean, options?: WAIT_OPTS): Promise<DomQuery>;
+    /**
      * returns the embedded shadow elements
      */
     get shadowElements(): DomQuery;
@@ -747,6 +771,10 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      *
      */
     static setCaretPosition(ctrl: any, pos: number): void;
+    /**
+     * Implementation of an iterator
+     * to allow loops over dom query collections
+     */
     [Symbol.iterator](): Iterator<DomQuery, any, undefined>;
 }
 /**

@@ -488,6 +488,19 @@ interface IDomQuery {
    * @param modeParams
    */
   attachShadow(modeParams: { [key: string]: string }): DomQuery
+
+  /**
+   * wait until a condition on the dom is reached, this uses
+   * MutationObservers if present and falls back to an interval
+   * mechanism if not, the WAIT_OPTs are basically the mutation
+   * observer opts with additional timeout and interval attributes
+   * in milisecnds.
+   *
+   * @return a promise on the affected elements where the condition
+   * @throws an error in case of a timeout
+   */
+  waitUntilDom(condition: (element: DomQuery) => boolean, options?: WAIT_OPTS): Promise<DomQuery>
+  
 }
 ```
 
