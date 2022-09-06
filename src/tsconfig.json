@@ -17,6 +17,6 @@
     "declarationDir": "../target/types",
     "typeRoots": [
       "../node_modules/@types"
-    ]
+    ],
   }
 }

@@ -1,0 +1,20 @@
+/*
+Special config to generate the tsdocs
+*/
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "typedocOptions": {
+    // Comments are supported, like tsconfig.json
+    "entryPoints": ["main/typescript/index.ts"],
+    "out": "../dist/docs",
+    "externalPattern": "**/node_modules/**",
+    "exclude": "**/{node_modules,test,doc}/**/*",
+    "excludeExternals": true,
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "entryPointStrategy": "expand"
+  }
+}
