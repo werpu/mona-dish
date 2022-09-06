@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var jasmineCo = require('jasmine-co');
+
 import {expect, should} from 'chai';
 import {describe, it} from 'mocha';
 import {DomQuery, DomQueryCollector} from "../../main/typescript";
@@ -27,7 +27,7 @@ const {JSDOM} = jsdom;
 (global as any).window = {}
 
 describe('DOMQuery tests', function () {
-    jasmineCo.install();
+
     beforeEach(function () {
 
         let dom = new JSDOM(`

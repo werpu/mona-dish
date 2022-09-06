@@ -1,4 +1,19 @@
 "use strict";
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,22 +51,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/* Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to you under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-var jasmineCo = require('jasmine-co');
 var chai_1 = require("chai");
 var mocha_1 = require("mocha");
 var typescript_1 = require("../../main/typescript");
@@ -63,7 +62,6 @@ var jsdom = require("jsdom");
 var JSDOM = jsdom.JSDOM;
 global.window = {};
 (0, mocha_1.describe)('DOMQuery tests', function () {
-    jasmineCo.install();
     beforeEach(function () {
         var _this = this;
         var dom = new JSDOM("\n            <!DOCTYPE html>\n        <html lang=\"en\">\n        <head>\n            <meta charset=\"UTF-8\">\n            <title>Title</title>\n            </head>\n            <body>\n                <div id=\"id_1\"></div>\n                <div id=\"id_2\"  booga=\"blarg\" class=\"blarg2\"></div>\n                <div id=\"id_3\" class=\"blarg1 blarg2\"></div>\n                <div id=\"id_4\"></div>\n            </body>\n            </html>\n    \n    ", {
