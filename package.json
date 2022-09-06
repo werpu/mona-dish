@@ -5,6 +5,7 @@
   "main": "dist/js/commonjs/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
+    "doc": "npx typedoc --tsconfig ./src/tsdoc-tsconfig.json",
     "test": "env TS_NODE_PROJECT=./src/tsconfig.json mocha -r ts-node/register -P ./src/ ./src/test/typescript/**/*Test.ts",
     "coverage": "nyc --reporter=html --reporter=text mocha -r ts-node/register ./**/test/typescript/**/**/*Test*.ts",
     "build-umd": "webpack --env TARGET_TYPE=umd",
@@ -13,7 +14,7 @@
     "build-system": "webpack --env TARGET_TYPE=system",
     "build-amd": "webpack --env TARGET_TYPE=amd",
     "build-amd-require": "webpack --env TARGET_TYPE=amd-require",
-    "build": "npm run build-umd && npm run build-common && npm run build-system && npm run build-amd && npm run build-amd-require"
+    "build": "npm run doc && npm run build-umd && npm run build-common && npm run build-system && npm run build-amd && npm run build-amd-require"
   },
   "keywords": [
     "typescript",
