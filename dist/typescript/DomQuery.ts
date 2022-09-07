@@ -1413,7 +1413,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             //we can achieve that with a small timeout, the timeout
             //triggers after the processing is done!
             if (!defer) {
-                this.globalEval(xhr.responseText.replace("\n", "\r\n") + "\r\n//@ sourceURL=" + src);
+                this.globalEval(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src);
             } else {
                 //TODO not ideal we maybe ought to move to something else here
                 //but since it is not in use yet, it is ok

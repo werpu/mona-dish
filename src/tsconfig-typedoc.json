@@ -7,7 +7,6 @@ Special config to generate the tsdocs
     "skipLibCheck": true
   },
   "typedocOptions": {
-    // Comments are supported, like tsconfig.json
     "entryPoints": ["main/typescript/index.ts"],
     "out": "../dist/docs",
     "externalPattern": "**/node_modules/**",

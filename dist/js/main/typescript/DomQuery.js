@@ -1091,7 +1091,7 @@ var DomQuery = /** @class */ (function () {
             //we can achieve that with a small timeout, the timeout
             //triggers after the processing is done!
             if (!defer) {
-                _this.globalEval(xhr.responseText.replace("\n", "\r\n") + "\r\n//@ sourceURL=" + src);
+                _this.globalEval(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src);
             }
             else {
                 //TODO not ideal we maybe ought to move to something else here

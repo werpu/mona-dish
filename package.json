@@ -5,7 +5,7 @@
   "main": "dist/js/commonjs/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "doc": "npx typedoc --tsconfig ./src/tsdoc-tsconfig.json",
+    "doc": "npx typedoc --tsconfig src/tsconfig-typedoc.json",
     "test": "env TS_NODE_PROJECT=./src/tsconfig.json mocha -r ts-node/register -P ./src/ ./src/test/typescript/**/*Test.ts",
     "coverage": "nyc --reporter=html --reporter=text mocha -r ts-node/register ./**/test/typescript/**/**/*Test*.ts",
     "build-umd": "webpack --env TARGET_TYPE=umd",
