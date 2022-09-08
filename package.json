@@ -6,8 +6,8 @@
   "types": "dist/types/index.d.ts",
   "scripts": {
     "doc": "npx typedoc --tsconfig src/tsconfig-typedoc.json",
-    "test": "env TS_NODE_PROJECT=./src/tsconfig.json mocha -r ts-node/register -P ./src/ ./src/test/typescript/**/*Test.ts",
-    "coverage": "nyc --reporter=html --reporter=text mocha -r ts-node/register ./**/test/typescript/**/**/*Test*.ts",
+    "test": "env TS_NODE_PROJECT=./src/tsconfig.json mocha",
+    "coverage": "env TS_NODE_PROJECT=./src/tsconfig.json nyc --reporter=html --reporter=text mocha",
     "build-umd": "webpack --env TARGET_TYPE=umd",
     "build-window": "webpack --env TARGET_TYPE=window",
     "build-common": "webpack --env TARGET_TYPE=commonjs",

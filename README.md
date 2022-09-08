@@ -149,7 +149,7 @@ let formWindowId: Optional<string> = searchRoot
 let otherStream = LazyStream.ofDataSource(searchRoot);
 ```
 
-See  [StreamTest.ts](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/StreamTest.ts) in the "test sources" directory
+See  [StreamTest.spec.ts](https://github.com/werpu/mona-dish/blob/master/src/test/typescript/StreamTest.ts) in the "test sources" directory
  for additional examples
  
 ### DomQuery
