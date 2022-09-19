@@ -605,13 +605,17 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     constructor(...rootNode: Array<Element | ShadowRoot | DomQuery | Document | Array<any> | string>) {
 
-        if (Optional.fromNullable(rootNode).isAbsent() || !rootNode.length) {
+        if (Optional.fromNullable(rootNode).isAbsent() || !rootNode.length ) {
             return;
         } else {
             //we need to flatten out the arrays
 
             for (let cnt = 0; cnt < rootNode.length; cnt++) {
-                if (isString(rootNode[cnt])) {
+                if(!rootNode[cnt]) {
+                    //we skip possible null entries which can happen in
+                    //certain corner conditions due to the constructor re-wrapping single elements into arrays.
+                    continue;
+                } else if (isString(rootNode[cnt])) {
                     let foundElement = DomQuery.querySelectorAll(<string>rootNode[cnt]);
                     if (!foundElement.isAbsent()) {
                         rootNode.push(...foundElement.values)

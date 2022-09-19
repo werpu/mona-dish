@@ -577,4 +577,8 @@ describe('DOMQuery tests', function () {
             expect(!!ex2);
         }
     });
+    it('must handle null inputs correctly', function() {
+        const dq = new DomQuery(null);
+        expect(dq.isAbsent()).to.eq(true);
+    })
 });
