@@ -154,11 +154,9 @@ export class ElementAttribute extends ValueEmbedder<string> {
  * @param src
  * @constructor
  */
-const DEFAULT_JSF_WHITELIST = (src: string) => {
-    return (src.indexOf("ln=scripts") == -1 &&
-        src.indexOf("ln=javax.faces") == -1) ||
-        (src.indexOf("/jsf.js") == -1 &&
-            src.indexOf("/jsf-uncompressed.js") == -1);
+const DEFAULT_WHITELIST = (src: string) => {
+    return true;
+
 };
 
 interface IDomQuery {
@@ -1610,7 +1608,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
-    runScripts(whilteListed: (val: string) => boolean = DEFAULT_JSF_WHITELIST): DomQuery {
+    runScripts(whilteListed: (val: string) => boolean = DEFAULT_WHITELIST): DomQuery {
         let finalScripts = [],
             equi = equalsIgnoreCase,
             execScrpt = (item) => {
