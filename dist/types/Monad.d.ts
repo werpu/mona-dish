@@ -150,9 +150,20 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
  */
 export declare class Config extends Optional<any> {
     constructor(root: any);
+    /**
+     * shallow copy getter, copies only the first level, references the deeper nodes
+     * in a shared manner
+     */
     get shallowCopy(): Config;
+    /**
+     * deep copy, copies all config nodes
+     */
     get deepCopy(): Config;
-    static fromNullable<T>(value?: any): Config;
+    /**
+     * creates a config from an initial value or null
+     * @param value
+     */
+    static fromNullable<T>(value?: T | null): Config;
     /**
      * simple merge for the root configs
      */
@@ -167,22 +178,50 @@ export declare class Config extends Optional<any> {
      *
      * resulting in myConfig.foobaz == ["newValue, newValue2"]
      *
-     * @param keys
+     * @param {string[]} accessPath
      */
-    append(...keys: any[]): IValueHolder<any>;
-    appendIf(condition: boolean, ...keys: any[]): IValueHolder<any>;
-    assign(...keys: any[]): IValueHolder<any>;
-    assignIf(condition: boolean, ...keys: Array<any>): IValueHolder<any>;
-    getIf(...keys: Array<string>): Config;
+    append(...accessPath: string[]): IValueHolder<any>;
+    /**
+     * appends to an existing entry (or extends into an array and appends)
+     * if the condition is met
+     * @param {boolean} condition
+     * @param {string[]} accessPath
+     */
+    appendIf(condition: boolean, ...accessPath: string[]): IValueHolder<any>;
+    /**
+     * assings an new value on the given access path
+     * @param accessPath
+     */
+    assign(...accessPath: any[]): IValueHolder<any>;
+    /**
+     * assign a value if the condition is set to true, otherwise skip it
+     *
+     * @param condition the condition, the access accessPath into the config
+     * @param accessPath
+     */
+    assignIf(condition: boolean, ...accessPath: Array<any>): IValueHolder<any>;
+    /**
+     * get if the access path is present (get is reserved as getter with a default, on the current path)
+     * TODO will be renamed to something more meaningful and deprecated, the name is ambigous
+     * @param accessPath the access path
+     */
+    getIf(...accessPath: Array<string>): Config;
+    /**
+     * gets the current node and if none is present returns a config with a default value
+     * @param defaultVal
+     */
     get(defaultVal: any): Config;
     delete(key: string): Config;
+    /**
+     * converts the entire config into a json object
+     */
     toJson(): any;
     protected getClass(): any;
     private setVal;
     /**
      * builds the config path
      *
-     * @param keys a sequential array of keys containing either a key name or an array reference name[<index>]
+     * @param accessPath a sequential array of accessPath containing either a key name or an array reference name[<index>]
      */
     private buildPath;
 }

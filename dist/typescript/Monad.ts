@@ -446,15 +446,26 @@ export class Config extends Optional<any> {
         super(root);
     }
 
+    /**
+     * shallow copy getter, copies only the first level, references the deeper nodes
+     * in a shared manner
+     */
     get shallowCopy(): Config {
         return new Config(Stream.ofAssoc(this.value).collect(new AssocArrayCollector()));
     }
 
+    /**
+     * deep copy, copies all config nodes
+     */
     get deepCopy(): Config {
         return new Config(objAssign({}, this.value));
     }
 
-    static fromNullable<T>(value?: any): Config {
+    /**
+     * creates a config from an initial value or null
+     * @param value
+     */
+    static fromNullable<T>(value?: T | null): Config {
         return new Config(value);
     }
 
@@ -487,71 +498,98 @@ export class Config extends Optional<any> {
      *
      * resulting in myConfig.foobaz == ["newValue, newValue2"]
      *
-     * @param keys
+     * @param {string[]} accessPath
      */
-    append(...keys): IValueHolder<any> {
-        let noKeys = keys.length < 1;
+    append(...accessPath: string[]): IValueHolder<any> {
+        let noKeys = accessPath.length < 1;
         if (noKeys) {
             return;
         }
 
-        let lastKey = keys[keys.length - 1];
+        let lastKey = accessPath[accessPath.length - 1];
         let currKey, finalKey = this.keyVal(lastKey);
 
-        let pathExists = this.getIf(...keys).isPresent();
-        this.buildPath(keys);
+        let pathExists = this.getIf(...accessPath).isPresent();
+        this.buildPath(accessPath);
 
         let finalKeyArrPos = this.arrayIndex(lastKey);
         if (finalKeyArrPos > -1) {
             throw Error("Append only possible on non array properties, use assign on indexed data");
         }
-        let value = <any>this.getIf(...keys).value;
+        let value = <any>this.getIf(...accessPath).value;
         if (!Array.isArray(value)) {
-            value = this.assign(...keys).value = [value];
+            value = this.assign(...accessPath).value = [value];
         }
         if (pathExists) {
             value.push({});
         }
         finalKeyArrPos = value.length - 1;
 
-        let retVal = new ConfigEntry(keys.length == 1 ? this.value : this.getIf.apply(this, keys.slice(0, keys.length - 1)).value,
+        let retVal = new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value,
             lastKey, finalKeyArrPos
         );
 
         return retVal;
     }
 
-    appendIf(condition: boolean, ...keys): IValueHolder<any> {
+    /**
+     * appends to an existing entry (or extends into an array and appends)
+     * if the condition is met
+     * @param {boolean} condition
+     * @param {string[]} accessPath
+     */
+    appendIf(condition: boolean, ...accessPath: string[]): IValueHolder<any> {
         if (!condition) {
             return {value: null};
         }
-        return this.append(...keys);
+        return this.append(...accessPath);
     }
 
-    assign(...keys): IValueHolder<any> {
-        if (keys.length < 1) {
+    /**
+     * assings an new value on the given access path
+     * @param accessPath
+     */
+    assign(...accessPath): IValueHolder<any> {
+        if (accessPath.length < 1) {
             return;
         }
 
-        this.buildPath(keys);
+        this.buildPath(accessPath);
 
-        let currKey = this.keyVal(keys[keys.length - 1]);
-        let arrPos = this.arrayIndex(keys[keys.length - 1]);
-        let retVal = new ConfigEntry(keys.length == 1 ? this.value : this.getIf.apply(this, keys.slice(0, keys.length - 1)).value,
+        let currKey = this.keyVal(accessPath[accessPath.length - 1]);
+        let arrPos = this.arrayIndex(accessPath[accessPath.length - 1]);
+        let retVal = new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value,
             currKey, arrPos
         );
 
         return retVal;
     }
 
-    assignIf(condition: boolean, ...keys: Array<any>): IValueHolder<any> {
-        return condition ? this.assign(...keys) : {value: null};
+    /**
+     * assign a value if the condition is set to true, otherwise skip it
+     *
+     * @param condition the condition, the access accessPath into the config
+     * @param accessPath
+     */
+    assignIf(condition: boolean, ...accessPath: Array<any>): IValueHolder<any> {
+        return condition ? this.assign(...accessPath) : {value: null};
     }
 
-    getIf(...keys: Array<string>): Config {
-        return this.getClass().fromNullable(super.getIf.apply(this, keys).value);
+    /**
+     * get if the access path is present (get is reserved as getter with a default, on the current path)
+     * TODO will be renamed to something more meaningful and deprecated, the name is ambigous
+     * @param accessPath the access path
+     */
+    getIf(...accessPath: Array<string>): Config {
+        return this.getClass().fromNullable(super.getIf.apply(this, accessPath).value);
     }
 
+
+
+    /**
+     * gets the current node and if none is present returns a config with a default value
+     * @param defaultVal
+     */
     get(defaultVal: any): Config {
         return this.getClass().fromNullable(super.get(defaultVal).value);
     }
@@ -564,6 +602,9 @@ export class Config extends Optional<any> {
         return this;
     }
 
+    /**
+     * converts the entire config into a json object
+     */
     toJson(): any {
         return JSON.stringify(this.value);
     }
@@ -579,9 +620,9 @@ export class Config extends Optional<any> {
     /**
      * builds the config path
      *
-     * @param keys a sequential array of keys containing either a key name or an array reference name[<index>]
+     * @param accessPath a sequential array of accessPath containing either a key name or an array reference name[<index>]
      */
-    private buildPath(keys: Array<any>): Config {
+    private buildPath(accessPath: Array<any>): Config {
         let val = this;
         let parentVal = this.getClass().fromNullable(null);
         let parentPos = -1;
@@ -593,9 +634,9 @@ export class Config extends Optional<any> {
             }
         };
 
-        for (let cnt = 0; cnt < keys.length; cnt++) {
-            let currKey = this.keyVal(keys[cnt]);
-            let arrPos = this.arrayIndex(keys[cnt]);
+        for (let cnt = 0; cnt < accessPath.length; cnt++) {
+            let currKey = this.keyVal(accessPath[cnt]);
+            let arrPos = this.arrayIndex(accessPath[cnt]);
 
             if (currKey === "" && arrPos >= 0) {
 
