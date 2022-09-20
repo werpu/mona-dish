@@ -397,7 +397,7 @@ describe('early stream tests', () => {
             val1 = value;
         })
 
-        expect(cnt1 == probe.length).to.be.true;
+        expect(cnt1 == probe.length - 1).to.be.true;
         expect(val1).to.eq(5);
 
         let cnt2 = 0;
