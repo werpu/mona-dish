@@ -1228,7 +1228,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     //code snippet license: https://creativecommons.org/licenses/by-sa/2.5/
     private _mozMatchesSelector(toMatch: Element, selector: string): boolean {
         let prot: { [key: string]: Function } = (<any>toMatch);
-        let matchesSelector: Function = prot.matchesSelector ||
+        let matchesSelector: Function = prot.matches ||
+            prot.matchesSelector ||
             prot.mozMatchesSelector ||
             prot.msMatchesSelector ||
             prot.oMatchesSelector ||
@@ -1260,13 +1261,18 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return new DomQuery(...matched);
     }
 
+    /**
+     * checks whether any item in this domQuery level matches the selector
+     * if there is one element only attached, as root the match is only
+     * performed on this element.
+     * @param selector
+     */
     matchesSelector(selector: string): boolean {
-        this.eachElem(item => {
-            if (!this._mozMatchesSelector(item, selector)) {
-                return false;
-            }
-        });
-        return true;
+        const ret = this.lazyStream
+            .map(item => this._mozMatchesSelector(item.getAsElem(0).value, selector))
+            .filter(match => match)
+            .first();
+        return ret.isPresent();
     }
 
     /**

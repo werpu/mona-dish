@@ -632,6 +632,12 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * @param selector
      */
     filterSelector(selector: string): DomQuery;
+    /**
+     * checks whether any item in this domQuery level matches the selector
+     * if there is one element only attached, as root the match is only
+     * performed on this element.
+     * @param selector
+     */
     matchesSelector(selector: string): boolean;
     /**
      * easy node traversal, you can pass
