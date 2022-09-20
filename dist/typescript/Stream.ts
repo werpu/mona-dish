@@ -614,6 +614,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 
     private stop() {
         this.pos = this._limits + 1000000000;
+        this._limits = 0;
     }
 
     private isOverLimits() {

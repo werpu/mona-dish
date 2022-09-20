@@ -58,6 +58,47 @@ describe('early stream tests', () => {
         expect(sum).to.eq(10);
     });
 
+    it("must stop at the first false", function() {
+        let stream: Stream<number> | LazyStream<number> = LazyStream.of<number>(...this.probe);
+        let callCnt = 0;
+        stream.each(item => {
+            callCnt++;
+            return item < 3;
+        })
+        expect(callCnt).to.eq(3);
+
+        stream = Stream.of<number>(...this.probe);
+        callCnt = 0;
+        stream.each(item => {
+            callCnt++;
+            return item < 3;
+        })
+        expect(callCnt).to.eq(3);
+
+        stream = LazyStream.of<number>(...this.probe);
+        callCnt = 0;
+        stream
+            .onElem(item => {
+                callCnt++;
+            })
+            .each(item => {
+            return item < 3;
+        })
+        expect(callCnt).to.eq(3);
+
+        //special case early stream everything before foreach is handled in a separate step
+        stream = Stream.of<number>(...this.probe);
+        callCnt = 0;
+        stream
+            .onElem(item => {
+                callCnt++;
+            })
+            .each(item => {
+                return item < 3;
+            })
+        expect(callCnt).to.eq(5);
+    })
+
     it("must onElem", function () {
         let stream = Stream.of<number>(...this.probe);
         let sum = 0;

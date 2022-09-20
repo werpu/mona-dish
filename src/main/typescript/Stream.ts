@@ -64,6 +64,7 @@ export interface IStream<T> {
      */
     each(fn: IteratableConsumer<T>): void;
 
+
     /**
      * maps a single element into another via fn
      * @param fn function which takes one element in and returns another
@@ -232,6 +233,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         }
         return this;
     }
+
 
     each(fn: (data: T, pos ?: number) => void | boolean) {
         this.onElem(fn);
@@ -614,6 +616,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 
     private stop() {
         this.pos = this._limits + 1000000000;
+        this._limits = 0;
     }
 
     private isOverLimits() {
