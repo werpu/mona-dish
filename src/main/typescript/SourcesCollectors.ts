@@ -190,8 +190,6 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
                 found = next;
                 this._nextStack.push(next);
                 break;
-            } else {
-                this._filterIdx[this._unfilteredPos + steps] = false;
             }
         }
         steps ? this.inputDataSource.back(steps) : null;
@@ -209,7 +207,7 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
 
             //again here we cannot call the filter function twice, because its state might change, so if indexed, we have a decent snapshot, either has next or next can trigger
             //the snapshot
-            if (this._filterIdx?.[this._unfilteredPos] ?? this.filterFunc(next)) {
+            if ((this._filterIdx?.[this._unfilteredPos] ?? false) || this.filterFunc(next)) {
                 this._filterIdx[this._unfilteredPos] = true;
                 found = next;
                 break;
