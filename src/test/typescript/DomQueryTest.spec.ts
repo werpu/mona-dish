@@ -16,7 +16,7 @@
 
 import {expect, should} from 'chai';
 import {describe, it} from 'mocha';
-import {DomQuery, DomQueryCollector} from "../../main/typescript";
+import {ArrayStreamDataSource, DomQuery, DomQueryCollector} from "../../main/typescript";
 import {ArrayCollector, Lang, LazyStream} from "../../main/typescript";
 import sinon = require('sinon');
 import trim = Lang.trim;
@@ -580,5 +580,18 @@ describe('DOMQuery tests', function () {
     it('must handle null inputs correctly', function() {
         const dq = new DomQuery(null);
         expect(dq.isAbsent()).to.eq(true);
+    })
+
+    it('concat must work as expected resulting', function() {
+        let probe = DomQuery.querySelectorAll("div");
+        let probe2 = DomQuery.querySelectorAll("body");
+        global["debug"] = true;
+        let result = probe.concat(probe2);
+        expect(result.length).to.eq(probe.length + probe2.length);
+
+        //lets now check for filter double
+        probe2 = DomQuery.querySelectorAll('div');
+        result = probe.concat(probe2);
+        expect(result.length).to.eq(probe.length);
     })
 });

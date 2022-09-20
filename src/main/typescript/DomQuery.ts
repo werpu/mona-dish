@@ -804,8 +804,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     get asArray(): Array<DomQuery> {
         //filter not supported by IE11
-        return [].concat(LazyStream.of(...this.rootNode).filter(item => item != null)
-            .map(item => DomQuery.byId(item)).collect(new ArrayCollector()));
+        return [].concat(LazyStream.of(...this.rootNode).filter(item => {
+            return item != null
+        })
+            .map(item => {
+                return DomQuery.byId(item)
+            }).collect(new ArrayCollector()));
     }
 
     get asNodeArray(): Array<DomQuery> {
@@ -1993,6 +1997,17 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return new DomQuery(this.values[this.pos]);
     }
 
+
+    back(cnt = 1): DomQuery {
+        this.pos = Math.max(0, this.pos - cnt)
+        return new DomQuery(this.values[this.pos]);
+    }
+
+    current(): DomQuery {
+        return new DomQuery(this.values[this.pos]);
+    }
+
+
     reset() {
         this.pos = -1;
     }
@@ -2105,6 +2120,24 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 }
             }
         }
+    }
+
+    /**
+     * concats the elements of two Dom Queries into a single one
+     * @param toAttach
+     */
+    concat(toAttach: DomQuery, filterDoubles = true): any {
+        const ret = this.lazyStream.concat(toAttach.lazyStream).collect(new DomQueryCollector());
+        //we now filter the doubles out
+        if(!filterDoubles) {
+            return ret;
+        }
+        let idx = {}; //ie11 does not support sets, we have to fake it
+        return ret.lazyStream.filter(node => {
+            const notFound = !(idx?.[node.value.value.outerHTML as any]);
+            idx[node.value.value.outerHTML as any] = true;
+            return notFound;
+        }).collect(new DomQueryCollector());
     }
 
 

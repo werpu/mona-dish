@@ -354,6 +354,11 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return this.value[this.pos];
     }
 
+    back(cnt = 1): T {
+        this.pos = Math.max(this.pos-1, -1)
+        return this.value[Math.max(this.pos, 0)];
+    }
+
     [Symbol.iterator]() : Iterator<T> {
         return {
             next: () => {
@@ -448,9 +453,19 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         return next;
     }
 
+    back(cnt = 1): T {
+        let ret = this.dataSource.back(cnt);
+        this.pos = Math.max(-1, this.pos - cnt);
+        return ret;
+    }
+
+    current(): T {
+        return this.dataSource.current();
+    }
+
     reset(): void {
         this.dataSource.reset();
-        this.pos = 0;
+        this.pos = -1;
         this._limits = -1;
     }
 
@@ -507,7 +522,6 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     }
 
     flatMap<StreamMapper>(fn: StreamMapper | ArrayMapper<any>): LazyStream<any> {
-
         return new LazyStream<any>(new FlatMapStreamDataSource(<any>fn, this));
     }
 

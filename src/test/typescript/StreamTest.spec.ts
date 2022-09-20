@@ -17,7 +17,7 @@
 import {describe} from "mocha";
 import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
-import {ArrayCollector, SequenceDataSource} from "../../main/typescript";
+import {ArrayCollector, ArrayStreamDataSource, SequenceDataSource} from "../../main/typescript";
 import {from} from "rxjs";
 
 describe('early stream tests', () => {
@@ -57,6 +57,15 @@ describe('early stream tests', () => {
         });
         expect(sum).to.eq(10);
     });
+
+
+    it('must filter properly', function() {
+        let probe0 = new LazyStream(new ArrayStreamDataSource(...[1, 2, 3, 4])).filter(item => {
+            return item != null;
+        }).collect(new ArrayCollector());
+
+       expect(probe0.length).to.eq(4)
+    })
 
     it("must stop at the first false", function() {
         let stream: Stream<number> | LazyStream<number> = LazyStream.of<number>(...this.probe);
@@ -388,7 +397,7 @@ describe('early stream tests', () => {
             val1 = value;
         })
 
-        expect(cnt1 == probe.length - 1).to.be.true;
+        expect(cnt1 == probe.length).to.be.true;
         expect(val1).to.eq(5);
 
         let cnt2 = 0;
@@ -401,4 +410,27 @@ describe('early stream tests', () => {
         expect(cnt2 == probe.length).to.be.true;
         expect(val2).to.eq(10);
     });
+
+    it('it must concat with lazy streams', function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [1, 2, 3, 4, 5];
+
+        let strm1 = LazyStream.of(... probe);
+        let strm2 = LazyStream.of(... probe2);
+
+        let strm3 = strm1.concat(strm2);
+        let idx = {};
+        //we now filter the doubles out
+        const resultArr = strm3.filter(item => {
+            const ret = !idx?.[`${item}`];
+            return ret;
+        })
+            .map(item => {
+                idx[`${item}`] = true;
+                return item;
+            })
+            .collect(new ArrayCollector());
+        expect(resultArr.length).to.eq(5);
+
+    })
 });
