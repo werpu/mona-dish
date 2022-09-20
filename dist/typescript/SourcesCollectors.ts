@@ -36,6 +36,19 @@ export interface IStreamDataSource<T> {
     next(): T;
 
     /**
+     * returns the current element, returns the same element as the previous next call
+     * if there is no next before current called then we will call next as initial element
+     */
+    current(): T;
+
+    /**
+     * moves back cnt numbers in the datasource
+     * (if no number is given we move back one step)
+     * @param cnt
+     */
+    back(cnt?: number): T;
+
+    /**
      * resets the position to the beginning
      */
     reset(): void;
@@ -73,20 +86,30 @@ export class SequenceDataSource implements IStreamDataSource<number> {
     constructor(start: number, total: number) {
         this.total = total;
         this.start = start;
-        this.value = start;
+        this.value = start - 1;
     }
 
 
     hasNext(): boolean {
-        return this.value < this.total;
+        return this.value < (this.total - 1);
     }
 
     next(): number {
-        return Math.min(this.value++, this.total - 1);
+        this.value++;
+        return Math.min(this.value, this.total - 1);
+    }
+
+    back(cnt = 1): number {
+        return this.value = Math.max(this.value - cnt, this.start);
     }
 
     reset(): void {
-        this.value = 0;
+        this.value = this.start - 1;
+    }
+
+    current(): number {
+        //first condition current without initial call for next
+        return this.value == (this.start - 1) ? this.start : this.value;
     }
 }
 
@@ -114,6 +137,15 @@ export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     reset() {
         this.dataPos = -1;
     }
+
+    back(cnt: number = 1): T {
+        this.dataPos = Math.max(this.dataPos  - cnt, -1);
+        return this.value[Math.max(this.dataPos, 0)];
+    }
+
+    current(): T {
+        return this.value[Math.max(0, this.dataPos)];
+    }
 }
 
 /**
@@ -127,7 +159,12 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
     filterFunc: (T) => boolean;
     inputDataSource: IStreamDataSource<T>;
 
-    filteredNext: T = null;
+
+    _current: T;
+    // we have to add a filter idx because the external filter values might change over time, so
+    // we cannot reset the state properly unless we do it from a snapshot
+    _filterIdx = {};
+    _unfilteredPos = 0;
 
     constructor(filterFunc: (T) => boolean, parent: IStreamDataSource<T>) {
         this.filterFunc = filterFunc;
@@ -141,33 +178,64 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
      * serve it via next
      */
     hasNext(): boolean {
-        while (this.filteredNext == null && this.inputDataSource.hasNext()) {
+        let steps = 0;
+        let found = null;
+        while (this.inputDataSource.hasNext()) {
+            steps++;
             let next: T = <T>this.inputDataSource.next();
             if (this.filterFunc(next)) {
-                this.filteredNext = next;
-                return true;
-            } else {
-                this.filteredNext = null;
+                this._filterIdx[this._unfilteredPos + 1] = true;
+                found = next;
+                break;
             }
         }
-        return this.filteredNext != null;
+        this.inputDataSource.back(steps);
+        return found != null;
     }
 
     /**
      * serve the next element
      */
     next(): T {
-        let ret = this.filteredNext;
-        this.filteredNext = null;
-        //We have to call hasNext, to roll another
-        //prefetch in case someone runs next
-        //sequentially without calling hasNext
-        this.hasNext();
-        return ret;
+        let found = null;
+        while (this.inputDataSource.hasNext()) {
+            this._unfilteredPos ++;
+            let next: T = <T>this.inputDataSource.next();
+
+            //again here we cannot call the filter function twice, because its state might change, so if indexed, we have a decent snapshot, either has next or next can trigger
+            //the snapshot
+            if (this._filterIdx[this._unfilteredPos] || this.filterFunc(next)) {
+                this._filterIdx[this._unfilteredPos] = true;
+                found = next;
+                break;
+            }
+        }
+        this._current = found;
+        return found;
+    }
+
+    current(): T {
+        if(this._current == null) {
+            return this.next();
+        }
+        return this._current;
+    }
+
+    back(cnt = 1): T {
+        let data: T;
+        while(cnt >= 0) {
+            data = this.inputDataSource.back(1);
+            //we cannot use the data as skip index
+            let nonFilteredValue = !! this._filterIdx?.[this._unfilteredPos];
+            cnt = (nonFilteredValue) ? cnt - 1: cnt;
+            this._unfilteredPos--;
+        }
+        return data;
     }
 
     reset(): void {
-        this.filteredNext = null;
+        this._current = null;
+        this._filterIdx = {};
         this.inputDataSource.reset();
     }
 }
@@ -197,6 +265,14 @@ export class MappedStreamDataSource<T, S> implements IStreamDataSource<S> {
     reset(): void {
         this.inputDataSource.reset();
     }
+
+    back(cnt = 1): S {
+        return this.mapFunc(this.inputDataSource.back(cnt));
+    }
+
+    current(): S {
+        return this.mapFunc(this.inputDataSource.current());
+    }
 }
 
 /**
@@ -216,6 +292,8 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
      * from the next element
      */
     activeDataSource: IStreamDataSource<S>;
+    walkedDataSources= [];
+    _currPos = 0;
 
     constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>) {
         this.mapFunc = func;
@@ -223,10 +301,10 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
     }
 
     hasNext(): boolean {
-        return this.resolveCurrentNext() || this.resolveNextNext();
+        return this.resolveActiveHasNext() || this.resolveNextHasNext();
     }
 
-    private resolveCurrentNext() {
+    private resolveActiveHasNext() {
         let next = false;
         if (this.activeDataSource) {
             next = this.activeDataSource.hasNext();
@@ -234,11 +312,15 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         return next;
     }
 
-    private resolveNextNext() {
+    private resolveNextHasNext() {
         let next = false;
         while (!next && this.inputDataSource.hasNext()) {
             let mapped = this.mapFunc(this.inputDataSource.next());
             if (Array.isArray(mapped)) {
+                this.walkedDataSources.push({
+                    pos: this._currPos,
+                    datasource: this.activeDataSource
+                })
                 this.activeDataSource = new ArrayStreamDataSource(...mapped);
             } else {
                 this.activeDataSource = mapped;
@@ -249,11 +331,54 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
     }
 
     next(): S {
-        return this.activeDataSource.next();
+        if(this.hasNext()) {
+            this._currPos++;
+            return this.activeDataSource.next();
+        }
     }
 
     reset(): void {
         this.inputDataSource.reset();
+        this.walkedDataSources = [];
+        this._currPos = 0;
+    }
+
+    back(cnt = 1): S {
+        // we have to revert the active datasources until we reach the first one lower than pos - cnt
+        // then we have set this to the active datasource
+        //and then we have to move up until we hit xxx
+
+
+        let ret = null;
+        if(!this.walkedDataSources.length) {
+            return this.activeDataSource.back(cnt);
+        }
+        while(!ret && this.walkedDataSources.length) {
+            let datasource = this.walkedDataSources.pop();
+            let startingPos = this._currPos - cnt;
+            if(startingPos <= datasource.pos) {
+                //found
+                this.activeDataSource = datasource.datasource;
+                this.activeDataSource.reset();
+                const stepsForward = (this._currPos - datasource.pos - cnt);
+                this._currPos = datasource.pos + stepsForward;
+
+                for(let cnt = 0; cnt < stepsForward; cnt++) {
+                    ret = this.activeDataSource.next()
+                }
+
+            }
+        }
+
+        //we probably have to stack datasources to implement this, for now we leave it out
+        return ret;
+    }
+
+    current(): S {
+        if(!this.activeDataSource) {
+            this.hasNext();
+        }
+        return this.activeDataSource.current();
     }
 }
 

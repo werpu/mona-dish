@@ -742,6 +742,8 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     limits(end: number): IStream<DomQuery>;
     hasNext(): boolean;
     next(): DomQuery;
+    back(cnt?: number): DomQuery;
+    current(): DomQuery;
     reset(): void;
     attachShadow(params?: {
         [key: string]: string;
@@ -776,6 +778,11 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * to allow loops over dom query collections
      */
     [Symbol.iterator](): Iterator<DomQuery, any, undefined>;
+    /**
+     * concats the elements of two Dom Queries into a single one
+     * @param toAttach
+     */
+    concat(toAttach: DomQuery, filterDoubles?: boolean): any;
 }
 /**
  * Various collectors

@@ -157,6 +157,7 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     collect(collector: ICollector<T, any>): any;
     hasNext(): boolean;
     next(): T;
+    back(cnt?: number): T;
     [Symbol.iterator](): Iterator<T>;
     reset(): void;
 }
@@ -200,6 +201,8 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     constructor(parent: IStreamDataSource<T>);
     hasNext(): boolean;
     next(): T;
+    back(cnt?: number): T;
+    current(): T;
     reset(): void;
     /**
      * concat for streams, so that you can concat two streams together

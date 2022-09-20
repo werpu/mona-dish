@@ -51,7 +51,7 @@ or an internal limit is hit.</p>
 <li><a href="../interfaces/IStream.html" class="tsd-signature-type" data-tsd-kind="Interface">IStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></li>
 <li><a href="../interfaces/IMonad.html" class="tsd-signature-type" data-tsd-kind="Interface">IMonad</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L407">Stream.ts:407</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L412">Stream.ts:412</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -75,8 +75,10 @@ or an internal limit is hit.</p>
 <div class="tsd-index-list"><a href="LazyStream.html#_iterator_" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>[iterator]</span></a>
 <a href="LazyStream.html#allMatch" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>all<wbr/>Match</span></a>
 <a href="LazyStream.html#anyMatch" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>any<wbr/>Match</span></a>
+<a href="LazyStream.html#back" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>back</span></a>
 <a href="LazyStream.html#collect" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>collect</span></a>
 <a href="LazyStream.html#concat" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>concat</span></a>
+<a href="LazyStream.html#current" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>current</span></a>
 <a href="LazyStream.html#each" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>each</span></a>
 <a href="LazyStream.html#filter" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>filter</span></a>
 <a href="LazyStream.html#first" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>first</span></a>
@@ -115,19 +117,19 @@ or an internal limit is hit.</p>
 <h5>parent: <a href="../interfaces/IStreamDataSource.html" class="tsd-signature-type" data-tsd-kind="Interface">IStreamDataSource</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L431">Stream.ts:431</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L436">Stream.ts:436</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_limits" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_limits</span><a href="#_limits" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_limits<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = -1</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L410">Stream.ts:410</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L415">Stream.ts:415</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="pos" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pos</span><a href="#pos" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">pos<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = -1</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L417">Stream.ts:417</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L422">Stream.ts:422</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="value" class="tsd-anchor"></a>
@@ -140,7 +142,7 @@ or an internal limit is hit.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#value">value</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L596">Stream.ts:596</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L610">Stream.ts:610</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_iterator_" class="tsd-anchor"></a>
@@ -153,7 +155,7 @@ or an internal limit is hit.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Iterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#_iterator_">[iterator]</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L600">Stream.ts:600</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L614">Stream.ts:614</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="allMatch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>all<wbr/>Match</span><a href="#allMatch" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -169,7 +171,7 @@ or an internal limit is hit.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#allMatch">allMatch</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L572">Stream.ts:572</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L586">Stream.ts:586</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="anyMatch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>any<wbr/>Match</span><a href="#anyMatch" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -185,7 +187,24 @@ or an internal limit is hit.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#anyMatch">anyMatch</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L563">Stream.ts:563</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L577">Stream.ts:577</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="back" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>back</span><a href="#back" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="back.back-1">back<span class="tsd-signature-symbol">(</span>cnt<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><a href="#back.back-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>moves back cnt numbers in the datasource
+(if no number is given we move back one step)</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>cnt: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h4><aside class="tsd-sources">
+<p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#back">back</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L456">Stream.ts:456</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="collect" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>collect</span><a href="#collect" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -202,7 +221,7 @@ There are a number of collectors provided</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#collect">collect</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L484">Stream.ts:484</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L499">Stream.ts:499</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="concat" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>concat</span><a href="#concat" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -218,7 +237,19 @@ There are a number of collectors provided</p>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#concat">concat</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L461">Stream.ts:461</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L476">Stream.ts:476</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="current" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>current</span><a href="#current" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="current.current-1">current<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><a href="#current.current-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>returns the current element, returns the same element as the previous next call
+if there is no next before current called then we will call next as initial element</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h4><aside class="tsd-sources">
+<p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#current">current</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L462">Stream.ts:462</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="each" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>each</span><a href="#each" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -237,7 +268,7 @@ then further processing is stopped</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#each">each</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L515">Stream.ts:515</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L529">Stream.ts:529</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="filter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>filter</span><a href="#filter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -255,7 +286,7 @@ if it returns true it is passed down the chain.</p>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#filter">filter</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L501">Stream.ts:501</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L516">Stream.ts:516</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="first" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>first</span><a href="#first" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -266,7 +297,7 @@ if it returns true it is passed down the chain.</p>
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#first">first</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L555">Stream.ts:555</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L569">Stream.ts:569</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="flatMap" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>flat<wbr/>Map</span><a href="#flatMap" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -288,7 +319,7 @@ the set then is flatted into a single stream to be further processed</p>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IMonad.html">IMonad</a>.<a href="../interfaces/IMonad.html#flatMap">flatMap</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L509">Stream.ts:509</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L524">Stream.ts:524</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="hasNext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Next</span><a href="#hasNext" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -300,7 +331,7 @@ the set then is flatted into a single stream to be further processed</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#hasNext">hasNext</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L436">Stream.ts:436</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L441">Stream.ts:441</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="last" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>last</span><a href="#last" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -312,7 +343,7 @@ point hence producing an endless loop)</p>
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#last">last</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L548">Stream.ts:548</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L562">Stream.ts:562</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="limits" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>limits</span><a href="#limits" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -330,7 +361,7 @@ point hence producing an endless loop)</p>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#limits">limits</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L478">Stream.ts:478</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L493">Stream.ts:493</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="map" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>map</span><a href="#map" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -353,7 +384,7 @@ point hence producing an endless loop)</p>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IMonad.html">IMonad</a>.<a href="../interfaces/IMonad.html#map">map</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L505">Stream.ts:505</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L520">Stream.ts:520</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="next" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>next</span><a href="#next" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -364,7 +395,7 @@ point hence producing an endless loop)</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#next">next</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L444">Stream.ts:444</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L449">Stream.ts:449</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="nextFilter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>next<wbr/>Filter</span><a href="#nextFilter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -377,7 +408,7 @@ point hence producing an endless loop)</p>
 <h5>fn: <span class="tsd-signature-type">Matchable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L467">Stream.ts:467</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L482">Stream.ts:482</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="noneMatch" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>none<wbr/>Match</span><a href="#noneMatch" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -393,7 +424,7 @@ point hence producing an endless loop)</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#noneMatch">noneMatch</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L581">Stream.ts:581</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L595">Stream.ts:595</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="onElem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>on<wbr/>Elem</span><a href="#onElem" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -416,7 +447,7 @@ this method to gather data or iterate over all date for processing
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#onElem">onElem</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L492">Stream.ts:492</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L507">Stream.ts:507</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="reduce" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>reduce</span><a href="#reduce" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -445,7 +476,7 @@ and further goes down into the stream, if not, then the first two elements are t
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">V</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#reduce">reduce</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L523">Stream.ts:523</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L537">Stream.ts:537</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="reset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>reset</span><a href="#reset" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -456,7 +487,7 @@ and further goes down into the stream, if not, then the first two elements are t
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#reset">reset</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L451">Stream.ts:451</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L466">Stream.ts:466</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="sort" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>sort</span><a href="#sort" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -475,7 +506,7 @@ it still returns a stream for further processing</p>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/IStream.html" class="tsd-signature-type" data-tsd-kind="Interface">IStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStream.html">IStream</a>.<a href="../interfaces/IStream.html#sort">sort</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L590">Stream.ts:590</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L604">Stream.ts:604</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="of" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>of</span><a href="#of" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -493,7 +524,7 @@ it still returns a stream for further processing</p>
 <h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>values: <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L419">Stream.ts:419</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L424">Stream.ts:424</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="ofAssoc" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>of<wbr/>Assoc</span><a href="#ofAssoc" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -514,7 +545,7 @@ it still returns a stream for further processing</p>
 <h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span></h5></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L423">Stream.ts:423</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L428">Stream.ts:428</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="ofStreamDataSource" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>of<wbr/>Stream<wbr/>Data<wbr/>Source</span><a href="#ofStreamDataSource" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -532,7 +563,7 @@ it still returns a stream for further processing</p>
 <h5>value: <a href="../interfaces/IStreamDataSource.html" class="tsd-signature-type" data-tsd-kind="Interface">IStreamDataSource</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ad91c92/src/main/typescript/Stream.ts#L427">Stream.ts:427</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a531b58/src/main/typescript/Stream.ts#L432">Stream.ts:432</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -563,8 +594,10 @@ it still returns a stream for further processing</p>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#_iterator_" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>[iterator]</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#allMatch" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>all<wbr/>Match</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#anyMatch" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>any<wbr/>Match</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#back" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>back</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#collect" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>collect</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#concat" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>concat</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#current" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>current</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#each" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>each</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#filter" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>filter</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="LazyStream.html#first" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>first</a></li>

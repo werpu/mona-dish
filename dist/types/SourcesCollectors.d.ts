@@ -16,6 +16,17 @@ export interface IStreamDataSource<T> {
      */
     next(): T;
     /**
+     * returns the current element, returns the same element as the previous next call
+     * if there is no next before current called then we will call next as initial element
+     */
+    current(): T;
+    /**
+     * moves back cnt numbers in the datasource
+     * (if no number is given we move back one step)
+     * @param cnt
+     */
+    back(cnt?: number): T;
+    /**
      * resets the position to the beginning
      */
     reset(): void;
@@ -47,7 +58,9 @@ export declare class SequenceDataSource implements IStreamDataSource<number> {
     constructor(start: number, total: number);
     hasNext(): boolean;
     next(): number;
+    back(cnt?: number): number;
     reset(): void;
+    current(): number;
 }
 /**
  * implementation of iteratable on top of array
@@ -59,6 +72,8 @@ export declare class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     hasNext(): boolean;
     next(): T;
     reset(): void;
+    back(cnt?: number): T;
+    current(): T;
 }
 /**
  * an intermediate data source which prefilters
@@ -69,7 +84,9 @@ export declare class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
 export declare class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
     filterFunc: (T: any) => boolean;
     inputDataSource: IStreamDataSource<T>;
-    filteredNext: T;
+    _current: T;
+    _filterIdx: {};
+    _unfilteredPos: number;
     constructor(filterFunc: (T: any) => boolean, parent: IStreamDataSource<T>);
     /**
      * in order to filter we have to make a look ahead until the
@@ -82,6 +99,8 @@ export declare class FilteredStreamDatasource<T> implements IStreamDataSource<T>
      * serve the next element
      */
     next(): T;
+    current(): T;
+    back(cnt?: number): T;
     reset(): void;
 }
 /**
@@ -95,6 +114,8 @@ export declare class MappedStreamDataSource<T, S> implements IStreamDataSource<S
     hasNext(): boolean;
     next(): S;
     reset(): void;
+    back(cnt?: number): S;
+    current(): S;
 }
 /**
  * Same for flatmap to deal with element -> stream mappings
@@ -110,12 +131,16 @@ export declare class FlatMapStreamDataSource<T, S> implements IStreamDataSource<
      * from the next element
      */
     activeDataSource: IStreamDataSource<S>;
+    walkedDataSources: any[];
+    _currPos: number;
     constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>);
     hasNext(): boolean;
-    private resolveCurrentNext;
-    private resolveNextNext;
+    private resolveActiveHasNext;
+    private resolveNextHasNext;
     next(): S;
     reset(): void;
+    back(cnt?: number): S;
+    current(): S;
 }
 /**
  * For the time being we only need one collector
