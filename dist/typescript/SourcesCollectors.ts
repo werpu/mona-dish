@@ -166,6 +166,8 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
     _filterIdx = {};
     _unfilteredPos = 0;
 
+    _nextStack = [];
+
     constructor(filterFunc: (T) => boolean, parent: IStreamDataSource<T>) {
         this.filterFunc = filterFunc;
         this.inputDataSource = parent;
@@ -184,12 +186,15 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
             steps++;
             let next: T = <T>this.inputDataSource.next();
             if (this.filterFunc(next)) {
-                this._filterIdx[this._unfilteredPos + 1] = true;
+                this._filterIdx[this._unfilteredPos + steps] = true;
                 found = next;
+                this._nextStack.push(next);
                 break;
+            } else {
+                this._filterIdx[this._unfilteredPos + steps] = false;
             }
         }
-        this.inputDataSource.back(steps);
+        steps ? this.inputDataSource.back(steps) : null;
         return found != null;
     }
 
@@ -204,7 +209,7 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
 
             //again here we cannot call the filter function twice, because its state might change, so if indexed, we have a decent snapshot, either has next or next can trigger
             //the snapshot
-            if (this._filterIdx[this._unfilteredPos] || this.filterFunc(next)) {
+            if (this._filterIdx?.[this._unfilteredPos] ?? this.filterFunc(next)) {
                 this._filterIdx[this._unfilteredPos] = true;
                 found = next;
                 break;
@@ -222,8 +227,8 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
     }
 
     back(cnt = 1): T {
-        let data: T;
-        while(cnt >= 0) {
+        let data: T = null;
+        while(cnt >= 0 && this._unfilteredPos > 0) {
             data = this.inputDataSource.back(1);
             //we cannot use the data as skip index
             let nonFilteredValue = !! this._filterIdx?.[this._unfilteredPos];
@@ -316,11 +321,13 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         let next = false;
         while (!next && this.inputDataSource.hasNext()) {
             let mapped = this.mapFunc(this.inputDataSource.next());
-            if (Array.isArray(mapped)) {
+            if(this.activeDataSource) {
                 this.walkedDataSources.push({
                     pos: this._currPos,
                     datasource: this.activeDataSource
-                })
+                });
+            }
+            if (Array.isArray(mapped)) {
                 this.activeDataSource = new ArrayStreamDataSource(...mapped);
             } else {
                 this.activeDataSource = mapped;

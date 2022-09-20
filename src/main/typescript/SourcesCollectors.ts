@@ -209,16 +209,10 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
 
             //again here we cannot call the filter function twice, because its state might change, so if indexed, we have a decent snapshot, either has next or next can trigger
             //the snapshot
-            if(this._filterIdx[this._unfilteredPos]) {
-                found = next;
-                break;
-            }
-            if (this.filterFunc(next)) {
+            if (this._filterIdx?.[this._unfilteredPos] ?? this.filterFunc(next)) {
                 this._filterIdx[this._unfilteredPos] = true;
                 found = next;
                 break;
-            } else {
-                this._filterIdx[this._unfilteredPos] = false;
             }
         }
         this._current = found;

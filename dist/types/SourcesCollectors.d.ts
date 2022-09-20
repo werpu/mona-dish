@@ -87,6 +87,7 @@ export declare class FilteredStreamDatasource<T> implements IStreamDataSource<T>
     _current: T;
     _filterIdx: {};
     _unfilteredPos: number;
+    _nextStack: any[];
     constructor(filterFunc: (T: any) => boolean, parent: IStreamDataSource<T>);
     /**
      * in order to filter we have to make a look ahead until the
