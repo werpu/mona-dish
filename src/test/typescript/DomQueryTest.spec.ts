@@ -593,4 +593,25 @@ describe('DOMQuery tests', function () {
         result = probe.concat(probe2);
         expect(result.length).to.eq(probe.length);
     })
+
+    it('must handle match correctly', function() {
+        let probe = DomQuery.querySelectorAll("div").first();
+        let probe2 = DomQuery.querySelectorAll("body").first();
+
+        expect(probe.matchesSelector("div")).to.eq(true);
+        expect(probe2.matchesSelector("body")).to.eq(true);
+        expect(probe2.matchesSelector("div")).to.eq(false);
+    })
+
+    it('must by recycleable', function () {
+        let probe = DomQuery.querySelectorAll("div");
+        let probe2 = DomQuery.querySelectorAll("body");
+
+        let res1 = probe.filter(item => item.matchesSelector("div"));
+        expect(res1.length).to.eq(4);
+        let res2 = probe.filter(item => item.matchesSelector("div"));
+        expect(res2.length).to.eq(4);
+
+
+    })
 });
