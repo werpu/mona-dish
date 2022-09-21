@@ -59,15 +59,15 @@ describe('early stream tests', () => {
     });
 
 
-    it('must filter properly', function() {
+    it('must filter properly', function () {
         let probe0 = new LazyStream(new ArrayStreamDataSource(...[1, 2, 3, 4])).filter(item => {
             return item != null;
         }).collect(new ArrayCollector());
 
-       expect(probe0.length).to.eq(4)
+        expect(probe0.length).to.eq(4)
     })
 
-    it("must stop at the first false", function() {
+    it("must stop at the first false", function () {
         let stream: Stream<number> | LazyStream<number> = LazyStream.of<number>(...this.probe);
         let callCnt = 0;
         stream.each(item => {
@@ -91,8 +91,8 @@ describe('early stream tests', () => {
                 callCnt++;
             })
             .each(item => {
-            return item < 3;
-        })
+                return item < 3;
+            })
         expect(callCnt).to.eq(3);
 
         //special case early stream everything before foreach is handled in a separate step
@@ -312,7 +312,7 @@ describe('early stream tests', () => {
     it("must concat correctly", function () {
         let probe: Array<number> = [1, 2, 3, 4, 5];
         let probe2: Array<number> = [6, 7, 8, 9, 10];
-        let probe3: Array<number> = [11,12,13,14,15];
+        let probe3: Array<number> = [11, 12, 13, 14, 15];
         let stream1 = Stream.of<number>(...probe);
         let stream2 = Stream.of<number>(...probe2);
         let stream3 = Stream.of<number>(...probe3);
@@ -328,7 +328,7 @@ describe('early stream tests', () => {
     it("must concat correctly lazily", function () {
         let probe: Array<number> = [1, 2, 3, 4, 5];
         let probe2: Array<number> = [6, 7, 8, 9, 10];
-        let probe3: Array<number> = [11,12,13,14,15];
+        let probe3: Array<number> = [11, 12, 13, 14, 15];
         let stream1 = LazyStream.of<number>(...probe);
         let stream2 = LazyStream.of<number>(...probe2);
         let stream3 = LazyStream.of<number>(...probe3);
@@ -356,7 +356,7 @@ describe('early stream tests', () => {
 
 
         let cnt1 = 0;
-        let val1  = 0;
+        let val1 = 0;
         o1.subscribe(value => {
             cnt1++;
             val1 = value;
@@ -367,7 +367,7 @@ describe('early stream tests', () => {
 
 
         let cnt2 = 0;
-        let val2  = 0;
+        let val2 = 0;
         o2.subscribe(value => {
             cnt2++;
             val2 = value;
@@ -383,7 +383,8 @@ describe('early stream tests', () => {
 
         let stream1 = LazyStream.of<number>(...probe).filter(item => {
             return item != 2;
-        });;
+        });
+        ;
         let stream2 = LazyStream.of<number>(...probe2);
 
         let o1 = from(stream1);
@@ -391,7 +392,7 @@ describe('early stream tests', () => {
 
 
         let cnt1 = 0;
-        let val1  = 0;
+        let val1 = 0;
         o1.subscribe(value => {
             cnt1++;
             val1 = value;
@@ -401,7 +402,7 @@ describe('early stream tests', () => {
         expect(val1).to.eq(5);
 
         let cnt2 = 0;
-        let val2  = 0;
+        let val2 = 0;
         o2.subscribe(value => {
             cnt2++;
             val2 = value;
@@ -415,10 +416,66 @@ describe('early stream tests', () => {
         let probe: Array<number> = [1, 2, 3, 4, 5];
         let probe2: Array<number> = [1, 2, 3, 4, 5];
 
-        let strm1 = LazyStream.of(... probe);
-        let strm2 = LazyStream.of(... probe2);
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
 
         let strm3 = strm1.concat(strm2);
+        let idx = {};
+        //we now filter the doubles out
+        const resultArr = strm3.filter(item => {
+            const ret = !idx?.[`${item}`];
+            return ret;
+        })
+            .map(item => {
+                idx[`${item}`] = true;
+                return item;
+            })
+            .collect(new ArrayCollector());
+        expect(resultArr.length).to.eq(5);
+
+    });
+
+    it('streams must be recycleable after first usage', function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [1, 2, 3, 4, 5];
+
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+
+        let strm3 = strm1.concat(strm2);
+
+        let arr = strm3.filter(item => {
+            return true;
+        }).collect(new ArrayCollector())
+
+        let idx = {};
+        //we now filter the doubles out
+        const resultArr = strm3.filter(item => {
+            const ret = !idx?.[`${item}`];
+            return ret;
+        })
+            .map(item => {
+                idx[`${item}`] = true;
+                return item;
+            })
+            .collect(new ArrayCollector());
+        expect(resultArr.length).to.eq(5);
+
+    })
+
+    it('lazy streams must be recycleable after first usage', function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [1, 2, 3, 4, 5];
+
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+
+        let strm3 = strm1.concat(strm2);
+
+        let arr = strm3.filter(item => {
+            return true;
+        }).collect(new ArrayCollector())
+
         let idx = {};
         //we now filter the doubles out
         const resultArr = strm3.filter(item => {

@@ -585,7 +585,6 @@ describe('DOMQuery tests', function () {
     it('concat must work as expected resulting', function() {
         let probe = DomQuery.querySelectorAll("div");
         let probe2 = DomQuery.querySelectorAll("body");
-        global["debug"] = true;
         let result = probe.concat(probe2);
         expect(result.length).to.eq(probe.length + probe2.length);
 
