@@ -19,6 +19,7 @@ import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
 import {ArrayCollector, ArrayStreamDataSource, SequenceDataSource} from "../../main/typescript";
 import {from} from "rxjs";
+import {ITERATION_STATUS} from "../../main/typescript/SourcesCollectors";
 
 describe('early stream tests', () => {
 
@@ -490,4 +491,54 @@ describe('early stream tests', () => {
         expect(resultArr.length).to.eq(5);
 
     })
+
+    it('lazy streams must be handle complex look aheads', function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [6, 7, 8, 9, 10];
+        let probe3: Array<number> = [11, 12, 13, 14, 15];
+        let probe4: Array<number> = [16, 17, 18, 19, 20];
+
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+        let strm3 = LazyStream.of(...probe3);
+        let strm4 = LazyStream.of(...probe4);
+        let strm5 = strm3.concat(strm4);
+
+        let strm31 = strm1.concat(strm2).concat(strm5);
+        strm31.each(item => console.log(item));
+        //let res = strm31.lookAhead(8);
+        global["debug"] = true;
+        let res2 = strm31.lookAhead(15);
+        let res3 = strm31.lookAhead(19);
+        let res4 = strm31.lookAhead(21);
+        //expect(res).to.eq(8);
+        expect(res2).to.eq(15);
+        expect(res3).to.eq(19);
+        expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
+    });
+
+    it('streams must be handle complex look aheads', function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [6, 7, 8, 9, 10];
+        let probe3: Array<number> = [11, 12, 13, 14, 15];
+        let probe4: Array<number> = [16, 17, 18, 19, 20];
+
+        let strm1 = Stream.of(...probe);
+        let strm2 = Stream.of(...probe2);
+        let strm3 = Stream.of(...probe3);
+        let strm4 = Stream.of(...probe4);
+        let strm5 = strm3.concat(strm4);
+
+        let strm31 = strm1.concat(strm2).concat(strm5);
+        strm31.each(item => console.log(item));
+        //let res = strm31.lookAhead(8);
+        global["debug"] = true;
+        let res2 = strm31.lookAhead(15);
+        let res3 = strm31.lookAhead(19);
+        let res4 = strm31.lookAhead(21);
+        //expect(res).to.eq(8);
+        expect(res2).to.eq(15);
+        expect(res3).to.eq(19);
+        expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
+    });
 });

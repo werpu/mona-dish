@@ -2,6 +2,14 @@ import { StreamMapper } from "./Stream";
 import { DomQuery } from "./DomQuery";
 /**
  * special status of the datasource location pointer
+ * if an access, outside of the possible data boundaries is happening
+ * (example for instance current without a first next call, or next
+ * which goes over the last possible dataset), an iteration status return
+ * value is returned marking this boundary instead of a classical element
+ *
+ * Note this is only internally used but must be implemented to fullfill
+ * internal contracts, the end user will never see those values if he uses
+ * streams!
  */
 export declare enum ITERATION_STATUS {
     EO_STRM = "__EO_STRM__",
@@ -24,6 +32,11 @@ export interface IStreamDataSource<T> {
     next(): T | ITERATION_STATUS;
     /**
      * returns the next element in the stream
+     * difference to next is, that the internal data position
+     * is not changed, so next still will deliver the next item from the current
+     * data position. Look ahead is mostly needed internally
+     * by possible endless data constructs which have no fixed data boundary, or index
+     * positions. (aka infinite sets, or flatmapped constructs)
      */
     lookAhead(cnt?: number): T | ITERATION_STATUS;
     /**

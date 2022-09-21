@@ -16,9 +16,18 @@
 
 import {Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
+import type = Mocha.utils.type;
 
 /**
  * special status of the datasource location pointer
+ * if an access, outside of the possible data boundaries is happening
+ * (example for instance current without a first next call, or next
+ * which goes over the last possible dataset), an iteration status return
+ * value is returned marking this boundary instead of a classical element
+ *
+ * Note this is only internally used but must be implemented to fullfill
+ * internal contracts, the end user will never see those values if he uses
+ * streams!
  */
 export enum ITERATION_STATUS {
     EO_STRM = '__EO_STRM__',
@@ -45,6 +54,11 @@ export interface IStreamDataSource<T> {
 
     /**
      * returns the next element in the stream
+     * difference to next is, that the internal data position
+     * is not changed, so next still will deliver the next item from the current
+     * data position. Look ahead is mostly needed internally
+     * by possible endless data constructs which have no fixed data boundary, or index
+     * positions. (aka infinite sets, or flatmapped constructs)
      */
     lookAhead(cnt ?: number): T | ITERATION_STATUS;
 
@@ -113,8 +127,6 @@ export class SequenceDataSource implements IStreamDataSource<number> {
         }
     }
 
-
-
     reset(): void {
         this.value = this.start - 1;
     }
@@ -156,8 +168,6 @@ export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     reset() {
         this.dataPos = -1;
     }
-
-
 
     current(): T {
         return this.value[Math.max(0, this.dataPos)];
@@ -327,36 +337,55 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         return next;
     }
 
-    lookAhead(cnt?: number): ITERATION_STATUS | S {
+
+    lookAhead(cnt = 1): ITERATION_STATUS | S {
         //easy access trial
         if(this?.activeDataSource && this?.activeDataSource?.lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
             //this should coverr 95% of all accesses
             return this?.activeDataSource.lookAhead(cnt);
         }
-        //slower method we have to look ahead forward one by one until we hit the end or
-        //have to move on
-        for(let lookAheadPos = 1, topLevelLookAhead = 1; lookAheadPos <= cnt; topLevelLookAhead++) {
-            let foundItem = null;
-            let item = this.inputDataSource.lookAhead(topLevelLookAhead);
-            if(item === ITERATION_STATUS.EO_STRM) {
-                return item as ITERATION_STATUS;
-            }
-            let mapped = this.mapFunc(item as T);
 
+        /**
+         * we only can determine how many elems datasource has by going up
+         * (for now this suffices, however not ideal, we might have to introduce a numElements or so)
+         * @param datasource
+         */
+        function howManyElems(datasource: IStreamDataSource<any>): number {
+            let cnt = 1;
+            while(datasource.lookAhead(cnt) !== ITERATION_STATUS.EO_STRM) {
+                cnt++;
+            }
+            return cnt - 1;
+        }
+        function readjustSkip(dataSource) {
+            let skippedElems = (dataSource) ? howManyElems(dataSource) : 0;
+            cnt = cnt - skippedElems;
+        }
+
+        if(this.activeDataSource) {
+            readjustSkip(this.activeDataSource)
+        }
+
+        //the idea is basically to look into the streams subsequentially for a match
+        //after each stream we have to take into consideration that the skipCnt is
+        //reduced by the number of datasets we already have looked into in the previous stream/datasource
+        //unfortunately for now we have to loop into them so we introduce a small o2 here
+        for(let dsLoop = 1; true ; dsLoop++) {
+            let currDatasource = this.inputDataSource.lookAhead(dsLoop);
+            //we have looped out
+            if(currDatasource === ITERATION_STATUS.EO_STRM) {
+                return ITERATION_STATUS.EO_STRM;
+            }
+            let mapped = this.mapFunc(currDatasource as T);
             //it either comes in as datasource or as array
             let currentDataSource = this.toDatasource(mapped);
+            let ret = currentDataSource.lookAhead(cnt);
+            if(ret != ITERATION_STATUS.EO_STRM) {
+                return ret;
+            }
+            readjustSkip(currDatasource);
 
-            //this is the inner loop which looks ahead on our flatmapped datasource
-            //we need an inner counter, but every look ahead also increases our loop
-            return currentDataSource.lookAhead(cnt);
-           /* for(let flatmapLookAhead = 1; lookAheadPos <= cnt && foundItem != ITERATION_STATUS.EO_STRM; flatmapLookAhead++, lookAheadPos++) {
-                foundItem = currentDataSource.lookAhead(flatmapLookAhead);
-                if(lookAheadPos >= cnt) {
-                    return foundItem;
-                }
-            }*/
         }
-        return ITERATION_STATUS.EO_STRM;
     }
 
     private toDatasource(mapped: Array<S> | IStreamDataSource<S>) {
