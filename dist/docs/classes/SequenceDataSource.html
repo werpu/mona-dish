@@ -25,7 +25,7 @@
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/IStreamDataSource.html" class="tsd-signature-type" data-tsd-kind="Interface">IStreamDataSource</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L80">SourcesCollectors.ts:80</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L86">SourcesCollectors.ts:86</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -43,9 +43,9 @@
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
-<div class="tsd-index-list"><a href="SequenceDataSource.html#back" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>back</span></a>
-<a href="SequenceDataSource.html#current" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>current</span></a>
+<div class="tsd-index-list"><a href="SequenceDataSource.html#current" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>current</span></a>
 <a href="SequenceDataSource.html#hasNext" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>has<wbr/>Next</span></a>
+<a href="SequenceDataSource.html#lookAhead" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>look<wbr/>Ahead</span></a>
 <a href="SequenceDataSource.html#next" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>next</span></a>
 <a href="SequenceDataSource.html#reset" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>reset</span></a>
 </div></section></div></details></section></section>
@@ -65,55 +65,38 @@
 <h5>total: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="SequenceDataSource.html" class="tsd-signature-type" data-tsd-kind="Class">SequenceDataSource</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L86">SourcesCollectors.ts:86</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L92">SourcesCollectors.ts:92</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="start" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>start</span><a href="#start" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">start<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L82">SourcesCollectors.ts:82</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L88">SourcesCollectors.ts:88</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="total" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>total</span><a href="#total" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">total<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L83">SourcesCollectors.ts:83</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L89">SourcesCollectors.ts:89</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="value" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>value</span><a href="#value" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">value<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L84">SourcesCollectors.ts:84</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L90">SourcesCollectors.ts:90</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="back" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>back</span><a href="#back" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="back.back-1">back<span class="tsd-signature-symbol">(</span>cnt<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#back.back-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
-<li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>moves back cnt numbers in the datasource
-(if no number is given we move back one step)</p>
-</div>
-<div class="tsd-parameters">
-<h4 class="tsd-parameters-title">Parameters</h4>
-<ul class="tsd-parameter-list">
-<li>
-<h5>cnt: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
-<p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#back">back</a></p>
-<ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L102">SourcesCollectors.ts:102</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="current" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>current</span><a href="#current" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="current.current-1">current<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#current.current-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="current.current-1">current<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span><a href="#current.current-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>returns the current element, returns the same element as the previous next call
 if there is no next before current called then we will call next as initial element</p>
 </div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#current">current</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L110">SourcesCollectors.ts:110</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L122">SourcesCollectors.ts:122</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="hasNext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Next</span><a href="#hasNext" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -125,18 +108,34 @@ if there is no next before current called then we will call next as initial elem
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#hasNext">hasNext</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L93">SourcesCollectors.ts:93</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="next" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>next</span><a href="#next" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L99">SourcesCollectors.ts:99</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="lookAhead" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>look<wbr/>Ahead</span><a href="#lookAhead" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="next.next-1">next<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><a href="#next.next-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="lookAhead.lookAhead-1">look<wbr/>Ahead<span class="tsd-signature-symbol">(</span>cnt<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span><a href="#lookAhead.lookAhead-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>returns the next element in the stream</p>
 </div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>cnt: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 1</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
+<p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#lookAhead">lookAhead</a></p>
+<ul>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L108">SourcesCollectors.ts:108</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="next" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>next</span><a href="#next" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="next.next-1">next<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span><a href="#next.next-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>returns the next element in the stream</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#next">next</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L97">SourcesCollectors.ts:97</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L103">SourcesCollectors.ts:103</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="reset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>reset</span><a href="#reset" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -147,7 +146,7 @@ if there is no next before current called then we will call next as initial elem
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#reset">reset</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/583d457/src/main/typescript/SourcesCollectors.ts#L106">SourcesCollectors.ts:106</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/299e9d9/src/main/typescript/SourcesCollectors.ts#L118">SourcesCollectors.ts:118</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -175,9 +174,9 @@ if there is no next before current called then we will call next as initial elem
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="SequenceDataSource.html#start" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>start</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="SequenceDataSource.html#total" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>total</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="SequenceDataSource.html#value" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>value</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="SequenceDataSource.html#back" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>back</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="SequenceDataSource.html#current" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>current</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="SequenceDataSource.html#hasNext" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>has<wbr/>Next</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="SequenceDataSource.html#lookAhead" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>look<wbr/>Ahead</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="SequenceDataSource.html#next" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>next</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="SequenceDataSource.html#reset" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>reset</a></li></ul></li></ul></nav></div></div>
 <div class="container tsd-generator">

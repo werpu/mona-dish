@@ -18,6 +18,14 @@ import {Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
 
 /**
+ * special status of the datasource location pointer
+ */
+export enum ITERATION_STATUS {
+    EO_STRM = '__EO_STRM__',
+    BEF_STRM = '___BEF_STRM__',
+}
+
+/**
  * Every data source wich feeds data into the lazy stream
  * or stream generally must implement this interface
  *
@@ -33,20 +41,18 @@ export interface IStreamDataSource<T> {
     /**
      * returns the next element in the stream
      */
-    next(): T;
+    next(): T | ITERATION_STATUS;
+
+    /**
+     * returns the next element in the stream
+     */
+    lookAhead(cnt ?: number): T | ITERATION_STATUS;
 
     /**
      * returns the current element, returns the same element as the previous next call
      * if there is no next before current called then we will call next as initial element
      */
-    current(): T;
-
-    /**
-     * moves back cnt numbers in the datasource
-     * (if no number is given we move back one step)
-     * @param cnt
-     */
-    back(cnt?: number): T;
+    current(): T | ITERATION_STATUS;
 
     /**
      * resets the position to the beginning
@@ -94,22 +100,28 @@ export class SequenceDataSource implements IStreamDataSource<number> {
         return this.value < (this.total - 1);
     }
 
-    next(): number {
+    next(): number | ITERATION_STATUS {
         this.value++;
-        return Math.min(this.value, this.total - 1);
+        return this.value <= (this.total - 1) ? this.value : ITERATION_STATUS.EO_STRM;
     }
 
-    back(cnt = 1): number {
-        return this.value = Math.max(this.value - cnt, this.start);
+    lookAhead(cnt = 1): number | ITERATION_STATUS {
+        if((this.value + cnt) > this.total - 1) {
+            return ITERATION_STATUS.EO_STRM;
+        } else {
+            return this.value + cnt;
+        }
     }
+
+
 
     reset(): void {
         this.value = this.start - 1;
     }
 
-    current(): number {
+    current(): number | ITERATION_STATUS {
         //first condition current without initial call for next
-        return this.value == (this.start - 1) ? this.start : this.value;
+        return (this.start - 1) ? ITERATION_STATUS.BEF_STRM : this.value;
     }
 }
 
@@ -125,23 +137,27 @@ export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
         this.value = value;
     }
 
+    lookAhead(cnt = 1): T |ITERATION_STATUS {
+        if((this.dataPos+cnt) > this.value.length - 1) {
+            return ITERATION_STATUS.EO_STRM;
+        }
+        return this.value[this.dataPos + cnt];
+    }
+
     hasNext(): boolean {
         return this.value.length - 1 > this.dataPos;
     }
 
-    next(): T {
+    next(): T | ITERATION_STATUS {
         this.dataPos++;
-        return this.value[this.dataPos];
+        return this?.value[this.dataPos] ?? ITERATION_STATUS.EO_STRM;
     }
 
     reset() {
         this.dataPos = -1;
     }
 
-    back(cnt: number = 1): T {
-        this.dataPos = Math.max(this.dataPos  - cnt, -1);
-        return this.value[Math.max(this.dataPos, 0)];
-    }
+
 
     current(): T {
         return this.value[Math.max(0, this.dataPos)];
@@ -159,14 +175,11 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
     filterFunc: (T) => boolean;
     inputDataSource: IStreamDataSource<T>;
 
-
-    _current: T;
+    _current: T | ITERATION_STATUS = ITERATION_STATUS.BEF_STRM;
     // we have to add a filter idx because the external filter values might change over time, so
     // we cannot reset the state properly unless we do it from a snapshot
     _filterIdx = {};
     _unfilteredPos = 0;
-
-    _nextStack = [];
 
     constructor(filterFunc: (T) => boolean, parent: IStreamDataSource<T>) {
         this.filterFunc = filterFunc;
@@ -180,65 +193,63 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
      * serve it via next
      */
     hasNext(): boolean {
-        let steps = 0;
-        let found = null;
-        while (this.inputDataSource.hasNext()) {
-            steps++;
-            let next: T = <T>this.inputDataSource.next();
+        let steps = 1;
+        let found = false;
+        let next;
+
+        while(!found && (next = this.inputDataSource.lookAhead(steps)) != ITERATION_STATUS.EO_STRM) {
             if (this.filterFunc(next)) {
                 this._filterIdx[this._unfilteredPos + steps] = true;
-                found = next;
-                this._nextStack.push(next);
-                break;
+                found = true;
+            } else {
+                steps++;
             }
         }
-        steps ? this.inputDataSource.back(steps) : null;
-        return found != null;
+        return found;
     }
 
     /**
      * serve the next element
      */
-    next(): T {
-        let found = null;
+    next(): T | ITERATION_STATUS {
+        let found: T | ITERATION_STATUS = ITERATION_STATUS.EO_STRM;
         while (this.inputDataSource.hasNext()) {
             this._unfilteredPos ++;
             let next: T = <T>this.inputDataSource.next();
-
             //again here we cannot call the filter function twice, because its state might change, so if indexed, we have a decent snapshot, either has next or next can trigger
             //the snapshot
-            if ((this._filterIdx?.[this._unfilteredPos] ?? false) || this.filterFunc(next)) {
+            if (next != ITERATION_STATUS.EO_STRM &&
+                ((this._filterIdx?.[this._unfilteredPos] ?? false) || this.filterFunc(next))) {
                 this._filterIdx[this._unfilteredPos] = true;
                 found = next;
                 break;
             }
         }
-        this._current = found;
+        this._current = found as T;
         return found;
     }
 
-    current(): T {
-        if(this._current == null) {
-            return this.next();
+    lookAhead(cnt = 1): ITERATION_STATUS | T {
+        let lookupVal: T |ITERATION_STATUS;
+
+        for(let loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)) != ITERATION_STATUS.EO_STRM; loop++) {
+            let inCache = this._filterIdx?.[this._unfilteredPos + loop];
+            if(inCache || this.filterFunc(lookupVal)) {
+                cnt --;
+                this._filterIdx[this._unfilteredPos + loop] = true;
+            }
         }
-        return this._current;
+        return lookupVal;
     }
 
-    back(cnt = 1): T {
-        let data: T = null;
-        while(cnt >= 0 && this._unfilteredPos > 0) {
-            data = this.inputDataSource.back(1);
-            //we cannot use the data as skip index
-            let nonFilteredValue = !! this._filterIdx?.[this._unfilteredPos];
-            cnt = (nonFilteredValue) ? cnt - 1: cnt;
-            this._unfilteredPos--;
-        }
-        return data;
+    current(): T | ITERATION_STATUS {
+       return this._current;
     }
 
     reset(): void {
-        this._current = null;
+        this._current = ITERATION_STATUS.BEF_STRM;
         this._filterIdx = {};
+        this._unfilteredPos = 0;
         this.inputDataSource.reset();
     }
 }
@@ -269,12 +280,13 @@ export class MappedStreamDataSource<T, S> implements IStreamDataSource<S> {
         this.inputDataSource.reset();
     }
 
-    back(cnt = 1): S {
-        return this.mapFunc(this.inputDataSource.back(cnt));
-    }
-
     current(): S {
         return this.mapFunc(this.inputDataSource.current());
+    }
+
+    lookAhead(cnt= 1): ITERATION_STATUS | S {
+        const lookAheadVal = this.inputDataSource.lookAhead(cnt);
+        return (lookAheadVal == ITERATION_STATUS.EO_STRM) ? lookAheadVal as ITERATION_STATUS : this.mapFunc(lookAheadVal) as S;
     }
 }
 
@@ -315,27 +327,55 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         return next;
     }
 
+    lookAhead(cnt?: number): ITERATION_STATUS | S {
+        //easy access trial
+        if(this?.activeDataSource && this?.activeDataSource?.lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
+            //this should coverr 95% of all accesses
+            return this?.activeDataSource.lookAhead(cnt);
+        }
+        //slower method we have to look ahead forward one by one until we hit the end or
+        //have to move on
+        for(let lookAheadPos = 1, topLevelLookAhead = 1; lookAheadPos <= cnt; topLevelLookAhead++) {
+            let foundItem = null;
+            let item = this.inputDataSource.lookAhead(topLevelLookAhead);
+            if(item === ITERATION_STATUS.EO_STRM) {
+                return item as ITERATION_STATUS;
+            }
+            let mapped = this.mapFunc(item as T);
+
+            //it either comes in as datasource or as array
+            let currentDataSource = this.toDatasource(mapped);
+
+            //this is the inner loop which looks ahead on our flatmapped datasource
+            //we need an inner counter, but every look ahead also increases our loop
+            return currentDataSource.lookAhead(cnt);
+           /* for(let flatmapLookAhead = 1; lookAheadPos <= cnt && foundItem != ITERATION_STATUS.EO_STRM; flatmapLookAhead++, lookAheadPos++) {
+                foundItem = currentDataSource.lookAhead(flatmapLookAhead);
+                if(lookAheadPos >= cnt) {
+                    return foundItem;
+                }
+            }*/
+        }
+        return ITERATION_STATUS.EO_STRM;
+    }
+
+    private toDatasource(mapped: Array<S> | IStreamDataSource<S>) {
+        let ds = Array.isArray(mapped) ? new ArrayStreamDataSource(...mapped) : mapped;
+        this.walkedDataSources.push(ds)
+        return ds;
+    }
+
     private resolveNextHasNext() {
         let next = false;
         while (!next && this.inputDataSource.hasNext()) {
-            let mapped = this.mapFunc(this.inputDataSource.next());
-            if(this.activeDataSource) {
-                this.walkedDataSources.push({
-                    pos: this._currPos,
-                    datasource: this.activeDataSource
-                });
-            }
-            if (Array.isArray(mapped)) {
-                this.activeDataSource = new ArrayStreamDataSource(...mapped);
-            } else {
-                this.activeDataSource = mapped;
-            }
+            let mapped = this.mapFunc(this.inputDataSource.next() as T);
+            this.activeDataSource = this.toDatasource(mapped);;
             next = this.activeDataSource.hasNext();
         }
         return next;
     }
 
-    next(): S {
+    next(): S | ITERATION_STATUS {
         if(this.hasNext()) {
             this._currPos++;
             return this.activeDataSource.next();
@@ -344,42 +384,13 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
 
     reset(): void {
         this.inputDataSource.reset();
+        this.walkedDataSources.forEach(ds => ds.reset());
         this.walkedDataSources = [];
         this._currPos = 0;
+        this.activeDataSource = null;
     }
 
-    back(cnt = 1): S {
-        // we have to revert the active datasources until we reach the first one lower than pos - cnt
-        // then we have set this to the active datasource
-        //and then we have to move up until we hit xxx
-
-
-        let ret = null;
-        if(!this.walkedDataSources.length) {
-            return this.activeDataSource.back(cnt);
-        }
-        while(!ret && this.walkedDataSources.length) {
-            let datasource = this.walkedDataSources.pop();
-            let startingPos = this._currPos - cnt;
-            if(startingPos <= datasource.pos) {
-                //found
-                this.activeDataSource = datasource.datasource;
-                this.activeDataSource.reset();
-                const stepsForward = (this._currPos - datasource.pos - cnt);
-                this._currPos = datasource.pos + stepsForward;
-
-                for(let cnt = 0; cnt < stepsForward; cnt++) {
-                    ret = this.activeDataSource.next()
-                }
-
-            }
-        }
-
-        //we probably have to stack datasources to implement this, for now we leave it out
-        return ret;
-    }
-
-    current(): S {
+    current(): S | ITERATION_STATUS{
         if(!this.activeDataSource) {
             this.hasNext();
         }

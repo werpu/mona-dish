@@ -17,12 +17,14 @@
 import {Config, Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 import {IStream, LazyStream, Stream} from "./Stream";
-import {ArrayCollector, ICollector, IStreamDataSource} from "./SourcesCollectors";
+import {ArrayCollector, ICollector, IStreamDataSource, ITERATION_STATUS} from "./SourcesCollectors";
 import {Lang} from "./Lang";
 import trim = Lang.trim;
 import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
+import {glob} from "typedoc/dist/lib/utils/fs";
+
 //import {observable, Observable, Subscriber} from "rxjs";
 
 /**
@@ -2004,12 +2006,19 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
 
-    back(cnt = 1): DomQuery {
-        this.pos = Math.max(0, this.pos - cnt)
-        return new DomQuery(this.values[this.pos]);
+    lookAhead(cnt = 1): ITERATION_STATUS | DomQuery {
+        if((this.values.length - 1) < (this.pos + cnt)) {
+            return ITERATION_STATUS.EO_STRM;
+        }
+        return new DomQuery(this.values[this.pos + cnt]);
     }
 
-    current(): DomQuery {
+
+
+    current(): DomQuery | ITERATION_STATUS {
+        if(this.pos == -1) {
+            return ITERATION_STATUS.BEF_STRM;
+        }
         return new DomQuery(this.values[this.pos]);
     }
 
