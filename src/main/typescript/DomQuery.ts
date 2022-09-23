@@ -1166,29 +1166,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * or are one
      */
     isMultipartCandidate(deep = false): boolean {
-        let isCandidate = (item: DomQuery): boolean => {
-            if(item.length == 0) {
-                return false;
-            }
-            if(item.length == 1) {
-                if ((<string>item.tagName.get("booga").value).toLowerCase() == "input" &&
-                    (<string>item.attr("type")?.value || "").toLowerCase() == "file") {
-                    return true;
-                }
-                if (deep) {
-                    return this.querySelectorAllDeep("input[type='file']").firstElem().isPresent();
-                } else {
-                    return this.querySelectorAll("input[type='file']").firstElem().isPresent();
-                }
-            }
-            return item.isMultipartCandidate(deep);
-        };
-        let ret = this.stream.filter(item => isCandidate(item)).first().isPresent();
+        const FILE_INPUT = "input[type='file']";
+        const ret = this.matchesSelector(FILE_INPUT) ||
+            ((!deep) ? this.querySelectorAll(FILE_INPUT) :
+                      this.querySelectorAllDeep(FILE_INPUT)).first().isPresent();
 
         return ret;
     }
-
-
 
     /**
      * innerHtml equivalkent
