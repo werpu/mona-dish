@@ -614,4 +614,15 @@ describe('DOMQuery tests', function () {
 
 
     })
+
+    it('delete must work', function() {
+        let probe = DomQuery.querySelectorAll("body");
+        let probe2 = DomQuery.fromMarkup("<div id='deleteprobe1'>snafu</div>");
+
+        probe2.appendTo(probe);
+
+        expect(probe.querySelectorAll("#deleteprobe1").isPresent()).to.eq(true);
+        probe2.delete();
+        expect(probe.querySelectorAll("#deleteprobe1").isAbsent()).to.eq(true);
+    })
 });
