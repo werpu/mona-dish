@@ -452,6 +452,13 @@ export class Config extends Optional<any> {
      * in a shared manner
      */
     get shallowCopy(): Config {
+        return this.getShallowCopy$();
+    }
+
+    /**
+     * helper to allow super calls on overrides of shallow copy
+     */
+    protected getShallowCopy$() {
         return new Config(Stream.ofAssoc(this.value).collect(new AssocArrayCollector()));
     }
 
@@ -459,6 +466,10 @@ export class Config extends Optional<any> {
      * deep copy, copies all config nodes
      */
     get deepCopy(): Config {
+        return this.getDeepCopy$();
+    }
+
+    protected getDeepCopy$(): Config {
         return new Config(objAssign({}, this.value));
     }
 
