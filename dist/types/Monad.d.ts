@@ -171,10 +171,12 @@ export declare class Config extends Optional<any> {
      * in a shared manner
      */
     get shallowCopy(): Config;
+    protected shallowCopy$(): Config;
     /**
      * deep copy, copies all config nodes
      */
     get deepCopy(): Config;
+    protected deepCopy$(): Config;
     /**
      * creates a config from an initial value or null
      * @param value
