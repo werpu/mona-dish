@@ -37,6 +37,7 @@
     "global-jsdom": "^8.5.0",
     "html-webpack-plugin": "^5.5.0",
     "jsdom": "^20.0.0",
+    "license-webpack-plugin": "^4.0.2",
     "mocha": "^10.0.0",
     "npm-check-updates": "^16.2.1",
     "nyc": "^15.1.0",

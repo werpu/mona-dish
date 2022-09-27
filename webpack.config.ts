@@ -1,9 +1,27 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 import * as webpack from 'webpack';
 import * as path from 'path';
 
 const TerserPlugin = require('terser-webpack-plugin');
 const FileManagerPlugin = require('filemanager-webpack-plugin-fixed');
-
+const LicenseWebpackPlugin = require('license-webpack-plugin').LicenseWebpackPlugin;
 
 export default  (env: any) => {
 
@@ -50,7 +68,17 @@ export default  (env: any) => {
 
         },
         optimization: {
-            minimizer: [new TerserPlugin({ extractComments: false })],
+            minimizer: [new TerserPlugin({
+                extractComments: false, // prevents TerserPlugin from extracting a [chunkName].js.LICENSE.txt file
+                terserOptions: {
+                    format: {
+                        // Tell terser to remove all comments except for the banner added via LicenseWebpackPlugin.
+                        // This can be customized further to allow other types of comments to show up in the final js file as well.
+                        // See the terser documentation for format.comments options for more details.
+                        comments: (astNode, comment) => (comment.value.startsWith('! licenses are at '))
+                    }
+                }
+            })],
         },
         externals: {
             "rxjs": "rxjs",
@@ -79,6 +107,36 @@ export default  (env: any) => {
                         path.resolve(__dirname,'./target/js'),
                         path.resolve(__dirname,'./target/types')
                     ]
+                }
+            }),
+            new LicenseWebpackPlugin({
+                addBanner: true,
+                renderBanner: (filename, modules) => {
+                    return `
+                    /*! Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to you under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */`;
+                },
+                outputFilename: 'licenses.json',
+                unacceptableLicenseTest: (licenseIdentifier: string) => {
+                    return ['GPL', 'AGPL', 'LGPL', 'NGPL'].includes(licenseIdentifier)
+                },
+
+                stats: {
+                    warnings: true,
+                    errors: true
                 }
             })
         ]
