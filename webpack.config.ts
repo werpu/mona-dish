@@ -45,6 +45,7 @@ export default  (env: any) => {
             Stream: "./src/main/typescript/Stream.ts",
             TagBuilder: "./src/main/typescript/TagBuilder.ts",
             Messaging: "./src/main/typescript/Messaging.ts",
+            PromiseShim: "./src/main/typescript/PromiseShim.ts",
             index: "./src/main/typescript/index.ts",
             index_core: "./src/main/typescript/index_core.ts"
         },
