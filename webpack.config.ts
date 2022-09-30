@@ -34,6 +34,7 @@ export default  (env: any) => {
     setupTargetType();
 
 
+    // noinspection JSUnusedGlobalSymbols
     const config: webpack.Configuration = {
         context: __dirname,
         entry: {
@@ -76,7 +77,7 @@ export default  (env: any) => {
                         // Tell terser to remove all comments except for the banner added via LicenseWebpackPlugin.
                         // This can be customized further to allow other types of comments to show up in the final js file as well.
                         // See the terser documentation for format.comments options for more details.
-                        comments: (astNode, comment) => (comment.value.startsWith('! licenses are at '))
+                        comments: (astNode: any, comment: any) => (comment.value.startsWith('! licenses are at '))
                     }
                 }
             })],
@@ -112,7 +113,7 @@ export default  (env: any) => {
             }),
             new LicenseWebpackPlugin({
                 addBanner: true,
-                renderBanner: (filename, modules) => {
+                renderBanner: () => {
                     return `
                     /*! Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
