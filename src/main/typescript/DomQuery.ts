@@ -69,20 +69,24 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
         const MUT_ERROR = new Error("Mutation observer timeout");
 
         //we do the same but for now ignore the options on the dom query
-        function findElement(root: DomQuery, condition: (element: DomQuery) => boolean): DomQuery {
+        //we cannot use absent here, because the condition might search for an absent element
+        function findElement(root: DomQuery, condition: (element: DomQuery) => boolean): DomQuery | null {
             let found = null;
+            if(condition(root)) {
+                return root;
+            }
             if(options.childList) {
-                found = (condition(root)) ? root:  root.childNodes.first(condition);
+                found = (condition(root)) ? root:  root.childNodes.first(condition).value.value;
             } else if(options.subtree) {
-                found = (condition(root)) ? root: root.querySelectorAll(" * ").first(condition);
+                found = (condition(root)) ? root: root.querySelectorAll(" * ").first(condition).value;
             } else {
-                found = (condition(root)) ? root: DomQuery.absent;
+                found = (condition(root)) ? root: null;
             }
             return found;
         }
-        let foundElement;
-        if((foundElement = findElement(root, condition)).isPresent()) {
-            success(foundElement);
+        let foundElement = root;
+        if(foundElement = findElement(foundElement, condition)) {
+            success(new DomQuery(foundElement));
             return;
         }
 
@@ -92,7 +96,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
             }, options.timeout);
             const callback: MutationCallback = (mutationList: MutationRecord[], observer: MutationObserver) => {
                 const found = new DomQuery(mutationList.map((mut: MutationRecord) => mut.target)).first(condition);
-                if(found.isPresent()) {
+                if(found) {
                     clearTimeout(mutTimeout);
                     success(found);
                 }
@@ -110,7 +114,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
 
             let interval = setInterval(() => {
                let found = findElement(root, condition);
-                if(found.isPresent()) {
+                if(found) {
                     if(timeout) {
                         clearTimeout(timeout);
                         clearInterval(interval);

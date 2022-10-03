@@ -550,6 +550,10 @@ describe('DOMQuery tests', function () {
         probe.innerHtml = 'true';
         let ret = await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
         expect(ret.isPresent());
+        probe = DomQuery.byId('bosushsdhs');
+        ret = await  probe.waitUntilDom((element) => element.isAbsent());
+        expect(ret.isAbsent());
+
     });
 
     it('it must have a working wait for dom with mut observer', async function() {
