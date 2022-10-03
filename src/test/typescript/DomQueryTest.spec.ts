@@ -545,6 +545,13 @@ describe('DOMQuery tests', function () {
     })
 
 
+    it('it must have a working wait for dom with mut observer and must detect condition after change', async function() {
+        let probe = DomQuery.byId('id_1');
+        probe.innerHtml = 'true';
+        let ret = await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+        expect(ret.isPresent());
+    });
+
     it('it must have a working wait for dom with mut observer', async function() {
             let probe = DomQuery.byId('id_1');
             setTimeout(() => probe.innerHtml = 'true', 300);

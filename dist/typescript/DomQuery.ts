@@ -67,6 +67,25 @@ enum Submittables {
 function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean, options: WAIT_OPTS = { attributes: true, childList: true, subtree: true, timeout: 500, interval: 100 }): Promise<DomQuery> {
     const ret = new Promise<DomQuery>((success, error) => {
         const MUT_ERROR = new Error("Mutation observer timeout");
+
+        //we do the same but for now ignore the options on the dom query
+        function findElement(root: DomQuery, condition: (element: DomQuery) => boolean): DomQuery {
+            let found = null;
+            if(options.childList) {
+                found = (condition(root)) ? root:  root.childNodes.first(condition);
+            } else if(options.subtree) {
+                found = (condition(root)) ? root: root.querySelectorAll(" * ").first(condition);
+            } else {
+                found = (condition(root)) ? root: DomQuery.absent;
+            }
+            return found;
+        }
+        let foundElement;
+        if((foundElement = findElement(root, condition)).isPresent()) {
+            success(foundElement);
+            return;
+        }
+
         if('undefined' != typeof window.MutationObserver) {
             const mutTimeout = setTimeout(() => {
                 return error(MUT_ERROR);
@@ -88,16 +107,9 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
                 observer.observe(item, observableOpts)
             })
         } else { //fallback for legacy browsers without mutation observer
-            //we do the same but for now ignore the options on the dom query
+
             let interval = setInterval(() => {
-                let found = null;
-                if(options.childList) {
-                    found = (condition(root)) ? root:  root.childNodes.first(condition);
-                } else if(options.subtree) {
-                    found = (condition(root)) ? root: root.querySelectorAll(" * ").first(condition);
-                } else {
-                    found = (condition(root)) ? root: DomQuery.absent;
-                }
+               let found = findElement(root, condition);
                 if(found.isPresent()) {
                     if(timeout) {
                         clearTimeout(timeout);
