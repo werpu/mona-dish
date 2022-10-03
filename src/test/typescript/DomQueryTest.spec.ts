@@ -203,7 +203,7 @@ describe('DOMQuery tests', function () {
         expect(window.document.body.innerHTML.indexOf("blarg") != -1).to.be.true;
     });
 
-    it('attrn test and eval tests', function () {
+    it('attr test and eval tests', function () {
 
         let probe1 = new DomQuery(document);
         probe1.querySelectorAll("div#id_2").attr("style").value = "border=1;";
@@ -214,6 +214,20 @@ describe('DOMQuery tests', function () {
         expect(blarg).to.be.eq("blarg");
         expect(style).to.be.eq("border=1;");
         expect(nonexistent).to.be.eq(null);
+
+
+    });
+
+    it('style must work ', function () {
+        let probe1 = new DomQuery(document);
+        let probe = probe1.querySelectorAll("div#id_2");
+        probe.style("border").value= "10px solid red";
+        probe.style("color").value= "blue";
+        let styleNodeLevel = (probe.getAsElem(0).value as HTMLElement).style['color'];
+        expect(probe.style("border").value).to.eq("10px solid red")
+        expect(probe.style("color").value).to.eq("blue");
+        expect(styleNodeLevel).to.eq('blue');
+
     });
 
     it('must perform addClass and hasClass correctly', function () {

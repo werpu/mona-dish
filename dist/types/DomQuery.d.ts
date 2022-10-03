@@ -38,6 +38,16 @@ export declare class ElementAttribute extends ValueEmbedder<string> {
     protected getClass(): any;
     static fromNullable<ElementAttribute, T>(value?: any, valueKey?: string): ElementAttribute;
 }
+export declare class Style extends ValueEmbedder<string> {
+    private element;
+    private name;
+    private defaultVal;
+    constructor(element: DomQuery, name: string, defaultVal?: string);
+    get value(): string;
+    set value(value: string);
+    protected getClass(): any;
+    static fromNullable<ElementAttribute, T>(value?: any, valueKey?: string): ElementAttribute;
+}
 interface IDomQuery {
     /**
      * reads the first element if it exists and returns an optional
@@ -172,6 +182,12 @@ interface IDomQuery {
      * @param defaultValue the default value in case nothing is presented (defaults to null)
      */
     attr(attr: string, defaultValue: string): ElementAttribute;
+    /**
+     * style accessor
+     * @param defaultValue the default value in case nothing is presented (defaults to null)
+     * @param cssProperty
+     */
+    style(cssProperty: string, defaultValue: string): Style;
     /**
      * hasclass, checks for an existing class in the class attributes
      *
@@ -601,6 +617,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * @param defaultValue the default value in case nothing is presented (defaults to null)
      */
     attr(attr: string, defaultValue?: string): ElementAttribute;
+    style(cssProperty: string, defaultValue?: string): Style;
     /**
      * hasclass, checks for an existing class in the class attributes
      *

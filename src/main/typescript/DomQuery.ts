@@ -24,9 +24,6 @@ import trim = Lang.trim;
 import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
-import {glob} from "typedoc/dist/lib/utils/fs";
-
-//import {observable, Observable, Subscriber} from "rxjs";
 
 /**
  * in order to poss custom parameters we need to extend the mutation observer init
@@ -156,6 +153,37 @@ export class ElementAttribute extends ValueEmbedder<string> {
             val[cnt].setAttribute(this.name, value);
         }
         val[0].setAttribute(this.name, value);
+    }
+
+    protected getClass(): any {
+        return ElementAttribute;
+    }
+
+    static fromNullable<ElementAttribute,T>(value?: any, valueKey: string = "value"): ElementAttribute {
+        return <any> new ElementAttribute(value, valueKey);
+    }
+
+}
+
+export class Style extends ValueEmbedder<string> {
+
+    constructor(private element: DomQuery, private name: string, private defaultVal: string = null) {
+        super(element, name);
+    }
+
+    get value(): string {
+        let val: Element[] = this.element.values;
+        if (!val.length) {
+            return this.defaultVal;
+        }
+        return (val[0] as HTMLElement).style[this.name];
+    }
+
+    set value(value: string) {
+        let val: HTMLElement[] = this.element.values as HTMLElement[];
+        for (let cnt = 0; cnt < val.length; cnt++) {
+            val[cnt].style[this.name] = value;
+        }
     }
 
     protected getClass(): any {
@@ -324,6 +352,13 @@ interface IDomQuery {
      * @param defaultValue the default value in case nothing is presented (defaults to null)
      */
     attr(attr: string, defaultValue: string): ElementAttribute;
+
+    /**
+     * style accessor
+     * @param defaultValue the default value in case nothing is presented (defaults to null)
+     * @param cssProperty
+     */
+    style(cssProperty: string, defaultValue: string): Style;
 
     /**
      * hasclass, checks for an existing class in the class attributes
@@ -1141,6 +1176,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     attr(attr: string, defaultValue: string = null): ElementAttribute {
         return new ElementAttribute(this, attr, defaultValue);
     }
+
+    style(cssProperty: string, defaultValue: string = null): Style {
+        return new Style(this, cssProperty, defaultValue);
+    }
+
 
     /**
      * hasclass, checks for an existing class in the class attributes
