@@ -87,7 +87,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
             return;
         }
 
-        if('undefined' != typeof window.MutationObserver) {
+        if('undefined' != typeof MutationObserver) {
             const mutTimeout = setTimeout(() => {
                 return error(MUT_ERROR);
             }, options.timeout);
@@ -1735,7 +1735,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 this.globalEval(finalScripts.join("\n"));
             }
         } catch (e) {
-            if (window.console && window.console.error) {
+            if (console && console.error) {
                 //not sure if we
                 //should use our standard
                 //error mechanisms here
