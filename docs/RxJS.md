@@ -14,7 +14,7 @@ is a stream api, providing different collectors
 and collecting the data in a side effect free way.
 
 At the moment the rxjs bridge is in the works and for the
-time being provides only a way from Streams into rxjs.
+time being provides only a way from Streams and DomQuery/XMLQuery into rxjs.
 
 The other way the data needs to be collected and mapped into
 a stream (I will have a look for a better way in the future)
@@ -55,41 +55,27 @@ Example of forwarding data from Stream/Lazystream into RxJS
     expect(val2).to.eq(10);
  ````
 In this example 2 lazy streams are provided
-and then mapped via thge from operator straight into rxjs
+and then mapped via the from operator straight into rxjs
 
 
 ### DomQuery and XML Query
 
-For the time being due to technical limitations only streams
-can be mapped, so you can use the stream property to map 
-a DomQuery and XMLQuery object or a Configuration straight
-into an RxJS Observer:
+DomQuery and XMLQuery can be mapped straight into observables using
+the *from* function. But you also can use a stream
+to achieve it:
 
+example:
 ```typescript
-    let probe1 = new DomQuery(window.document.body);
+it('must work with RxJS and DomQuery', function() {
     let probe2 = DomQuery.querySelectorAll("div");
-    
-    //now we connect our dom query object
-    //with rjxs via the from function
-    let rx1 = from(probe1.stream);
-    let rx2 = from(probe2.stream);
-    
-    let cnt1 = 0;
-    let isDQuery = false;
-    let cnt2 = 0;
-
-    rx1.subscribe((item: any) => {
-        cnt1++;
-    });
-    
-    rx2.subscribe((item: any) => {
-        cnt2++;
-        isDQuery = (item.length == 1) && (item instanceof DomQuery)
-    })
-    
-    expect(probe1.length).to.be.eq(1);
-    expect(probe2.length == 4).to.be.true;
-    expect(isDQuery).to.be.true;
+    let probe3 = DomQuery.querySelectorAll("div");
+    let probe2Cnt = 0;
+    let probe3Cnt = 0;
+    from(probe2).subscribe( el => probe2Cnt++);
+    from(probe3.stream).subscribe( el => probe3Cnt++);
+    expect(probe2Cnt).to.be.above(0);
+    expect(probe2Cnt).to.eq(probe2Cnt);
+})
 ```
 
 ## Messages and RxJs connectivity

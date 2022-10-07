@@ -650,4 +650,14 @@ describe('DOMQuery tests', function () {
         probe2.delete();
         expect(probe.querySelectorAll("#deleteprobe1").isAbsent()).to.eq(true);
     })
+    it('must work with rxjs and domquery', function() {
+        let probe2 = DomQuery.querySelectorAll("div");
+        let probe3 = DomQuery.querySelectorAll("div");
+        let probe2Cnt = 0;
+        let probe3Cnt = 0;
+        from(probe2).subscribe( el => probe2Cnt++);
+        from(probe3.stream).subscribe( el => probe3Cnt++);
+        expect(probe2Cnt).to.be.above(0);
+        expect(probe2Cnt).to.eq(probe2Cnt);
+    })
 });
