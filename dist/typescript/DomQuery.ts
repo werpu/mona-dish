@@ -1460,8 +1460,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             xhr.setRequestHeader("Content-Type", "application/x-javascript; charset:" + charSet);
         }
 
-        xhr.send(null);
-
         xhr.onload = (responseData: any) => {
             //defer also means we have to process after the ajax response
             //has been processed
@@ -1482,6 +1480,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             throw Error(data);
         };
         //since we are synchronous we do it after not with onReadyStateChange
+        xhr.send(null);
 
         return this;
     }
