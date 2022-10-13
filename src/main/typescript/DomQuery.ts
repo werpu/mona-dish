@@ -1812,6 +1812,32 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
     runScripts(whilteListed: (val: string) => boolean = DEFAULT_WHITELIST): DomQuery {
+        const evalCollectedScripts = (finalScripts: {evalText: string, nonce: string}[]) => {
+            if (finalScripts.length) {
+                //script source means we have to eval the existing
+                //scripts before running the include
+                //this.globalEval(finalScripts.join("\n"));
+                let joinedScripts = [];
+                Stream.of(...finalScripts).each(item => {
+                    if (item.nonce == 'evalText') {
+                        joinedScripts.push(item.evalText)
+                    } else {
+                        if (joinedScripts.length) {
+                            this.globalEval(joinedScripts.join("\n"));
+                            joinedScripts.length = 0;
+                        }
+                        this.globalEval(item.evalText, item.nonce);
+                    }
+                });
+                if (joinedScripts.length) {
+                    this.globalEval(joinedScripts.join("\n"));
+                    joinedScripts.length = 0;
+                }
+
+                finalScripts = [];
+            }
+        }
+
         let finalScripts = [],
             equi = equalsIgnoreCase,
             execScrpt = (item) => {
@@ -1832,13 +1858,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         //due to changing the and order instead of relying on left to right
                         //if jsf.js is already registered we do not replace it anymore
                         if (whilteListed(src)) {
-                            if (finalScripts.length) {
-                                //script source means we have to eval the existing
-                                //scripts before running the include
-                                this.globalEval(finalScripts.join("\n"));
-
-                                finalScripts = [];
-                            }
+                            evalCollectedScripts(finalScripts);
                             nonce != '' ? this.loadScriptEval(src, 0, "UTF-8", nonce):
                                 //if no nonce is set we do not pass any once
                                 this.loadScriptEval(src, 0, "UTF-8");
@@ -1866,9 +1886,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                                 go = true;
                             }
                         }
+                        let nonce =  item?.nonce ?? item.getAttribute('nonce').value ?? '';
                         // we have to run the script under a global context
                         //we store the script for less calls to eval
-                        finalScripts.push(evalText);
+                        finalScripts.push({
+                            nonce,
+                            evalText
+                        });
                     }
                 }
             };
@@ -1880,9 +1904,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 .sort((node1, node2) => node1.compareDocumentPosition(node2) - 3) //preceding 2, following == 4)
                 .each(item => execScrpt(item));
 
-            if (finalScripts.length) {
-                this.globalEval(finalScripts.join("\n"));
-            }
+             evalCollectedScripts(finalScripts);
         } catch (e) {
             if (console && console.error) {
                 //not sure if we
