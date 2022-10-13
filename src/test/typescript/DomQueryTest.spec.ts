@@ -319,10 +319,10 @@ describe('DOMQuery tests', function () {
         probe1.insertAfter(DomQuery.fromMarkup(` <div id="id_x_0_1"></div><div id="id_x_1_1"></div>`));
 
         expect(DomQuery.querySelectorAll("div").length).to.eq(8);
-        DomQuery.querySelectorAll("body").innerHtml = trim(DomQuery.querySelectorAll("body").innerHtml.replace(/>\s*</gi, "><"));
+        DomQuery.querySelectorAll("body").innerHTML = trim(DomQuery.querySelectorAll("body").innerHTML.replace(/>\s*</gi, "><"));
         expect(DomQuery.querySelectorAll("body").childNodes.length).to.eq(8);
 
-        let innerHtml = DomQuery.querySelectorAll("body").innerHtml;
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
         expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
         expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
         expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
@@ -332,7 +332,7 @@ describe('DOMQuery tests', function () {
     })
 
     it("must have a working input handling", function () {
-        DomQuery.querySelectorAll("body").innerHtml = `<form id="blarg">
+        DomQuery.querySelectorAll("body").innerHTML = `<form id="blarg">
     <div id="embed1">
         <input type="text" id="id_1" name="id_1" value="id_1_val"></input>
         <input type="text" id="id_2" name="id_2" value="id_2_val" disabled="disabled"> </input>
@@ -411,7 +411,7 @@ describe('DOMQuery tests', function () {
             document.getElementById('id_1').innerHTML = "hello world";
         `);
         setTimeout(() => {
-            expect(DomQuery.byId("id_1").innerHtml == "hello world").to.be.true;
+            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
             done();
         }, 100)
 
@@ -422,7 +422,7 @@ describe('DOMQuery tests', function () {
     });
 
     it("runscript runcss", function () {
-        DomQuery.byTagName("body").innerHtml = `
+        DomQuery.byTagName("body").innerHTML = `
             <div id="first"></div>
             <div id="second"></div>
             <div id="third"></div>
@@ -454,10 +454,10 @@ describe('DOMQuery tests', function () {
             </style>
         `;
         let content = DomQuery.byTagName("body").runScripts().runCss();
-        expect(content.byId("first").innerHtml).to.eq("hello world");
-        expect(content.byId("second").innerHtml).to.eq("hello world");
-        expect(content.byId("third").innerHtml).to.eq("hello world");
-        expect(content.byId("fourth").innerHtml).to.eq("hello world");
+        expect(content.byId("first").innerHTML).to.eq("hello world");
+        expect(content.byId("second").innerHTML).to.eq("hello world");
+        expect(content.byId("third").innerHTML).to.eq("hello world");
+        expect(content.byId("fourth").innerHTML).to.eq("hello world");
 
     });
 
@@ -472,11 +472,11 @@ describe('DOMQuery tests', function () {
             document.getElementById('id_1').innerHTML = "hello world";
         `);
         setTimeout(() => {
-            expect(DomQuery.byId("id_1").innerHtml == "hello world").to.be.false;
+            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.false;
         }, 100)
 
         setTimeout(() => {
-            expect(DomQuery.byId("id_1").innerHtml == "hello world").to.be.true;
+            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
             done();
         }, 1000)
     })
@@ -509,12 +509,12 @@ describe('DOMQuery tests', function () {
         });
 
         let probe = DomQuery.byId("id_1");
-        probe.innerHtml = "<div>hello</div><div>world</div>";
+        probe.innerHTML = "<div>hello</div><div>world</div>";
         expect(probe.innerText()).to.eq("helloworld");
     });
     it("it must handle textContent properly", function () {
         let probe = DomQuery.byId("id_1");
-        probe.innerHtml = "<div>hello</div><div>world</div>";
+        probe.innerHTML = "<div>hello</div><div>world</div>";
         expect(probe.textContent()).to.eq("helloworld");
     });
 
@@ -561,8 +561,8 @@ describe('DOMQuery tests', function () {
 
     it('it must have a working wait for dom with mut observer and must detect condition after change', async function() {
         let probe = DomQuery.byId('id_1');
-        probe.innerHtml = 'true';
-        let ret = await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+        probe.innerHTML = 'true';
+        let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
         expect(ret.isPresent());
         probe = DomQuery.byId('bosushsdhs');
         ret = await  probe.waitUntilDom((element) => element.isAbsent());
@@ -572,21 +572,21 @@ describe('DOMQuery tests', function () {
 
     it('it must have a working wait for dom with mut observer', async function() {
             let probe = DomQuery.byId('id_1');
-            setTimeout(() => probe.innerHtml = 'true', 300);
-            let ret = await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            setTimeout(() => probe.innerHTML = 'true', 300);
+            let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
             delete window.MutationObserver;
             delete global.MutationObserver;
-            probe.innerHtml = "";
-            setTimeout(() => probe.innerHtml = 'true', 300);
-            let ret2 = await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            probe.innerHTML = "";
+            setTimeout(() => probe.innerHTML = 'true', 300);
+            let ret2 = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
             expect(ret.isPresent() && ret2.isPresent());
     });
 
     it('it must have a timeout', async function() {
         let probe = DomQuery.byId('booga');
         try {
-            setTimeout(() => probe.innerHtml = 'true', 300);
-            await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            setTimeout(() => probe.innerHTML = 'true', 300);
+            await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
             expect.fail("must have a timeout");
         } catch (ex) {
             expect(!!ex);
@@ -594,9 +594,9 @@ describe('DOMQuery tests', function () {
         try {
             delete window.MutationObserver;
             delete global.MutationObserver;
-            probe.innerHtml = "";
-            setTimeout(() => probe.innerHtml = 'true', 300);
-            await probe.waitUntilDom((element) => element.innerHtml.indexOf('true') != -1);
+            probe.innerHTML = "";
+            setTimeout(() => probe.innerHTML = 'true', 300);
+            await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
             expect.fail("must have a timeout");
         } catch (ex2) {
             expect(!!ex2);

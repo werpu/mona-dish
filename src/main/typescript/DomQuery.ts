@@ -297,6 +297,14 @@ interface IDomQuery {
      * inner html property
      * setter and getter which works directly on strings
      */
+    innerHTML: string;
+
+    /**
+     * same as innerHTML
+     * will be removed once
+     * my code is transitioned
+     * @deprecated do not use anymore, user innerHTML instead
+     */
     innerHtml: string;
 
     /**
@@ -462,6 +470,13 @@ interface IDomQuery {
     firstElem(func: (item: Element, cnt?: number) => any): DomQuery;
 
     /**
+     * perform an operation on the first element
+     * returns a DomQuery on the first element only
+     * @param func
+     */
+    lastElem(func: (item: Element, cnt?: number) => any): DomQuery;
+
+    /**
      * same as eachElem, but a DomQuery object is passed down
      *
      * @param func
@@ -474,6 +489,14 @@ interface IDomQuery {
      * @param func a an optional callback function to perform an operation on the first element
      */
     first(func: (item: DomQuery, cnt?: number) => any): DomQuery;
+
+
+    /**
+     * returns a new dom query containing only the first element max
+     *
+     * @param func a an optional callback function to perform an operation on the first element
+     */
+    last(func: (item: DomQuery, cnt?: number) => any): DomQuery;
 
     /**
      * filter function which filters a subset
@@ -1328,9 +1351,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      */
     html(inval?: string): DomQuery | Optional<string> {
         if (Optional.fromNullable(inval).isAbsent()) {
-            return this.isPresent() ? Optional.fromNullable(this.innerHtml) : Optional.absent;
+            return this.isPresent() ? Optional.fromNullable(this.innerHTML) : Optional.absent;
         }
-        this.innerHtml = inval;
+        this.innerHTML = inval;
 
         return this;
     }
@@ -1343,14 +1366,22 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return this;
     }
 
-    set innerHtml(inVal: string) {
+    set innerHTML(inVal: string) {
         this.eachElem(elem => elem.innerHTML = inVal);
     }
 
-    get innerHtml(): string {
+    get innerHTML(): string {
         let retArr = [];
         this.eachElem(elem => retArr.push(elem.innerHTML));
         return retArr.join("");
+    }
+
+    set innerHtml(inval: string) {
+        this.innerHTML = inval;
+    }
+
+    get innerHtml(): string {
+        return this.innerHTML;
     }
 
     //source: https://developer.mozilla.org/en-US/docs/Web/API/Element/matches
@@ -1441,6 +1472,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return this;
     }
 
+    lastElem(func: (item: Element, cnt?: number) => any = item => item): DomQuery {
+        if (this.rootNode.length > 1) {
+            func(this.rootNode[this.rootNode.length - 1], 0);
+        }
+        return this;
+    }
+
     each(func: (item: DomQuery, cnt?: number) => any): DomQuery {
         Stream.of(...this.rootNode)
             .each((item, cnt) => {
@@ -1463,6 +1501,20 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         if (this.rootNode.length >= 1) {
             func(this.get(0), 0);
             return this.get(0);
+        }
+        return this;
+    }
+
+    /**
+     * returns a new dom query containing only the first element max
+     *
+     * @param func a an optional callback function to perform an operation on the first element
+     */
+    last(func: (item: DomQuery, cnt?: number) => any = (item) => item): DomQuery {
+        if (this.rootNode.length >= 1) {
+            let lastNode = this.get(this.rootNode.length - 1);
+            func(lastNode, 0);
+            return lastNode;
         }
         return this;
     }
