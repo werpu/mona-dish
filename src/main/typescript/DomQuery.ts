@@ -245,6 +245,24 @@ interface IDomQuery {
     readonly inputValue: ValueEmbedder<string | boolean>;
 
     /**
+     * accumulated top element offsetWidth
+     */
+    readonly offsetWidth: number;
+    /**
+     * accumulated top element offsetHeight
+     */
+    readonly offsetHeight: number;
+    /**
+     * accumulated top element offsetLeft
+     */
+    readonly offsetLeft: number;
+    /**
+     * accumulated top element offsetTop
+     */
+    readonly offsetTop: number;
+
+
+    /**
      * abbreviation for inputValue.value to make
      * the code terser
      */
@@ -906,6 +924,33 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             .map(item => {
                 return DomQuery.byId(item)
             }).collect(new ArrayCollector()));
+    }
+
+    get offsetWidth(): number {
+        return LazyStream.of(...this.rootNode)
+            .filter(item => item != null)
+            .map(elem => (elem as HTMLElement).offsetWidth)
+            .reduce((accumulate, incoming) => accumulate + incoming,0).value;
+    }
+    get offsetHeight(): number {
+        return LazyStream.of(...this.rootNode)
+            .filter(item => item != null)
+            .map(elem => (elem as HTMLElement).offsetHeight)
+            .reduce((accumulate, incoming) => accumulate + incoming,0).value;
+    }
+
+    get offsetLeft(): number {
+        return LazyStream.of(...this.rootNode)
+            .filter(item => item != null)
+            .map(elem => (elem as HTMLElement).offsetLeft)
+            .reduce((accumulate, incoming) => accumulate + incoming,0).value;
+    }
+
+    get offsetTop(): number {
+        return LazyStream.of(...this.rootNode)
+            .filter(item => item != null)
+            .map(elem => (elem as HTMLElement).offsetTop)
+            .reduce((accumulate, incoming) => accumulate + incoming,0).value;
     }
 
     get asNodeArray(): Array<DomQuery> {
