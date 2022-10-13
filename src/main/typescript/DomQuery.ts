@@ -59,41 +59,44 @@ enum Submittables {
 /**
  * helper to fix a common problem that a system has to wait until a certain condition is reached
  * depening on the browser this uses either the mutation observer or a semi compatible interval as fallback
- * @param condition
+ * @param root the root domquery element to start from
+ * @param condition the condition lambda to be fullfilled
+ * @param options options for the search
  */
 function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean, options: WAIT_OPTS = { attributes: true, childList: true, subtree: true, timeout: 500, interval: 100 }): Promise<DomQuery> {
-    const ret = new Promise<DomQuery>((success, error) => {
+    return new Promise<DomQuery>((success, error) => {
         const MUT_ERROR = new Error("Mutation observer timeout");
 
         //we do the same but for now ignore the options on the dom query
         //we cannot use absent here, because the condition might search for an absent element
         function findElement(root: DomQuery, condition: (element: DomQuery) => boolean): DomQuery | null {
             let found = null;
-            if(condition(root)) {
+            if (condition(root)) {
                 return root;
             }
-            if(options.childList) {
-                found = (condition(root)) ? root:  root.childNodes.first(condition).value.value;
-            } else if(options.subtree) {
-                found = (condition(root)) ? root: root.querySelectorAll(" * ").first(condition).value;
+            if (options.childList) {
+                found = (condition(root)) ? root : root.childNodes.first(condition).value.value;
+            } else if (options.subtree) {
+                found = (condition(root)) ? root : root.querySelectorAll(" * ").first(condition).value;
             } else {
-                found = (condition(root)) ? root: null;
+                found = (condition(root)) ? root : null;
             }
             return found;
         }
+
         let foundElement = root;
-        if(foundElement = findElement(foundElement, condition)) {
+        if ((foundElement = findElement(foundElement, condition)) != null) {
             success(new DomQuery(foundElement));
             return;
         }
 
-        if('undefined' != typeof MutationObserver) {
+        if ('undefined' != typeof MutationObserver) {
             const mutTimeout = setTimeout(() => {
                 return error(MUT_ERROR);
             }, options.timeout);
-            const callback: MutationCallback = (mutationList: MutationRecord[], observer: MutationObserver) => {
+            const callback: MutationCallback = (mutationList: MutationRecord[]) => {
                 const found = new DomQuery(mutationList.map((mut: MutationRecord) => mut.target)).first(condition);
-                if(found) {
+                if (found) {
                     clearTimeout(mutTimeout);
                     success(found);
                 }
@@ -102,7 +105,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
             const observer = new window.MutationObserver(callback);
             // browsers might ignore it, but we cannot break the api in the case
             // hence no timeout is passed
-            let observableOpts = {... options};
+            let observableOpts = {...options};
             delete observableOpts.timeout;
             root.eachElem(item => {
                 observer.observe(item, observableOpts)
@@ -110,9 +113,9 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
         } else { //fallback for legacy browsers without mutation observer
 
             let interval = setInterval(() => {
-               let found = findElement(root, condition);
-                if(found) {
-                    if(timeout) {
+                let found = findElement(root, condition);
+                if (found) {
+                    if (timeout) {
                         clearTimeout(timeout);
                         clearInterval(interval);
                         interval = null;
@@ -121,7 +124,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
                 }
             }, options.interval);
             let timeout = setTimeout(() => {
-                if(interval) {
+                if (interval) {
                     clearInterval(interval);
                     error(MUT_ERROR);
                 }
@@ -129,7 +132,6 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
 
         }
     });
-    return ret;
 }
 
 
@@ -198,12 +200,10 @@ export class Style extends ValueEmbedder<string> {
 
 /**
  * small helper for the specialized jsf case
- * @param src
  * @constructor
  */
-const DEFAULT_WHITELIST = (src: string) => {
+const DEFAULT_WHITELIST = () => {
     return true;
-
 };
 
 interface IDomQuery {
@@ -267,6 +267,12 @@ interface IDomQuery {
      * transform this node collection to an array
      */
     readonly asArray: Array<DomQuery>;
+
+    /**
+     * inner html property
+     * setter and getter which works directly on strings
+     */
+    innerHtml: string;
 
     /**
      * returns true if the elements have the tag *tagName* as tag embedded (highest level)
@@ -387,8 +393,8 @@ interface IDomQuery {
     isMultipartCandidate(): boolean;
 
     /**
-     * innerHtml equivalkent
-     * equivalent to jqueries html
+     * innerHtml equivalent
+     * equivalent to jQueries html
      * as setter the html is set and the
      * DomQuery is given back
      * as getter the html string is returned
@@ -462,8 +468,7 @@ interface IDomQuery {
     /**
      * detaches a set of nodes from their parent elements
      * in a browser independend manner
-     * @param {Object} items the items which need to be detached
-     * @return {Array} an array of nodes with the detached dom nodes
+     * @return {DomQuery} DomQuery of nodes with the detached dom nodes
      */
     detach(): DomQuery;
 
@@ -472,7 +477,30 @@ interface IDomQuery {
      * to the element or first element passed via elem
      * @param elem
      */
-    appendTo(elem: DomQuery): void;
+    appendTo(elem: DomQuery | string): DomQuery;
+
+    /**
+     * appends the passed elements to our existing queries
+     * note, double appends can happen if you are not careful
+     *
+     * @param elem to append
+     */
+    append(elem: DomQuery): DomQuery;
+
+    /**
+     * appends the passed elements to our existing queries
+     * note, double appends can happen if you are not careful
+     *
+     * @param elem to append
+     */
+    prepend(elem: DomQuery): DomQuery;
+
+    /**
+     * prepend eqivalent to appendTo
+     *
+     * @param elem the element to prepend to
+     */
+    prependTo(elem: DomQuery): DomQuery;
 
     /**
      * loads and evals a script from a source uri
@@ -668,7 +696,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 if(!rootNode[cnt]) {
                     //we skip possible null entries which can happen in
                     //certain corner conditions due to the constructor re-wrapping single elements into arrays.
-                    continue;
                 } else if (isString(rootNode[cnt])) {
                     let foundElement = DomQuery.querySelectorAll(<string>rootNode[cnt]);
                     if (!foundElement.isAbsent()) {
@@ -892,6 +919,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * byId producer
      *
      * @param selector id
+     * @param deep true if you want to go into shadow areas
      * @return a DomQuery containing the found elements
      */
     static byId(selector: string | DomQuery | Element, deep = false): DomQuery {
@@ -1088,7 +1116,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             return this;
         }
 
-        let nodes = [];
         let foundNodes: DomQuery = new DomQuery(...this.rootNode);
         let selectors = selector.split(/\/shadow\//);
 
@@ -1151,8 +1178,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     /**
      * same as byId just for the tag name
-     * @param tagName
-     * @param includeRoot
+     * @param tagName the tagname to search for
+     * @param includeRoot shall the root element be part of this search
+     * @param deep do we also want to go into shadow dom areas
      */
     byTagName(tagName: string, includeRoot ?: boolean, deep ?: boolean): DomQuery {
         let res: Array<Element | DomQuery> = [];
@@ -1224,11 +1252,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      */
     isMultipartCandidate(deep = false): boolean {
         const FILE_INPUT = "input[type='file']";
-        const ret = this.matchesSelector(FILE_INPUT) ||
+        return this.matchesSelector(FILE_INPUT) ||
             ((!deep) ? this.querySelectorAll(FILE_INPUT) :
-                      this.querySelectorAllDeep(FILE_INPUT)).first().isPresent();
-
-        return ret;
+                this.querySelectorAllDeep(FILE_INPUT)).first().isPresent();
     }
 
     /**
@@ -1418,7 +1444,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     /**
      * detaches a set of nodes from their parent elements
      * in a browser independend manner
-     * @param {Object} items the items which need to be detached
      * @return {Array} an array of nodes with the detached dom nodes
      */
     detach(): DomQuery {
@@ -1433,16 +1458,21 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * to the element or first element passed via elem
      * @param elem
      */
-    appendTo(elem: DomQuery) {
+    appendTo(elem: DomQuery | string): DomQuery {
+        if(Lang.isString(elem)) {
+            this.appendTo(DomQuery.querySelectorAll(elem as string));
+            return this;
+        }
         this.eachElem((item) => {
-            let value1: Element = <Element>elem.getAsElem(0).orElseLazy(() => {
+            let value1: Element = <Element>(elem as DomQuery).getAsElem(0).orElseLazy(() => {
                 return {
-                    appendChild: (theItem: any) => {
+                    appendChild: () => {
                     }
                 }
             }).value;
             value1.appendChild(item);
         });
+        return this;
     }
 
     /**
@@ -1460,7 +1490,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             xhr.setRequestHeader("Content-Type", "application/x-javascript; charset:" + charSet);
         }
 
-        xhr.onload = (responseData: any) => {
+        xhr.onload = () => {
             //defer also means we have to process after the ajax response
             //has been processed
             //we can achieve that with a small timeout, the timeout
@@ -1612,9 +1642,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * for instance for your jsf.js we have a full
      * replace pattern which needs outerHTML processing
      *
-     * @param markup
-     * @param runEmbeddedScripts
-     * @param runEmbeddedCss
+     * @param markup the markup which should replace the root element
+     * @param runEmbeddedScripts if true the embedded scripts are executed
+     * @param runEmbeddedCss if true the embeddec css are executed
+     * @param deep should this also work for shadow dom (run scripts etc...)
      */
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean, deep = false): DomQuery {
         if (this.isAbsent()) {
@@ -1857,7 +1888,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
                     default:
                         throw "fireEvent: Couldn't find an event class for event '" + eventName + "'.";
-                        break;
                 }
                 let event = doc.createEvent(eventClass);
                 event.initEvent(eventName, true, true); // All events created as bubbling and cancelable.
@@ -1997,7 +2027,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
     get cDATAAsString(): string {
-        let cDataBlock = [];
         let TYPE_CDATA_BLOCK = 4;
 
         let res: any = this.lazyStream.flatMap(item => {
@@ -2179,7 +2208,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     /**
      * concats the elements of two Dom Queries into a single one
-     * @param toAttach
+     * @param toAttach the elements to attach
+     * @param filterDoubles filter out possible double elements (aka same markup)
      */
     concat(toAttach: DomQuery, filterDoubles = true): any {
         const ret = this.lazyStream.concat(toAttach.lazyStream).collect(new DomQueryCollector());
@@ -2193,6 +2223,25 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             idx[node.value.value.outerHTML as any] = true;
             return notFound;
         }).collect(new DomQueryCollector());
+    }
+
+    append(elem: DomQuery): DomQuery {
+        this.each(item => elem.appendTo(item));
+        return this;
+    }
+
+    prependTo(elem: DomQuery): DomQuery {
+        elem.eachElem(item => {
+            item.prepend(...this.allElems());
+        });
+        return this;
+    }
+
+    prepend(elem: DomQuery): DomQuery {
+        this.eachElem(item => {
+            item.prepend(...elem.allElems());
+        })
+        return this;
     }
 
 
@@ -2258,4 +2307,8 @@ export class DomQueryCollector implements ICollector<DomQuery, DomQuery> {
  */
 export const DQ = DomQuery;
 export type DQ = DomQuery;
-
+// noinspection JSUnusedGlobalSymbols
+/**
+ * replacement for the jquery $
+ */
+export const DQ$ = DomQuery.querySelectorAll;

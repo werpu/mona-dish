@@ -110,6 +110,11 @@ interface IDomQuery {
      */
     readonly asArray: Array<DomQuery>;
     /**
+     * inner html property
+     * setter and getter which works directly on strings
+     */
+    innerHtml: string;
+    /**
      * returns true if the elements have the tag *tagName* as tag embedded (highest level)
      * @param tagName
      */
@@ -211,8 +216,8 @@ interface IDomQuery {
      */
     isMultipartCandidate(): boolean;
     /**
-     * innerHtml equivalkent
-     * equivalent to jqueries html
+     * innerHtml equivalent
+     * equivalent to jQueries html
      * as setter the html is set and the
      * DomQuery is given back
      * as getter the html string is returned
@@ -277,8 +282,7 @@ interface IDomQuery {
     /**
      * detaches a set of nodes from their parent elements
      * in a browser independend manner
-     * @param {Object} items the items which need to be detached
-     * @return {Array} an array of nodes with the detached dom nodes
+     * @return {DomQuery} DomQuery of nodes with the detached dom nodes
      */
     detach(): DomQuery;
     /**
@@ -286,7 +290,27 @@ interface IDomQuery {
      * to the element or first element passed via elem
      * @param elem
      */
-    appendTo(elem: DomQuery): void;
+    appendTo(elem: DomQuery | string): DomQuery;
+    /**
+     * appends the passed elements to our existing queries
+     * note, double appends can happen if you are not careful
+     *
+     * @param elem to append
+     */
+    append(elem: DomQuery): DomQuery;
+    /**
+     * appends the passed elements to our existing queries
+     * note, double appends can happen if you are not careful
+     *
+     * @param elem to append
+     */
+    prepend(elem: DomQuery): DomQuery;
+    /**
+     * prepend eqivalent to appendTo
+     *
+     * @param elem the element to prepend to
+     */
+    prependTo(elem: DomQuery): DomQuery;
     /**
      * loads and evals a script from a source uri
      *
@@ -524,6 +548,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * byId producer
      *
      * @param selector id
+     * @param deep true if you want to go into shadow areas
      * @return a DomQuery containing the found elements
      */
     static byId(selector: string | DomQuery | Element, deep?: boolean): DomQuery;
@@ -606,8 +631,9 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     byIdDeep(id: string, includeRoot?: boolean): DomQuery;
     /**
      * same as byId just for the tag name
-     * @param tagName
-     * @param includeRoot
+     * @param tagName the tagname to search for
+     * @param includeRoot shall the root element be part of this search
+     * @param deep do we also want to go into shadow dom areas
      */
     byTagName(tagName: string, includeRoot?: boolean, deep?: boolean): DomQuery;
     /**
@@ -706,7 +732,6 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     /**
      * detaches a set of nodes from their parent elements
      * in a browser independend manner
-     * @param {Object} items the items which need to be detached
      * @return {Array} an array of nodes with the detached dom nodes
      */
     detach(): DomQuery;
@@ -715,7 +740,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * to the element or first element passed via elem
      * @param elem
      */
-    appendTo(elem: DomQuery): void;
+    appendTo(elem: DomQuery | string): DomQuery;
     /**
      * loads and evals a script from a source uri
      *
@@ -741,9 +766,10 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * for instance for your jsf.js we have a full
      * replace pattern which needs outerHTML processing
      *
-     * @param markup
-     * @param runEmbeddedScripts
-     * @param runEmbeddedCss
+     * @param markup the markup which should replace the root element
+     * @param runEmbeddedScripts if true the embedded scripts are executed
+     * @param runEmbeddedCss if true the embeddec css are executed
+     * @param deep should this also work for shadow dom (run scripts etc...)
      */
     outerHTML(markup: string, runEmbeddedScripts?: boolean, runEmbeddedCss?: boolean, deep?: boolean): DomQuery;
     /**
@@ -819,9 +845,13 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     [Symbol.iterator](): Iterator<DomQuery, any, undefined>;
     /**
      * concats the elements of two Dom Queries into a single one
-     * @param toAttach
+     * @param toAttach the elements to attach
+     * @param filterDoubles filter out possible double elements (aka same markup)
      */
     concat(toAttach: DomQuery, filterDoubles?: boolean): any;
+    append(elem: DomQuery): DomQuery;
+    prependTo(elem: DomQuery): DomQuery;
+    prepend(elem: DomQuery): DomQuery;
 }
 /**
  * Various collectors
@@ -842,4 +872,8 @@ export declare class DomQueryCollector implements ICollector<DomQuery, DomQuery>
  */
 export declare const DQ: typeof DomQuery;
 export declare type DQ = DomQuery;
+/**
+ * replacement for the jquery $
+ */
+export declare const DQ$: typeof DomQuery.querySelectorAll;
 export {};
