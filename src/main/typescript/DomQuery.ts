@@ -1598,7 +1598,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8") {
+    loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8", nonce?:string) {
         let xhr = new XMLHttpRequest();
         xhr.open("GET", src, false);
 
@@ -1612,12 +1612,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             //we can achieve that with a small timeout, the timeout
             //triggers after the processing is done!
             if (!defer) {
-                this.globalEval(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src);
+                this.globalEval(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src, nonce);
             } else {
                 //TODO not ideal we maybe ought to move to something else here
                 //but since it is not in use yet, it is ok
                 setTimeout(() => {
-                    this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src);
+                    this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src, nonce);
                 }, defer);
             }
         };
@@ -1827,6 +1827,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         && null != src
                         && src.length > 0
                     ) {
+                        let nonce = 'undefined' != typeof item.getAsElem(0).value.nonce ? item.getAsElem(0).value.nonce : item.getAttribute('nonce').value;
                         //we have to move this into an inner if because chrome otherwise chokes
                         //due to changing the and order instead of relying on left to right
                         //if jsf.js is already registered we do not replace it anymore
@@ -1838,7 +1839,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
                                 finalScripts = [];
                             }
-                            this.loadScriptEval(src, 0, "UTF-8");
+                            nonce != '' ? this.loadScriptEval(src, 0, "UTF-8", nonce):
+                                this.loadScriptEval(src, 0, "UTF-8");
                         }
 
                     } else {
