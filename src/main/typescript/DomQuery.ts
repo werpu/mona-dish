@@ -1544,7 +1544,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         let head = document.getElementsByTagName("head")[0] || document.documentElement;
         let script = document.createElement("script");
         if (nonce) {
-            script.setAttribute("nonce", nonce);
+            if('undefined' != typeof script?.nonce) {
+                script.nonce = nonce;
+            } else {
+                script.setAttribute("nonce", nonce);
+            }
         }
         script.type = "text/javascript";
         script.innerHTML = code;
