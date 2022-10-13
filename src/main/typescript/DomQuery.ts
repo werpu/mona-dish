@@ -243,6 +243,13 @@ interface IDomQuery {
      * The the value in case of inputs as changeable value
      */
     readonly inputValue: ValueEmbedder<string | boolean>;
+
+    /**
+     * abbreviation for inputValue.value to make
+     * the code terser
+     */
+    val: string | boolean;
+
     /**
      * the underlying form elements as domquery object
      */
@@ -792,6 +799,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         } else {
             return <any>ValueEmbedder.absent;
         }
+    }
+
+    get val(): string | boolean {
+        return this.inputValue.value;
+    }
+
+    set val(value: string | boolean) {
+        this.inputValue.value = value;
     }
 
     get checked(): boolean {
