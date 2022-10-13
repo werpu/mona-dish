@@ -1827,7 +1827,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         && null != src
                         && src.length > 0
                     ) {
-                        let nonce = 'undefined' != typeof item.getAsElem(0).value.nonce ? item.getAsElem(0).value.nonce : item.getAttribute('nonce').value;
+                        let nonce =  item?.nonce ?? item.getAttribute('nonce').value;
                         //we have to move this into an inner if because chrome otherwise chokes
                         //due to changing the and order instead of relying on left to right
                         //if jsf.js is already registered we do not replace it anymore
@@ -1840,6 +1840,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                                 finalScripts = [];
                             }
                             nonce != '' ? this.loadScriptEval(src, 0, "UTF-8", nonce):
+                                //if no nonce is set we do not pass any once
                                 this.loadScriptEval(src, 0, "UTF-8");
                         }
 
