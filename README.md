@@ -243,11 +243,17 @@ exported as Subjects
 * 0.21.0 adding a mutation observer
   
 ## Version 0.22 ++
-Api change, the Promise has been removed from the index.js and resides
+* Api change, the Promise has been removed from the index.js and resides
 in its own PromiseShim.js file. The reason was UMD builds
 did not check for an existing Promise before installing it.
 It made sense to decouple it anyway, literally all modern browsers
 do not need it anymore. CancellablePromise is still enabled.
+* Added convenience methods for easier access to value (via val) and innerHTML,
+* mutation observer fixes
+* improved nonce handling
+* improved rxjs connectivity
+* documentation updates
+* changing default package type from commonjs to umd, to improve ide handling
 
 
 

@@ -2,7 +2,7 @@
   "name": "mona-dish",
   "version": "0.22.19",
   "description": "TypeScript/Javascript set of functional pattern inspired helpers, which will ease your programming live",
-  "main": "dist/js/commonjs/index.js",
+  "main": "dist/js/umd/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
     "doc": "npx typedoc --tsconfig src/tsconfig-typedoc.json",
