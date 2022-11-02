@@ -254,6 +254,7 @@ do not need it anymore. CancellablePromise is still enabled.
 * improved rxjs connectivity
 * documentation updates
 * changing default package type from commonjs to umd, to improve ide handling
+* adding a sticky eval to DomQuery to keep the evaled elements in the head
 
 
 
