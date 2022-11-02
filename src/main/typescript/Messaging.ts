@@ -645,7 +645,6 @@ export class Broker extends BaseBroker {
     private dispatchSameLevel(channel: string, message: Message) {
         let event = this.transformToEvent(channel, message, true);
         //we also dispatch sideways
-        debugger;
         _global$().dispatchEvent(event);
     }
 
