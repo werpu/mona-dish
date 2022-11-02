@@ -164,10 +164,26 @@ describe('DOMQuery tests', function () {
 
         DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello'");
         expect(probe2.html().value).to.eq("hello");
+        expect(DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello'")).to.eq(-1);
 
         DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello2'", "nonci");
         expect(probe2.html().value).to.eq("hello2");
     });
+
+
+
+    it('domquery ops test2 with sticky eval code', () => {
+        let probe2 = DomQuery.querySelectorAll("div#id_1");
+
+        DomQuery.globalEvalSticky("document.getElementById('id_1').innerHTML = 'hello'");
+        expect(probe2.html().value).to.eq("hello");
+        expect(DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello'")).not.to.eq(-1);
+
+        DomQuery.globalEvalSticky("document.getElementById('id_1').innerHTML = 'hello2'", "nonci");
+        expect(probe2.html().value).to.eq("hello2");
+        expect(DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello2'")).not.to.eq(-1);
+    });
+
 
     it('domquery ops test2 eachNode', function () {
         let probe2 = DomQuery.querySelectorAll("div");

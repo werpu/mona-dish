@@ -320,7 +320,7 @@ export declare class Broker {
 }
 ```
 Note, the standard broker works over dom mechanisms.
-However a secondary broker has been provided which 
+However, a secondary broker has been provided which 
 allows the same over export class BroadcastChannel api.
 The BroadcastChannelBroker!
 

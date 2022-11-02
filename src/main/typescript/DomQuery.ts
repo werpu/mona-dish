@@ -517,6 +517,16 @@ interface IDomQuery {
     globalEval(code: string, nonce ?: string): DomQuery;
 
     /**
+     * Runs an eval and keeps the evaled code in the head
+     * This is a corner condition, where we want to update the head with custom
+     * code and leave the code in (instead of deleting ig)
+     *
+     * @param code the code to be evaled
+     * @param  nonce optional  nonce key for higher security
+     */
+    globalEvalSticky(code: string, nonce ?: string): DomQuery;
+
+    /**
      * detaches a set of nodes from their parent elements
      * in a browser independend manner
      * @return {DomQuery} DomQuery of nodes with the detached dom nodes
@@ -1032,6 +1042,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     static globalEval(code: string, nonce?: string): DomQuery {
         return new DomQuery(document).globalEval(code, nonce);
+    }
+
+    static globalEvalSticky(code: string, nonce?: string): DomQuery {
+        return new DomQuery(document).globalEvalSticky(code, nonce);
     }
 
     /**
@@ -1557,6 +1571,28 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         script.innerHTML = code;
         let newScriptElement = head.appendChild(script);
         head.removeChild(newScriptElement);
+        return this;
+    }
+
+    /**
+     * global eval head appendix method
+     * no other methods are supported anymore
+     * @param code the code to be evaled
+     * @param  nonce optional  nonce key for higher security
+     */
+    globalEvalSticky(code: string, nonce ?: string): DomQuery {
+        let head = document.getElementsByTagName("head")[0] || document.documentElement;
+        let script = document.createElement("script");
+        if (nonce) {
+            if('undefined' != typeof script?.nonce) {
+                script.nonce = nonce;
+            } else {
+                script.setAttribute("nonce", nonce);
+            }
+        }
+        script.type = "text/javascript";
+        script.innerHTML = code;
+        head.appendChild(script);
         return this;
     }
 

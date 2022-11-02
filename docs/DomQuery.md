@@ -148,7 +148,15 @@ interface IDomQuery {
    * transform this node collection to an array
    */
   readonly asArray: Array<DomQuery>;
-
+  /**
+   * innerHTML functionality (abbreviation for .html().value or .html('content')
+   */
+  innerHTML: string;
+  /**
+   * value accessor for input fields abbreviation for inputValue().value and .inputValue(newValue)
+   */
+  val: any;  
+  
   /**
    * returns true if the elements have the tag *tagName* as tag embedded (highest level)
    * @param tagName
@@ -479,8 +487,7 @@ interface IDomQuery {
    * @param to
    */
   subNodes(from: number, to?: number): DomQuery;
-
-
+  
   /**
    * attach shadow elements
    * 1:1 mapping from attach shadow
