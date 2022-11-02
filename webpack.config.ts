@@ -53,7 +53,7 @@ export default  (env: any) => {
         output: {
             filename: '[name].js',
             libraryTarget: targetType,
-            globalObject: 'window',
+            globalObject: 'this',
             chunkFormat: 'commonjs',
             path: path.resolve(__dirname, './target/js/'+targetType+"/")
         },

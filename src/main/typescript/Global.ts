@@ -17,15 +17,17 @@
  * under the License.
  */
 /**
- * Promise shim which uses our Promise implementation in the window context
+ * various environments handle the global variable different
+ * we have to deal with this.
  */
-
-import {Promise as _Promise} from "./Promise";
-import type = Mocha.utils.type;
-import {_global$} from "./Global";
-
-
-if(!Promise) {
-    //we register promise in the global context
-    _global$["Promise"] = _Promise;
+export function _global$(): any | null {
+    let _global$: any =  ('undefined' != typeof globalThis && globalThis.window) ? globalThis.window:
+        ('undefined' != typeof window) ? window :
+            ('undefined' != typeof globalThis) ? globalThis :
+                ('undefined' != typeof global && global?.window) ? global.window :
+                    ('undefined' != typeof global) ? global : null;
+    //under test systems we often have a lazy init of the window object under global.window, but we
+    //want the window object
+    return _global$?.window ?? _global$;
 }
+

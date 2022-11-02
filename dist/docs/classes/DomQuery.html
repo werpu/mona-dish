@@ -43,7 +43,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <li><a href="../interfaces/IStreamDataSource.html" class="tsd-signature-type" data-tsd-kind="Interface">IStreamDataSource</a><span class="tsd-signature-symbol">&lt;</span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">&gt;</span></li>
 <li><span class="tsd-signature-type">Iterable</span><span class="tsd-signature-symbol">&lt;</span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">&gt;</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L741">DomQuery.ts:741</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L749">DomQuery.ts:749</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -58,6 +58,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <div class="tsd-index-list"><a href="DomQuery.html#_limits" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-1024-path"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)" id="icon-1024-text"></path></svg><span>_limits</span></a>
 <a href="DomQuery.html#pos" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>pos</span></a>
 <a href="DomQuery.html#absent" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>absent</span></a>
+<a href="DomQuery.html#global" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>global</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Accessors</h3>
@@ -69,6 +70,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <a href="DomQuery.html#deepElements" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>deep<wbr/>Elements</span></a>
 <a href="DomQuery.html#disabled" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>disabled</span></a>
 <a href="DomQuery.html#elements" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>elements</span></a>
+<a href="DomQuery.html#global-1" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>global</span></a>
 <a href="DomQuery.html#hasShadow" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>has<wbr/>Shadow</span></a>
 <a href="DomQuery.html#id" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>id</span></a>
 <a href="DomQuery.html#innerHTML" class="tsd-index-link tsd-kind-accessor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg><span>innerHTML</span></a>
@@ -176,33 +178,49 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class"><a id="constructor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="constructor.new_DomQuery">new <wbr/>Dom<wbr/>Query<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>rootNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Document</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ShadowRoot</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><a href="#constructor.new_DomQuery" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_DomQuery">new <wbr/>Dom<wbr/>Query<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>rootNode<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Document</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ShadowRoot</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><a href="#constructor.new_DomQuery" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>rootNode: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Document</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ShadowRoot</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>rootNode: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Document</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ShadowRoot</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L749">DomQuery.ts:749</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L762">DomQuery.ts:762</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_limits" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_limits</span><a href="#_limits" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_limits<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = -1</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2236">DomQuery.ts:2236</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2253">DomQuery.ts:2253</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="pos" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>pos</span><a href="#pos" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">pos<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = -1</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L747">DomQuery.ts:747</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L760">DomQuery.ts:760</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="absent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>absent</span><a href="#absent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">absent<span class="tsd-signature-symbol">:</span> <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L743">DomQuery.ts:743</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L751">DomQuery.ts:751</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="global" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>global</span><a href="#global" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">global<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> = _global$</span></div>
+<div class="tsd-type-declaration">
+<h4>Type declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-class">
+<li class="tsd-signature" id="__type.__type-1"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>various environments handle the global variable different
+we have to deal with this.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h4></li></ul></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L756">DomQuery.ts:756</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Accessors</h2>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="asArray" class="tsd-anchor"></a>
@@ -213,7 +231,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.asArray</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L955">DomQuery.ts:955</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L972">DomQuery.ts:972</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="asNodeArray" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>as<wbr/>Node<wbr/>Array</span><a href="#asNodeArray" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -221,7 +239,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L992">DomQuery.ts:992</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1009">DomQuery.ts:1009</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="cDATAAsString" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>cDATAAs<wbr/>String</span><a href="#cDATAAsString" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -229,7 +247,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2211">DomQuery.ts:2211</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2228">DomQuery.ts:2228</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="checked" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>checked</span><a href="#checked" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -237,7 +255,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L866">DomQuery.ts:866</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L883">DomQuery.ts:883</a></li></ul></aside></li>
 <li class="tsd-signature" id="checked.checked-2"><span class="tsd-signature-symbol">set</span> checked<span class="tsd-signature-symbol">(</span>newChecked<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -247,7 +265,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h5>newChecked: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L870">DomQuery.ts:870</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L887">DomQuery.ts:887</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="childNodes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>child<wbr/>Nodes</span><a href="#childNodes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -256,7 +274,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.childNodes</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L928">DomQuery.ts:928</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L945">DomQuery.ts:945</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="deepElements" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>deep<wbr/>Elements</span><a href="#deepElements" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -264,7 +282,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L879">DomQuery.ts:879</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L896">DomQuery.ts:896</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="disabled" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>disabled</span><a href="#disabled" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -275,7 +293,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.disabled</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L910">DomQuery.ts:910</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L927">DomQuery.ts:927</a></li></ul></aside></li>
 <li class="tsd-signature" id="disabled.disabled-2"><span class="tsd-signature-symbol">set</span> disabled<span class="tsd-signature-symbol">(</span>disabled<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -286,7 +304,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.disabled</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L914">DomQuery.ts:914</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L931">DomQuery.ts:931</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="elements" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>elements</span><a href="#elements" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -295,7 +313,16 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.elements</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L874">DomQuery.ts:874</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L891">DomQuery.ts:891</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="global-1" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>global</span><a href="#global-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
+<li class="tsd-signature" id="global-1.global-2"><span class="tsd-signature-symbol">get</span> global<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+<li class="tsd-description">
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
+<p>Implementation of IDomQuery.global</p>
+<ul>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L800">DomQuery.ts:800</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="hasShadow" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Shadow</span><a href="#hasShadow" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -303,7 +330,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2327">DomQuery.ts:2327</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2344">DomQuery.ts:2344</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="id" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>id</span><a href="#id" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -314,7 +341,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <a href="ValueEmbedder.html" class="tsd-signature-type" data-tsd-kind="Class">ValueEmbedder</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.id</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L790">DomQuery.ts:790</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L807">DomQuery.ts:807</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="innerHTML" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>innerHTML</span><a href="#innerHTML" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -323,7 +350,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.innerHTML</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1390">DomQuery.ts:1390</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1407">DomQuery.ts:1407</a></li></ul></aside></li>
 <li class="tsd-signature" id="innerHTML.innerHTML-2"><span class="tsd-signature-symbol">set</span> innerHTML<span class="tsd-signature-symbol">(</span>inVal<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -334,7 +361,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.innerHTML</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1386">DomQuery.ts:1386</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1403">DomQuery.ts:1403</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="innerHtml-3" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>inner<wbr/>Html</span><a href="#innerHtml-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -343,7 +370,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.innerHtml</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1400">DomQuery.ts:1400</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1417">DomQuery.ts:1417</a></li></ul></aside></li>
 <li class="tsd-signature" id="innerHtml-3.innerHtml-5"><span class="tsd-signature-symbol">set</span> innerHtml<span class="tsd-signature-symbol">(</span>inval<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -354,7 +381,7 @@ ago, those parts look a little bit ancient and will be replaced over time.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.innerHtml</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1396">DomQuery.ts:1396</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1413">DomQuery.ts:1413</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="inputValue" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>input<wbr/>Value</span><a href="#inputValue" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -367,7 +394,7 @@ the value of the first element</p>
 <h4 class="tsd-returns-title">Returns <a href="ValueEmbedder.html" class="tsd-signature-type" data-tsd-kind="Class">ValueEmbedder</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.inputValue</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L850">DomQuery.ts:850</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L867">DomQuery.ts:867</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="lazyStream" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>lazy<wbr/>Stream</span><a href="#lazyStream" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -383,7 +410,7 @@ once they hit a dead end.</p>
 <h4 class="tsd-returns-title">Returns <a href="LazyStream.html" class="tsd-signature-type" data-tsd-kind="Class">LazyStream</a><span class="tsd-signature-symbol">&lt;</span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.lazyStream</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L951">DomQuery.ts:951</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L968">DomQuery.ts:968</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="length" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>length</span><a href="#length" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -394,7 +421,7 @@ once they hit a dead end.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.length</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L797">DomQuery.ts:797</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L814">DomQuery.ts:814</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="name" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>name</span><a href="#name" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -407,7 +434,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <a href="ValueEmbedder.html" class="tsd-signature-type" data-tsd-kind="Class">ValueEmbedder</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.name</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L840">DomQuery.ts:840</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L857">DomQuery.ts:857</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="nodeName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>node<wbr/>Name</span><a href="#nodeName" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -418,7 +445,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.nodeName</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L811">DomQuery.ts:811</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L828">DomQuery.ts:828</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="offsetHeight" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>offset<wbr/>Height</span><a href="#offsetHeight" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -427,7 +454,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.offsetHeight</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L971">DomQuery.ts:971</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L988">DomQuery.ts:988</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="offsetLeft" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>offset<wbr/>Left</span><a href="#offsetLeft" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -436,7 +463,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.offsetLeft</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L978">DomQuery.ts:978</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L995">DomQuery.ts:995</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="offsetTop" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>offset<wbr/>Top</span><a href="#offsetTop" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -445,7 +472,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.offsetTop</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L985">DomQuery.ts:985</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1002">DomQuery.ts:1002</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="offsetWidth" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>offset<wbr/>Width</span><a href="#offsetWidth" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -454,7 +481,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.offsetWidth</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L965">DomQuery.ts:965</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L982">DomQuery.ts:982</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="shadowElements" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>shadow<wbr/>Elements</span><a href="#shadowElements" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -464,7 +491,7 @@ the name of the first element</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2308">DomQuery.ts:2308</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2325">DomQuery.ts:2325</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="shadowRoot" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>shadow<wbr/>Root</span><a href="#shadowRoot" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -472,7 +499,7 @@ the name of the first element</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2317">DomQuery.ts:2317</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2334">DomQuery.ts:2334</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="stream" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>stream</span><a href="#stream" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -483,7 +510,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <a href="Stream.html" class="tsd-signature-type" data-tsd-kind="Class">Stream</a><span class="tsd-signature-symbol">&lt;</span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.stream</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L939">DomQuery.ts:939</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L956">DomQuery.ts:956</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="tagName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>tag<wbr/>Name</span><a href="#tagName" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -494,7 +521,7 @@ the name of the first element</p>
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.tagName</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L804">DomQuery.ts:804</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L821">DomQuery.ts:821</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="type" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>type</span><a href="#type" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -507,7 +534,7 @@ the type of the first element</p>
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.type</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L830">DomQuery.ts:830</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L847">DomQuery.ts:847</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="val" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>val</span><a href="#val" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -516,7 +543,7 @@ the type of the first element</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.val</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L858">DomQuery.ts:858</a></li></ul></aside></li>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L875">DomQuery.ts:875</a></li></ul></aside></li>
 <li class="tsd-signature" id="val.val-2"><span class="tsd-signature-symbol">set</span> val<span class="tsd-signature-symbol">(</span>value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -527,7 +554,7 @@ the type of the first element</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.val</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L862">DomQuery.ts:862</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L879">DomQuery.ts:879</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="value" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>value</span><a href="#value" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -538,7 +565,7 @@ the type of the first element</p>
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.value</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L779">DomQuery.ts:779</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L792">DomQuery.ts:792</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-accessor tsd-parent-kind-class"><a id="values" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>values</span><a href="#values" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-accessor tsd-parent-kind-class">
@@ -547,7 +574,7 @@ the type of the first element</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.values</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L783">DomQuery.ts:783</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L796">DomQuery.ts:796</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_iterator_" class="tsd-anchor"></a>
@@ -561,7 +588,7 @@ to allow loops over dom query collections</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Iterator</span><span class="tsd-signature-symbol">&lt;</span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of Iterable.__@iterator@78</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2378">DomQuery.ts:2378</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2395">DomQuery.ts:2395</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addClass" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Class</span><a href="#addClass" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -579,7 +606,7 @@ to allow loops over dom query collections</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.addClass</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1334">DomQuery.ts:1334</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1351">DomQuery.ts:1351</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addEventListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Event<wbr/>Listener</span><a href="#addEventListener" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -608,7 +635,7 @@ to allow loops over dom query collections</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.addEventListener</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2025">DomQuery.ts:2025</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2042">DomQuery.ts:2042</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="allElems" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>all<wbr/>Elems</span><a href="#allElems" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -619,7 +646,7 @@ to allow loops over dom query collections</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.allElems</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1132">DomQuery.ts:1132</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1149">DomQuery.ts:1149</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="append" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>append</span><a href="#append" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -633,7 +660,7 @@ to allow loops over dom query collections</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.append</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2410">DomQuery.ts:2410</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2427">DomQuery.ts:2427</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="appendTo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>append<wbr/>To</span><a href="#appendTo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -650,7 +677,7 @@ to the element or first element passed via elem</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.appendTo</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1616">DomQuery.ts:1616</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1633">DomQuery.ts:1633</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="attachShadow" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>attach<wbr/>Shadow</span><a href="#attachShadow" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -667,7 +694,7 @@ to the element or first element passed via elem</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.attachShadow</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2281">DomQuery.ts:2281</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2298">DomQuery.ts:2298</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="attr" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>attr</span><a href="#attr" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -690,7 +717,7 @@ or let value myQuery.attr(&quot;class&quot;).value</p>
 <h4 class="tsd-returns-title">Returns <a href="ElementAttribute.html" class="tsd-signature-type" data-tsd-kind="Class">ElementAttribute</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.attr</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1304">DomQuery.ts:1304</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1321">DomQuery.ts:1321</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="byId" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>by<wbr/>Id</span><a href="#byId" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -712,7 +739,7 @@ or let value myQuery.attr(&quot;class&quot;).value</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.byId</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1241">DomQuery.ts:1241</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1258">DomQuery.ts:1258</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="byIdDeep" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>by<wbr/>Id<wbr/>Deep</span><a href="#byIdDeep" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -727,7 +754,7 @@ or let value myQuery.attr(&quot;class&quot;).value</p>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> includeRoot: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1260">DomQuery.ts:1260</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1277">DomQuery.ts:1277</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="byTagName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>by<wbr/>Tag<wbr/>Name</span><a href="#byTagName" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -753,7 +780,7 @@ or let value myQuery.attr(&quot;class&quot;).value</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.byTagName</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1285">DomQuery.ts:1285</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1302">DomQuery.ts:1302</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="click" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>click</span><a href="#click" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -764,7 +791,7 @@ or let value myQuery.attr(&quot;class&quot;).value</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.click</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2020">DomQuery.ts:2020</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2037">DomQuery.ts:2037</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="concat" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>concat</span><a href="#concat" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -785,7 +812,7 @@ or let value myQuery.attr(&quot;class&quot;).value</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2396">DomQuery.ts:2396</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2413">DomQuery.ts:2413</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="copyAttrs" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>copy<wbr/>Attrs</span><a href="#copyAttrs" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -799,7 +826,7 @@ or let value myQuery.attr(&quot;class&quot;).value</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.copyAttrs</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1757">DomQuery.ts:1757</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1774">DomQuery.ts:1774</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="current" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>current</span><a href="#current" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -811,7 +838,7 @@ if there is no next before current called then we will call next as initial elem
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#current">current</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2269">DomQuery.ts:2269</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2286">DomQuery.ts:2286</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="delete" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>delete</span><a href="#delete" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -822,7 +849,7 @@ if there is no next before current called then we will call next as initial elem
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.delete</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1173">DomQuery.ts:1173</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1190">DomQuery.ts:1190</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="detach" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>detach</span><a href="#detach" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -836,7 +863,7 @@ in a browser independend manner</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.detach</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1604">DomQuery.ts:1604</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1621">DomQuery.ts:1621</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="dispatchEvent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>dispatch<wbr/>Event</span><a href="#dispatchEvent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -852,7 +879,7 @@ in a browser independend manner</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.dispatchEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1381">DomQuery.ts:1381</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1398">DomQuery.ts:1398</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="each" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>each</span><a href="#each" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -879,7 +906,7 @@ in a browser independend manner</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.each</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1499">DomQuery.ts:1499</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1516">DomQuery.ts:1516</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="eachElem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>each<wbr/>Elem</span><a href="#eachElem" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -906,7 +933,7 @@ in a browser independend manner</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.eachElem</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1475">DomQuery.ts:1475</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1492">DomQuery.ts:1492</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="encodeFormElement" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>encode<wbr/>Form<wbr/>Element</span><a href="#encodeFormElement" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -929,7 +956,7 @@ HTML5 Form class which all newer browsers provide</p>
 <h4 class="tsd-returns-title">Returns <a href="Config.html" class="tsd-signature-type" data-tsd-kind="Class">Config</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.encodeFormElement</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2125">DomQuery.ts:2125</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2142">DomQuery.ts:2142</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="filesFromElem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>files<wbr/>From<wbr/>Elem</span><a href="#filesFromElem" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -944,7 +971,7 @@ HTML5 Form class which all newer browsers provide</p>
 <h5>index: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1125">DomQuery.ts:1125</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1142">DomQuery.ts:1142</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="filter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>filter</span><a href="#filter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -971,7 +998,7 @@ HTML5 Form class which all newer browsers provide</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.filter</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1544">DomQuery.ts:1544</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1561">DomQuery.ts:1561</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="filterSelector" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>filter<wbr/>Selector</span><a href="#filterSelector" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -987,7 +1014,7 @@ upon a given selector</p>
 <h5>selector: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1430">DomQuery.ts:1430</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1447">DomQuery.ts:1447</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="fireEvent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>fire<wbr/>Event</span><a href="#fireEvent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1003,7 +1030,7 @@ upon a given selector</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.fireEvent</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2038">DomQuery.ts:2038</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2055">DomQuery.ts:2055</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="first" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>first</span><a href="#first" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1034,7 +1061,7 @@ upon a given selector</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.first</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1517">DomQuery.ts:1517</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1534">DomQuery.ts:1534</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="firstElem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>first<wbr/>Elem</span><a href="#firstElem" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1061,7 +1088,7 @@ upon a given selector</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.firstElem</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1485">DomQuery.ts:1485</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1502">DomQuery.ts:1502</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="get" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get</span><a href="#get" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1082,7 +1109,7 @@ you will get back an absent entry</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.get</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1106">DomQuery.ts:1106</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1123">DomQuery.ts:1123</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getAsElem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>As<wbr/>Elem</span><a href="#getAsElem" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1104,7 +1131,7 @@ you will get back an absent entry</p>
 <h4 class="tsd-returns-title">Returns <a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.getAsElem</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1117">DomQuery.ts:1117</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1134">DomQuery.ts:1134</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getIf" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>If</span><a href="#getIf" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1122,7 +1149,7 @@ a set of node selectors which are joined as direct childs</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.getIf</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1463">DomQuery.ts:1463</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1480">DomQuery.ts:1480</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="globalEval" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>global<wbr/>Eval</span><a href="#globalEval" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1145,7 +1172,7 @@ no other methods are supported anymore</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.globalEval</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1560">DomQuery.ts:1560</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1577">DomQuery.ts:1577</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="globalEvalSticky" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>global<wbr/>Eval<wbr/>Sticky</span><a href="#globalEvalSticky" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1168,7 +1195,7 @@ no other methods are supported anymore</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.globalEvalSticky</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1583">DomQuery.ts:1583</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1600">DomQuery.ts:1600</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="hasClass" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Class</span><a href="#hasClass" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1186,7 +1213,7 @@ no other methods are supported anymore</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.hasClass</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1318">DomQuery.ts:1318</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1335">DomQuery.ts:1335</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="hasNext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Next</span><a href="#hasNext" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1198,7 +1225,7 @@ no other methods are supported anymore</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#hasNext">hasNext</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2244">DomQuery.ts:2244</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2261">DomQuery.ts:2261</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="html" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>html</span><a href="#html" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1218,7 +1245,7 @@ as getter the html string is returned</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><a href="Optional.html" class="tsd-signature-type" data-tsd-kind="Class">Optional</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.html</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1369">DomQuery.ts:1369</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1386">DomQuery.ts:1386</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="ifPresentLazy" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>if<wbr/>Present<wbr/>Lazy</span><a href="#ifPresentLazy" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1247,7 +1274,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.ifPresentLazy</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1164">DomQuery.ts:1164</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1181">DomQuery.ts:1181</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="innerText" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>inner<wbr/>Text</span><a href="#innerText" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1261,7 +1288,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.innerText</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2102">DomQuery.ts:2102</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2119">DomQuery.ts:2119</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="insertAfter" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>insert<wbr/>After</span><a href="#insertAfter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1275,7 +1302,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.insertAfter</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1673">DomQuery.ts:1673</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1690">DomQuery.ts:1690</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="insertBefore" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>insert<wbr/>Before</span><a href="#insertBefore" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1289,7 +1316,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.insertBefore</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1698">DomQuery.ts:1698</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1715">DomQuery.ts:1715</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="isAbsent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Absent</span><a href="#isAbsent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1300,7 +1327,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.isAbsent</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1139">DomQuery.ts:1139</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1156">DomQuery.ts:1156</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="isMultipartCandidate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Multipart<wbr/>Candidate</span><a href="#isMultipartCandidate" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1317,7 +1344,7 @@ or are one</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.isMultipartCandidate</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1353">DomQuery.ts:1353</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1370">DomQuery.ts:1370</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="isPresent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Present</span><a href="#isPresent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1346,7 +1373,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.isPresent</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1148">DomQuery.ts:1148</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1165">DomQuery.ts:1165</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="isTag" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>is<wbr/>Tag</span><a href="#isTag" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1360,7 +1387,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.isTag</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L815">DomQuery.ts:815</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L832">DomQuery.ts:832</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="last" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>last</span><a href="#last" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1391,7 +1418,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.last</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1530">DomQuery.ts:1530</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1547">DomQuery.ts:1547</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="lastElem" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>last<wbr/>Elem</span><a href="#lastElem" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1418,7 +1445,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.lastElem</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1492">DomQuery.ts:1492</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1509">DomQuery.ts:1509</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="limits" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>limits</span><a href="#limits" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1431,7 +1458,7 @@ this refers to the active dopmquery object</p>
 <h5>end: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/IStream.html" class="tsd-signature-type" data-tsd-kind="Interface">IStream</a><span class="tsd-signature-symbol">&lt;</span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2238">DomQuery.ts:2238</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2255">DomQuery.ts:2255</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="loadScriptEval" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>load<wbr/>Script<wbr/>Eval</span><a href="#loadScriptEval" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1457,7 +1484,7 @@ this refers to the active dopmquery object</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.loadScriptEval</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1640">DomQuery.ts:1640</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1657">DomQuery.ts:1657</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="lookAhead" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>look<wbr/>Ahead</span><a href="#lookAhead" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1478,7 +1505,7 @@ positions. (aka infinite sets, or flatmapped constructs)</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#lookAhead">lookAhead</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2260">DomQuery.ts:2260</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2277">DomQuery.ts:2277</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="matchesSelector" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>matches<wbr/>Selector</span><a href="#matchesSelector" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1495,7 +1522,7 @@ performed on this element.</p>
 <h5>selector: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1447">DomQuery.ts:1447</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1464">DomQuery.ts:1464</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="next" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>next</span><a href="#next" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1506,7 +1533,7 @@ performed on this element.</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#next">next</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2251">DomQuery.ts:2251</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2268">DomQuery.ts:2268</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="orElse" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>or<wbr/>Else</span><a href="#orElse" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1520,7 +1547,7 @@ performed on this element.</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.orElse</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1714">DomQuery.ts:1714</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1731">DomQuery.ts:1731</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="orElseLazy" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>or<wbr/>Else<wbr/>Lazy</span><a href="#orElseLazy" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1540,7 +1567,7 @@ performed on this element.</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.orElseLazy</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1722">DomQuery.ts:1722</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1739">DomQuery.ts:1739</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="outerHTML" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>outerHTML</span><a href="#outerHTML" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1573,7 +1600,7 @@ replace pattern which needs outerHTML processing</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.outerHTML</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1805">DomQuery.ts:1805</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1822">DomQuery.ts:1822</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="parents" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>parents</span><a href="#parents" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1587,7 +1614,7 @@ replace pattern which needs outerHTML processing</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.parents</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1730">DomQuery.ts:1730</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1747">DomQuery.ts:1747</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="prepend" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>prepend</span><a href="#prepend" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1601,7 +1628,7 @@ replace pattern which needs outerHTML processing</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.prepend</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2422">DomQuery.ts:2422</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2439">DomQuery.ts:2439</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="prependTo" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>prepend<wbr/>To</span><a href="#prependTo" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1615,7 +1642,7 @@ replace pattern which needs outerHTML processing</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.prependTo</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2415">DomQuery.ts:2415</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2432">DomQuery.ts:2432</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="querySelectorAll" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>query<wbr/>Selector<wbr/>All</span><a href="#querySelectorAll" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1629,7 +1656,7 @@ replace pattern which needs outerHTML processing</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.querySelectorAll</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1181">DomQuery.ts:1181</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1198">DomQuery.ts:1198</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="querySelectorAllDeep" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>query<wbr/>Selector<wbr/>All<wbr/>Deep</span><a href="#querySelectorAllDeep" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1645,7 +1672,7 @@ separately and runs the query on earch shadow dom</p>
 <h5>queryStr: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L889">DomQuery.ts:889</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L906">DomQuery.ts:906</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="removeAttribute" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Attribute</span><a href="#removeAttribute" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1658,7 +1685,7 @@ separately and runs the query on earch shadow dom</p>
 <h5>name: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L924">DomQuery.ts:924</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L941">DomQuery.ts:941</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="removeClass" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Class</span><a href="#removeClass" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1674,7 +1701,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.removeClass</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1344">DomQuery.ts:1344</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1361">DomQuery.ts:1361</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="removeEventListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Event<wbr/>Listener</span><a href="#removeEventListener" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1703,7 +1730,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.removeEventListener</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2030">DomQuery.ts:2030</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2047">DomQuery.ts:2047</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="reset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>reset</span><a href="#reset" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1714,7 +1741,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IStreamDataSource.html">IStreamDataSource</a>.<a href="../interfaces/IStreamDataSource.html#reset">reset</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2277">DomQuery.ts:2277</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2294">DomQuery.ts:2294</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="runCss" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>run<wbr/>Css</span><a href="#runCss" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1723,7 +1750,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.runCss</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1970">DomQuery.ts:1970</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1987">DomQuery.ts:1987</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="runScripts" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>run<wbr/>Scripts</span><a href="#runScripts" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1750,7 +1777,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.runScripts</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1853">DomQuery.ts:1853</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1870">DomQuery.ts:1870</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="style" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>style</span><a href="#style" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1766,7 +1793,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Style</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.style</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1308">DomQuery.ts:1308</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1325">DomQuery.ts:1325</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="subNodes" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>sub<wbr/>Nodes</span><a href="#subNodes" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1782,7 +1809,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.subNodes</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2227">DomQuery.ts:2227</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2244">DomQuery.ts:2244</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="textContent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>text<wbr/>Content</span><a href="#textContent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1796,7 +1823,7 @@ separately and runs the query on earch shadow dom</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.textContent</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2089">DomQuery.ts:2089</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2106">DomQuery.ts:2106</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="waitUntilDom" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>wait<wbr/>Until<wbr/>Dom</span><a href="#waitUntilDom" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1826,11 +1853,11 @@ we have to wait until a certain condition is met, in most of the cases we just w
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of IDomQuery.waitUntilDom</p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2301">DomQuery.ts:2301</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2318">DomQuery.ts:2318</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="byId-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>by<wbr/>Id</span><a href="#byId-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="byId-2.byId-3">by<wbr/>Id<span class="tsd-signature-symbol">(</span>selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span>, deep<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><a href="#byId-2.byId-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="byId-2.byId-3">by<wbr/>Id<span class="tsd-signature-symbol">(</span>selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a>, deep<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><a href="#byId-2.byId-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>byId producer</p>
 
@@ -1840,7 +1867,7 @@ we have to wait until a certain condition is met, in most of the cases we just w
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>selector: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span></h5>
+<h5>selector: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h5>
 <div class="tsd-comment tsd-typography"><p>id</p>
 </div></li>
 <li>
@@ -1849,11 +1876,11 @@ we have to wait until a certain condition is met, in most of the cases we just w
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1021">DomQuery.ts:1021</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1038">DomQuery.ts:1038</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="byTagName-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>by<wbr/>Tag<wbr/>Name</span><a href="#byTagName-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="byTagName-2.byTagName-3">by<wbr/>Tag<wbr/>Name<span class="tsd-signature-symbol">(</span>selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><a href="#byTagName-2.byTagName-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="byTagName-2.byTagName-3">by<wbr/>Tag<wbr/>Name<span class="tsd-signature-symbol">(</span>selector<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><a href="#byTagName-2.byTagName-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>byTagName producer</p>
 
@@ -1863,12 +1890,12 @@ we have to wait until a certain condition is met, in most of the cases we just w
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>selector: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span></h5>
+<h5>selector: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol"> | </span><a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h5>
 <div class="tsd-comment tsd-typography"><p>name</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1035">DomQuery.ts:1035</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1052">DomQuery.ts:1052</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="fromMarkup" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>from<wbr/>Markup</span><a href="#fromMarkup" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1886,7 +1913,7 @@ and bypasses a non script insert bug that way</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1056">DomQuery.ts:1056</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1073">DomQuery.ts:1073</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getCaretPosition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>get<wbr/>Caret<wbr/>Position</span><a href="#getCaretPosition" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1899,7 +1926,7 @@ and bypasses a non script insert bug that way</p>
 <h5>ctrl: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2338">DomQuery.ts:2338</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2355">DomQuery.ts:2355</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="globalEval-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>global<wbr/>Eval</span><a href="#globalEval-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1914,7 +1941,7 @@ and bypasses a non script insert bug that way</p>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> nonce: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1043">DomQuery.ts:1043</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1060">DomQuery.ts:1060</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="globalEvalSticky-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>global<wbr/>Eval<wbr/>Sticky</span><a href="#globalEvalSticky-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1929,7 +1956,7 @@ and bypasses a non script insert bug that way</p>
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> nonce: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1047">DomQuery.ts:1047</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1064">DomQuery.ts:1064</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="querySelectorAll-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>query<wbr/>Selector<wbr/>All</span><a href="#querySelectorAll-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1948,7 +1975,7 @@ and bypasses a non script insert bug that way</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L1006">DomQuery.ts:1006</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1023">DomQuery.ts:1023</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="querySelectorAllDeep-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>query<wbr/>Selector<wbr/>All<wbr/>Deep</span><a href="#querySelectorAllDeep-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1961,7 +1988,7 @@ and bypasses a non script insert bug that way</p>
 <h5>selector: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="DomQuery.html" class="tsd-signature-type" data-tsd-kind="Class">DomQuery</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L997">DomQuery.ts:997</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L1014">DomQuery.ts:1014</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setCaretPosition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>set<wbr/>Caret<wbr/>Position</span><a href="#setCaretPosition" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1984,7 +2011,7 @@ calling this method does nothing (silent fail)</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/c426615/src/main/typescript/DomQuery.ts#L2367">DomQuery.ts:2367</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/ec26706/src/main/typescript/DomQuery.ts#L2384">DomQuery.ts:2384</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -2012,6 +2039,7 @@ calling this method does nothing (silent fail)</p>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="DomQuery.html#_limits" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_limits</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="DomQuery.html#pos" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>pos</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="DomQuery.html#absent" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>absent</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="DomQuery.html#global" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>global</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#asArray" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>as<wbr/>Array</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#asNodeArray" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>as<wbr/>Node<wbr/>Array</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#cDATAAsString" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>cDATAAs<wbr/>String</a></li>
@@ -2020,6 +2048,7 @@ calling this method does nothing (silent fail)</p>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#deepElements" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>deep<wbr/>Elements</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#disabled" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>disabled</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#elements" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>elements</a></li>
+<li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#global-1" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>global</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#hasShadow" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>has<wbr/>Shadow</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#id" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>id</a></li>
 <li class="tsd-kind-accessor tsd-parent-kind-class"><a href="DomQuery.html#innerHTML" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-262144-path"></use><use href="#icon-262144-text"></use></svg>innerHTML</a></li>

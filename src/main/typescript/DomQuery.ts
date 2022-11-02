@@ -24,6 +24,9 @@ import trim = Lang.trim;
 import objToArray = Lang.objToArray;
 import isString = Lang.isString;
 import equalsIgnoreCase = Lang.equalsIgnoreCase;
+import {_global$} from "./Global";
+
+declare var ownerDocument: any;
 
 /**
  * in order to poss custom parameters we need to extend the mutation observer init
@@ -105,7 +108,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
                     success(new DomQuery(found || root));
                 }
             }
-            observer = new window.MutationObserver(callback);
+            observer = new MutationObserver(callback);
 
             // browsers might ignore it, but we cannot break the api in the case
             // hence no timeout is passed
@@ -210,6 +213,11 @@ const DEFAULT_WHITELIST = () => {
 };
 
 interface IDomQuery {
+    /**
+     * reference to the systems global object
+     * (globalThis, window, global, depending on the environment)
+     */
+    readonly global: any;
     /**
      * reads the first element if it exists and returns an optional
      */
@@ -742,6 +750,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     static absent = new DomQuery();
 
+    /**
+     * reference to the environmental global object
+     */
+    static global = _global$;
+
     private rootNode: Array<Element> = [];
 
     pos = -1;
@@ -782,6 +795,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     get values(): Element[] {
         return this.allElems();
+    }
+
+    get global(): any {
+        return _global$;
     }
 
     /**
@@ -1412,7 +1429,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             prot.oMatchesSelector ||
             prot.webkitMatchesSelector ||
             function (s: string) {
-                let matches: NodeListOf<HTMLElement> = (document || (<any>window).ownerDocument).querySelectorAll(s),
+                let matches: NodeListOf<HTMLElement> = (document || ownerDocument).querySelectorAll(s),
                     i = matches.length;
                 while (--i >= 0 && matches.item(i) !== toMatch) {
                 }
