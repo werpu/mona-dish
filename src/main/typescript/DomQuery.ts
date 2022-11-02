@@ -640,7 +640,7 @@ interface IDomQuery {
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
-    runScripts(whilteListed: (val: string) => boolean): DomQuery;
+    runScripts(sticky?: boolean, whilteListed?: (val: string) => boolean): DomQuery;
 
     /**
      * runs the embedded css
@@ -1687,6 +1687,47 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return this;
     }
 
+
+    /**
+     * loads and evals a script from a source uri
+     *
+     * @param src the source to be loaded and evaled
+     * @param defer in miliseconds execution default (0 == no defer)
+     * @param charSet
+     */
+    loadScriptEvalSticky(src: string, defer: number = 0, charSet: string = "utf-8", nonce?:string) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", src, false);
+
+        if (charSet) {
+            xhr.setRequestHeader("Content-Type", "application/x-javascript; charset:" + charSet);
+        }
+
+        xhr.onload = () => {
+            //defer also means we have to process after the ajax response
+            //has been processed
+            //we can achieve that with a small timeout, the timeout
+            //triggers after the processing is done!
+            if (!defer) {
+                this.globalEvalSticky(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src, nonce);
+            } else {
+                //TODO not ideal we maybe ought to move to something else here
+                //but since it is not in use yet, it is ok
+                setTimeout(() => {
+                    this.globalEvalSticky(xhr.responseText + "\r\n//@ sourceURL=" + src, nonce);
+                }, defer);
+            }
+        };
+
+        xhr.onerror = (data: any) => {
+            throw Error(data);
+        };
+        //since we are synchronous we do it after not with onReadyStateChange
+        xhr.send(null);
+
+        return this;
+    }
+
     insertAfter(...toInsertParams: Array<DomQuery>): DomQuery {
 
         this.each(existingItem => {
@@ -1864,10 +1905,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     /**
      * Run through the given nodes in the DomQuery execute the inline scripts
+     * @param sticky if set to true the evaled elements will stick to the head, default false
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
-    runScripts(whilteListed: (val: string) => boolean = DEFAULT_WHITELIST): DomQuery {
+    runScripts(sticky = false, whilteListed: (val: string) => boolean = DEFAULT_WHITELIST): DomQuery {
         const evalCollectedScripts = (scriptsToProcess: {evalText: string, nonce: string}[]) => {
             if (scriptsToProcess.length) {
                 //script source means we have to eval the existing
@@ -1882,11 +1924,15 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                             this.globalEval(joinedScripts.join("\n"));
                             joinedScripts.length = 0;
                         }
-                        this.globalEval(item.evalText, item.nonce);
+
+                        (!sticky) ?
+                            this.globalEval(item.evalText, item.nonce) :
+                            this.globalEvalSticky(item.evalText, item.nonce);
                     }
                 });
                 if (joinedScripts.length) {
-                    this.globalEval(joinedScripts.join("\n"));
+                    (!sticky) ? this.globalEval(joinedScripts.join("\n")) :
+                    this.globalEvalSticky(joinedScripts.join("\n"));
                     joinedScripts.length = 0;
                 }
 
@@ -1917,9 +1963,15 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         if (whilteListed(src)) {
                             //we run the collected scripts before running, the include
                             finalScripts = evalCollectedScripts(finalScripts);
-                            (!!nonce) ? this.loadScriptEval(src, 0, "UTF-8", nonce):
-                                //if no nonce is set we do not pass any once
-                                this.loadScriptEval(src, 0, "UTF-8");
+                            if(!sticky) {
+                                (!!nonce) ? this.loadScriptEval(src, 0, "UTF-8", nonce):
+                                    //if no nonce is set we do not pass any once
+                                    this.loadScriptEval(src, 0, "UTF-8");
+                            } else {
+                                (!!nonce) ? this.loadScriptEvalSticky(src, 0, "UTF-8", nonce):
+                                    //if no nonce is set we do not pass any once
+                                    this.loadScriptEvalSticky(src, 0, "UTF-8");
+                            }
                         }
 
                     } else {
