@@ -1660,31 +1660,15 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param charSet
      */
     loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8", nonce?: string) {
-        function createSourceNode() {
-            let srcNode: HTMLScriptElement = document.createElement("script");
-            srcNode.type = "text/javascript";
-            if (!!nonce) {
-                if ('undefined' != typeof srcNode?.nonce) {
-                    srcNode.nonce = nonce;
-                } else {
-                    srcNode.setAttribute("nonce", nonce);
-                }
-            }
-            //srcNode.defer = true;
-            srcNode.src = src;
-            return srcNode;
-        }
-        let srcNode = createSourceNode();
+        let srcNode = this.createSourceNode(src, nonce);
         let head = document.head;
         if (!defer) {
             head.appendChild(srcNode);
             head.removeChild(srcNode);
         } else {
-            //TODO not ideal we maybe ought to move to something else here
-            //but since it is not in use yet, it is ok
             setTimeout(() => {
                 head.appendChild(srcNode);
-                //head.removeChild(srcNode);
+                head.removeChild(srcNode);
             }, defer);
         }
 
@@ -1700,23 +1684,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param charSet
      */
     loadScriptEvalSticky(src: string, defer: number = 0, charSet: string = "utf-8", nonce?: string) {
-        let srcNode: HTMLScriptElement = document.createElement("script");
-        srcNode.type = "text/javascript";
-        if (!!nonce) {
-            if ('undefined' != typeof srcNode?.nonce) {
-                srcNode.nonce = nonce;
-            } else {
-                srcNode.setAttribute("nonce", nonce);
-            }
-        }
-        srcNode.defer = true;
-        srcNode.src = src;
+        let srcNode = this.createSourceNode(src, nonce);
 
         if (!defer) {
-            document.head.append(srcNode);
+            document.head.appendChild(srcNode);
         } else {
-            //TODO not ideal we maybe ought to move to something else here
-            //but since it is not in use yet, it is ok
             setTimeout(() => {
                 document.head.appendChild(srcNode);
             }, defer);
@@ -2527,6 +2499,20 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         };
         return new Observable(observerFunc);
     }*/
+
+    private createSourceNode(src, nonce?:string) {
+        let srcNode: HTMLScriptElement = document.createElement("script");
+        srcNode.type = "text/javascript";
+        if (!!nonce) {
+            if ('undefined' != typeof srcNode?.nonce) {
+                srcNode.nonce = nonce;
+            } else {
+                srcNode.setAttribute("nonce", nonce);
+            }
+        }
+        srcNode.src = src;
+        return srcNode;
+    }
 
 }
 
