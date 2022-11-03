@@ -270,7 +270,14 @@ do not need it anymore. CancellablePromise is still enabled.</li>
 <li>changing default package type from commonjs to umd, to improve ide handling</li>
 <li>adding a sticky eval to DomQuery to keep the evaled elements in the head</li>
 <li>adding a sticky eval handling to run scripts as well</li>
-<li></li>
+</ul>
+
+<a href="#version-023" id="version-023" style="color: inherit; text-decoration: none;">
+  <h2>Version 0.23</h2>
+</a>
+<ul>
+<li>Runscripts and outer HTML now asynchronous, fixes a race condition of mixed src script elements and embedded scripts
+(loading and execution now is in the same order the elements occur)</li>
 </ul>
 </div></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
