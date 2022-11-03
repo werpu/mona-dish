@@ -257,9 +257,9 @@ do not need it anymore. CancellablePromise is still enabled.
 * adding a sticky eval to DomQuery to keep the evaled elements in the head
 * adding a sticky eval handling to run scripts as well
 
-## Version 0.23
-* Runscripts and outer HTML now asynchronous, fixes a race condition of mixed src script elements and embedded scripts
-  (loading and execution now is in the same order the elements occur)
+## Version 0.23+
+* (minor version change due to an api change which has been reverted)
+* fixing the script loading, loading order now in a series of scripts is in sync with mixed src and embedded scripts (no api change)
 
 
 
