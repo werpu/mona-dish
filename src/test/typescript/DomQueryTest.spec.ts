@@ -437,7 +437,7 @@ describe('DOMQuery tests', function () {
         expect(DomQuery.querySelectorAll("div").first().id.value).to.eq("id_1");
     });
 
-    it("runscript runcss", function () {
+    it("runscript runcss", function (done) {
         DomQuery.byTagName("body").innerHTML = `
             <div id="first"></div>
             <div id="second"></div>
@@ -469,11 +469,13 @@ describe('DOMQuery tests', function () {
                 }
             </style>
         `;
-        let content = DomQuery.byTagName("body").runScripts().runCss();
-        expect(content.byId("first").innerHTML).to.eq("hello world");
-        expect(content.byId("second").innerHTML).to.eq("hello world");
-        expect(content.byId("third").innerHTML).to.eq("hello world");
-        expect(content.byId("fourth").innerHTML).to.eq("hello world");
+         DomQuery.byTagName("body").runScripts().then(item => item.runCss()).then(content => {
+            expect(content.byId("first").innerHTML).to.eq("hello world");
+            expect(content.byId("second").innerHTML).to.eq("hello world");
+            expect(content.byId("third").innerHTML).to.eq("hello world");
+            expect(content.byId("fourth").innerHTML).to.eq("hello world");
+            done();
+        });
 
     });
 

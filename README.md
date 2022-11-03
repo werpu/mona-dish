@@ -256,7 +256,10 @@ do not need it anymore. CancellablePromise is still enabled.
 * changing default package type from commonjs to umd, to improve ide handling
 * adding a sticky eval to DomQuery to keep the evaled elements in the head
 * adding a sticky eval handling to run scripts as well
-* 
+
+## Version 0.23
+* Runscripts and outer HTML now asynchronous, fixes a race condition of mixed src script elements and embedded scripts
+  (loading and execution now is in the same order the elements occur)
 
 
 

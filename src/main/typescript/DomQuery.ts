@@ -578,7 +578,7 @@ interface IDomQuery {
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEval(src: string, defer: number, charSet: string): void;
+    loadScriptEval(src: string, defer: number, charSet: string): Promise<DomQuery>;
 
     /**
      * insert toInsert after the current element
@@ -633,14 +633,14 @@ interface IDomQuery {
      * @param runEmbeddedScripts
      * @param runEmbeddedCss
      */
-    outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): DomQuery;
+    outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean): Promise<DomQuery>;
 
     /**
      * Run through the given nodes in the DomQuery execute the inline scripts
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
-    runScripts(sticky?: boolean, whilteListed?: (val: string) => boolean): DomQuery;
+    runScripts(sticky?: boolean, whilteListed?: (val: string) => boolean): Promise<DomQuery>;
 
     /**
      * runs the embedded css
@@ -725,6 +725,8 @@ interface IDomQuery {
 
     //observableElem: Observable<Element>;
 }
+
+const LOADING_MUTEX = "__dq_script_loading__";
 
 /**
  * Monadic DomNode representation, ala jquery
@@ -1654,37 +1656,48 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8", nonce?:string) {
+    loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8", nonce?:string): Promise<DomQuery>{
         let xhr = new XMLHttpRequest();
         xhr.open("GET", src, false);
-
         if (charSet) {
             xhr.setRequestHeader("Content-Type", "application/x-javascript; charset:" + charSet);
         }
+        let ret = new Promise<DomQuery>((success, error) => {
+            xhr.onload = () => {
+                //defer also means we have to process after the ajax response
+                //has been processed
+                //we can achieve that with a small timeout, the timeout
+                //triggers after the processing is done!
+                if (!defer) {
+                    try {
+                        this.globalEval(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src, nonce);
+                        success(this);
+                    } catch(err) {
+                        error(err);
+                    }
+                } else {
+                    //TODO not ideal we maybe ought to move to something else here
+                    //but since it is not in use yet, it is ok
+                    setTimeout(() => {
+                        try {
+                        this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src, nonce);
+                        success(this);
+                        } catch(err) {
+                            error(err);
+                        }
+                    }, defer);
+                }
+            };
 
-        xhr.onload = () => {
-            //defer also means we have to process after the ajax response
-            //has been processed
-            //we can achieve that with a small timeout, the timeout
-            //triggers after the processing is done!
-            if (!defer) {
-                this.globalEval(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src, nonce);
-            } else {
-                //TODO not ideal we maybe ought to move to something else here
-                //but since it is not in use yet, it is ok
-                setTimeout(() => {
-                    this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src, nonce);
-                }, defer);
-            }
-        };
+            xhr.onerror = (data: any) => {
+                error(data);
+            };
+        });
 
-        xhr.onerror = (data: any) => {
-            throw Error(data);
-        };
         //since we are synchronous we do it after not with onReadyStateChange
         xhr.send(null);
 
-        return this;
+        return ret;
     }
 
 
@@ -1695,37 +1708,64 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEvalSticky(src: string, defer: number = 0, charSet: string = "utf-8", nonce?:string) {
+    loadScriptEvalSticky(src: string, defer: number = 0, charSet: string = "utf-8", nonce?:string): Promise<DomQuery> {
         let xhr = new XMLHttpRequest();
+        //for now we cannot introduce an async queue on this level, this would change the entire code
+        // will be changed for a future release, we use a mutex and wait for
+        //for js a simple global mutex suffices given we do not have a only have cooperative multitasking
+
         xhr.open("GET", src, false);
 
         if (charSet) {
             xhr.setRequestHeader("Content-Type", "application/x-javascript; charset:" + charSet);
         }
-
+        let ret = new Promise<DomQuery>((success, error) => {
         xhr.onload = () => {
             //defer also means we have to process after the ajax response
             //has been processed
             //we can achieve that with a small timeout, the timeout
             //triggers after the processing is done!
+            let newElement: DomQuery = DomQuery.fromMarkup(`<script type="text/javascript" src="${src}"></script>`);
+            if (nonce) {
+                let rawElem = (newElement.getAsElem(0).value as HTMLElement);
+                if('undefined' != typeof rawElem?.nonce) {
+                    rawElem.nonce = nonce;
+                } else {
+                    newElement.attr("nonce", nonce);
+                }
+            }
+
             if (!defer) {
-                this.globalEvalSticky(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src, nonce);
+                DomQuery.byId(document.head).append(newElement);
+
+                try {
+                this.globalEval(xhr.responseText.replace(/\n/g, "\r\n") + "\r\n//@ sourceURL=" + src, nonce);
+                    success(this);
+                } catch(err) {
+                    error(err);
+                }
+
             } else {
-                //TODO not ideal we maybe ought to move to something else here
-                //but since it is not in use yet, it is ok
                 setTimeout(() => {
-                    this.globalEvalSticky(xhr.responseText + "\r\n//@ sourceURL=" + src, nonce);
+                    DomQuery.byId(document.head).append(newElement);
+                    try {
+                        this.globalEval(xhr.responseText + "\r\n//@ sourceURL=" + src, nonce);
+                        success(this);
+                    } catch(err) {
+                        error(err);
+                    }
                 }, defer);
             }
-        };
 
-        xhr.onerror = (data: any) => {
-            throw Error(data);
         };
+        xhr.onerror = (data: any) => {
+            error(data);
+        };
+        });
         //since we are synchronous we do it after not with onReadyStateChange
         xhr.send(null);
 
-        return this;
+        return ret;
     }
 
     insertAfter(...toInsertParams: Array<DomQuery>): DomQuery {
@@ -1854,15 +1894,16 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * browsers only support innerHTML but
      * for instance for your jsf.js we have a full
      * replace pattern which needs outerHTML processing
+     * async because script sources can
      *
      * @param markup the markup which should replace the root element
      * @param runEmbeddedScripts if true the embedded scripts are executed
      * @param runEmbeddedCss if true the embeddec css are executed
      * @param deep should this also work for shadow dom (run scripts etc...)
      */
-    outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean, deep = false): DomQuery {
+    async outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean, deep = false): Promise<DomQuery> {
         if (this.isAbsent()) {
-            return;
+            return this;
         }
 
         let focusElementId = document?.activeElement?.id;
@@ -1888,7 +1929,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         }
 
         if (runEmbeddedScripts) {
-            this.runScripts();
+            //scripts might be loaded over the net hence async
+            await this.runScripts();
         }
         if (runEmbeddedCss) {
             this.runCss();
@@ -1909,7 +1951,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
-    runScripts(sticky = false, whilteListed: (val: string) => boolean = DEFAULT_WHITELIST): DomQuery {
+    runScripts(sticky = false, whilteListed: (val: string) => boolean = DEFAULT_WHITELIST): Promise<DomQuery> {
         const evalCollectedScripts = (scriptsToProcess: {evalText: string, nonce: string}[]) => {
             if (scriptsToProcess.length) {
                 //script source means we have to eval the existing
@@ -1943,7 +1985,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
         let finalScripts = [],
             equi = equalsIgnoreCase,
-            execScrpt = (item) => {
+            execScrpt = async (item): Promise<boolean> => {
                 let tagName = item.tagName;
                 let itemType = item.type || "";
                 if (tagName && equi(tagName, "script") &&
@@ -1964,13 +2006,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                             //we run the collected scripts before running, the include
                             finalScripts = evalCollectedScripts(finalScripts);
                             if(!sticky) {
-                                (!!nonce) ? this.loadScriptEval(src, 0, "UTF-8", nonce):
+                                 (!!nonce) ? await this.loadScriptEval(src, 0, "UTF-8", nonce):
                                     //if no nonce is set we do not pass any once
-                                    this.loadScriptEval(src, 0, "UTF-8");
+                                await    this.loadScriptEval(src, 0, "UTF-8");
                             } else {
-                                (!!nonce) ? this.loadScriptEvalSticky(src, 0, "UTF-8", nonce):
+                                (!!nonce) ? await this.loadScriptEvalSticky(src, 0, "UTF-8", nonce):
                                     //if no nonce is set we do not pass any once
-                                    this.loadScriptEvalSticky(src, 0, "UTF-8");
+                                    await this.loadScriptEvalSticky(src, 0, "UTF-8");
                             }
                         }
 
@@ -2005,16 +2047,22 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         });
                     }
                 }
+                return true;
             };
         try {
             let scriptElements = new DomQuery(this.filterSelector("script"), this.querySelectorAll("script"));
             //script execution order by relative pos in their dom tree
-            scriptElements.stream
+            let scriptPromises = scriptElements.stream
                 .flatMap(item => Stream.of(item.values))
                 .sort((node1, node2) => node1.compareDocumentPosition(node2) - 3) //preceding 2, following == 4)
-                .each(item => execScrpt(item));
+                .map(item => execScrpt(item));
+             return Promise.all(scriptPromises).then(() => {
+                 evalCollectedScripts(finalScripts);
+                 return this;
+             }).catch(err => {
+                     throw new Error(err)
+                 });
 
-             evalCollectedScripts(finalScripts);
         } catch (e) {
             if (console && console.error) {
                 //not sure if we
@@ -2024,16 +2072,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 //method only a console
                 //error would be raised as well
                 console.error(e.message || e.description);
+                return Promise.reject(e);
             }
-        } finally {
-            //the usual ie6 fix code
-            //the IE6 garbage collector is broken
-            //nulling closures helps somewhat to reduce
-            //mem leaks, which are impossible to avoid
-            //at this browser
-            execScrpt = null;
         }
-        return this;
+        return Promise.resolve(this);
     }
 
     runCss(): DomQuery {
