@@ -25,12 +25,12 @@ import {delay, from} from "rxjs";
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;
 (global as any).window = {}
-
+let dom = null;
 describe('DOMQuery tests', function () {
 
     beforeEach(function () {
 
-        let dom = new JSDOM(`
+       dom = new JSDOM(`
             <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -47,7 +47,9 @@ describe('DOMQuery tests', function () {
     
     `, {
             contentType: "text/html",
-            runScripts: "dangerously"
+            runScripts: "dangerously",
+            resources: "usable",
+            url: `file://${__dirname}/index.html`
         });
 
         let window = dom.window;
@@ -60,17 +62,11 @@ describe('DOMQuery tests', function () {
             language: "en-En"
         };
 
-        this.xhr = sinon.useFakeXMLHttpRequest();
-        this.requests = [];
-        this.xhr.onCreate = (xhr) => {
-            this.requests.push(xhr);
-        };
-        (<any>global).XMLHttpRequest = this.xhr;
-        (<any>window).XMLHttpRequest = this.xhr;
+
     });
 
     this.afterEach(function () {
-        (<any>global).XMLHttpRequest = (<any>window).XMLHttpRequest = this.xhr.restore();
+
     });
 
     it('basic init', function () {
@@ -171,7 +167,6 @@ describe('DOMQuery tests', function () {
     });
 
 
-
     it('domquery ops test2 with sticky eval code', () => {
         let probe2 = DomQuery.querySelectorAll("div#id_1");
 
@@ -237,8 +232,8 @@ describe('DOMQuery tests', function () {
     it('style must work ', function () {
         let probe1 = new DomQuery(document);
         let probe = probe1.querySelectorAll("div#id_2");
-        probe.style("border").value= "10px solid red";
-        probe.style("color").value= "blue";
+        probe.style("border").value = "10px solid red";
+        probe.style("color").value = "blue";
         let styleNodeLevel = (probe.getAsElem(0).value as HTMLElement).style['color'];
         expect(probe.style("border").value).to.eq("10px solid red")
         expect(probe.style("color").value).to.eq("blue");
@@ -418,14 +413,7 @@ describe('DOMQuery tests', function () {
 
     it("must have a proper loadScriptEval execution", function (done) {
 
-        DomQuery.byTagName("body").loadScriptEval("test.js");
-
-        let xhr = this.requests[0];
-        xhr.respond(200, {
-            "content-type": "application/javascript",
-        }, `
-            document.getElementById('id_1').innerHTML = "hello world";
-        `);
+        DomQuery.byTagName("body").loadScriptEval("./fixtures/test.js");
         setTimeout(() => {
             expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
             done();
@@ -469,34 +457,27 @@ describe('DOMQuery tests', function () {
                 }
             </style>
         `;
-         DomQuery.byTagName("body").runScripts().then(item => item.runCss()).then(content => {
-            expect(content.byId("first").innerHTML).to.eq("hello world");
-            expect(content.byId("second").innerHTML).to.eq("hello world");
-            expect(content.byId("third").innerHTML).to.eq("hello world");
-            expect(content.byId("fourth").innerHTML).to.eq("hello world");
-            done();
-        });
+        let content = DomQuery.byTagName("body").runScripts().runCss();
+        expect(content.byId("first").innerHTML).to.eq("hello world");
+        expect(content.byId("second").innerHTML).to.eq("hello world");
+        expect(content.byId("third").innerHTML).to.eq("hello world");
+        expect(content.byId("fourth").innerHTML).to.eq("hello world");
+        done();
 
     });
 
+    //TODO defer does not work in jsdom
     it("must have a proper loadScriptEval deferred", function (done) {
-
-        DomQuery.byTagName("body").loadScriptEval("test.js", 700);
-
-        let xhr = this.requests[0];
-        xhr.respond(200, {
-            "content-type": "application/javascript",
-        }, `
-            document.getElementById('id_1').innerHTML = "hello world";
-        `);
+        DomQuery.byId(document.body).loadScriptEval("./fixtures/test2.js", 200);
         setTimeout(() => {
-            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.false;
+               expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.false;
         }, 100)
 
+
         setTimeout(() => {
-            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
-            done();
-        }, 1000)
+                expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
+                done();
+        }, 1500)
     })
 
     it("it must handle events properly", function () {
@@ -554,8 +535,8 @@ describe('DOMQuery tests', function () {
 
     it("it must handle subnodes properly", function () {
         let probe = DomQuery.byTagName("div");
-        expect(probe.subNodes(1,3).length).to.eq(2);
-        probe = DomQuery.byTagName("body").childNodes.subNodes(0,2);
+        expect(probe.subNodes(1, 3).length).to.eq(2);
+        probe = DomQuery.byTagName("body").childNodes.subNodes(0, 2);
         expect(probe.length).to.eq(2);
 
         probe = DomQuery.byTagName("div").subNodes(2);
@@ -577,30 +558,30 @@ describe('DOMQuery tests', function () {
     })
 
 
-    it('it must have a working wait for dom with mut observer and must detect condition after change', async function() {
+    it('it must have a working wait for dom with mut observer and must detect condition after change', async function () {
         let probe = DomQuery.byId('id_1');
         probe.innerHTML = 'true';
         let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
         expect(ret.isPresent());
         probe = DomQuery.byId('bosushsdhs');
-        ret = await  probe.waitUntilDom((element) => element.isAbsent());
+        ret = await probe.waitUntilDom((element) => element.isAbsent());
         expect(ret.isAbsent());
 
     });
 
-    it('it must have a working wait for dom with mut observer', async function() {
-            let probe = DomQuery.byId('id_1');
-            setTimeout(() => probe.innerHTML = 'true', 300);
-            let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-            delete window.MutationObserver;
-            delete global.MutationObserver;
-            probe.innerHTML = "";
-            setTimeout(() => probe.innerHTML = 'true', 300);
-            let ret2 = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-            expect(ret.isPresent() && ret2.isPresent());
+    it('it must have a working wait for dom with mut observer', async function () {
+        let probe = DomQuery.byId('id_1');
+        setTimeout(() => probe.innerHTML = 'true', 300);
+        let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+        delete window.MutationObserver;
+        delete global.MutationObserver;
+        probe.innerHTML = "";
+        setTimeout(() => probe.innerHTML = 'true', 300);
+        let ret2 = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+        expect(ret.isPresent() && ret2.isPresent());
     });
 
-    it('it must have a timeout', async function() {
+    it('it must have a timeout', async function () {
         let probe = DomQuery.byId('booga');
         try {
             setTimeout(() => probe.innerHTML = 'true', 300);
@@ -620,12 +601,12 @@ describe('DOMQuery tests', function () {
             expect(!!ex2);
         }
     });
-    it('must handle null inputs correctly', function() {
+    it('must handle null inputs correctly', function () {
         const dq = new DomQuery(null);
         expect(dq.isAbsent()).to.eq(true);
     })
 
-    it('concat must work as expected resulting', function() {
+    it('concat must work as expected resulting', function () {
         let probe = DomQuery.querySelectorAll("div");
         let probe2 = DomQuery.querySelectorAll("body");
         let result = probe.concat(probe2);
@@ -637,7 +618,7 @@ describe('DOMQuery tests', function () {
         expect(result.length).to.eq(probe.length);
     })
 
-    it('must handle match correctly', function() {
+    it('must handle match correctly', function () {
         let probe = DomQuery.querySelectorAll("div").first();
         let probe2 = DomQuery.querySelectorAll("body").first();
 
@@ -658,7 +639,7 @@ describe('DOMQuery tests', function () {
 
     })
 
-    it('delete must work', function() {
+    it('delete must work', function () {
         let probe = DomQuery.querySelectorAll("body");
         let probe2 = DomQuery.fromMarkup("<div id='deleteprobe1'>snafu</div>");
 
@@ -668,13 +649,13 @@ describe('DOMQuery tests', function () {
         probe2.delete();
         expect(probe.querySelectorAll("#deleteprobe1").isAbsent()).to.eq(true);
     })
-    it('must work with rxjs and domquery', function() {
+    it('must work with rxjs and domquery', function () {
         let probe = DomQuery.querySelectorAll("div");
         let probe2 = DomQuery.querySelectorAll("div");
         let probeCnt = 0;
         let probe2Cnt = 0;
-        from(probe).subscribe( el => probeCnt++);
-        from(probe2.stream).subscribe( el => probe2Cnt++);
+        from(probe).subscribe(el => probeCnt++);
+        from(probe2.stream).subscribe(el => probe2Cnt++);
         expect(probeCnt).to.be.above(0);
         expect(probeCnt).to.eq(probe2Cnt);
     })
