@@ -1684,26 +1684,38 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     private _loadScriptEval(sticky: boolean, src: string, defer: number = 0, nonce ?: string) {
         let srcNode = this.createSourceNode(src, nonce);
         let nonceCheck = this.createSourceNode(null, nonce);
-        nonceCheck.innerHTML = "1===1"; //noop
+        let marker = `nonce_${Date.now()}_${Math.random()}`;
+        nonceCheck.innerHTML = `document.head["${marker}"] = true` //noop
 
         let head = document.head;
         //  upfront nonce check, needed mostly for testing
         //  but cannot hurt to block src calls which have invalid nonce on localhost
+        // the reason for doing this up until now we have a similar construct automatically
+        // by loading the scripts via xhr and then embedding them.
+        // this is not needed anymore but the nonce is more relaxed with script src
+        // we now enforce it the old way
+
         head.appendChild(nonceCheck);
         head.removeChild(nonceCheck);
-
-        if (!defer) {
-            head.appendChild(srcNode);
-            if(!sticky) {
-                head.removeChild(srcNode);
-            }
-        } else {
-            setTimeout(() => {
+        if(!head[marker]) {
+            return;
+        }
+        try {
+            if (!defer) {
                 head.appendChild(srcNode);
                 if(!sticky) {
                     head.removeChild(srcNode);
                 }
-            }, defer);
+            } else {
+                setTimeout(() => {
+                    head.appendChild(srcNode);
+                    if(!sticky) {
+                        head.removeChild(srcNode);
+                    }
+                }, defer);
+            }
+        } finally {
+            delete head[marker];
         }
 
         return this;
