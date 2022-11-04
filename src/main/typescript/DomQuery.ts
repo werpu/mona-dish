@@ -643,6 +643,7 @@ interface IDomQuery {
 
     /**
      * Run through the given nodes in the DomQuery execute the inline scripts
+     * @param sticky if set to true the element must be left in the head after eval default === false
      * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
      * defaults to the standard jsf.js exclusion (we use this code for myfaces)
      */
@@ -1659,18 +1660,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEval(src: string, defer: number = 0, charSet: string = "utf-8", nonce?: string) {
-        let srcNode = this.createSourceNode(src, nonce);
-        let head = document.head;
-        if (!defer) {
-            head.appendChild(srcNode);
-            head.removeChild(srcNode);
-        } else {
-            setTimeout(() => {
-                head.appendChild(srcNode);
-                head.removeChild(srcNode);
-            }, defer);
-        }
+    loadScriptEval(src: string, defer: number = 0,  nonce?: string) {
+        this._loadScriptEval(false, src, defer, nonce);
 
         return this;
     }
@@ -1683,14 +1674,35 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param defer in miliseconds execution default (0 == no defer)
      * @param charSet
      */
-    loadScriptEvalSticky(src: string, defer: number = 0, charSet: string = "utf-8", nonce?: string) {
+    loadScriptEvalSticky(src: string, defer: number = 0,  nonce?: string) {
+        this._loadScriptEval(true, src, defer, nonce);
+
+        return this;
+    }
+
+
+    private _loadScriptEval(sticky: boolean, src: string, defer: number = 0, nonce ?: string) {
         let srcNode = this.createSourceNode(src, nonce);
+        let nonceCheck = this.createSourceNode(null, nonce);
+        nonceCheck.innerHTML = "1===1"; //noop
+
+        let head = document.head;
+        //  upfront nonce check, needed mostly for testing
+        //  but cannot hurt to block src calls which have invalid nonce on localhost
+        head.appendChild(nonceCheck);
+        head.removeChild(nonceCheck);
 
         if (!defer) {
-            document.head.appendChild(srcNode);
+            head.appendChild(srcNode);
+            if(!sticky) {
+                head.removeChild(srcNode);
+            }
         } else {
             setTimeout(() => {
-                document.head.appendChild(srcNode);
+                head.appendChild(srcNode);
+                if(!sticky) {
+                    head.removeChild(srcNode);
+                }
             }, defer);
         }
 
@@ -1933,13 +1945,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                             //we run the collected scripts before running, the include
                             finalScripts = evalCollectedScripts(finalScripts);
                             if (!sticky) {
-                                (!!nonce) ? this.loadScriptEval(src, 0, "UTF-8", nonce) :
+                                (!!nonce) ? this.loadScriptEval(src, 0,  nonce) :
                                     //if no nonce is set we do not pass any once
-                                    this.loadScriptEval(src, 0, "UTF-8");
+                                    this.loadScriptEval(src, 0);
                             } else {
-                                (!!nonce) ? this.loadScriptEvalSticky(src, 0, "UTF-8", nonce) :
+                                (!!nonce) ? this.loadScriptEvalSticky(src, 0,  nonce) :
                                     //if no nonce is set we do not pass any once
-                                    this.loadScriptEvalSticky(src, 0, "UTF-8");
+                                    this.loadScriptEvalSticky(src, 0);
                             }
                         }
 
@@ -2500,7 +2512,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return new Observable(observerFunc);
     }*/
 
-    private createSourceNode(src, nonce?:string) {
+    private createSourceNode(src: string | null, nonce?: string) {
         let srcNode: HTMLScriptElement = document.createElement("script");
         srcNode.type = "text/javascript";
         if (!!nonce) {
@@ -2510,7 +2522,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 srcNode.setAttribute("nonce", nonce);
             }
         }
-        srcNode.src = src;
+        if(!!src) {
+            srcNode.src = src;
+        }
+
         return srcNode;
     }
 
