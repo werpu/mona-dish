@@ -477,6 +477,9 @@ var Config = /** @class */ (function (_super) {
         if (overwrite === void 0) { overwrite = true; }
         if (withAppend === void 0) { withAppend = false; }
         var _loop_1 = function (key) {
+            if ('undefined' == typeof key || null == key) {
+                return "continue";
+            }
             if (overwrite || !(key in this_1.value)) {
                 if (!withAppend) {
                     this_1.assign(key).value = other.getIf(key).value;
