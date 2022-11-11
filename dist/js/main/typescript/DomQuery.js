@@ -1687,7 +1687,7 @@ var DomQuery = /** @class */ (function () {
         // let´s keep it side-effects free
         var target = toMerge.shallowCopy;
         this.each(function (element) {
-            var _a;
+            var _a, _b;
             if (element.name.isAbsent()) { // no name, no encoding
                 return;
             }
@@ -1736,14 +1736,14 @@ var DomQuery = /** @class */ (function () {
                     elemType != ALLOWED_SUBMITTABLE_ELEMENTS.SUBMIT &&
                     elemType != ALLOWED_SUBMITTABLE_ELEMENTS.IMAGE) && ((elemType != ALLOWED_SUBMITTABLE_ELEMENTS.CHECKBOX && elemType != ALLOWED_SUBMITTABLE_ELEMENTS.RADIO) ||
                     element.checked)) {
-                    var uploadedFiles = (_a = element.value.value) === null || _a === void 0 ? void 0 : _a.files;
+                    var uploadedFiles = (_b = (_a = element.value) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.files;
                     var filesArr = uploadedFiles !== null && uploadedFiles !== void 0 ? uploadedFiles : [];
                     if (filesArr === null || filesArr === void 0 ? void 0 : filesArr.length) { //files can be empty but set
                         // xhr level2, single multiple must be passes as they are
                         target.assign(name).value = Array.from(filesArr);
                     }
                     else {
-                        if (!uploadedFiles) { //we skip empty file elements i
+                        if (!!uploadedFiles) { //we skip empty file elements i
                             return;
                         }
                         //checkboxes etc.. need to be appended
