@@ -354,6 +354,13 @@ interface IDomQuery {
      */
     append(elem: DomQuery): DomQuery;
     /**
+     * replace convenience function replaces the domquery elements with the
+     * elements passed as parameter
+     * @param toReplace the replacement elements
+     * @return a reference on the replacement elements
+     */
+    replace(toReplace: DomQuery): DomQuery;
+    /**
      * appends the passed elements to our existing queries
      * note, double appends can happen if you are not careful
      *
@@ -785,6 +792,12 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     firstElem(func?: (item: Element, cnt?: number) => any): DomQuery;
     lastElem(func?: (item: Element, cnt?: number) => any): DomQuery;
     each(func: (item: DomQuery, cnt?: number) => any): DomQuery;
+    /**
+     * replace convenience function, replaces one or more elements with
+     * a set of elements passed as DomQuery
+     * @param toReplace the replaced nodes as reference (original node has been replaced)
+     */
+    replace(toReplace: DomQuery): DomQuery;
     /**
      * returns a new dom query containing only the first element max
      *

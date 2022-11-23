@@ -187,6 +187,14 @@ export declare class ArrayCollector<S> implements ICollector<S, Array<S>> {
     get finalValue(): Array<S>;
 }
 /**
+ * collects the values as inverse array
+ */
+export declare class InverseArrayCollector<S> implements ICollector<S, Array<S>> {
+    private data;
+    collect(element: S): void;
+    get finalValue(): Array<S>;
+}
+/**
  * collects an tuple array stream into an assoc array with elements being collected into arrays
  *
  */
