@@ -41,7 +41,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.ArrayCollector = exports.FlatMapStreamDataSource = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.ITERATION_STATUS = void 0;
+exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.InverseArrayCollector = exports.ArrayCollector = exports.FlatMapStreamDataSource = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.ITERATION_STATUS = void 0;
 var Stream_1 = require("./Stream");
 /**
  * special status of the datasource location pointer
@@ -367,6 +367,26 @@ var ArrayCollector = /** @class */ (function () {
     return ArrayCollector;
 }());
 exports.ArrayCollector = ArrayCollector;
+/**
+ * collects the values as inverse array
+ */
+var InverseArrayCollector = /** @class */ (function () {
+    function InverseArrayCollector() {
+        this.data = [];
+    }
+    InverseArrayCollector.prototype.collect = function (element) {
+        this.data.unshift(element);
+    };
+    Object.defineProperty(InverseArrayCollector.prototype, "finalValue", {
+        get: function () {
+            return this.data;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return InverseArrayCollector;
+}());
+exports.InverseArrayCollector = InverseArrayCollector;
 /**
  * collects an tuple array stream into an assoc array with elements being collected into arrays
  *

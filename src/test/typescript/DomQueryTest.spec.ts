@@ -342,6 +342,74 @@ describe('DOMQuery tests', function () {
         expect(innerHtml.indexOf("id_x_1_1") > innerHtml.indexOf("id_x_0_1")).to.be.true;
     })
 
+
+    it("must have a working replace", function () {
+        let probe1 = new DomQuery(document).byId("id_1");
+        probe1.replace(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+
+
+        expect(DomQuery.querySelectorAll("div").length).to.eq(5);
+
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
+
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
+
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+
+        expect(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
+
+        expect(innerHtml.indexOf("id_1") == -1).to.be.true;
+    })
+
+    it("must have a working replace - 2", function () {
+        let probe1 = new DomQuery(document).byId("id_2");
+        probe1.replace(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+
+
+        expect(DomQuery.querySelectorAll("div").length).to.eq(5);
+
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
+
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_0")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
+
+        expect(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_0")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
+
+        expect(innerHtml.indexOf("id_2") == -1).to.be.true;
+    })
+
+    it("must have a working replace - 3", function () {
+        let probe1 = new DomQuery(document).byId("id_4");
+        probe1.replace(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+
+
+        expect(DomQuery.querySelectorAll("div").length).to.eq(5);
+
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
+
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_3")).to.be.true;
+
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+
+        expect(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_3")).to.be.true;
+
+        expect(innerHtml.indexOf("id_4") == -1).to.be.true;
+    })
+
     it("must have a working input handling", function () {
         DomQuery.querySelectorAll("body").innerHTML = `<form id="blarg">
     <div id="embed1">
@@ -456,12 +524,18 @@ describe('DOMQuery tests', function () {
                     border: 1px solid black;
                 }
             </style>
+            
+            <link rel="stylesheet" href="./fixtures/blank.css"></link>
         `;
         let content = DomQuery.byTagName("body").runScripts().runCss();
         expect(content.byId("first").innerHTML).to.eq("hello world");
         expect(content.byId("second").innerHTML).to.eq("hello world");
         expect(content.byId("third").innerHTML).to.eq("hello world");
         expect(content.byId("fourth").innerHTML).to.eq("hello world");
+
+        debugger;
+        expect(DomQuery.byTagName("head")
+            .querySelectorAll("link[rel='stylesheet'][href='./fixtures/blank.css']").length).to.eq(1);
         done();
 
     });

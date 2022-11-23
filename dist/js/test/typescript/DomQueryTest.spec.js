@@ -279,6 +279,50 @@ var dom = null;
         (0, chai_1.expect)(innerHtml.indexOf("id_x_0_1") > innerHtml.indexOf("id_2")).to.be.true;
         (0, chai_1.expect)(innerHtml.indexOf("id_x_1_1") > innerHtml.indexOf("id_x_0_1")).to.be.true;
     });
+    (0, mocha_1.it)("must have a working replace", function () {
+        var probe1 = new typescript_1.DomQuery(document).byId("id_1");
+        probe1.replace(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0\"></div><div id=\"id_x_1\"></div>"));
+        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").length).to.eq(5);
+        var innerHtml = typescript_1.DomQuery.querySelectorAll("body").innerHTML;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_2")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_1") == -1).to.be.true;
+    });
+    (0, mocha_1.it)("must have a working replace - 2", function () {
+        var probe1 = new typescript_1.DomQuery(document).byId("id_2");
+        probe1.replace(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0\"></div><div id=\"id_x_1\"></div>"));
+        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").length).to.eq(5);
+        var innerHtml = typescript_1.DomQuery.querySelectorAll("body").innerHTML;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_0")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_0")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_2") == -1).to.be.true;
+    });
+    (0, mocha_1.it)("must have a working replace - 3", function () {
+        var probe1 = new typescript_1.DomQuery(document).byId("id_4");
+        probe1.replace(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0\"></div><div id=\"id_x_1\"></div>"));
+        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").length).to.eq(5);
+        var innerHtml = typescript_1.DomQuery.querySelectorAll("body").innerHTML;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_2")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_3")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_1")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_2")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_3")).to.be.true;
+        (0, chai_1.expect)(innerHtml.indexOf("id_4") == -1).to.be.true;
+    });
     (0, mocha_1.it)("must have a working input handling", function () {
         typescript_1.DomQuery.querySelectorAll("body").innerHTML = "<form id=\"blarg\">\n    <div id=\"embed1\">\n        <input type=\"text\" id=\"id_1\" name=\"id_1\" value=\"id_1_val\"></input>\n        <input type=\"text\" id=\"id_2\" name=\"id_2\" value=\"id_2_val\" disabled=\"disabled\"> </input>\n        <textarea type=\"text\" id=\"id_3\" name=\"id_3\">textareaVal</textarea>\n\n        <fieldset>\n            <input type=\"radio\" id=\"mc\" name=\"cc_1\" value=\"Mastercard\" checked=\"checked\"></input>\n            <label for=\"mc\"> Mastercard</label>\n            <input type=\"radio\" id=\"vi\" name=\"cc_1\" value=\"Visa\"></input>\n            <label for=\"vi\"> Visa</label>\n            <input type=\"radio\" id=\"ae\" name=\"cc_1\" value=\"AmericanExpress\"></input>\n            <label for=\"ae\"> American Express</label>\n        </fieldset>\n        <select id=\"val_5\" name=\"val_5\" name=\"top5\" size=\"5\">\n            <option>barg</option>\n            <option>jjj</option>\n            <option selected>akaka</option>\n            <option>blon</option>\n            <option>slashs</option>\n        </select>\n    </div>\n</form>\n       ";
         var length = typescript_1.DomQuery.querySelectorAll("form").elements.length;
@@ -326,12 +370,15 @@ var dom = null;
         (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").first().id.value).to.eq("id_1");
     });
     (0, mocha_1.it)("runscript runcss", function (done) {
-        typescript_1.DomQuery.byTagName("body").innerHTML = "\n            <div id=\"first\"></div>\n            <div id=\"second\"></div>\n            <div id=\"third\"></div>\n            <div id=\"fourth\"></div>\n            \n            <script type=\"text/javascript\">\n                document.getElementById(\"first\").innerHTML = \"hello world\";\n            </script>\n            <script type=\"text/javascript\">\n            //<![CDATA[\n                document.getElementById(\"second\").innerHTML = \"hello world\";\n            //]]>    \n            </script>\n            <script type=\"text/javascript\">\n            <!--\n                document.getElementById(\"third\").innerHTML = \"hello world\";\n            //-->   \n            </script>\n              <script type=\"text/javascript\">\n            //<!--\n                document.getElementById(\"fourth\").innerHTML = \"hello world\";\n            //-->   \n            </script>\n        \n            <style type=\"text/css\">\n                #first {\n                    border: 1px solid black;\n                }\n            </style>\n        ";
+        typescript_1.DomQuery.byTagName("body").innerHTML = "\n            <div id=\"first\"></div>\n            <div id=\"second\"></div>\n            <div id=\"third\"></div>\n            <div id=\"fourth\"></div>\n            \n            <script type=\"text/javascript\">\n                document.getElementById(\"first\").innerHTML = \"hello world\";\n            </script>\n            <script type=\"text/javascript\">\n            //<![CDATA[\n                document.getElementById(\"second\").innerHTML = \"hello world\";\n            //]]>    \n            </script>\n            <script type=\"text/javascript\">\n            <!--\n                document.getElementById(\"third\").innerHTML = \"hello world\";\n            //-->   \n            </script>\n              <script type=\"text/javascript\">\n            //<!--\n                document.getElementById(\"fourth\").innerHTML = \"hello world\";\n            //-->   \n            </script>\n        \n            <style type=\"text/css\">\n                #first {\n                    border: 1px solid black;\n                }\n            </style>\n            \n            <link rel=\"stylesheet\" href=\"./fixtures/blank.css\"></link>\n        ";
         var content = typescript_1.DomQuery.byTagName("body").runScripts().runCss();
         (0, chai_1.expect)(content.byId("first").innerHTML).to.eq("hello world");
         (0, chai_1.expect)(content.byId("second").innerHTML).to.eq("hello world");
         (0, chai_1.expect)(content.byId("third").innerHTML).to.eq("hello world");
         (0, chai_1.expect)(content.byId("fourth").innerHTML).to.eq("hello world");
+        debugger;
+        (0, chai_1.expect)(typescript_1.DomQuery.byTagName("head")
+            .querySelectorAll("link[rel='stylesheet'][href='./fixtures/blank.css']").length).to.eq(1);
         done();
     });
     //TODO defer does not work in jsdom

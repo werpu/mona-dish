@@ -21,7 +21,7 @@ import {IStream, LazyStream, Stream} from "./Stream";
 import {
     ArrayCollector,
     AssocArrayCollector,
-    ICollector,
+    ICollector, InverseArrayCollector,
     IStreamDataSource,
     ITERATION_STATUS
 } from "./SourcesCollectors";
@@ -29,7 +29,7 @@ import {Lang} from "./Lang";
 import trim = Lang.trim;
 
 import isString = Lang.isString;
-import eIgnoreC = Lang.equalsIgnoreCase;
+import eqi = Lang.equalsIgnoreCase;
 import {_global$} from "./Global";
 import objToArray = Lang.objToArray;
 
@@ -568,6 +568,14 @@ interface IDomQuery {
      * @param elem to append
      */
     append(elem: DomQuery): DomQuery;
+
+    /**
+     * replace convenience function replaces the domquery elements with the
+     * elements passed as parameter
+     * @param toReplace the replacement elements
+     * @return a reference on the replacement elements
+     */
+    replace(toReplace: DomQuery): DomQuery;
 
     /**
      * appends the passed elements to our existing queries
@@ -1487,6 +1495,29 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
     /**
+     * replace convenience function, replaces one or more elements with
+     * a set of elements passed as DomQuery
+     * @param toReplace the replaced nodes as reference (original node has been replaced)
+     */
+    replace(toReplace: DomQuery): DomQuery {
+        this.each(item => {
+            let asElem = item.getAsElem(0).value;
+            let parent = asElem.parentElement;
+            let nextElement = asElem.nextElementSibling;
+            let previousElement = asElem.previousElementSibling;
+            if(nextElement != null) {
+                new DomQuery(nextElement).insertBefore(toReplace);
+            } else if(previousElement) {
+                new DomQuery(previousElement).insertAfter(toReplace)
+            } else {
+                new DomQuery(parent).append(toReplace);
+            }
+            item.delete();
+        });
+        return toReplace;
+    }
+
+    /**
      * returns a new dom query containing only the first element max
      *
      * @param func a an optional callback function to perform an operation on the first element
@@ -1834,7 +1865,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 let tagName = item.tagName;
                 let itemType = (item?.type ?? '').toLowerCase();
                 if (tagName &&
-                    eIgnoreC(tagName, "script") &&
+                    eqi(tagName, "script") &&
                     allowedItemTypes.indexOf(itemType) != -1) {
                     let src = item.getAttribute('src');
                     if ('undefined' != typeof src
@@ -1922,38 +1953,30 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     runCss(): DomQuery {
 
-        const applyStyle = (item: Element, style: string) => {
-                let newSS: HTMLStyleElement = document.createElement("style");
-                document.getElementsByTagName("head")[0].appendChild(newSS);
+        const execCss = (toReplace: HTMLElement) => {
+                const _toReplace = DomQuery.byId(toReplace);
+                const tagName = _toReplace.tagName.orElse("").value;
+                const head = DomQuery.byTagName("head");
 
-                let styleSheet = newSS.sheet ?? (<any>newSS).styleSheet;
+                if (tagName && eqi(tagName, "link") && eqi(toReplace.getAttribute("rel"), "stylesheet")) {
+                    const rel = toReplace.getAttribute("rel");
+                    //if possible we are now replacing the existing elements where we reference this stylesheet
+                    const matches = head.querySelectorAll(`link[rel='stylesheet'][href='${rel}']`);
 
-                newSS.setAttribute("rel", item.getAttribute("rel") ?? "stylesheet");
-                newSS.setAttribute("type", item.getAttribute("type") ?? "text/css");
-
-                if (styleSheet?.cssText ?? false) {
-                    styleSheet.cssText = style;
-                } else {
-                    newSS.appendChild(document.createTextNode(style));
-                }
-            },
-
-            execCss = (item: Element) => {
-                const tagName = item.tagName;
-                if (tagName && eIgnoreC(tagName, "link") && eIgnoreC(item.getAttribute("type"), "text/css")) {
-                    applyStyle(item, "@import url('" + item.getAttribute("href") + "');");
-                } else if (tagName && eIgnoreC(tagName, "style") && eIgnoreC(item.getAttribute("type"), "text/css")) {
-                    let innerText = [];
-                    // compliant browsers know child nodes
-                    let childNodes: Array<Node> = Array.prototype.slice.call(item.childNodes);
-                    if (childNodes) {
-                        childNodes.forEach(child => innerText.push((<Element>child).innerHTML || (<CharacterData>child).data));
-                        // non-compliant elements innerHTML
-                    } else if (item.innerHTML) {
-                        innerText.push(item.innerHTML);
+                    if(matches.length) {
+                        matches.replace(_toReplace);
+                    } else {
+                        head.append(_toReplace);
                     }
-
-                    applyStyle(item, innerText.join(""));
+                } else if (tagName && eqi(tagName, "style")) {
+                    let innerText = _toReplace.innerHTML.replace(/\s+/gi, "");
+                    let styles = head.querySelectorAll("style");
+                    styles = styles.stream.filter(style => {
+                        return style.innerHTML.replace(/\s+/gi, "") == innerText;
+                    }).collect(new DomQueryCollector())
+                    if(!styles.length) { //already present
+                        head.append(_toReplace);
+                    }
                 }
             };
 

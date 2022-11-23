@@ -121,7 +121,7 @@ var SourcesCollectors_1 = require("./SourcesCollectors");
 var Lang_1 = require("./Lang");
 var trim = Lang_1.Lang.trim;
 var isString = Lang_1.Lang.isString;
-var eIgnoreC = Lang_1.Lang.equalsIgnoreCase;
+var eqi = Lang_1.Lang.equalsIgnoreCase;
 var Global_1 = require("./Global");
 var objToArray = Lang_1.Lang.objToArray;
 /**
@@ -1082,6 +1082,30 @@ var DomQuery = /** @class */ (function () {
         return this;
     };
     /**
+     * replace convenience function, replaces one or more elements with
+     * a set of elements passed as DomQuery
+     * @param toReplace the replaced nodes as reference (original node has been replaced)
+     */
+    DomQuery.prototype.replace = function (toReplace) {
+        this.each(function (item) {
+            var asElem = item.getAsElem(0).value;
+            var parent = asElem.parentElement;
+            var nextElement = asElem.nextElementSibling;
+            var previousElement = asElem.previousElementSibling;
+            if (nextElement != null) {
+                new DomQuery(nextElement).insertBefore(toReplace);
+            }
+            else if (previousElement) {
+                new DomQuery(previousElement).insertAfter(toReplace);
+            }
+            else {
+                new DomQuery(parent).append(toReplace);
+            }
+            item.delete();
+        });
+        return toReplace;
+    };
+    /**
      * returns a new dom query containing only the first element max
      *
      * @param func a an optional callback function to perform an operation on the first element
@@ -1434,7 +1458,7 @@ var DomQuery = /** @class */ (function () {
             var tagName = item.tagName;
             var itemType = ((_a = item === null || item === void 0 ? void 0 : item.type) !== null && _a !== void 0 ? _a : '').toLowerCase();
             if (tagName &&
-                eIgnoreC(tagName, "script") &&
+                eqi(tagName, "script") &&
                 allowedItemTypes.indexOf(itemType) != -1) {
                 var src = item.getAttribute('src');
                 if ('undefined' != typeof src
@@ -1520,36 +1544,30 @@ var DomQuery = /** @class */ (function () {
         return this;
     };
     DomQuery.prototype.runCss = function () {
-        var applyStyle = function (item, style) {
-            var _a, _b, _c, _d;
-            var newSS = document.createElement("style");
-            document.getElementsByTagName("head")[0].appendChild(newSS);
-            var styleSheet = (_a = newSS.sheet) !== null && _a !== void 0 ? _a : newSS.styleSheet;
-            newSS.setAttribute("rel", (_b = item.getAttribute("rel")) !== null && _b !== void 0 ? _b : "stylesheet");
-            newSS.setAttribute("type", (_c = item.getAttribute("type")) !== null && _c !== void 0 ? _c : "text/css");
-            if ((_d = styleSheet === null || styleSheet === void 0 ? void 0 : styleSheet.cssText) !== null && _d !== void 0 ? _d : false) {
-                styleSheet.cssText = style;
-            }
-            else {
-                newSS.appendChild(document.createTextNode(style));
-            }
-        }, execCss = function (item) {
-            var tagName = item.tagName;
-            if (tagName && eIgnoreC(tagName, "link") && eIgnoreC(item.getAttribute("type"), "text/css")) {
-                applyStyle(item, "@import url('" + item.getAttribute("href") + "');");
-            }
-            else if (tagName && eIgnoreC(tagName, "style") && eIgnoreC(item.getAttribute("type"), "text/css")) {
-                var innerText_1 = [];
-                // compliant browsers know child nodes
-                var childNodes = Array.prototype.slice.call(item.childNodes);
-                if (childNodes) {
-                    childNodes.forEach(function (child) { return innerText_1.push(child.innerHTML || child.data); });
-                    // non-compliant elements innerHTML
+        var execCss = function (toReplace) {
+            var _toReplace = DomQuery.byId(toReplace);
+            var tagName = _toReplace.tagName.orElse("").value;
+            var head = DomQuery.byTagName("head");
+            if (tagName && eqi(tagName, "link") && eqi(toReplace.getAttribute("rel"), "stylesheet")) {
+                var rel = toReplace.getAttribute("rel");
+                //if possible we are now replacing the existing elements where we reference this stylesheet
+                var matches = head.querySelectorAll("link[rel='stylesheet'][href='".concat(rel, "']"));
+                if (matches.length) {
+                    matches.replace(_toReplace);
                 }
-                else if (item.innerHTML) {
-                    innerText_1.push(item.innerHTML);
+                else {
+                    head.append(_toReplace);
                 }
-                applyStyle(item, innerText_1.join(""));
+            }
+            else if (tagName && eqi(tagName, "style")) {
+                var innerText_1 = _toReplace.innerHTML.replace(/\s+/gi, "");
+                var styles = head.querySelectorAll("style");
+                styles = styles.stream.filter(function (style) {
+                    return style.innerHTML.replace(/\s+/gi, "") == innerText_1;
+                }).collect(new DomQueryCollector());
+                if (!styles.length) { //already present
+                    head.append(_toReplace);
+                }
             }
         };
         var scriptElements = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
