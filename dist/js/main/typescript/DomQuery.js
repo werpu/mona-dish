@@ -832,6 +832,15 @@ var DomQuery = /** @class */ (function () {
             return this._querySelectorAll(selector);
         }
     };
+    DomQuery.prototype.closest = function (selector) {
+        // We could merge both methods, but for now this is more readable
+        if (selector.indexOf("/shadow/") != -1) {
+            return this._closestDeep(selector);
+        }
+        else {
+            return this._closest(selector);
+        }
+    };
     /**
      * core byId method
      * @param id the id to search for
@@ -1307,28 +1316,24 @@ var DomQuery = /** @class */ (function () {
             return new DomQuery(func());
         }
     };
-    DomQuery.prototype.parents = function (tagName) {
-        var retSet = new Set();
+    DomQuery.prototype.parents = function (selector) {
         var retArr = [];
-        var lowerTagName = tagName.toLowerCase();
-        var resolveItem = function (item) {
-            if ((item.tagName || "").toLowerCase() == lowerTagName && !retSet.has(item)) {
-                retSet.add(item);
-                retArr.push(item);
-            }
-        };
+        var parent = this.parent().filter(function (item) { return item.matchesSelector(selector); });
+        while (parent.isPresent()) {
+            retArr.push(parent);
+            parent = parent.parent().filter(function (item) { return item.matchesSelector(selector); });
+        }
+        return new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(retArr), false)))();
+    };
+    DomQuery.prototype.parent = function () {
+        var ret = [];
         this.eachElem(function (item) {
-            var _a;
-            while (item.parentNode || item.host) {
-                item = (_a = item === null || item === void 0 ? void 0 : item.parentNode) !== null && _a !== void 0 ? _a : item === null || item === void 0 ? void 0 : item.host;
-                resolveItem(item);
-                // nested forms not possible, performance shortcut
-                if (tagName == "form" && retArr.length) {
-                    return false;
-                }
+            var parent = item.parentNode || item.host;
+            if (parent && ret.indexOf(parent) == -1) {
+                ret.push(parent);
             }
         });
-        return new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(retArr), false)))();
+        return new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(ret), false)))();
     };
     DomQuery.prototype.copyAttrs = function (sourceItem) {
         var _this = this;
@@ -2027,6 +2032,47 @@ var DomQuery = /** @class */ (function () {
             }
             var levelSelector = selectors[cnt2];
             foundNodes = foundNodes.querySelectorAll(levelSelector);
+            if (cnt2 < selectors.length - 1) {
+                foundNodes = foundNodes.shadowRoot;
+            }
+        }
+        return foundNodes;
+    };
+    /**
+     * query selector all on the existing dom queryX object
+     *
+     * @param selector the standard selector
+     * @return a DomQuery with the results
+     */
+    DomQuery.prototype._closest = function (selector) {
+        var _a, _b;
+        if (!((_a = this === null || this === void 0 ? void 0 : this.rootNode) === null || _a === void 0 ? void 0 : _a.length)) {
+            return this;
+        }
+        var nodes = [];
+        for (var cnt = 0; cnt < this.rootNode.length; cnt++) {
+            if (!((_b = this.rootNode[cnt]) === null || _b === void 0 ? void 0 : _b.closest)) {
+                continue;
+            }
+            var res = [this.rootNode[cnt].closest(selector)];
+            nodes = nodes.concat.apply(nodes, __spreadArray([], __read(res), false));
+        }
+        return new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(nodes), false)))();
+    };
+    /*deep with a selector and a pseudo /shadow/ marker to break into the next level*/
+    DomQuery.prototype._closestDeep = function (selector) {
+        var _a;
+        if (!((_a = this === null || this === void 0 ? void 0 : this.rootNode) === null || _a === void 0 ? void 0 : _a.length)) {
+            return this;
+        }
+        var foundNodes = new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(this.rootNode), false)))();
+        var selectors = selector.split(/\/shadow\//);
+        for (var cnt2 = 0; cnt2 < selectors.length; cnt2++) {
+            if (selectors[cnt2] == "") {
+                continue;
+            }
+            var levelSelector = selectors[cnt2];
+            foundNodes = foundNodes.closest(levelSelector);
             if (cnt2 < selectors.length - 1) {
                 foundNodes = foundNodes.shadowRoot;
             }

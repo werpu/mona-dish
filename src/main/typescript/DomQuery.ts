@@ -21,7 +21,7 @@ import {IStream, LazyStream, Stream} from "./Stream";
 import {
     ArrayCollector,
     AssocArrayCollector,
-    ICollector, InverseArrayCollector,
+    ICollector,
     IStreamDataSource,
     ITERATION_STATUS
 } from "./SourcesCollectors";
@@ -394,6 +394,15 @@ interface IDomQuery {
      */
     querySelectorAll(selector): DomQuery;
 
+
+    /**
+     * closest, walks up the dom tree to fid the closest element to match
+     *
+     * @param selector the standard selector
+     * @return a DomQuery with the results
+     */
+    querySelectorAll(selector): DomQuery;
+
     /**
      * core byId method
      * @param id the id to search for
@@ -632,10 +641,16 @@ interface IDomQuery {
     orElseLazy(func: () => any): DomQuery;
 
     /**
-     * all parents with TagName
+     * all parents with a matching selector
      * @param tagName
      */
-    parents(tagName: string): DomQuery;
+    parents(selector: string): DomQuery;
+
+
+    /**
+     * the parent of the elements
+     */
+    parent(): DomQuery;
 
     /**
      * copy all attributes of sourceItem to this DomQuery items
@@ -1224,6 +1239,16 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         }
     }
 
+    closest(selector): DomQuery {
+        // We could merge both methods, but for now this is more readable
+        if (selector.indexOf("/shadow/") != -1) {
+            return this._closestDeep(selector);
+        } else {
+            return this._closest(selector);
+        }
+    }
+
+
     /**
      * core byId method
      * @param id the id to search for
@@ -1715,31 +1740,27 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         }
     }
 
-    parents(tagName: string): DomQuery {
-        const retSet: Set<Element> = new Set();
-        const retArr: Array<Element> = [];
-        const lowerTagName = tagName.toLowerCase();
+    parents(selector: string): DomQuery {
+        const retArr: Array<DomQuery> = [];
+        let parent = this.parent().filter(item => item.matchesSelector(selector));
+        while(parent.isPresent()) {
+            retArr.push(parent);
+            parent = parent.parent().filter(item => item.matchesSelector(selector));
+        }
 
-        let resolveItem = (item: Element) => {
-            if ((item.tagName || "").toLowerCase() == lowerTagName && !retSet.has(item)) {
-                retSet.add(item);
-                retArr.push(item);
-            }
-        };
+        return new DomQuery(...retArr);
+    }
 
+    parent(): DomQuery {
+        let ret = [];
         this.eachElem((item: Element) => {
-            while (item.parentNode || (<any>item).host) {
-                item = <Element>item?.parentNode ?? (<any>item)?.host;
-
-                resolveItem(item);
-                // nested forms not possible, performance shortcut
-                if (tagName == "form" && retArr.length) {
-                    return false;
-                }
+            let parent = item.parentNode || (<any>item).host;
+            if (parent && ret.indexOf(parent) == -1) {
+                ret.push(parent);
             }
         });
 
-        return new DomQuery(...retArr);
+        return new DomQuery(...ret);
     }
 
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery {
@@ -2462,6 +2483,52 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             }
             let levelSelector = selectors[cnt2];
             foundNodes = foundNodes.querySelectorAll(levelSelector);
+            if (cnt2 < selectors.length - 1) {
+                foundNodes = foundNodes.shadowRoot;
+            }
+        }
+
+        return foundNodes;
+    }
+
+
+    /**
+     * query selector all on the existing dom queryX object
+     *
+     * @param selector the standard selector
+     * @return a DomQuery with the results
+     */
+    private _closest(selector): DomQuery {
+        if (!this?.rootNode?.length) {
+            return this;
+        }
+        let nodes = [];
+        for (let cnt = 0; cnt < this.rootNode.length; cnt++) {
+            if (!this.rootNode[cnt]?.closest) {
+                continue;
+            }
+            let res = [this.rootNode[cnt].closest(selector)];
+            nodes = nodes.concat(...res);
+        }
+
+        return new DomQuery(...nodes);
+    }
+
+    /*deep with a selector and a pseudo /shadow/ marker to break into the next level*/
+    private _closestDeep(selector): DomQuery {
+        if (!this?.rootNode?.length) {
+            return this;
+        }
+
+        let foundNodes: DomQuery = new DomQuery(...this.rootNode);
+        let selectors = selector.split(/\/shadow\//);
+
+        for (let cnt2 = 0; cnt2 < selectors.length; cnt2++) {
+            if (selectors[cnt2] == "") {
+                continue;
+            }
+            let levelSelector = selectors[cnt2];
+            foundNodes = foundNodes.closest(levelSelector);
             if (cnt2 < selectors.length - 1) {
                 foundNodes = foundNodes.shadowRoot;
             }

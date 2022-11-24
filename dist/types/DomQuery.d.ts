@@ -203,6 +203,13 @@ interface IDomQuery {
      */
     querySelectorAll(selector: any): DomQuery;
     /**
+     * closest, walks up the dom tree to fid the closest element to match
+     *
+     * @param selector the standard selector
+     * @return a DomQuery with the results
+     */
+    querySelectorAll(selector: any): DomQuery;
+    /**
      * core byId method
      * @param id the id to search for
      * @param includeRoot also match the root element?
@@ -408,10 +415,14 @@ interface IDomQuery {
      */
     orElseLazy(func: () => any): DomQuery;
     /**
-     * all parents with TagName
+     * all parents with a matching selector
      * @param tagName
      */
-    parents(tagName: string): DomQuery;
+    parents(selector: string): DomQuery;
+    /**
+     * the parent of the elements
+     */
+    parent(): DomQuery;
     /**
      * copy all attributes of sourceItem to this DomQuery items
      *
@@ -688,6 +699,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      */
     delete(): void;
     querySelectorAll(selector: any): DomQuery;
+    closest(selector: any): DomQuery;
     /**
      * core byId method
      * @param id the id to search for
@@ -862,7 +874,8 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     insertBefore(...toInsertParams: Array<DomQuery>): DomQuery;
     orElse(...elseValue: any): DomQuery;
     orElseLazy(func: () => any): DomQuery;
-    parents(tagName: string): DomQuery;
+    parents(selector: string): DomQuery;
+    parent(): DomQuery;
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery;
     /**
      * outerHTML convenience method
@@ -967,6 +980,14 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      */
     private _querySelectorAll;
     private _querySelectorAllDeep;
+    /**
+     * query selector all on the existing dom queryX object
+     *
+     * @param selector the standard selector
+     * @return a DomQuery with the results
+     */
+    private _closest;
+    private _closestDeep;
     /**
      * matches selector call in a browser independent manner
      *

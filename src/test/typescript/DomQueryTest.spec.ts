@@ -533,7 +533,6 @@ describe('DOMQuery tests', function () {
         expect(content.byId("third").innerHTML).to.eq("hello world");
         expect(content.byId("fourth").innerHTML).to.eq("hello world");
 
-        debugger;
         expect(DomQuery.byTagName("head")
             .querySelectorAll("link[rel='stylesheet'][href='./fixtures/blank.css']").length).to.eq(1);
         done();
@@ -732,5 +731,18 @@ describe('DOMQuery tests', function () {
         from(probe2.stream).subscribe(el => probe2Cnt++);
         expect(probeCnt).to.be.above(0);
         expect(probeCnt).to.eq(probe2Cnt);
-    })
+    });
+
+    it('must handle closest properly', function() {
+        let probe = DomQuery.byId("id_1");
+        probe.innerHTML = "<div id='inner_elem'>hello world<div id='inner_elem2'></div></div>";
+
+        let probe2 = DomQuery.byId("inner_elem");
+        expect(probe2.closest("div#id_1").id.value).to.eq("id_1");
+        expect(probe2.parent().closest("div").id.value).to.eq("id_1");
+        probe2 = DomQuery.byId("inner_elem2");
+        expect(probe2.closest("div").id.value).to.eq("inner_elem2");
+        expect(probe2.closest("div#id_1").id.value).to.eq("id_1");
+        expect(probe2.parent().parent().closest("div").id.value).to.eq("id_1");
+    });
 });

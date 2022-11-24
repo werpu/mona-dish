@@ -376,7 +376,6 @@ var dom = null;
         (0, chai_1.expect)(content.byId("second").innerHTML).to.eq("hello world");
         (0, chai_1.expect)(content.byId("third").innerHTML).to.eq("hello world");
         (0, chai_1.expect)(content.byId("fourth").innerHTML).to.eq("hello world");
-        debugger;
         (0, chai_1.expect)(typescript_1.DomQuery.byTagName("head")
             .querySelectorAll("link[rel='stylesheet'][href='./fixtures/blank.css']").length).to.eq(1);
         done();
@@ -588,6 +587,17 @@ var dom = null;
         (0, rxjs_1.from)(probe2.stream).subscribe(function (el) { return probe2Cnt++; });
         (0, chai_1.expect)(probeCnt).to.be.above(0);
         (0, chai_1.expect)(probeCnt).to.eq(probe2Cnt);
+    });
+    (0, mocha_1.it)('must handle closest properly', function () {
+        var probe = typescript_1.DomQuery.byId("id_1");
+        probe.innerHTML = "<div id='inner_elem'>hello world<div id='inner_elem2'></div></div>";
+        var probe2 = typescript_1.DomQuery.byId("inner_elem");
+        (0, chai_1.expect)(probe2.closest("div#id_1").id.value).to.eq("id_1");
+        (0, chai_1.expect)(probe2.parent().closest("div").id.value).to.eq("id_1");
+        probe2 = typescript_1.DomQuery.byId("inner_elem2");
+        (0, chai_1.expect)(probe2.closest("div").id.value).to.eq("inner_elem2");
+        (0, chai_1.expect)(probe2.closest("div#id_1").id.value).to.eq("id_1");
+        (0, chai_1.expect)(probe2.parent().parent().closest("div").id.value).to.eq("id_1");
     });
 });
 //# sourceMappingURL=DomQueryTest.spec.js.map
