@@ -319,7 +319,7 @@ describe('DOMQuery tests', function () {
 
     it('it must have parents', function () {
         let probe1 = new DomQuery(document).querySelectorAll("div");
-        let coll: Array<any> = probe1.parents("body").stream.collect(new ArrayCollector());
+        let coll: Array<any> = probe1.parentsWhileMatch("body").stream.collect(new ArrayCollector());
         expect(coll.length == 1).to.be.true;
 
     });
@@ -624,6 +624,21 @@ describe('DOMQuery tests', function () {
             //we might be able to shim it in one way or the other
             let element = probe.attachShadow();
             expect(element.length > 0).to.eq(true);
+        } catch (e) {
+            //not supported we still need to get an error here
+            expect(e.message.indexOf("not supported") != -1).to.be.true;
+        }
+    })
+
+
+    it("parent must break shadow barriers", function () {
+        let probe = DomQuery.fromMarkup("<div id='shadowItem'>hello</div>'");
+        try {
+            //probably not testable atm, mocha does not have shadow dom support
+            //we might be able to shim it in one way or the other
+            let element = DomQuery.byId("id_1").attachShadow();
+            element.append(probe);
+            expect(probe.firstParent("#id_1").length > 0).to.eq(true);
         } catch (e) {
             //not supported we still need to get an error here
             expect(e.message.indexOf("not supported") != -1).to.be.true;

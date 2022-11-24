@@ -415,10 +415,20 @@ interface IDomQuery {
      */
     orElseLazy(func: () => any): DomQuery;
     /**
-     * all parents with a matching selector
+     * find all parents in the hierarchy for which the selector matches
+     * @param selector
+     */
+    allParents(selector: string): DomQuery;
+    /**
+     * first parents with a matching selector
+     * @param selector
+     */
+    firstParent(selector: string): DomQuery;
+    /**
+     * all parents until the selector match stops
      * @param tagName
      */
-    parents(selector: string): DomQuery;
+    parentsWhileMatch(selector: string): DomQuery;
     /**
      * the parent of the elements
      */
@@ -874,7 +884,21 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     insertBefore(...toInsertParams: Array<DomQuery>): DomQuery;
     orElse(...elseValue: any): DomQuery;
     orElseLazy(func: () => any): DomQuery;
-    parents(selector: string): DomQuery;
+    /**
+     * find all parents in the hierarchy for which the selector matches
+     * @param selector
+     */
+    allParents(selector: string): DomQuery;
+    /**
+     * finds the first parent in the hierarchy for which the selector matches
+     * @param selector
+     */
+    firstParent(selector: string): DomQuery;
+    /**
+     * fetches all parents as long as the filter criterium matches
+     * @param selector
+     */
+    parentsWhileMatch(selector: string): DomQuery;
     parent(): DomQuery;
     copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery;
     /**

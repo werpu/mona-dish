@@ -1316,7 +1316,40 @@ var DomQuery = /** @class */ (function () {
             return new DomQuery(func());
         }
     };
-    DomQuery.prototype.parents = function (selector) {
+    /**
+     * find all parents in the hierarchy for which the selector matches
+     * @param selector
+     */
+    DomQuery.prototype.allParents = function (selector) {
+        var parent = this.parent();
+        var ret = [];
+        while (parent.isPresent()) {
+            if (parent.matchesSelector(selector)) {
+                ret.push(parent);
+            }
+            parent = parent.parent();
+        }
+        return new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(ret), false)))();
+    };
+    /**
+     * finds the first parent in the hierarchy for which the selector matches
+     * @param selector
+     */
+    DomQuery.prototype.firstParent = function (selector) {
+        var parent = this.parent();
+        while (parent.isPresent()) {
+            if (parent.matchesSelector(selector)) {
+                return parent;
+            }
+            parent = parent.parent();
+        }
+        return DomQuery.absent;
+    };
+    /**
+     * fetches all parents as long as the filter criterium matches
+     * @param selector
+     */
+    DomQuery.prototype.parentsWhileMatch = function (selector) {
         var retArr = [];
         var parent = this.parent().filter(function (item) { return item.matchesSelector(selector); });
         while (parent.isPresent()) {
@@ -1328,7 +1361,7 @@ var DomQuery = /** @class */ (function () {
     DomQuery.prototype.parent = function () {
         var ret = [];
         this.eachElem(function (item) {
-            var parent = item.parentNode || item.host;
+            var parent = item.parentNode || item.host || item.shadowRoot;
             if (parent && ret.indexOf(parent) == -1) {
                 ret.push(parent);
             }

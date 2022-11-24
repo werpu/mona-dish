@@ -262,7 +262,7 @@ var dom = null;
     });
     (0, mocha_1.it)('it must have parents', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = probe1.parents("body").stream.collect(new typescript_2.ArrayCollector());
+        var coll = probe1.parentsWhileMatch("body").stream.collect(new typescript_2.ArrayCollector());
         (0, chai_1.expect)(coll.length == 1).to.be.true;
     });
     (0, mocha_1.it)("must have a working insertBefore and insertAfter", function () {
@@ -449,6 +449,20 @@ var dom = null;
             //we might be able to shim it in one way or the other
             var element = probe.attachShadow();
             (0, chai_1.expect)(element.length > 0).to.eq(true);
+        }
+        catch (e) {
+            //not supported we still need to get an error here
+            (0, chai_1.expect)(e.message.indexOf("not supported") != -1).to.be.true;
+        }
+    });
+    (0, mocha_1.it)("parent must break shadow barriers", function () {
+        var probe = typescript_1.DomQuery.fromMarkup("<div id='shadowItem'>hello</div>'");
+        try {
+            //probably not testable atm, mocha does not have shadow dom support
+            //we might be able to shim it in one way or the other
+            var element = typescript_1.DomQuery.byId("id_1").attachShadow();
+            element.append(probe);
+            (0, chai_1.expect)(probe.firstParent("#id_1").length > 0).to.eq(true);
         }
         catch (e) {
             //not supported we still need to get an error here
