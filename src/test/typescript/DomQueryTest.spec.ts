@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-import {expect, should} from 'chai';
+import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {ArrayStreamDataSource, DomQuery, DomQueryCollector} from "../../main/typescript";
-import {ArrayCollector, Lang, LazyStream} from "../../main/typescript";
-import sinon = require('sinon');
+import {ArrayCollector, DomQuery, DomQueryCollector, Lang, LazyStream} from "../../main/typescript";
+import {from} from "rxjs";
 import trim = Lang.trim;
-import {delay, from} from "rxjs";
 
 const jsdom = require("jsdom");
 const {JSDOM} = jsdom;

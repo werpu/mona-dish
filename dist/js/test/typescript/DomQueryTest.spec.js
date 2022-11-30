@@ -54,9 +54,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
 var mocha_1 = require("mocha");
 var typescript_1 = require("../../main/typescript");
-var typescript_2 = require("../../main/typescript");
-var trim = typescript_2.Lang.trim;
 var rxjs_1 = require("rxjs");
+var trim = typescript_1.Lang.trim;
 var jsdom = require("jsdom");
 var JSDOM = jsdom.JSDOM;
 global.window = {};
@@ -248,9 +247,9 @@ var dom = null;
     });
     (0, mocha_1.it)('it must stream', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = probe1.stream.collect(new typescript_2.ArrayCollector());
+        var coll = probe1.stream.collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(coll.length == 4).to.be.true;
-        coll = probe1.lazyStream.collect(new typescript_2.ArrayCollector());
+        coll = probe1.lazyStream.collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(coll.length == 4).to.be.true;
     });
     (0, mocha_1.it)('it must stream to a domquery', function () {
@@ -262,7 +261,7 @@ var dom = null;
     });
     (0, mocha_1.it)('it must have parents', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = probe1.parentsWhileMatch("body").stream.collect(new typescript_2.ArrayCollector());
+        var coll = probe1.parentsWhileMatch("body").stream.collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(coll.length == 1).to.be.true;
     });
     (0, mocha_1.it)("must have a working insertBefore and insertAfter", function () {
@@ -422,7 +421,7 @@ var dom = null;
     });
     (0, mocha_1.it)("it must handle iterations properly", function () {
         var probe = typescript_1.DomQuery.byTagName("div");
-        var resArr = probe.lazyStream.collect(new typescript_2.ArrayCollector());
+        var resArr = probe.lazyStream.collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(resArr.length).to.eq(4);
         probe.reset();
         while (probe.hasNext()) {
@@ -431,7 +430,7 @@ var dom = null;
         }
         (0, chai_1.expect)(probe.next()).to.eq(null);
         var probe2 = typescript_1.DomQuery.byTagName("div").limits(2);
-        resArr = typescript_2.LazyStream.ofStreamDataSource(probe2).collect(new typescript_2.ArrayCollector());
+        resArr = typescript_1.LazyStream.ofStreamDataSource(probe2).collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(resArr.length).to.eq(2);
     });
     (0, mocha_1.it)("it must handle subnodes properly", function () {

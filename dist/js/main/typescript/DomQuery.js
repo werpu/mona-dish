@@ -489,6 +489,16 @@ var DomQuery = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(DomQuery.prototype, "nodeId", {
+        get: function () {
+            return this.id.value;
+        },
+        set: function (value) {
+            this.id.value = value;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(DomQuery.prototype, "checked", {
         get: function () {
             return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.values), false)).allMatch(function (el) { return !!el.checked; });
