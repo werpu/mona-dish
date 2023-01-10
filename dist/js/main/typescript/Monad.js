@@ -56,7 +56,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Config = exports.ValueEmbedder = exports.Optional = exports.Monad = void 0;
+exports.Config = exports.CONFIG_VALUE = exports.ValueEmbedder = exports.Optional = exports.Monad = void 0;
 /**
  * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
  * Useful if you need the functions in another library to keep its dependencies down
@@ -187,6 +187,7 @@ var Optional = /** @class */ (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             key[_i] = arguments[_i];
         }
+        key = this.preprocessKeys.apply(this, __spreadArray([], __read(key), false));
         var currentPos = this;
         for (var cnt = 0; cnt < key.length; cnt++) {
             var currKey = this.keyVal(key[cnt]);
@@ -316,6 +317,25 @@ var Optional = /** @class */ (function (_super) {
             return Optional.absent;
         }
     };
+    Optional.prototype.preprocessKeys = function () {
+        var keys = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            keys[_i] = arguments[_i];
+        }
+        return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(keys), false)).flatMap(function (item) {
+            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item.split(/\]\s*\[/gi)), false)).map(function (item) {
+                item = item.replace(/^\s+|\s+$/g, "");
+                if (item.indexOf("[") == -1 && item.indexOf("]") != -1) {
+                    item = "[" + item;
+                }
+                if (item.indexOf("]") == -1 && item.indexOf("[") != -1) {
+                    item = item + "]";
+                }
+                return item;
+            });
+        })
+            .collect(new SourcesCollectors_1.ArrayCollector());
+    };
     /*default value for absent*/
     Optional.absent = Optional.fromNullable(null);
     return Optional;
@@ -424,6 +444,47 @@ var ConfigEntry = /** @class */ (function (_super) {
     ConfigEntry.absent = ConfigEntry.fromNullable(null);
     return ConfigEntry;
 }(ValueEmbedder));
+exports.CONFIG_VALUE = "__END_POINT__";
+var ALL_VALUES = "*";
+/**
+ * config definition is an assoc array
+ */
+var ConfigDefinition = {
+    attr1: {
+        attr2: exports.CONFIG_VALUE,
+        attr1: exports.CONFIG_VALUE,
+        attr3: [{
+                attr4: exports.CONFIG_VALUE
+            }]
+    }
+};
+/**
+ * this is a config definition class for a typed config
+ * Theoretically we also can use a full class and then use json stringify
+ * and decode to transfer it into a config, we have many options!
+ * At one point in time we want to have a config
+ */
+var ConfigDefinition2 = /** @class */ (function () {
+    function ConfigDefinition2() {
+    }
+    var _a, _b;
+    ConfigDefinition2.attr1 = (_a = /** @class */ (function () {
+            function class_1() {
+            }
+            return class_1;
+        }()),
+        _a.attr2 = exports.CONFIG_VALUE,
+        _a.attr1 = exports.CONFIG_VALUE,
+        _a.attr3 = [(_b = /** @class */ (function () {
+                    function class_2() {
+                    }
+                    return class_2;
+                }()),
+                _b.attr4 = exports.CONFIG_VALUE,
+                _b)],
+        _a);
+    return ConfigDefinition2;
+}());
 /**
  * Config, basically an optional wrapper for a json structure
  * (not sideeffect free, since we can alter the internal config state
@@ -432,8 +493,10 @@ var ConfigEntry = /** @class */ (function (_super) {
  */
 var Config = /** @class */ (function (_super) {
     __extends(Config, _super);
-    function Config(root) {
-        return _super.call(this, root) || this;
+    function Config(root, configDef) {
+        var _this = _super.call(this, root) || this;
+        _this.configDef = configDef;
+        return _this;
     }
     Object.defineProperty(Config.prototype, "shallowCopy", {
         /**
@@ -520,10 +583,11 @@ var Config = /** @class */ (function (_super) {
         if (noKeys) {
             return;
         }
+        this.assertAccessPath.apply(this, __spreadArray([], __read(accessPath), false));
         var lastKey = accessPath[accessPath.length - 1];
         var currKey, finalKey = this.keyVal(lastKey);
         var pathExists = this.getIf.apply(this, __spreadArray([], __read(accessPath), false)).isPresent();
-        this.buildPath(accessPath);
+        this.buildPath.apply(this, __spreadArray([], __read(accessPath), false));
         var finalKeyArrPos = this.arrayIndex(lastKey);
         if (finalKeyArrPos > -1) {
             throw Error("Append only possible on non array properties, use assign on indexed data");
@@ -567,7 +631,8 @@ var Config = /** @class */ (function (_super) {
         if (accessPath.length < 1) {
             return;
         }
-        this.buildPath(accessPath);
+        this.assertAccessPath.apply(this, __spreadArray([], __read(accessPath), false));
+        this.buildPath.apply(this, __spreadArray([], __read(accessPath), false));
         var currKey = this.keyVal(accessPath[accessPath.length - 1]);
         var arrPos = this.arrayIndex(accessPath[accessPath.length - 1]);
         var retVal = new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value, currKey, arrPos);
@@ -596,6 +661,7 @@ var Config = /** @class */ (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             accessPath[_i] = arguments[_i];
         }
+        this.assertAccessPath.apply(this, __spreadArray([], __read(accessPath), false));
         return this.getClass().fromNullable(_super.prototype.getIf.apply(this, accessPath).value);
     };
     /**
@@ -625,11 +691,71 @@ var Config = /** @class */ (function (_super) {
         this._value = val;
     };
     /**
+     * asserts the access path for a semy typed access
+      * @param accessPath
+     * @private
+     */
+    Config.prototype.assertAccessPath = function () {
+        var _a, _b;
+        var accessPath = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            accessPath[_i] = arguments[_i];
+        }
+        accessPath = this.preprocessKeys.apply(this, __spreadArray([], __read(accessPath), false));
+        if (!this.configDef) {
+            //untyped
+            return;
+        }
+        var currAccessPos = null;
+        var ERR_ACCESS_PATH = "Access Path to config invalid";
+        var ABSENT = "__ABSENT__";
+        currAccessPos = this.configDef;
+        var _loop_2 = function (cnt) {
+            var currKey = this_2.keyVal(accessPath[cnt]);
+            var arrPos = this_2.arrayIndex(accessPath[cnt]);
+            //key index
+            if (this_2.isArray(arrPos)) {
+                if (currKey != "") {
+                    currAccessPos = (Array.isArray(currAccessPos)) ?
+                        Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(currAccessPos), false)).filter(function (item) { var _a; return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false); })
+                            .map(function (item) { return item === null || item === void 0 ? void 0 : item[currKey]; }).first() :
+                        Optional.fromNullable((_a = currAccessPos === null || currAccessPos === void 0 ? void 0 : currAccessPos[currKey]) !== null && _a !== void 0 ? _a : null);
+                }
+                else {
+                    currAccessPos = (Array.isArray(currAccessPos)) ?
+                        Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(currAccessPos), false)).filter(function (item) { return Array.isArray(item); })
+                            .flatMap(function (item) { return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item), false)); }).first() : Optional.absent;
+                }
+                //we noe store either the current array or the filtered look ahead to go further
+            }
+            else {
+                //we now have an array and go further with a singular key
+                currAccessPos = (Array.isArray(currAccessPos)) ? Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(currAccessPos), false)).filter(function (item) { var _a; return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false); })
+                    .map(function (item) { return item === null || item === void 0 ? void 0 : item[currKey]; })
+                    .first() :
+                    Optional.fromNullable((_b = currAccessPos === null || currAccessPos === void 0 ? void 0 : currAccessPos[currKey]) !== null && _b !== void 0 ? _b : null);
+            }
+            if (!currAccessPos.isPresent()) {
+                throw Error(ERR_ACCESS_PATH);
+            }
+            currAccessPos = currAccessPos.value;
+        };
+        var this_2 = this;
+        for (var cnt = 0; cnt < accessPath.length; cnt++) {
+            _loop_2(cnt);
+        }
+    };
+    /**
      * builds the config path
      *
      * @param accessPath a sequential array of accessPath containing either a key name or an array reference name[<index>]
      */
-    Config.prototype.buildPath = function (accessPath) {
+    Config.prototype.buildPath = function () {
+        var accessPath = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            accessPath[_i] = arguments[_i];
+        }
+        accessPath = this.preprocessKeys.apply(this, __spreadArray([], __read(accessPath), false));
         var val = this;
         var parentVal = this.getClass().fromNullable(null);
         var parentPos = -1;
@@ -643,7 +769,7 @@ var Config = /** @class */ (function (_super) {
         for (var cnt = 0; cnt < accessPath.length; cnt++) {
             var currKey = this.keyVal(accessPath[cnt]);
             var arrPos = this.arrayIndex(accessPath[cnt]);
-            if (currKey === "" && arrPos >= 0) {
+            if (this.isArrayPos(currKey, arrPos)) {
                 val.setVal((val.value instanceof Array) ? val.value : []);
                 alloc(val.value, arrPos + 1);
                 if (parentPos >= 0) {
@@ -655,7 +781,7 @@ var Config = /** @class */ (function (_super) {
                 continue;
             }
             var tempVal = val.getIf(currKey);
-            if (arrPos == -1) {
+            if (this.isNoArray(arrPos)) {
                 if (tempVal.isAbsent()) {
                     tempVal = this.getClass().fromNullable(val.value[currKey] = {});
                 }
@@ -674,6 +800,23 @@ var Config = /** @class */ (function (_super) {
             val = tempVal;
         }
         return this;
+    };
+    Config.prototype.isNoArray = function (arrPos) {
+        return arrPos == -1;
+    };
+    Config.prototype.isArray = function (arrPos) {
+        return !this.isNoArray(arrPos);
+    };
+    Config.prototype.isArrayPos = function (currKey, arrPos) {
+        return currKey === "" && arrPos >= 0;
+    };
+    Config.prototype.preprocessKeys = function () {
+        var accessPath = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            accessPath[_i] = arguments[_i];
+        }
+        return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(_super.prototype.preprocessKeys.apply(this, __spreadArray([], __read(accessPath), false))), false)).flatMap(function (item) { return Stream_1.Stream.of(item.split(/\s*\.\s*/gi)); })
+            .collect(new SourcesCollectors_1.ArrayCollector());
     };
     return Config;
 }(Optional));

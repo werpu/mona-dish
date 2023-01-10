@@ -131,6 +131,7 @@ export declare class Optional<T> extends Monad<T> {
      * the resolution goes towards absent
      */
     resolve<V>(resolver: (item: T) => V): Optional<V>;
+    protected preprocessKeys(...keys: any[]): string[];
 }
 /**
  * ValueEmbedder is the writeable version
@@ -158,6 +159,10 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
     protected getClass(): any;
     static fromNullable<V extends Optional<T>, T>(value?: any, valueKey?: string): V;
 }
+export declare const CONFIG_VALUE = "__END_POINT__";
+export declare type ConfigDef = {
+    [key: string]: any;
+};
 /**
  * Config, basically an optional wrapper for a json structure
  * (not sideeffect free, since we can alter the internal config state
@@ -165,7 +170,8 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
  * since this would swallow a lot of performane and ram
  */
 export declare class Config extends Optional<any> {
-    constructor(root: any);
+    private configDef?;
+    constructor(root: any, configDef?: ConfigDef);
     /**
      * shallow copy getter, copies only the first level, references the deeper nodes
      * in a shared manner
@@ -237,9 +243,19 @@ export declare class Config extends Optional<any> {
     protected getClass(): any;
     private setVal;
     /**
+     * asserts the access path for a semy typed access
+      * @param accessPath
+     * @private
+     */
+    private assertAccessPath;
+    /**
      * builds the config path
      *
      * @param accessPath a sequential array of accessPath containing either a key name or an array reference name[<index>]
      */
     private buildPath;
+    private isNoArray;
+    private isArray;
+    private isArrayPos;
+    protected preprocessKeys(...accessPath: string[]): string[];
 }

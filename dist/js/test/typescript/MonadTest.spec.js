@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
 var mocha_1 = require("mocha");
 var index_1 = require("../../main/typescript/index");
+var Monad_1 = require("../../main/typescript/Monad");
 //TODO saveResolveTest
 (0, mocha_1.describe)('optional tests', function () {
     (0, mocha_1.it)('fromnullable null', function () {
@@ -169,6 +170,108 @@ var index_1 = require("../../main/typescript/index");
             (0, chai_1.expect)(true).to.be.false;
         }
         catch (ex) {
+        }
+    });
+});
+(0, mocha_1.describe)('Typed Config tests', function () {
+    var _a, _b, _c, _d;
+    /**
+     * a really complicated config def, which we never will have
+     */
+    var configDef = (_a = /** @class */ (function () {
+            function class_1() {
+            }
+            return class_1;
+        }()),
+        _a.data = (_b = /** @class */ (function () {
+                function class_2() {
+                }
+                return class_2;
+            }()),
+            _b.value = Monad_1.CONFIG_VALUE,
+            _b.value2 = Monad_1.CONFIG_VALUE,
+            _b.value3 = Monad_1.CONFIG_VALUE,
+            _b),
+        _a.data2 = [(_c = /** @class */ (function () {
+                    function class_3() {
+                    }
+                    return class_3;
+                }()),
+                _c.booga = Monad_1.CONFIG_VALUE,
+                _c.data3 = [
+                    (_d = /** @class */ (function () {
+                            function class_4() {
+                            }
+                            return class_4;
+                        }()),
+                        _d.booga2 = Monad_1.CONFIG_VALUE,
+                        _d),
+                    Monad_1.CONFIG_VALUE
+                ],
+                _c), [{ data4: Monad_1.CONFIG_VALUE }], Monad_1.CONFIG_VALUE],
+        _a);
+    var config = new index_1.Config({
+        data: {
+            value: 1,
+            value2: index_1.Optional.absent,
+            value3: null
+        },
+        data2: [
+            {
+                booga: "hello",
+                data3: [{ booga2: "hellobooga2" }]
+            },
+            "hello2",
+            [{
+                    data4: "hello4"
+                }, "hello4_1"]
+        ]
+    }, configDef);
+    var setup = function () {
+        return { config: config, configDef: configDef };
+    };
+    (0, mocha_1.it)("must resolve base static data", function () {
+        global["__Debug__"] = true;
+        var _a = setup(), config = _a.config, configDef = _a.configDef;
+        var val1 = config.getIf("data", "value").value;
+        (0, chai_1.expect)(val1).eq(1);
+        var val2 = config.getIf("data2[0]", "booga").value;
+        (0, chai_1.expect)(val2).eq("hello");
+        var val3 = config.getIf("data2[1]").value;
+        (0, chai_1.expect)(val3).eq("hello2");
+        val3 = config.getIf("data2[1]").value;
+        (0, chai_1.expect)(val3).eq("hello2");
+        val3 = config.getIf("data2[0]", "data3[0]", "booga2").value;
+        (0, chai_1.expect)(val3).eq("hellobooga2");
+        global["debug"] = true;
+        val3 = config.getIf("data2[2]", "[0]", "data4").value;
+        (0, chai_1.expect)(val3).eq("hello4");
+        val3 = config.getIf("data2[2][0].data4").value;
+        (0, chai_1.expect)(val3).eq("hello4");
+        val3 = config.getIf("data2[2]", "[1]").value;
+        (0, chai_1.expect)(val3).eq("hello4_1");
+        val3 = config.getIf("data2[2][1]").value;
+        (0, chai_1.expect)(val3).eq("hello4_1");
+        try {
+            config.getIf("data2[2][1].orga").value;
+            (0, chai_1.expect)(true).to.be.false;
+        }
+        catch (err) {
+            (0, chai_1.expect)(true).to.be.true;
+        }
+        try {
+            config.getIf("data2[2][0]", "data5").value;
+            (0, chai_1.expect)(true).to.be.false;
+        }
+        catch (err) {
+            (0, chai_1.expect)(true).to.be.true;
+        }
+        try {
+            config.getIf("data2[2][0].data5").value;
+            (0, chai_1.expect)(true).to.be.false;
+        }
+        catch (err) {
+            (0, chai_1.expect)(true).to.be.true;
         }
     });
 });

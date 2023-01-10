@@ -17,6 +17,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import {Optional, Config} from "../../main/typescript/index";
+import {CONFIG_VALUE, ConfigDef} from "../../main/typescript/Monad";
 
 //TODO saveResolveTest
 describe('optional tests', () => {
@@ -195,3 +196,108 @@ describe('Config tests', () => {
 });
 
 
+describe('Typed Config tests', () => {
+
+    /**
+     * a really complicated config def, which we never will have
+     */
+    let configDef: ConfigDef = class {
+        static data = class {
+            static value = CONFIG_VALUE;
+            static value2 = CONFIG_VALUE;
+            static value3 = CONFIG_VALUE;
+        };
+        static data2 = [class {
+            static booga = CONFIG_VALUE;
+            static data3 = [
+                class {
+                    static booga2 = CONFIG_VALUE;
+                }, CONFIG_VALUE
+            ]
+        },[{data4: CONFIG_VALUE}], CONFIG_VALUE];
+
+    };
+    let config = new Config({
+        data: {
+            value: 1,
+            value2: Optional.absent,
+            value3: null
+        },
+        data2: [
+            {
+                booga: "hello",
+                data3 :[{booga2: "hellobooga2"}]
+            },
+            "hello2",
+            [{
+            data4: "hello4"
+            }, "hello4_1"]
+
+        ]
+    }, configDef);
+
+    let setup = function ():{config: Config, configDef: ConfigDef} {
+        return {config , configDef};
+    };
+
+
+    it("must resolve base static data", function() {
+        global["__Debug__"] = true;
+        let {config, configDef} = setup();
+
+
+        let val1 = config.getIf("data", "value").value;
+        expect(val1).eq(1);
+
+
+        let val2 = config.getIf("data2[0]", "booga").value;
+        expect(val2).eq("hello");
+
+        let val3 = config.getIf("data2[1]").value;
+        expect(val3).eq("hello2");
+
+
+        val3 = config.getIf("data2[1]").value;
+        expect(val3).eq("hello2");
+
+
+        val3 = config.getIf("data2[0]", "data3[0]", "booga2").value;
+        expect(val3).eq("hellobooga2");
+
+        global["debug"] = true;
+        val3 = config.getIf("data2[2]", "[0]", "data4").value;
+        expect(val3).eq("hello4");
+
+        val3 = config.getIf("data2[2][0].data4").value;
+        expect(val3).eq("hello4");
+
+        val3 = config.getIf("data2[2]","[1]").value;
+        expect(val3).eq("hello4_1");
+
+        val3 = config.getIf("data2[2][1]").value;
+        expect(val3).eq("hello4_1");
+
+        try {
+            config.getIf("data2[2][1].orga").value;
+            expect(true).to.be.false;
+        } catch(err) {
+            expect(true).to.be.true;
+        }
+
+        try {
+            config.getIf("data2[2][0]","data5").value;
+            expect(true).to.be.false;
+        } catch(err) {
+            expect(true).to.be.true;
+        }
+
+        try {
+            config.getIf("data2[2][0].data5").value;
+            expect(true).to.be.false;
+        } catch(err) {
+            expect(true).to.be.true;
+        }
+
+    })
+
+});
