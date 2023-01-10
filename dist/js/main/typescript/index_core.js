@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.ArrayCollector = exports.QueryFormStringCollector = exports.SequenceDataSource = exports.FlatMapStreamDataSource = exports.FilteredStreamDatasource = exports.MappedStreamDataSource = exports.ArrayStreamDataSource = exports.LazyStream = exports.Stream = exports.XQ = exports.XMLQuery = exports.ValueEmbedder = exports.Optional = exports.Monad = exports.CONFIG_VALUE = exports.Config = exports.Lang = exports.DQ$ = exports.DQ = exports.DomQueryCollector = exports.ElementAttribute = exports.DomQuery = void 0;
+exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.ArrayCollector = exports.QueryFormStringCollector = exports.SequenceDataSource = exports.FlatMapStreamDataSource = exports.FilteredStreamDatasource = exports.MappedStreamDataSource = exports.ArrayStreamDataSource = exports.LazyStream = exports.Stream = exports.XQ = exports.XMLQuery = exports.ValueEmbedder = exports.Optional = exports.Monad = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.Config = exports.Lang = exports.DQ$ = exports.DQ = exports.DomQueryCollector = exports.ElementAttribute = exports.DomQuery = void 0;
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -30,6 +30,7 @@ Object.defineProperty(exports, "Lang", { enumerable: true, get: function () { re
 var Monad_1 = require("./Monad");
 Object.defineProperty(exports, "Config", { enumerable: true, get: function () { return Monad_1.Config; } });
 Object.defineProperty(exports, "CONFIG_VALUE", { enumerable: true, get: function () { return Monad_1.CONFIG_VALUE; } });
+Object.defineProperty(exports, "CONFIG_ANY", { enumerable: true, get: function () { return Monad_1.CONFIG_ANY; } });
 Object.defineProperty(exports, "Monad", { enumerable: true, get: function () { return Monad_1.Monad; } });
 Object.defineProperty(exports, "Optional", { enumerable: true, get: function () { return Monad_1.Optional; } });
 Object.defineProperty(exports, "ValueEmbedder", { enumerable: true, get: function () { return Monad_1.ValueEmbedder; } });
