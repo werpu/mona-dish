@@ -460,41 +460,12 @@ class ConfigEntry<T> extends ValueEmbedder<T> {
 
 
 export const CONFIG_VALUE = "__END_POINT__";
+export const CONFIG_ANY = "__ANY_POINT__";
 const ALL_VALUES = "*";
 
 
 
 export type ConfigDef = {[key: string]: any};
-
-/**
- * config definition is an assoc array
- */
-const ConfigDefinition: ConfigDef = {
-    attr1 : {
-        attr2: CONFIG_VALUE,
-        attr1: CONFIG_VALUE,
-        attr3: [{
-            attr4: CONFIG_VALUE
-        }]
-    }
-}
-
-
-/**
- * this is a config definition class for a typed config
- * Theoretically we also can use a full class and then use json stringify
- * and decode to transfer it into a config, we have many options!
- * At one point in time we want to have a config
- */
-class ConfigDefinition2 {
-    static attr1 = class {
-        static attr2 = CONFIG_VALUE;
-        static attr1 = CONFIG_VALUE;
-        static attr3 = [class {
-            static attr4 = CONFIG_VALUE
-        }];
-    }
-}
 
 
 /**
@@ -746,6 +717,11 @@ export class Config extends Optional<any> {
                 throw Error(ERR_ACCESS_PATH)
             }
             currAccessPos = currAccessPos.value;
+
+            //no further testing needed, from this point onwards we are on our own
+            if(currAccessPos == CONFIG_ANY) {
+                return;
+            }
         }
 
     }

@@ -174,7 +174,7 @@ var Monad_1 = require("../../main/typescript/Monad");
     });
 });
 (0, mocha_1.describe)('Typed Config tests', function () {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     /**
      * a really complicated config def, which we never will have
      */
@@ -209,6 +209,14 @@ var Monad_1 = require("../../main/typescript/Monad");
                     Monad_1.CONFIG_VALUE
                 ],
                 _c), [{ data4: Monad_1.CONFIG_VALUE }], Monad_1.CONFIG_VALUE],
+        _a.data3 = [(_e = /** @class */ (function () {
+                    function class_5() {
+                    }
+                    return class_5;
+                }()),
+                _e.data4 = Monad_1.CONFIG_ANY //whatever comes below does not have a clear structure anymore
+            ,
+                _e)],
         _a);
     var config = new index_1.Config({
         data: {
@@ -225,6 +233,13 @@ var Monad_1 = require("../../main/typescript/Monad");
             [{
                     data4: "hello4"
                 }, "hello4_1"]
+        ],
+        data3: [
+            {
+                data4: {
+                    data5: "hello"
+                }
+            }
         ]
     }, configDef);
     var setup = function () {
@@ -252,6 +267,8 @@ var Monad_1 = require("../../main/typescript/Monad");
         (0, chai_1.expect)(val3).eq("hello4_1");
         val3 = config.getIf("data2[2][1]").value;
         (0, chai_1.expect)(val3).eq("hello4_1");
+        val3 = config.getIf("data3[0].data4.data5").value;
+        (0, chai_1.expect)(val3).eq("hello");
         try {
             config.getIf("data2[2][1].orga").value;
             (0, chai_1.expect)(true).to.be.false;
@@ -259,6 +276,7 @@ var Monad_1 = require("../../main/typescript/Monad");
         catch (err) {
             (0, chai_1.expect)(true).to.be.true;
         }
+        (0, chai_1.expect)(config.getIf("data3[1].data4.data5").isAbsent()).eq(true);
         try {
             config.getIf("data2[2][0]", "data5").value;
             (0, chai_1.expect)(true).to.be.false;

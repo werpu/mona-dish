@@ -17,7 +17,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import {Optional, Config} from "../../main/typescript/index";
-import {CONFIG_VALUE, ConfigDef} from "../../main/typescript/Monad";
+import {CONFIG_ANY, CONFIG_VALUE, ConfigDef} from "../../main/typescript/Monad";
 
 //TODO saveResolveTest
 describe('optional tests', () => {
@@ -216,6 +216,10 @@ describe('Typed Config tests', () => {
             ]
         },[{data4: CONFIG_VALUE}], CONFIG_VALUE];
 
+        static data3 = [class {
+            static data4 = CONFIG_ANY; //whatever comes below does not have a clear structure anymore
+        }]
+
     };
     let config = new Config({
         data: {
@@ -233,6 +237,13 @@ describe('Typed Config tests', () => {
             data4: "hello4"
             }, "hello4_1"]
 
+        ],
+        data3: [
+            {
+                data4: {
+                    data5: "hello"
+                }
+            }
         ]
     }, configDef);
 
@@ -277,12 +288,18 @@ describe('Typed Config tests', () => {
         val3 = config.getIf("data2[2][1]").value;
         expect(val3).eq("hello4_1");
 
+
+        val3 = config.getIf("data3[0].data4.data5").value;
+        expect(val3).eq("hello");
+
         try {
             config.getIf("data2[2][1].orga").value;
             expect(true).to.be.false;
         } catch(err) {
             expect(true).to.be.true;
         }
+
+        expect(config.getIf("data3[1].data4.data5").isAbsent()).eq(true);
 
         try {
             config.getIf("data2[2][0]","data5").value;

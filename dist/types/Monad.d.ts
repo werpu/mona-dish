@@ -160,6 +160,7 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
     static fromNullable<V extends Optional<T>, T>(value?: any, valueKey?: string): V;
 }
 export declare const CONFIG_VALUE = "__END_POINT__";
+export declare const CONFIG_ANY = "__ANY_POINT__";
 export declare type ConfigDef = {
     [key: string]: any;
 };

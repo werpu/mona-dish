@@ -56,7 +56,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Config = exports.CONFIG_VALUE = exports.ValueEmbedder = exports.Optional = exports.Monad = void 0;
+exports.Config = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.ValueEmbedder = exports.Optional = exports.Monad = void 0;
 /**
  * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
  * Useful if you need the functions in another library to keep its dependencies down
@@ -445,46 +445,8 @@ var ConfigEntry = /** @class */ (function (_super) {
     return ConfigEntry;
 }(ValueEmbedder));
 exports.CONFIG_VALUE = "__END_POINT__";
+exports.CONFIG_ANY = "__ANY_POINT__";
 var ALL_VALUES = "*";
-/**
- * config definition is an assoc array
- */
-var ConfigDefinition = {
-    attr1: {
-        attr2: exports.CONFIG_VALUE,
-        attr1: exports.CONFIG_VALUE,
-        attr3: [{
-                attr4: exports.CONFIG_VALUE
-            }]
-    }
-};
-/**
- * this is a config definition class for a typed config
- * Theoretically we also can use a full class and then use json stringify
- * and decode to transfer it into a config, we have many options!
- * At one point in time we want to have a config
- */
-var ConfigDefinition2 = /** @class */ (function () {
-    function ConfigDefinition2() {
-    }
-    var _a, _b;
-    ConfigDefinition2.attr1 = (_a = /** @class */ (function () {
-            function class_1() {
-            }
-            return class_1;
-        }()),
-        _a.attr2 = exports.CONFIG_VALUE,
-        _a.attr1 = exports.CONFIG_VALUE,
-        _a.attr3 = [(_b = /** @class */ (function () {
-                    function class_2() {
-                    }
-                    return class_2;
-                }()),
-                _b.attr4 = exports.CONFIG_VALUE,
-                _b)],
-        _a);
-    return ConfigDefinition2;
-}());
 /**
  * Config, basically an optional wrapper for a json structure
  * (not sideeffect free, since we can alter the internal config state
@@ -739,10 +701,16 @@ var Config = /** @class */ (function (_super) {
                 throw Error(ERR_ACCESS_PATH);
             }
             currAccessPos = currAccessPos.value;
+            //no further testing needed, from this point onwards we are on our own
+            if (currAccessPos == exports.CONFIG_ANY) {
+                return { value: void 0 };
+            }
         };
         var this_2 = this;
         for (var cnt = 0; cnt < accessPath.length; cnt++) {
-            _loop_2(cnt);
+            var state_1 = _loop_2(cnt);
+            if (typeof state_1 === "object")
+                return state_1.value;
         }
     };
     /**
