@@ -262,6 +262,9 @@ do not need it anymore. CancellablePromise is still enabled.
 * fixing the script loading, loading order now in a series of scripts is in sync with mixed src and embedded scripts (no api change)
 
 
+## Version 0.24 ++
+* Optional typed and semi typed configs which allow fixed keys and subtrees of keys which are not predefined
+
 
 
 
