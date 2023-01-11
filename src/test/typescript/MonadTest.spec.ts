@@ -279,7 +279,7 @@ describe('Typed Config tests', () => {
         val3 = config.getIf("data2[2]", "[0]", "data4").value;
         expect(val3).eq("hello4");
 
-        val3 = config.getIf("data2[2][0].data4").value;
+        val3 = config.getIf("data2[2][0]","data4").value;
         expect(val3).eq("hello4");
 
         val3 = config.getIf("data2[2]","[1]").value;
@@ -289,17 +289,17 @@ describe('Typed Config tests', () => {
         expect(val3).eq("hello4_1");
 
 
-        val3 = config.getIf("data3[0].data4.data5").value;
+        val3 = config.getIf("data3[0]","data4","data5").value;
         expect(val3).eq("hello");
 
         try {
-            config.getIf("data2[2][1].orga").value;
+            config.getIf("data2[2][1]","orga").value;
             expect(true).to.be.false;
         } catch(err) {
             expect(true).to.be.true;
         }
 
-        expect(config.getIf("data3[1].data4.data5").isAbsent()).eq(true);
+        expect(config.getIf("data3[1]","data4","data5").isAbsent()).eq(true);
 
         try {
             config.getIf("data2[2][0]","data5").value;
@@ -309,7 +309,7 @@ describe('Typed Config tests', () => {
         }
 
         try {
-            config.getIf("data2[2][0].data5").value;
+            config.getIf("data2[2][0]","data5").value;
             expect(true).to.be.false;
         } catch(err) {
             expect(true).to.be.true;

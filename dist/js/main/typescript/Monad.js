@@ -778,14 +778,6 @@ var Config = /** @class */ (function (_super) {
     Config.prototype.isArrayPos = function (currKey, arrPos) {
         return currKey === "" && arrPos >= 0;
     };
-    Config.prototype.preprocessKeys = function () {
-        var accessPath = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            accessPath[_i] = arguments[_i];
-        }
-        return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(_super.prototype.preprocessKeys.apply(this, __spreadArray([], __read(accessPath), false))), false)).flatMap(function (item) { return Stream_1.Stream.of(item.split(/\s*\.\s*/gi)); })
-            .collect(new SourcesCollectors_1.ArrayCollector());
-    };
     return Config;
 }(Optional));
 exports.Config = Config;

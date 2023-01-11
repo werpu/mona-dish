@@ -795,12 +795,6 @@ export class Config extends Optional<any> {
             return currKey === "" && arrPos >= 0;
     }
 
-    protected preprocessKeys(...accessPath: string[]): string[] {
-        return Stream.of(...super.preprocessKeys(...accessPath))
-            .flatMap(item => Stream.of(item.split(/\s*\.\s*/gi)))
-            .collect(new ArrayCollector());
-    }
-
 }
 
 

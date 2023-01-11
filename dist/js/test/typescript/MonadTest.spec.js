@@ -261,22 +261,22 @@ var Monad_1 = require("../../main/typescript/Monad");
         global["debug"] = true;
         val3 = config.getIf("data2[2]", "[0]", "data4").value;
         (0, chai_1.expect)(val3).eq("hello4");
-        val3 = config.getIf("data2[2][0].data4").value;
+        val3 = config.getIf("data2[2][0]", "data4").value;
         (0, chai_1.expect)(val3).eq("hello4");
         val3 = config.getIf("data2[2]", "[1]").value;
         (0, chai_1.expect)(val3).eq("hello4_1");
         val3 = config.getIf("data2[2][1]").value;
         (0, chai_1.expect)(val3).eq("hello4_1");
-        val3 = config.getIf("data3[0].data4.data5").value;
+        val3 = config.getIf("data3[0]", "data4", "data5").value;
         (0, chai_1.expect)(val3).eq("hello");
         try {
-            config.getIf("data2[2][1].orga").value;
+            config.getIf("data2[2][1]", "orga").value;
             (0, chai_1.expect)(true).to.be.false;
         }
         catch (err) {
             (0, chai_1.expect)(true).to.be.true;
         }
-        (0, chai_1.expect)(config.getIf("data3[1].data4.data5").isAbsent()).eq(true);
+        (0, chai_1.expect)(config.getIf("data3[1]", "data4", "data5").isAbsent()).eq(true);
         try {
             config.getIf("data2[2][0]", "data5").value;
             (0, chai_1.expect)(true).to.be.false;
@@ -285,7 +285,7 @@ var Monad_1 = require("../../main/typescript/Monad");
             (0, chai_1.expect)(true).to.be.true;
         }
         try {
-            config.getIf("data2[2][0].data5").value;
+            config.getIf("data2[2][0]", "data5").value;
             (0, chai_1.expect)(true).to.be.false;
         }
         catch (err) {

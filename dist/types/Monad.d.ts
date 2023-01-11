@@ -258,5 +258,4 @@ export declare class Config extends Optional<any> {
     private isNoArray;
     private isArray;
     private isArrayPos;
-    protected preprocessKeys(...accessPath: string[]): string[];
 }
