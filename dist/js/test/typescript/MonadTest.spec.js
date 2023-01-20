@@ -14,6 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var chai_1 = require("chai");
 var mocha_1 = require("mocha");
@@ -246,7 +262,6 @@ var Monad_1 = require("../../main/typescript/Monad");
         return { config: config, configDef: configDef };
     };
     (0, mocha_1.it)("must resolve base static data", function () {
-        global["__Debug__"] = true;
         var _a = setup(), config = _a.config, configDef = _a.configDef;
         var val1 = config.getIf("data", "value").value;
         (0, chai_1.expect)(val1).eq(1);
@@ -291,6 +306,24 @@ var Monad_1 = require("../../main/typescript/Monad");
         catch (err) {
             (0, chai_1.expect)(true).to.be.true;
         }
+    });
+    (0, mocha_1.it)("must resolve properly into a stream", function () {
+        var _a = setup(), config = _a.config, configDef = _a.configDef;
+        var data1 = false;
+        var data2 = false;
+        config.stream.each(function (_a) {
+            var _b = __read(_a, 2), key = _b[0], data = _b[1];
+            if (key == "data") {
+                data1 = true;
+                (0, chai_1.expect)(data.value).to.eq(1);
+                (0, chai_1.expect)(data.value2).to.eq(index_1.Optional.absent);
+            }
+            if (key == "data") {
+                data2 = true;
+            }
+        });
+        (0, chai_1.expect)(data1).to.be.true;
+        (0, chai_1.expect)(data2).to.be.true;
     });
 });
 //# sourceMappingURL=MonadTest.spec.js.map

@@ -646,6 +646,17 @@ var Config = /** @class */ (function (_super) {
     Config.prototype.toJson = function () {
         return JSON.stringify(this.value);
     };
+    Object.defineProperty(Config.prototype, "stream", {
+        /**
+         * returns the first config level as streeam
+         */
+        get: function () {
+            var _this = this;
+            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(Object.keys(this.value)), false)).map(function (key) { return [key, _this.value[key]]; });
+        },
+        enumerable: false,
+        configurable: true
+    });
     Config.prototype.getClass = function () {
         return Config;
     };

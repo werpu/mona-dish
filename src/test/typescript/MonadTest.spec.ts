@@ -253,7 +253,6 @@ describe('Typed Config tests', () => {
 
 
     it("must resolve base static data", function() {
-        global["__Debug__"] = true;
         let {config, configDef} = setup();
 
 
@@ -317,4 +316,23 @@ describe('Typed Config tests', () => {
 
     })
 
+    it("must resolve properly into a stream", function() {
+        let {config, configDef} = setup();
+        let data1 = false;
+        let data2 = false;
+        config.stream.each(([key, data]) => {
+            if(key == "data") {
+                data1 = true;
+                expect(data.value).to.eq(1);
+                expect(data.value2).to.eq(Optional.absent);
+
+            }
+            if(key == "data") {
+                data2 = true;
+            }
+        })
+        expect(data1).to.be.true;
+        expect(data2).to.be.true;
+
+    })
 });
