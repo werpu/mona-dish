@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Stream } from "./Stream";
 /**
  * IFunctor interface,
  * defines an interface which allows to map a functor
@@ -241,6 +242,10 @@ export declare class Config extends Optional<any> {
      * converts the entire config into a json object
      */
     toJson(): any;
+    /**
+     * returns the first config level as streeam
+     */
+    get stream(): Stream<[string, any]>;
     protected getClass(): any;
     private setVal;
     /**
