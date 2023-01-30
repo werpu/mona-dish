@@ -56,6 +56,8 @@ var mocha_1 = require("mocha");
 var typescript_1 = require("../../main/typescript");
 var rxjs_1 = require("rxjs");
 var trim = typescript_1.Lang.trim;
+var tobago_with_header_1 = require("./markups/tobago-with-header");
+var tobago_without_header_1 = require("./markups/tobago-without-header");
 var jsdom = require("jsdom");
 var JSDOM = jsdom.JSDOM;
 global.window = {};
@@ -244,6 +246,12 @@ var dom = null;
         (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#id_2").isPresent()).to.be.true;
         (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#insertedAfter").isPresent()).to.be.true;
         (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#insertedAfter2").isPresent()).to.be.true;
+    });
+    (0, mocha_1.it)('do not create new <html> tag on <header', function () {
+        var fromMarkupWithHeader = typescript_1.DomQuery.fromMarkup(tobago_with_header_1.tobagoSheetWithHeader);
+        var fromMarkupWithoutHeader = typescript_1.DomQuery.fromMarkup(tobago_without_header_1.tobagoSheetWithoutHeader);
+        (0, chai_1.expect)(fromMarkupWithHeader.tagName.value === "HTML").to.be.false;
+        (0, chai_1.expect)(fromMarkupWithoutHeader.tagName.value === "HTML").to.be.false;
     });
     (0, mocha_1.it)('it must stream', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
