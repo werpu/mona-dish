@@ -307,6 +307,24 @@ describe('DOMQuery tests', function () {
         expect(fromMarkupWithoutHeader.tagName.value === "HTML").to.be.false;
     });
 
+
+    it('do not falsely assume standard tag', function () {
+
+        const fromMarkup1 = DomQuery.fromMarkup(`
+        <head-mine>booga</head-mine>
+        `);
+
+        const fromMarkup2 = DomQuery.fromMarkup(`
+        <body_mine>booga</body_mine>
+        
+        `);
+        expect(fromMarkup1.tagName.value === "HTML").to.be.false;
+        expect(fromMarkup1.tagName.value === "HTML").to.be.false;
+        expect(fromMarkup1.tagName.value === "HEAD").to.be.false;
+        expect(fromMarkup2.tagName.value === "BODY").to.be.false;
+    });
+
+
     it('it must stream', function () {
         let probe1 = new DomQuery(document).querySelectorAll("div");
         let coll: Array<any> = probe1.stream.collect(new ArrayCollector());

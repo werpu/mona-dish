@@ -253,6 +253,14 @@ var dom = null;
         (0, chai_1.expect)(fromMarkupWithHeader.tagName.value === "HTML").to.be.false;
         (0, chai_1.expect)(fromMarkupWithoutHeader.tagName.value === "HTML").to.be.false;
     });
+    (0, mocha_1.it)('do not falsely assume standard tag', function () {
+        var fromMarkup1 = typescript_1.DomQuery.fromMarkup("\n        <head-mine>booga</head-mine>\n        ");
+        var fromMarkup2 = typescript_1.DomQuery.fromMarkup("\n        <body_mine>booga</body_mine>\n        \n        ");
+        (0, chai_1.expect)(fromMarkup1.tagName.value === "HTML").to.be.false;
+        (0, chai_1.expect)(fromMarkup1.tagName.value === "HTML").to.be.false;
+        (0, chai_1.expect)(fromMarkup1.tagName.value === "HEAD").to.be.false;
+        (0, chai_1.expect)(fromMarkup2.tagName.value === "BODY").to.be.false;
+    });
     (0, mocha_1.it)('it must stream', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
         var coll = probe1.stream.collect(new typescript_1.ArrayCollector());

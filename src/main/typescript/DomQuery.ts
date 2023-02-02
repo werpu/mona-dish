@@ -1138,10 +1138,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         const doc = document.implementation.createHTMLDocument("");
         markup = trim(markup);
         let lowerMarkup = markup.toLowerCase();
-        if (lowerMarkup.search(/\<\!doctypeW+/gi) != -1 ||
-            lowerMarkup.search(/\<html\w+/gi) != -1 ||
-            lowerMarkup.search(/\<head\W+/gi) != -1 ||
-            lowerMarkup.search(/\<body\W+/gi) != -1) {
+        if (lowerMarkup.search(/\<\!doctype[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/\<html[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/\<head[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/\<body[^\w\-]+/gi) != -1) {
             doc.documentElement.innerHTML = markup;
             return new DomQuery(doc.documentElement);
         } else {
