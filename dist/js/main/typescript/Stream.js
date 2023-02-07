@@ -92,13 +92,12 @@ var Stream = /** @class */ (function () {
      * @param toAppend
      */
     Stream.prototype.concat = function () {
-        //let dataSource = new MultiStreamDatasource<T>(this, ...toAppend);
-        //return Stream.ofDataSource<T>(dataSource);
         var toAppend = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             toAppend[_i] = arguments[_i];
         }
-        return Stream.of.apply(Stream, __spreadArray([this], __read(toAppend), false)).flatMap(function (item) { return item; });
+        var toConcat = [this].concat(toAppend);
+        return Stream.of.apply(Stream, __spreadArray([], __read(toConcat), false)).flatMap(function (item) { return item; });
     };
     Stream.prototype.onElem = function (fn) {
         for (var cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {

@@ -492,6 +492,28 @@ describe('early stream tests', () => {
 
     })
 
+    it('concat of nested arrays in streams must work', function () {
+        let probe: Array<string[]> = [["xxx.yy.aaa", "blubbb"]];
+        let probe2: Array<number[]> = [];
+
+        let strm1 = Stream.of(probe).concat(Stream.of(probe2) as any);
+        let resArr = strm1.collect(new ArrayCollector());
+        expect(resArr.length == 1).to.be.true;
+        expect(resArr[0].length == 2).to.be.true;
+
+    })
+
+   /* it('concat of nested arrays in lazy streams must work', function () {
+        let probe: Array<string[]> = [["xxx.yy.aaa", "blubbb"]];
+        let probe2: Array<number[]> = [];
+
+        let strm1 = LazyStream.of(probe).concat(LazyStream.of(probe2) as any);
+        let resArr = strm1.collect(new ArrayCollector());
+        expect(resArr.length == 1).to.be.true;
+        expect(resArr[0].length == 2).to.be.true;
+        // not fully working yet, the corner case with empty stream passed fails
+    })*/
+
     it('lazy streams must be handle complex look aheads', function () {
         let probe: Array<number> = [1, 2, 3, 4, 5];
         let probe2: Array<number> = [6, 7, 8, 9, 10];

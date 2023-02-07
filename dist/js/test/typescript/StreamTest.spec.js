@@ -407,6 +407,24 @@ var SourcesCollectors_1 = require("../../main/typescript/SourcesCollectors");
             .collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(resultArr.length).to.eq(5);
     });
+    it('concat of nested arrays in streams must work', function () {
+        var probe = [["xxx.yy.aaa", "blubbb"]];
+        var probe2 = [];
+        var strm1 = Stream_1.Stream.of(probe).concat(Stream_1.Stream.of(probe2));
+        var resArr = strm1.collect(new typescript_1.ArrayCollector());
+        (0, chai_1.expect)(resArr.length == 1).to.be.true;
+        (0, chai_1.expect)(resArr[0].length == 2).to.be.true;
+    });
+    /* it('concat of nested arrays in lazy streams must work', function () {
+         let probe: Array<string[]> = [["xxx.yy.aaa", "blubbb"]];
+         let probe2: Array<number[]> = [];
+ 
+         let strm1 = LazyStream.of(probe).concat(LazyStream.of(probe2) as any);
+         let resArr = strm1.collect(new ArrayCollector());
+         expect(resArr.length == 1).to.be.true;
+         expect(resArr[0].length == 2).to.be.true;
+         // not fully working yet, the corner case with empty stream passed fails
+     })*/
     it('lazy streams must be handle complex look aheads', function () {
         var probe = [1, 2, 3, 4, 5];
         var probe2 = [6, 7, 8, 9, 10];
