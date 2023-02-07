@@ -221,10 +221,8 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      * @param toAppend
      */
     concat(...toAppend: Array<IStream<T>>): Stream<T> {
-        //let dataSource = new MultiStreamDatasource<T>(this, ...toAppend);
-        //return Stream.ofDataSource<T>(dataSource);
-
-        return Stream.of(<IStream<T>>this, ...toAppend).flatMap(item => item);
+        let toConcat = [this].concat(toAppend as any);
+        return Stream.of(...toConcat).flatMap(item => item);
     }
 
 
