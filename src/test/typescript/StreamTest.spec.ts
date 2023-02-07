@@ -19,7 +19,7 @@ import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
 import {ArrayCollector, ArrayStreamDataSource, SequenceDataSource} from "../../main/typescript";
 import {from} from "rxjs";
-import {ITERATION_STATUS} from "../../main/typescript/SourcesCollectors";
+import {ITERATION_STATUS, MultiStreamDatasource} from "../../main/typescript/SourcesCollectors";
 
 describe('early stream tests', () => {
 
@@ -413,6 +413,39 @@ describe('early stream tests', () => {
         expect(val2).to.eq(10);
     });
 
+    it('must test the multistream data source', function () {
+        let probe: Array<number> = [1, 2, 3, 4, 5];
+        let probe2: Array<number> = [1, 2, 3, 4, 5];
+        let probe3: Array<number> = [1, 2, 3, 4, 5];
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+        let strm3 = LazyStream.of(...probe2);
+        let strm4 = LazyStream.of(...probe2);
+        let source = new MultiStreamDatasource(strm1, strm2);
+        let ret = [];
+        while(source.hasNext()) {
+            let value = source.next();
+            ret.push(value);
+        }
+        expect(ret.length == 10).to.be.true;
+        source.reset();
+        let strm = LazyStream.ofStreamDataSource(source);
+        let ret2 = strm.collect(new ArrayCollector());
+
+        expect(ret2.length == 10).to.be.true;
+
+        source = new MultiStreamDatasource(strm1, strm2, strm3);
+        source.reset();
+        strm = LazyStream.ofStreamDataSource(source);
+        ret2 = strm.collect(new ArrayCollector());
+        expect(ret2.length == 15).to.be.true;
+        strm.reset();
+        ret2 = strm4.concat(strm).collect(new ArrayCollector())
+        expect(ret2.length == 20).to.be.true;
+
+
+    })
+
     it('it must concat with lazy streams', function () {
         let probe: Array<number> = [1, 2, 3, 4, 5];
         let probe2: Array<number> = [1, 2, 3, 4, 5];
@@ -496,23 +529,33 @@ describe('early stream tests', () => {
         let probe: Array<string[]> = [["xxx.yy.aaa", "blubbb"]];
         let probe2: Array<number[]> = [];
 
-        let strm1 = Stream.of(probe).concat(Stream.of(probe2) as any);
+        let strm1 = Stream.of(...probe).concat(Stream.of(...probe2) as any);
+
+        let arr1 = LazyStream.of(...probe).collect(new ArrayCollector());
+        expect(arr1.length == probe.length).to.be.true;
+        expect(arr1[0].length == probe[0].length).to.be.true;
+
         let resArr = strm1.collect(new ArrayCollector());
         expect(resArr.length == 1).to.be.true;
         expect(resArr[0].length == 2).to.be.true;
 
     })
 
-   /* it('concat of nested arrays in lazy streams must work', function () {
+   it('concat of nested arrays in lazy streams must work', function () {
+
         let probe: Array<string[]> = [["xxx.yy.aaa", "blubbb"]];
         let probe2: Array<number[]> = [];
 
-        let strm1 = LazyStream.of(probe).concat(LazyStream.of(probe2) as any);
+        let strm1 = LazyStream.of(...probe).concat(LazyStream.of(...probe2) as any);
+        let arr1 = LazyStream.of(...probe).collect(new ArrayCollector());
+        expect(arr1.length == probe.length).to.be.true;
+        expect(arr1[0].length == probe[0].length).to.be.true;
+
         let resArr = strm1.collect(new ArrayCollector());
         expect(resArr.length == 1).to.be.true;
         expect(resArr[0].length == 2).to.be.true;
         // not fully working yet, the corner case with empty stream passed fails
-    })*/
+    })
 
     it('lazy streams must be handle complex look aheads', function () {
         let probe: Array<number> = [1, 2, 3, 4, 5];

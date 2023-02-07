@@ -82,6 +82,19 @@ export interface ICollector<T, S> {
      */
     finalValue: S;
 }
+export declare class MultiStreamDatasource<T> implements IStreamDataSource<T> {
+    private first;
+    private activeStrm;
+    private selectedPos;
+    private strms;
+    constructor(first: any, ...strms: Array<IStreamDataSource<T>>);
+    current(): any;
+    hasNext(): boolean;
+    private findNextStrm;
+    lookAhead(cnt?: number): T | ITERATION_STATUS;
+    next(): any;
+    reset(): void;
+}
 /**
  * defines a sequence of numbers for our stream input
  */

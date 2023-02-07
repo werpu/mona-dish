@@ -129,6 +129,10 @@ export interface IStream<T> {
      */
     value: Array<T>;
     /**
+     * returns the currently element selected in the stream
+     */
+    current(): T | ITERATION_STATUS;
+    /**
      * returns an observable of the given stream
      */
     [Symbol.iterator](): Iterator<T>;
@@ -142,7 +146,7 @@ export interface IStream<T> {
  * to provide infinite data sources and generic data providers, the downside
  * is, it might be a tad slower in some situations
  */
-export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>, IStream<T> {
+export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>, IStream<T>, IStreamDataSource<T> {
     value: Array<T>;
     _limits: number;
     private pos;
@@ -152,6 +156,7 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
         [key: string]: T;
     }): Stream<[string, T]>;
     static ofDataSource<T>(dataSource: IStreamDataSource<T>): Stream<T>;
+    current(): T | ITERATION_STATUS;
     limits(end: number): Stream<T>;
     /**
      * concat for streams, so that you can concat two streams together

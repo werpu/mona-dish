@@ -41,7 +41,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.InverseArrayCollector = exports.ArrayCollector = exports.FlatMapStreamDataSource = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.ITERATION_STATUS = void 0;
+exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.InverseArrayCollector = exports.ArrayCollector = exports.FlatMapStreamDataSource = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.MultiStreamDatasource = exports.ITERATION_STATUS = void 0;
 var Stream_1 = require("./Stream");
 /**
  * special status of the datasource location pointer
@@ -59,6 +59,90 @@ var ITERATION_STATUS;
     ITERATION_STATUS["EO_STRM"] = "__EO_STRM__";
     ITERATION_STATUS["BEF_STRM"] = "___BEF_STRM__";
 })(ITERATION_STATUS = exports.ITERATION_STATUS || (exports.ITERATION_STATUS = {}));
+var MultiStreamDatasource = /** @class */ (function () {
+    function MultiStreamDatasource(first) {
+        var _a;
+        var strms = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            strms[_i - 1] = arguments[_i];
+        }
+        this.first = first;
+        this.selectedPos = 0;
+        this.strms = (_a = [first]).concat.apply(_a, __spreadArray([], __read(strms), false));
+        this.activeStrm = this.strms[this.selectedPos];
+    }
+    MultiStreamDatasource.prototype.current = function () {
+        return this.activeStrm.current();
+    };
+    MultiStreamDatasource.prototype.hasNext = function () {
+        if (this.activeStrm.hasNext()) {
+            return true;
+        }
+        if (this.selectedPos >= this.strms.length) {
+            return false;
+        }
+        return this.findNextStrm() != -1;
+    };
+    MultiStreamDatasource.prototype.findNextStrm = function () {
+        var hasNext = false;
+        var cnt = this.selectedPos;
+        while (!hasNext && cnt < this.strms.length) {
+            hasNext = this.strms[cnt].hasNext();
+            if (!hasNext) {
+                cnt++;
+            }
+        }
+        return hasNext ? cnt : -1;
+    };
+    MultiStreamDatasource.prototype.lookAhead = function (cnt) {
+        var posPtr = 1;
+        var strmPos = this.selectedPos;
+        var valueFound = null;
+        if (this.strms[strmPos].lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
+            //speedup
+            return this.strms[strmPos].lookAhead(cnt);
+        }
+        for (var loop = posPtr; loop <= cnt; loop++) {
+            if (!this.strms[strmPos]) {
+                return ITERATION_STATUS.EO_STRM;
+            }
+            var val = (posPtr > 0) ? this.strms[strmPos].lookAhead(posPtr) : this.strms[strmPos].current();
+            valueFound = val;
+            if (val != ITERATION_STATUS.EO_STRM) {
+                posPtr++;
+            }
+            else {
+                if (strmPos >= this.strms.length) {
+                    return ITERATION_STATUS.EO_STRM;
+                }
+                strmPos++;
+                posPtr = 1;
+                loop--; //empty iteration
+            }
+        }
+        return valueFound;
+    };
+    MultiStreamDatasource.prototype.next = function () {
+        if (this.activeStrm.hasNext()) {
+            return this.activeStrm.next();
+        }
+        this.selectedPos = this.findNextStrm();
+        if (this.selectedPos == -1) {
+            return ITERATION_STATUS.EO_STRM;
+        }
+        this.activeStrm = this.strms[this.selectedPos];
+        return this.activeStrm.next();
+    };
+    MultiStreamDatasource.prototype.reset = function () {
+        this.activeStrm = this.strms[0];
+        this.selectedPos = 0;
+        for (var cnt = 0; cnt < this.strms.length; cnt++) {
+            this.strms[cnt].reset();
+        }
+    };
+    return MultiStreamDatasource;
+}());
+exports.MultiStreamDatasource = MultiStreamDatasource;
 /**
  * defines a sequence of numbers for our stream input
  */

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {Stream, StreamMapper} from "./Stream";
+import {IStream, Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
 import type = Mocha.utils.type;
 
@@ -94,6 +94,93 @@ export interface ICollector<T, S> {
     finalValue: S;
 }
 
+
+export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
+
+    private  activeStrm;
+    private  selectedPos = 0;
+    private  strms;
+
+    constructor(private first, ...strms: Array<IStreamDataSource<T>>) {
+        this.strms = [first].concat(...strms);
+        this.activeStrm = this.strms[this.selectedPos];
+    }
+
+    current(): any {
+       return this.activeStrm.current();
+    }
+
+    hasNext(): boolean {
+        if(this.activeStrm.hasNext()) {
+            return true;
+        }
+        if(this.selectedPos >= this.strms.length) {
+            return false;
+        }
+        return this.findNextStrm() != -1;
+    }
+
+    private findNextStrm(): number {
+        let hasNext = false;
+        let cnt = this.selectedPos;
+        while(!hasNext && cnt < this.strms.length) {
+            hasNext = this.strms[cnt].hasNext();
+            if(!hasNext) {
+                cnt++;
+            }
+        }
+        return hasNext ? cnt : -1;
+    }
+
+    lookAhead(cnt?: number): T | ITERATION_STATUS {
+        let posPtr = 1;
+        let strmPos = this.selectedPos;
+        let valueFound = null;
+        if(this.strms[strmPos].lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
+            //speedup
+            return this.strms[strmPos].lookAhead(cnt);
+        }
+        for(let loop = posPtr; loop <= cnt; loop++) {
+            if(!this.strms[strmPos]) {
+                return ITERATION_STATUS.EO_STRM;
+            }
+            let val = (posPtr > 0) ? this.strms[strmPos].lookAhead(posPtr): this.strms[strmPos].current();
+            valueFound = val;
+            if(val != ITERATION_STATUS.EO_STRM) {
+                posPtr++;
+            } else {
+                if(strmPos >= this.strms.length) {
+                    return ITERATION_STATUS.EO_STRM;
+                }
+                strmPos++;
+                posPtr = 1;
+                loop--; //empty iteration
+            }
+        }
+        return valueFound;
+    }
+
+    next(): any {
+        if(this.activeStrm.hasNext()) {
+            return this.activeStrm.next();
+        }
+        this.selectedPos = this.findNextStrm();
+        if(this.selectedPos == -1) {
+            return ITERATION_STATUS.EO_STRM;
+        }
+        this.activeStrm = this.strms[this.selectedPos];
+        return this.activeStrm.next();
+    }
+
+    reset(): void {
+        this.activeStrm = this.strms[0];
+        this.selectedPos = 0;
+        for(let cnt = 0; cnt < this.strms.length; cnt++) {
+            this.strms[cnt].reset();
+        }
+    }
+
+}
 
 /**
  * defines a sequence of numbers for our stream input

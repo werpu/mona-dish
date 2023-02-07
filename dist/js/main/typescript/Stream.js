@@ -83,6 +83,15 @@ var Stream = /** @class */ (function () {
         }
         return new (Stream.bind.apply(Stream, __spreadArray([void 0], __read(value), false)))();
     };
+    Stream.prototype.current = function () {
+        if (this.pos == -1) {
+            return SourcesCollectors_1.ITERATION_STATUS.BEF_STRM;
+        }
+        if (this.pos >= this.value.length) {
+            return SourcesCollectors_1.ITERATION_STATUS.EO_STRM;
+        }
+        return this.value[this.pos];
+    };
     Stream.prototype.limits = function (end) {
         this._limits = end;
         return this;
@@ -129,7 +138,7 @@ var Stream = /** @class */ (function () {
         var ret = [];
         this.each(function (item) {
             var strmR = fn(item);
-            ret = Array.isArray(strmR) ? ret.concat(strmR) : ret.concat.apply(ret, __spreadArray([], __read(strmR.value), false));
+            ret = Array.isArray(strmR) ? ret.concat(strmR) : ret.concat(strmR.value);
         });
         return Stream.of.apply(Stream, __spreadArray([], __read(ret), false));
     };
@@ -332,7 +341,8 @@ var LazyStream = /** @class */ (function () {
         }
         //this.dataSource =  new MultiStreamDatasource<T>(this, ... toAppend);
         //return this;
-        return LazyStream.of.apply(LazyStream, __spreadArray([this], __read(toAppend), false)).flatMap(function (item) { return item; });
+        return LazyStream.ofStreamDataSource(new SourcesCollectors_1.MultiStreamDatasource(this, toAppend));
+        //return LazyStream.of(<IStream<T>>this, ...toAppend).flatMap(item => item);
     };
     LazyStream.prototype.nextFilter = function (fn) {
         if (this.hasNext()) {

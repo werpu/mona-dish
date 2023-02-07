@@ -654,7 +654,7 @@ var DomQuery = /** @class */ (function () {
     });
     Object.defineProperty(DomQuery.prototype, "asNodeArray", {
         get: function () {
-            return [].concat(Stream_1.Stream.of(this.rootNode).filter(function (item) { return item != null; }).collect(new SourcesCollectors_1.ArrayCollector()));
+            return [].concat(Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.rootNode), false)).filter(function (item) { return item != null; }).collect(new SourcesCollectors_1.ArrayCollector()));
         },
         enumerable: false,
         configurable: true
@@ -1565,7 +1565,7 @@ var DomQuery = /** @class */ (function () {
             var scriptElements = new DomQuery(this.filterSelector("script"), this.querySelectorAll("script"));
             // script execution order by relative pos in their dom tree
             scriptElements.stream
-                .flatMap(function (item) { return Stream_1.Stream.of(item.values); })
+                .flatMap(function (item) { return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item.values), false)); })
                 .sort(function (node1, node2) { return node1.compareDocumentPosition(node2) - 3; }) // preceding 2, following == 4)
                 .each(function (item) { return execScript(item); });
             evalCollectedScripts(finalScripts);
@@ -1620,7 +1620,7 @@ var DomQuery = /** @class */ (function () {
         };
         var scriptElements = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
         scriptElements.stream
-            .flatMap(function (item) { return Stream_1.Stream.of(item.values); })
+            .flatMap(function (item) { return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item.values), false)); })
             .sort(function (node1, node2) { return node1.compareDocumentPosition(node2) - 3; })
             .each(function (item) { return execCss(item); });
         return this;
