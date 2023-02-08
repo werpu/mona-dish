@@ -60,6 +60,13 @@ var ITERATION_STATUS;
     ITERATION_STATUS["EO_STRM"] = "__EO_STRM__";
     ITERATION_STATUS["BEF_STRM"] = "___BEF_STRM__";
 })(ITERATION_STATUS = exports.ITERATION_STATUS || (exports.ITERATION_STATUS = {}));
+function calculateSkips(next_strm) {
+    var pos = 1;
+    while (next_strm.lookAhead(pos) != ITERATION_STATUS.EO_STRM) {
+        pos++;
+    }
+    return --pos;
+}
 var MultiStreamDatasource = /** @class */ (function () {
     function MultiStreamDatasource(first) {
         var _a;
@@ -96,32 +103,22 @@ var MultiStreamDatasource = /** @class */ (function () {
         return hasNext ? cnt : -1;
     };
     MultiStreamDatasource.prototype.lookAhead = function (cnt) {
-        var posPtr = 1;
-        var strmPos = this.selectedPos;
-        var valueFound = null;
-        if (this.strms[strmPos].lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
-            //speedup
-            return this.strms[strmPos].lookAhead(cnt);
+        if (cnt === void 0) { cnt = 1; }
+        //lets clone
+        var strms = this.strms.slice(this.selectedPos);
+        if (!strms.length) {
+            return ITERATION_STATUS.EO_STRM;
         }
-        for (var loop = posPtr; loop <= cnt; loop++) {
-            if (!this.strms[strmPos]) {
-                return ITERATION_STATUS.EO_STRM;
+        var all_strms = __spreadArray([], __read(strms), false);
+        while (all_strms.length) {
+            var next_strm = all_strms.shift();
+            var lookAhead = next_strm.lookAhead(cnt);
+            if (lookAhead != ITERATION_STATUS.EO_STRM) {
+                return lookAhead;
             }
-            var val = (posPtr > 0) ? this.strms[strmPos].lookAhead(posPtr) : this.strms[strmPos].current();
-            valueFound = val;
-            if (val != ITERATION_STATUS.EO_STRM) {
-                posPtr++;
-            }
-            else {
-                if (strmPos >= this.strms.length) {
-                    return ITERATION_STATUS.EO_STRM;
-                }
-                strmPos++;
-                posPtr = 1;
-                loop--; //empty iteration
-            }
+            cnt = cnt - calculateSkips(next_strm);
         }
-        return valueFound;
+        return ITERATION_STATUS.EO_STRM;
     };
     MultiStreamDatasource.prototype.next = function () {
         if (this.activeStrm.hasNext()) {
@@ -350,29 +347,13 @@ var FlatMapStreamDataSource = /** @class */ (function () {
     FlatMapStreamDataSource.prototype.lookAhead = function (cnt) {
         var _a;
         if (cnt === void 0) { cnt = 1; }
-        //easy access trial
-        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && ((_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt)) != ITERATION_STATUS.EO_STRM) {
+        var lookAhead = (_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt);
+        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && lookAhead != ITERATION_STATUS.EO_STRM) {
             //this should cover 95% of all cases
-            return this === null || this === void 0 ? void 0 : this.activeDataSource.lookAhead(cnt);
-        }
-        /**
-         * we only can determine how many elems datasource has by going up
-         * (for now this suffices, however not ideal, we might have to introduce a numElements or so)
-         * @param datasource
-         */
-        function howManyElems(datasource) {
-            var cnt = 1;
-            while (datasource.lookAhead(cnt) !== ITERATION_STATUS.EO_STRM) {
-                cnt++;
-            }
-            return cnt - 1;
-        }
-        function readjustSkip(dataSource) {
-            var skippedElems = (dataSource) ? howManyElems(dataSource) : 0;
-            cnt = cnt - skippedElems;
+            return lookAhead;
         }
         if (this.activeDataSource) {
-            readjustSkip(this.activeDataSource);
+            cnt -= calculateSkips(this.activeDataSource);
         }
         //the idea is basically to look into the streams sub-sequentially for a match
         //after each stream we have to take into consideration that the skipCnt is
@@ -398,9 +379,8 @@ var FlatMapStreamDataSource = /** @class */ (function () {
             }
             //reduce the next lookahead by the number of elements
             //we are now skipping in the current data source
-            readjustSkip(currentDataSource);
+            cnt -= calculateSkips(currentDataSource);
         }
-        return ITERATION_STATUS.EO_STRM;
     };
     FlatMapStreamDataSource.prototype.toDatasource = function (mapped) {
         var ds = Array.isArray(mapped) ? new (ArrayStreamDataSource.bind.apply(ArrayStreamDataSource, __spreadArray([void 0], __read(mapped), false)))() : mapped;
