@@ -18,6 +18,7 @@
 import {IStream, Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
 import type = Mocha.utils.type;
+import {Config} from "./Monad";
 
 /**
  * special status of the datasource location pointer
@@ -107,7 +108,7 @@ export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
     }
 
     current(): any {
-       return this.activeStrm.current();
+        return this.activeStrm.current();
     }
 
     hasNext(): boolean {
@@ -429,7 +430,7 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
     lookAhead(cnt = 1): ITERATION_STATUS | S {
         //easy access trial
         if (this?.activeDataSource && this?.activeDataSource?.lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
-            //this should coverr 95% of all accesses
+            //this should cover 95% of all cases
             return this?.activeDataSource.lookAhead(cnt);
         }
 
@@ -455,26 +456,34 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
             readjustSkip(this.activeDataSource)
         }
 
-        //the idea is basically to look into the streams subsequentially for a match
+        //the idea is basically to look into the streams sub-sequentially for a match
         //after each stream we have to take into consideration that the skipCnt is
         //reduced by the number of datasets we already have looked into in the previous stream/datasource
-        //unfortunately for now we have to loop into them so we introduce a small o2 here
+        //unfortunately for now we have to loop into them, so we introduce a small o2 here
         for (let dsLoop = 1; true; dsLoop++) {
-            let currDatasource = this.inputDataSource.lookAhead(dsLoop);
+            let datasourceData = this.inputDataSource.lookAhead(dsLoop);
             //we have looped out
-            if (currDatasource === ITERATION_STATUS.EO_STRM) {
+            //no embedded data anymore? we are done, data
+            //can either be a scalar an array or another datasource
+            if (datasourceData === ITERATION_STATUS.EO_STRM) {
                 return ITERATION_STATUS.EO_STRM;
             }
-            let mapped = this.mapFunc(currDatasource as T);
+            let mappedData = this.mapFunc(datasourceData as T);
+
             //it either comes in as datasource or as array
-            let currentDataSource = this.toDatasource(mapped);
+            //both cases must be unified into a datasource
+            let currentDataSource = this.toDatasource(mappedData);
+            //we now run again  a lookahead
             let ret = currentDataSource.lookAhead(cnt);
+            //if the value is found then we are set
             if (ret != ITERATION_STATUS.EO_STRM) {
                 return ret;
             }
-            readjustSkip(currDatasource);
-
+            //reduce the next lookahead by the number of elements
+            //we are now skipping in the current data source
+            readjustSkip(currentDataSource);
         }
+        return ITERATION_STATUS.EO_STRM;
     }
 
     private toDatasource(mapped: Array<S> | IStreamDataSource<S>) {
@@ -488,7 +497,6 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         while (!next && this.inputDataSource.hasNext()) {
             let mapped = this.mapFunc(this.inputDataSource.next() as T);
             this.activeDataSource = this.toDatasource(mapped);
-            ;
             next = this.activeDataSource.hasNext();
         }
         return next;
@@ -588,6 +596,19 @@ export class AssocArrayCollector<S> implements ICollector<[string, S] | string, 
         this.finalValue[element[0] ?? <string>element] = element[1] ?? true;
     }
 }
+
+
+/**
+ * A Config collector similar to the FormDFata Collector
+ */
+export class ConfigCollector implements ICollector<{ key: string, value: any }, Config> {
+    finalValue: Config = new Config({});
+
+    collect(element: { key: string; value: any }) {
+        this.finalValue.append(element.key).value = element.value;
+    }
+}
+
 
 /**
  * Form data collector for key value pair streams

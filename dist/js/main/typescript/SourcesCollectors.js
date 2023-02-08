@@ -41,8 +41,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.InverseArrayCollector = exports.ArrayCollector = exports.FlatMapStreamDataSource = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.MultiStreamDatasource = exports.ITERATION_STATUS = void 0;
+exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.ConfigCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.InverseArrayCollector = exports.ArrayCollector = exports.FlatMapStreamDataSource = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.MultiStreamDatasource = exports.ITERATION_STATUS = void 0;
 var Stream_1 = require("./Stream");
+var Monad_1 = require("./Monad");
 /**
  * special status of the datasource location pointer
  * if an access, outside of the possible data boundaries is happening
@@ -351,7 +352,7 @@ var FlatMapStreamDataSource = /** @class */ (function () {
         if (cnt === void 0) { cnt = 1; }
         //easy access trial
         if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && ((_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt)) != ITERATION_STATUS.EO_STRM) {
-            //this should coverr 95% of all accesses
+            //this should cover 95% of all cases
             return this === null || this === void 0 ? void 0 : this.activeDataSource.lookAhead(cnt);
         }
         /**
@@ -373,25 +374,33 @@ var FlatMapStreamDataSource = /** @class */ (function () {
         if (this.activeDataSource) {
             readjustSkip(this.activeDataSource);
         }
-        //the idea is basically to look into the streams subsequentially for a match
+        //the idea is basically to look into the streams sub-sequentially for a match
         //after each stream we have to take into consideration that the skipCnt is
         //reduced by the number of datasets we already have looked into in the previous stream/datasource
-        //unfortunately for now we have to loop into them so we introduce a small o2 here
+        //unfortunately for now we have to loop into them, so we introduce a small o2 here
         for (var dsLoop = 1; true; dsLoop++) {
-            var currDatasource = this.inputDataSource.lookAhead(dsLoop);
+            var datasourceData = this.inputDataSource.lookAhead(dsLoop);
             //we have looped out
-            if (currDatasource === ITERATION_STATUS.EO_STRM) {
+            //no embedded data anymore? we are done, data
+            //can either be a scalar an array or another datasource
+            if (datasourceData === ITERATION_STATUS.EO_STRM) {
                 return ITERATION_STATUS.EO_STRM;
             }
-            var mapped = this.mapFunc(currDatasource);
+            var mappedData = this.mapFunc(datasourceData);
             //it either comes in as datasource or as array
-            var currentDataSource = this.toDatasource(mapped);
+            //both cases must be unified into a datasource
+            var currentDataSource = this.toDatasource(mappedData);
+            //we now run again  a lookahead
             var ret = currentDataSource.lookAhead(cnt);
+            //if the value is found then we are set
             if (ret != ITERATION_STATUS.EO_STRM) {
                 return ret;
             }
-            readjustSkip(currDatasource);
+            //reduce the next lookahead by the number of elements
+            //we are now skipping in the current data source
+            readjustSkip(currentDataSource);
         }
+        return ITERATION_STATUS.EO_STRM;
     };
     FlatMapStreamDataSource.prototype.toDatasource = function (mapped) {
         var ds = Array.isArray(mapped) ? new (ArrayStreamDataSource.bind.apply(ArrayStreamDataSource, __spreadArray([void 0], __read(mapped), false)))() : mapped;
@@ -403,7 +412,6 @@ var FlatMapStreamDataSource = /** @class */ (function () {
         while (!next && this.inputDataSource.hasNext()) {
             var mapped = this.mapFunc(this.inputDataSource.next());
             this.activeDataSource = this.toDatasource(mapped);
-            ;
             next = this.activeDataSource.hasNext();
         }
         return next;
@@ -521,6 +529,19 @@ var AssocArrayCollector = /** @class */ (function () {
     return AssocArrayCollector;
 }());
 exports.AssocArrayCollector = AssocArrayCollector;
+/**
+ * A Config collector similar to the FormDFata Collector
+ */
+var ConfigCollector = /** @class */ (function () {
+    function ConfigCollector() {
+        this.finalValue = new Monad_1.Config({});
+    }
+    ConfigCollector.prototype.collect = function (element) {
+        this.finalValue.append(element.key).value = element.value;
+    };
+    return ConfigCollector;
+}());
+exports.ConfigCollector = ConfigCollector;
 /**
  * Form data collector for key value pair streams
  */

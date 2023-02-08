@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExpiringCrypto = exports.JSONCrypto = exports.NoCrypto = exports.BroadcastChannelBroker = exports.Broker = exports.Message = exports.TagBuilder = exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.ArrayCollector = exports.QueryFormStringCollector = exports.SequenceDataSource = exports.FlatMapStreamDataSource = exports.FilteredStreamDatasource = exports.MappedStreamDataSource = exports.ArrayStreamDataSource = exports.LazyStream = exports.Stream = exports.XQ = exports.XMLQuery = exports.PromiseStatus = exports.CancellablePromise = exports.ValueEmbedder = exports.Optional = exports.Monad = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.Config = exports.Lang = exports.DQ$ = exports.DQ = exports.DomQueryCollector = exports.ElementAttribute = exports.DomQuery = void 0;
+exports.ExpiringCrypto = exports.JSONCrypto = exports.NoCrypto = exports.BroadcastChannelBroker = exports.Broker = exports.Message = exports.TagBuilder = exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.ConfigCollector = exports.ArrayCollector = exports.QueryFormStringCollector = exports.SequenceDataSource = exports.MultiStreamDatasource = exports.FlatMapStreamDataSource = exports.FilteredStreamDatasource = exports.MappedStreamDataSource = exports.ArrayStreamDataSource = exports.LazyStream = exports.Stream = exports.XQ = exports.XMLQuery = exports.PromiseStatus = exports.CancellablePromise = exports.ValueEmbedder = exports.Optional = exports.Monad = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.Config = exports.Lang = exports.DQ$ = exports.DQ = exports.DomQueryCollector = exports.ElementAttribute = exports.DomQuery = void 0;
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -48,9 +48,11 @@ Object.defineProperty(exports, "ArrayStreamDataSource", { enumerable: true, get:
 Object.defineProperty(exports, "MappedStreamDataSource", { enumerable: true, get: function () { return SourcesCollectors_1.MappedStreamDataSource; } });
 Object.defineProperty(exports, "FilteredStreamDatasource", { enumerable: true, get: function () { return SourcesCollectors_1.FilteredStreamDatasource; } });
 Object.defineProperty(exports, "FlatMapStreamDataSource", { enumerable: true, get: function () { return SourcesCollectors_1.FlatMapStreamDataSource; } });
+Object.defineProperty(exports, "MultiStreamDatasource", { enumerable: true, get: function () { return SourcesCollectors_1.MultiStreamDatasource; } });
 Object.defineProperty(exports, "SequenceDataSource", { enumerable: true, get: function () { return SourcesCollectors_1.SequenceDataSource; } });
 Object.defineProperty(exports, "QueryFormStringCollector", { enumerable: true, get: function () { return SourcesCollectors_1.QueryFormStringCollector; } });
 Object.defineProperty(exports, "ArrayCollector", { enumerable: true, get: function () { return SourcesCollectors_1.ArrayCollector; } });
+Object.defineProperty(exports, "ConfigCollector", { enumerable: true, get: function () { return SourcesCollectors_1.ConfigCollector; } });
 Object.defineProperty(exports, "AssocArrayCollector", { enumerable: true, get: function () { return SourcesCollectors_1.AssocArrayCollector; } });
 Object.defineProperty(exports, "FormDataCollector", { enumerable: true, get: function () { return SourcesCollectors_1.FormDataCollector; } });
 Object.defineProperty(exports, "QueryFormDataCollector", { enumerable: true, get: function () { return SourcesCollectors_1.QueryFormDataCollector; } });

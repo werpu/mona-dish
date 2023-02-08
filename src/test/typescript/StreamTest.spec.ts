@@ -200,12 +200,17 @@ describe('early stream tests', () => {
 
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+
     });
 
     it("must correctly lazily flatmap with arrays", function () {
 
         let resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => [data, 2]).value;
 
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+
+        resultingArr = LazyStream.of<number>(...this.probe).flatMap((data) => LazyStream.of(...[data, 2])).value;
         expect(resultingArr.length == 10).to.be.true;
         expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });

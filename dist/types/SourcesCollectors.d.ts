@@ -16,6 +16,7 @@
  */
 import { StreamMapper } from "./Stream";
 import { DomQuery } from "./DomQuery";
+import { Config } from "./Monad";
 /**
  * special status of the datasource location pointer
  * if an access, outside of the possible data boundaries is happening
@@ -237,6 +238,19 @@ export declare class AssocArrayCollector<S> implements ICollector<[string, S] | 
         [key: string]: any;
     };
     collect(element: [string, S] | string): void;
+}
+/**
+ * A Config collector similar to the FormDFata Collector
+ */
+export declare class ConfigCollector implements ICollector<{
+    key: string;
+    value: any;
+}, Config> {
+    finalValue: Config;
+    collect(element: {
+        key: string;
+        value: any;
+    }): void;
 }
 /**
  * Form data collector for key value pair streams

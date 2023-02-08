@@ -196,6 +196,9 @@ var SourcesCollectors_1 = require("../../main/typescript/SourcesCollectors");
         var resultingArr = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return [data, 2]; }).value;
         (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
         (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        resultingArr = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, [data, 2]); }).value;
+        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
+        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
     it("must correctly early flatmap", function () {
         var resultingArr = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return Stream_1.Stream.of.apply(Stream_1.Stream, [data, 2]); }).value;
