@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import {IStream, Stream, StreamMapper} from "./Stream";
+import {Stream, StreamMapper} from "./Stream";
 import {DomQuery} from "./DomQuery";
-import type = Mocha.utils.type;
+
 import {Config} from "./Monad";
 
 /**
@@ -95,6 +95,13 @@ export interface ICollector<T, S> {
     finalValue: S;
 }
 
+function calculateSkips(next_strm: IStreamDataSource<any>) {
+    let pos = 1;
+    while (next_strm.lookAhead(pos) != ITERATION_STATUS.EO_STRM) {
+        pos++;
+    }
+    return --pos;
+}
 
 export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
 
@@ -133,33 +140,27 @@ export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
         return hasNext ? cnt : -1;
     }
 
-    lookAhead(cnt?: number): T | ITERATION_STATUS {
-        let posPtr = 1;
-        let strmPos = this.selectedPos;
-        let valueFound = null;
-        if(this.strms[strmPos].lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
-            //speedup
-            return this.strms[strmPos].lookAhead(cnt);
+    lookAhead(cnt: number = 1): T | ITERATION_STATUS {
+        //lets clone
+        const strms = this.strms.slice(this.selectedPos);
+
+        if(!strms.length) {
+            return ITERATION_STATUS.EO_STRM;
         }
-        for(let loop = posPtr; loop <= cnt; loop++) {
-            if(!this.strms[strmPos]) {
-                return ITERATION_STATUS.EO_STRM;
+
+        const all_strms = [...strms];
+        while(all_strms.length) {
+            let next_strm = all_strms.shift();
+            let lookAhead = next_strm.lookAhead(cnt);
+
+            if (lookAhead != ITERATION_STATUS.EO_STRM) {
+                return lookAhead;
             }
-            let val = (posPtr > 0) ? this.strms[strmPos].lookAhead(posPtr): this.strms[strmPos].current();
-            valueFound = val;
-            if(val != ITERATION_STATUS.EO_STRM) {
-                posPtr++;
-            } else {
-                if(strmPos >= this.strms.length) {
-                    return ITERATION_STATUS.EO_STRM;
-                }
-                strmPos++;
-                posPtr = 1;
-                loop--; //empty iteration
-            }
+            cnt = cnt - calculateSkips(next_strm);
         }
-        return valueFound;
+        return ITERATION_STATUS.EO_STRM;
     }
+
 
     next(): any {
         if(this.activeStrm.hasNext()) {
@@ -426,34 +427,16 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         return next;
     }
 
-
     lookAhead(cnt = 1): ITERATION_STATUS | S {
-        //easy access trial
-        if (this?.activeDataSource && this?.activeDataSource?.lookAhead(cnt) != ITERATION_STATUS.EO_STRM) {
+
+        let lookAhead = this?.activeDataSource?.lookAhead(cnt);
+        if (this?.activeDataSource && lookAhead != ITERATION_STATUS.EO_STRM) {
             //this should cover 95% of all cases
-            return this?.activeDataSource.lookAhead(cnt);
-        }
-
-        /**
-         * we only can determine how many elems datasource has by going up
-         * (for now this suffices, however not ideal, we might have to introduce a numElements or so)
-         * @param datasource
-         */
-        function howManyElems(datasource: IStreamDataSource<any>): number {
-            let cnt = 1;
-            while (datasource.lookAhead(cnt) !== ITERATION_STATUS.EO_STRM) {
-                cnt++;
-            }
-            return cnt - 1;
-        }
-
-        function readjustSkip(dataSource) {
-            let skippedElems = (dataSource) ? howManyElems(dataSource) : 0;
-            cnt = cnt - skippedElems;
+            return lookAhead;
         }
 
         if (this.activeDataSource) {
-            readjustSkip(this.activeDataSource)
+            cnt -= calculateSkips(this.activeDataSource)
         }
 
         //the idea is basically to look into the streams sub-sequentially for a match
@@ -481,9 +464,8 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
             }
             //reduce the next lookahead by the number of elements
             //we are now skipping in the current data source
-            readjustSkip(currentDataSource);
+            cnt -= calculateSkips(currentDataSource);
         }
-        return ITERATION_STATUS.EO_STRM;
     }
 
     private toDatasource(mapped: Array<S> | IStreamDataSource<S>) {
