@@ -26,7 +26,7 @@ import {
     FlatMapStreamDataSource,
     ICollector,
     IStreamDataSource,
-    ITERATION_STATUS,
+    ITERATION_STATUS, LOOKAHEAD_RESULT,
     MappedStreamDataSource, MultiStreamDatasource
 } from "./SourcesCollectors";
 //import {from, Observable} from "rxjs";
@@ -377,11 +377,17 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
         return this.value[this.pos];
     }
 
-    lookAhead(cnt = 1): T | ITERATION_STATUS {
+    lookAhead(cnt = 1): LOOKAHEAD_RESULT<T> {
         if((this.pos + cnt) >= this.value.length) {
-            return ITERATION_STATUS.EO_STRM;
+            return {
+                iterations: this.value.length + 1,
+                value: ITERATION_STATUS.EO_STRM
+            };
         }
-        return this.value[this.pos + cnt];
+        return {
+            iterations: this.pos + cnt,
+            value: this.value[this.pos + cnt]
+        };
     }
 
 
@@ -479,7 +485,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         return next;
     }
 
-    lookAhead(cnt= 1): ITERATION_STATUS | T {
+    lookAhead(cnt= 1): LOOKAHEAD_RESULT<T> {
         return this.dataSource.lookAhead(cnt);
     }
 

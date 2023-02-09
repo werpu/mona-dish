@@ -468,9 +468,6 @@ describe('early stream tests', () => {
         })
             .map(item => {
                 idx[`${item}`] = true;
-                if(Object.keys(idx).length >= 5) {
-                    global["debug_f3"] = true
-                }
                 return item;
             })
             .collect(new ArrayCollector());
@@ -582,13 +579,16 @@ describe('early stream tests', () => {
         strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
         global["debug_la"] = true;
-        let res2 = strm31.lookAhead(15).value;
-        let res3 = strm31.lookAhead(19).value;
-        let res4 = strm31.lookAhead(21).value;
+        let res2 = strm31.lookAhead(15);
+        let res3 = strm31.lookAhead(19);
+        let res4 = strm31.lookAhead(21);
         //expect(res).to.eq(8);
-        expect(res2).to.eq(15);
-        expect(res3).to.eq(19);
-        expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
+        expect(res2.value).to.eq(15);
+        expect(res2.iterations).to.eq(15);
+        expect(res3.value).to.eq(19);
+        expect(res3.iterations).to.eq(19);
+        expect(res4.value).to.eq(ITERATION_STATUS.EO_STRM);
+        expect(res4.iterations).to.eq(21);
     });
 
     it('streams must be handle complex look aheads', function () {

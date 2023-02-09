@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 import { IMonad, IValueHolder, Optional } from "./Monad";
-import { ICollector, IStreamDataSource, ITERATION_STATUS } from "./SourcesCollectors";
+import { ICollector, IStreamDataSource, ITERATION_STATUS, LOOKAHEAD_RESULT } from "./SourcesCollectors";
 export declare type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
 export declare type ArrayMapper<T> = (data: T) => Array<any>;
 export declare type IteratableConsumer<T> = (data: T, pos?: number) => void | boolean;
@@ -178,7 +178,7 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     collect(collector: ICollector<T, any>): any;
     hasNext(): boolean;
     next(): T;
-    lookAhead(cnt?: number): T | ITERATION_STATUS;
+    lookAhead(cnt?: number): LOOKAHEAD_RESULT<T>;
     [Symbol.iterator](): Iterator<T>;
     reset(): void;
 }
@@ -222,7 +222,7 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     constructor(parent: IStreamDataSource<T>);
     hasNext(): boolean;
     next(): T | ITERATION_STATUS;
-    lookAhead(cnt?: number): ITERATION_STATUS | T;
+    lookAhead(cnt?: number): LOOKAHEAD_RESULT<T>;
     current(): T | ITERATION_STATUS;
     reset(): void;
     /**

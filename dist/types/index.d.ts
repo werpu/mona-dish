@@ -22,7 +22,7 @@ export { Config, CONFIG_VALUE, CONFIG_ANY, ConfigDef, Monad, IValueHolder, IFunc
 export { CancellablePromise, IPromise, PromiseStatus } from "./Promise";
 export { XMLQuery, XQ } from "./XmlQuery";
 export { Stream, LazyStream, IteratableConsumer, IStream } from "./Stream";
-export { ArrayStreamDataSource, MappedStreamDataSource, FilteredStreamDatasource, FlatMapStreamDataSource, MultiStreamDatasource, SequenceDataSource, QueryFormStringCollector, IStreamDataSource, ICollector, ArrayCollector, ConfigCollector, AssocArrayCollector, FormDataCollector, QueryFormDataCollector, } from "./SourcesCollectors";
+export { ArrayStreamDataSource, MappedStreamDataSource, FilteredStreamDatasource, FlatMapStreamDataSource, MultiStreamDatasource, LOOKAHEAD_RESULT, SequenceDataSource, QueryFormStringCollector, IStreamDataSource, ICollector, ArrayCollector, ConfigCollector, AssocArrayCollector, FormDataCollector, QueryFormDataCollector, } from "./SourcesCollectors";
 export { TagBuilder } from "./TagBuilder";
 export { Message, Broker, BroadcastChannelBroker, Crypto, NoCrypto, Hash } from "./Messaging";
 export { JSONCrypto, ExpiringCrypto } from "./CryptoExtensions";

@@ -28,6 +28,7 @@ export {
     FilteredStreamDatasource,
     FlatMapStreamDataSource,
     MultiStreamDatasource,
+    LOOKAHEAD_RESULT,
     SequenceDataSource,
     QueryFormStringCollector,
     IStreamDataSource,
