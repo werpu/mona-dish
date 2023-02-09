@@ -281,22 +281,23 @@ var FilteredStreamDatasource = /** @class */ (function () {
         var _a;
         if (cnt === void 0) { cnt = 1; }
         var lookupVal;
-        var found = 0;
-        for (var loop = 1; found >= cnt && (lookupVal = this.inputDataSource.lookAhead(loop)).value != ITERATION_STATUS.EO_STRM; loop++) {
+        var skipped = 0;
+        for (var loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)).value != ITERATION_STATUS.EO_STRM; loop++) {
             var inCache = (_a = this._filterIdx) === null || _a === void 0 ? void 0 : _a[this._unfilteredPos + loop];
             if (inCache || this.filterFunc(lookupVal.value)) {
                 //  cnt--;
-                found++;
+                skipped++;
+                cnt--;
                 //the filter idx is needed to prevent double calls into the filter
                 //function within a filter loop
                 this._filterIdx[this._unfilteredPos + loop] = true;
             }
         }
         if (lookupVal.value == ITERATION_STATUS.EO_STRM) {
-            found++;
+            skipped++;
         }
         return {
-            iterations: found,
+            iterations: skipped,
             value: lookupVal.value
         };
     };

@@ -17,7 +17,7 @@
 import {describe} from "mocha";
 import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
-import {ArrayCollector, ArrayStreamDataSource, SequenceDataSource} from "../../main/typescript";
+import {ArrayCollector, ArrayStreamDataSource, AssocArrayCollector, SequenceDataSource} from "../../main/typescript";
 import {from} from "rxjs";
 import {ITERATION_STATUS, MultiStreamDatasource} from "../../main/typescript/SourcesCollectors";
 
@@ -428,7 +428,7 @@ describe('early stream tests', () => {
         let strm4 = LazyStream.of(...probe2);
         let source = new MultiStreamDatasource(strm1, strm2);
         let ret = [];
-        while(source.hasNext()) {
+        while (source.hasNext()) {
             let value = source.next();
             ret.push(value);
         }
@@ -547,7 +547,7 @@ describe('early stream tests', () => {
 
     })
 
-   it('concat of nested arrays in lazy streams must work', function () {
+    it('concat of nested arrays in lazy streams must work', function () {
 
         let probe: Array<string[]> = [["xxx.yy.aaa", "blubbb"]];
         let probe2: Array<number[]> = [];
@@ -615,4 +615,43 @@ describe('early stream tests', () => {
         expect(res3).to.eq(19);
         expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
     });
+
+    it('must handle expansions in between2', function () {
+        global[this.test.title] = true;
+        const data: any = {
+            key1: [1, 2, 3, 4],
+            key2: [4, 5, 6, 7, 8],
+            key3: [9, 10, 11, 12, 13],
+        };
+        let res = Stream.of(...Object.keys(data))
+            .filter(item => item != "key1")
+            .flatMap(key => {
+                return Stream.of(...data[key]).map(value => [key, value])
+            })
+            .filter((item) => {
+                return item[0] != "key2"
+            })
+            .collect(new ArrayCollector());
+        expect(res.length).to.eq(5);
+    })
+
+    it('must handle expansions in between', function () {
+        global[this.test.title] = true;
+        const data: any = {
+            key1: [1, 2, 3, 4],
+            key2: [4, 5, 6, 7, 8],
+            key3: [9, 10, 11, 12, 13],
+        };
+        let res = LazyStream.of(...Object.keys(data))
+            .filter(item => item != "key1")
+            .flatMap(key => {
+                return Stream.of(...data[key]).map(value => [key, value]).flatMap(() => Stream.of(...[["aa", "bb"]]))
+            })
+            .filter((item) => {
+                return item[0] != "key2"
+            })
+            .collect(new ArrayCollector());
+        expect(res.length).to.eq(5);
+
+    })
 });

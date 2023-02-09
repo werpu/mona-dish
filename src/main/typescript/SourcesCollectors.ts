@@ -342,22 +342,23 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
      */
     lookAhead(cnt = 1): LOOKAHEAD_RESULT<T> {
         let lookupVal: LOOKAHEAD_RESULT<T>;
-        let found = 0;
-        for (let loop = 1; found >= cnt && (lookupVal = this.inputDataSource.lookAhead(loop)).value != ITERATION_STATUS.EO_STRM; loop++) {
+        let skipped = 0;
+        for (let loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)).value != ITERATION_STATUS.EO_STRM; loop++) {
             let inCache = this._filterIdx?.[this._unfilteredPos + loop];
             if (inCache || this.filterFunc(lookupVal.value)) {
               //  cnt--;
-                found ++;
+                skipped ++;
+                cnt--;
                 //the filter idx is needed to prevent double calls into the filter
                 //function within a filter loop
                 this._filterIdx[this._unfilteredPos + loop] = true;
             }
         }
         if(lookupVal.value == ITERATION_STATUS.EO_STRM) {
-            found++;
+            skipped++;
         }
         return {
-            iterations: found,
+            iterations: skipped,
             value: lookupVal.value
         } as LOOKAHEAD_RESULT<T>;
     }

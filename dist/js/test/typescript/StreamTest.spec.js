@@ -508,5 +508,39 @@ var SourcesCollectors_1 = require("../../main/typescript/SourcesCollectors");
         (0, chai_1.expect)(res3).to.eq(19);
         (0, chai_1.expect)(res4).to.eq(SourcesCollectors_1.ITERATION_STATUS.EO_STRM);
     });
+    it('must handle expansions in between2', function () {
+        global[this.test.title] = true;
+        var data = {
+            key1: [1, 2, 3, 4],
+            key2: [4, 5, 6, 7, 8],
+            key3: [9, 10, 11, 12, 13],
+        };
+        var res = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(Object.keys(data)), false)).filter(function (item) { return item != "key1"; })
+            .flatMap(function (key) {
+            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(data[key]), false)).map(function (value) { return [key, value]; });
+        })
+            .filter(function (item) {
+            return item[0] != "key2";
+        })
+            .collect(new typescript_1.ArrayCollector());
+        (0, chai_1.expect)(res.length).to.eq(5);
+    });
+    it('must handle expansions in between', function () {
+        global[this.test.title] = true;
+        var data = {
+            key1: [1, 2, 3, 4],
+            key2: [4, 5, 6, 7, 8],
+            key3: [9, 10, 11, 12, 13],
+        };
+        var res = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(Object.keys(data)), false)).filter(function (item) { return item != "key1"; })
+            .flatMap(function (key) {
+            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(data[key]), false)).map(function (value) { return [key, value]; }).flatMap(function () { return Stream_1.Stream.of.apply(Stream_1.Stream, [["aa", "bb"]]); });
+        })
+            .filter(function (item) {
+            return item[0] != "key2";
+        })
+            .collect(new typescript_1.ArrayCollector());
+        (0, chai_1.expect)(res.length).to.eq(5);
+    });
 });
 //# sourceMappingURL=StreamTest.spec.js.map
