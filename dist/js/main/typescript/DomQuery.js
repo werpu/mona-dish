@@ -1866,9 +1866,15 @@ var DomQuery = /** @class */ (function () {
     DomQuery.prototype.lookAhead = function (cnt) {
         if (cnt === void 0) { cnt = 1; }
         if ((this.values.length - 1) < (this.pos + cnt)) {
-            return SourcesCollectors_1.ITERATION_STATUS.EO_STRM;
+            return {
+                iterations: cnt,
+                value: SourcesCollectors_1.ITERATION_STATUS.EO_STRM
+            };
         }
-        return new DomQuery(this.values[this.pos + cnt]);
+        return {
+            iterations: cnt,
+            value: new DomQuery(this.values[this.pos + cnt])
+        };
     };
     DomQuery.prototype.current = function () {
         if (this.pos == -1) {

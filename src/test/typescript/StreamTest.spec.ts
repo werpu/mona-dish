@@ -461,12 +461,16 @@ describe('early stream tests', () => {
         let strm3 = strm1.concat(strm2);
         let idx = {};
         //we now filter the doubles out
+
         const resultArr = strm3.filter(item => {
             const ret = !idx?.[`${item}`];
             return ret;
         })
             .map(item => {
                 idx[`${item}`] = true;
+                if(Object.keys(idx).length >= 5) {
+                    global["debug_f3"] = true
+                }
                 return item;
             })
             .collect(new ArrayCollector());
@@ -577,10 +581,10 @@ describe('early stream tests', () => {
         let strm31 = strm1.concat(strm2).concat(strm5);
         strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
-        global["debug"] = true;
-        let res2 = strm31.lookAhead(15);
-        let res3 = strm31.lookAhead(19);
-        let res4 = strm31.lookAhead(21);
+        global["debug_la"] = true;
+        let res2 = strm31.lookAhead(15).value;
+        let res3 = strm31.lookAhead(19).value;
+        let res4 = strm31.lookAhead(21).value;
         //expect(res).to.eq(8);
         expect(res2).to.eq(15);
         expect(res3).to.eq(19);
@@ -603,9 +607,9 @@ describe('early stream tests', () => {
         strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
         global["debug"] = true;
-        let res2 = strm31.lookAhead(15);
-        let res3 = strm31.lookAhead(19);
-        let res4 = strm31.lookAhead(21);
+        let res2 = strm31.lookAhead(15).value;
+        let res3 = strm31.lookAhead(19).value;
+        let res4 = strm31.lookAhead(21).value;
         //expect(res).to.eq(8);
         expect(res2).to.eq(15);
         expect(res3).to.eq(19);
