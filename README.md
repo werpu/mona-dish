@@ -270,7 +270,7 @@ Note Versions 0.25++ are unstable which means they are for now for development p
 Stable will from now on be even numbers
 unstable odd numbers
 
-For production purposes please use 0.24++
+For production purposes please use 0.26++
 
 
 ## Version 0.25 ++
