@@ -266,7 +266,11 @@ do not need it anymore. CancellablePromise is still enabled.
 * Optional typed and semi typed configs which allow fixed keys and subtrees of keys which are not predefined
 
 
-
+## Version 0.25 ++
+* Fixing of bugs in the stream area
+* Speed improvement of the internal lookahead which should improve the stream processing speed for filtered streams
+* API change for the lookAhead (might break old code using it)
+* Added Config Collector similar to Assoc Array Collectors
 
 
 
