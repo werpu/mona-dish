@@ -228,15 +228,9 @@ var Stream = /** @class */ (function () {
     Stream.prototype.lookAhead = function (cnt) {
         if (cnt === void 0) { cnt = 1; }
         if ((this.pos + cnt) >= this.value.length) {
-            return {
-                iterations: this.value.length + 1,
-                value: SourcesCollectors_1.ITERATION_STATUS.EO_STRM
-            };
+            return SourcesCollectors_1.ITERATION_STATUS.EO_STRM;
         }
-        return {
-            iterations: this.pos + cnt,
-            value: this.value[this.pos + cnt]
-        };
+        return this.value[this.pos + cnt];
     };
     Stream.prototype[Symbol.iterator] = function () {
         var _this = this;

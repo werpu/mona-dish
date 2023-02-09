@@ -36,8 +36,6 @@ export enum ITERATION_STATUS {
     BEF_STRM = '___BEF_STRM__',
 }
 
-export declare type LOOKAHEAD_RESULT<T> = {iterations: number, value: T} | {iterations: number, value: ITERATION_STATUS};
-
 /**
  * Every data source wich feeds data into the lazy stream
  * or stream generally must implement this interface
@@ -63,11 +61,8 @@ export interface IStreamDataSource<T> {
      * data position. Look ahead is mostly needed internally
      * by possible endless data constructs which have no fixed data boundary, or index
      * positions. (aka infinite sets, or flatmapped constructs)
-     *
-     * @returns a tuple of iterations and the result, iterations is the number of steps for the result
-     *
      */
-    lookAhead(cnt ?: number): LOOKAHEAD_RESULT<T>;
+    lookAhead(cnt ?: number): T | ITERATION_STATUS;
 
     /**
      * returns the current element, returns the same element as the previous next call
@@ -98,6 +93,14 @@ export interface ICollector<T, S> {
      * the final result after all the collecting is done
      */
     finalValue: S;
+}
+
+function calculateSkips(next_strm: IStreamDataSource<any>) {
+    let pos = 1;
+    while (next_strm.lookAhead(pos) != ITERATION_STATUS.EO_STRM) {
+        pos++;
+    }
+    return --pos;
 }
 
 export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
@@ -137,28 +140,25 @@ export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
         return hasNext ? cnt : -1;
     }
 
-    lookAhead(cnt: number = 1): LOOKAHEAD_RESULT<T> {
+    lookAhead(cnt: number = 1): T | ITERATION_STATUS {
         //lets clone
-        const streamsToProcess = this.strms.slice(this.selectedPos);
+        const strms = this.strms.slice(this.selectedPos);
 
-        if(!streamsToProcess.length) {
-            return {iterations: cnt, value: ITERATION_STATUS.EO_STRM};
+        if(!strms.length) {
+            return ITERATION_STATUS.EO_STRM;
         }
 
-        const allStreams = [...streamsToProcess];
-        let skippedCount = 0;
-        while(allStreams.length) {
-            let nextStream = allStreams.shift();
-            let lookAheadResult = nextStream.lookAhead(cnt);
+        const all_strms = [...strms];
+        while(all_strms.length) {
+            let next_strm = all_strms.shift();
+            let lookAhead = next_strm.lookAhead(cnt);
 
-            if (lookAheadResult.value !== ITERATION_STATUS.EO_STRM) {
-                return {iterations: skippedCount + lookAheadResult.iterations, value: lookAheadResult.value};
+            if (lookAhead != ITERATION_STATUS.EO_STRM) {
+                return lookAhead;
             }
-            // -1 because the last return value is virtual and not present
-            skippedCount = skippedCount + lookAheadResult.iterations - 1;
-            cnt -= skippedCount;
+            cnt = cnt - calculateSkips(next_strm);
         }
-        return {iterations: skippedCount + 1, value: ITERATION_STATUS.EO_STRM};
+        return ITERATION_STATUS.EO_STRM;
     }
 
 
@@ -209,11 +209,11 @@ export class SequenceDataSource implements IStreamDataSource<number> {
         return this.value <= (this.total - 1) ? this.value : ITERATION_STATUS.EO_STRM;
     }
 
-    lookAhead(cnt = 1): LOOKAHEAD_RESULT<number> {
+    lookAhead(cnt = 1): number | ITERATION_STATUS {
         if ((this.value + cnt) > this.total - 1) {
-            return {iterations: this.total, value: ITERATION_STATUS.EO_STRM};
+            return ITERATION_STATUS.EO_STRM;
         } else {
-            return {iterations: cnt, value: this.value + cnt};
+            return this.value + cnt;
         }
     }
 
@@ -239,11 +239,11 @@ export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
         this.value = value;
     }
 
-    lookAhead(cnt = 1): LOOKAHEAD_RESULT<T> {
+    lookAhead(cnt = 1): T | ITERATION_STATUS {
         if ((this.dataPos + cnt) > this.value.length - 1) {
-            return {iterations: this.value.length - this.dataPos, value: ITERATION_STATUS.EO_STRM};
+            return ITERATION_STATUS.EO_STRM;
         }
-        return {iterations: cnt, value: this.value[this.dataPos + cnt]};
+        return this.value[this.dataPos + cnt];
     }
 
     hasNext(): boolean {
@@ -297,8 +297,8 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
         let found = false;
         let next;
 
-        while (!found && (next = this.inputDataSource.lookAhead(steps)).value != ITERATION_STATUS.EO_STRM) {
-            if (this.filterFunc(next.value)) {
+        while (!found && (next = this.inputDataSource.lookAhead(steps)) != ITERATION_STATUS.EO_STRM) {
+            if (this.filterFunc(next)) {
                 this._filterIdx[this._unfilteredPos + steps] = true;
                 found = true;
             } else {
@@ -316,9 +316,7 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
         while (this.inputDataSource.hasNext()) {
             this._unfilteredPos++;
             let next: T = <T>this.inputDataSource.next();
-            //again here we cannot call the filter function twice,
-            // because its state might change, so if indexed,
-            // we have a decent snapshot, either has next or next can trigger
+            //again here we cannot call the filter function twice, because its state might change, so if indexed, we have a decent snapshot, either has next or next can trigger
             //the snapshot
             if (next != ITERATION_STATUS.EO_STRM &&
                 ((this._filterIdx?.[this._unfilteredPos] ?? false) || this.filterFunc(next))) {
@@ -331,35 +329,17 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
         return found;
     }
 
-    /**
-     * this lookahead is special
-     * wo only count the unfiltered skipped items
-     * as return item!
-     * The logic of the stream flow, filtered items do not exist
-     * and hence are not actively skipped!
-     *
-     * @param cnt the number of look aheads
-     */
-    lookAhead(cnt = 1): LOOKAHEAD_RESULT<T> {
-        let lookupVal: LOOKAHEAD_RESULT<T>;
-        let found = 0;
-        for (let loop = 1; found >= cnt && (lookupVal = this.inputDataSource.lookAhead(loop)).value != ITERATION_STATUS.EO_STRM; loop++) {
+    lookAhead(cnt = 1): ITERATION_STATUS | T {
+        let lookupVal: T | ITERATION_STATUS;
+
+        for (let loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)) != ITERATION_STATUS.EO_STRM; loop++) {
             let inCache = this._filterIdx?.[this._unfilteredPos + loop];
-            if (inCache || this.filterFunc(lookupVal.value)) {
-              //  cnt--;
-                found ++;
-                //the filter idx is needed to prevent double calls into the filter
-                //function within a filter loop
+            if (inCache || this.filterFunc(lookupVal)) {
+                cnt--;
                 this._filterIdx[this._unfilteredPos + loop] = true;
             }
         }
-        if(lookupVal.value == ITERATION_STATUS.EO_STRM) {
-            found++;
-        }
-        return {
-            iterations: found,
-            value: lookupVal.value
-        } as LOOKAHEAD_RESULT<T>;
+        return lookupVal;
     }
 
     current(): T | ITERATION_STATUS {
@@ -404,16 +384,9 @@ export class MappedStreamDataSource<T, S> implements IStreamDataSource<S> {
         return this.mapFunc(this.inputDataSource.current());
     }
 
-    lookAhead(cnt = 1): LOOKAHEAD_RESULT<S> {
-        let lookAheadVal: LOOKAHEAD_RESULT<T> = this.inputDataSource.lookAhead(cnt);
-        if(lookAheadVal.value == ITERATION_STATUS.EO_STRM) {
-            return lookAheadVal as LOOKAHEAD_RESULT<S>;
-        }
-        //We have to remap, to fullfill the typing
-        return {
-            iterations: lookAheadVal.iterations,
-            value: this.mapFunc(lookAheadVal.value) as S
-        }
+    lookAhead(cnt = 1): ITERATION_STATUS | S {
+        const lookAheadVal = this.inputDataSource.lookAhead(cnt);
+        return (lookAheadVal == ITERATION_STATUS.EO_STRM) ? lookAheadVal as ITERATION_STATUS : this.mapFunc(lookAheadVal) as S;
     }
 }
 
@@ -454,32 +427,31 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         return next;
     }
 
-    lookAhead(cnt = 1): LOOKAHEAD_RESULT<S> {
+    lookAhead(cnt = 1): ITERATION_STATUS | S {
 
         let lookAhead = this?.activeDataSource?.lookAhead(cnt);
-        if (this?.activeDataSource && lookAhead.value != ITERATION_STATUS.EO_STRM) {
+        if (this?.activeDataSource && lookAhead != ITERATION_STATUS.EO_STRM) {
             //this should cover 95% of all cases
             return lookAhead;
         }
 
         if (this.activeDataSource) {
-            cnt -= (lookAhead.iterations - 1);
+            cnt -= calculateSkips(this.activeDataSource)
         }
 
         //the idea is basically to look into the streams sub-sequentially for a match
         //after each stream we have to take into consideration that the skipCnt is
         //reduced by the number of datasets we already have looked into in the previous stream/datasource
         //unfortunately for now we have to loop into them, so we introduce a small o2 here
-        const orig_cnt = cnt;
         for (let dsLoop = 1; true; dsLoop++) {
             let datasourceData = this.inputDataSource.lookAhead(dsLoop);
             //we have looped out
             //no embedded data anymore? we are done, data
             //can either be a scalar an array or another datasource
-            if (datasourceData.value === ITERATION_STATUS.EO_STRM) {
-                return datasourceData as LOOKAHEAD_RESULT<ITERATION_STATUS>;
+            if (datasourceData === ITERATION_STATUS.EO_STRM) {
+                return ITERATION_STATUS.EO_STRM;
             }
-            let mappedData = this.mapFunc(datasourceData.value as T);
+            let mappedData = this.mapFunc(datasourceData as T);
 
             //it either comes in as datasource or as array
             //both cases must be unified into a datasource
@@ -487,15 +459,12 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
             //we now run again  a lookahead
             let ret = currentDataSource.lookAhead(cnt);
             //if the value is found then we are set
-            if (ret.value != ITERATION_STATUS.EO_STRM) {
-                return {
-                    iterations: orig_cnt,
-                    value: ret.value as S
-                };
+            if (ret != ITERATION_STATUS.EO_STRM) {
+                return ret;
             }
             //reduce the next lookahead by the number of elements
             //we are now skipping in the current data source
-            cnt -= (ret.iterations - 1);
+            cnt -= calculateSkips(currentDataSource);
         }
     }
 

@@ -389,9 +389,6 @@ var SourcesCollectors_1 = require("../../main/typescript/SourcesCollectors");
         })
             .map(function (item) {
             idx["".concat(item)] = true;
-            if (Object.keys(idx).length >= 5) {
-                global["debug_f3"] = true;
-            }
             return item;
         })
             .collect(new typescript_1.ArrayCollector());
@@ -477,10 +474,10 @@ var SourcesCollectors_1 = require("../../main/typescript/SourcesCollectors");
         var strm31 = strm1.concat(strm2).concat(strm5);
         strm31.each(function (item) { return console.log(item); });
         //let res = strm31.lookAhead(8);
-        global["debug_la"] = true;
-        var res2 = strm31.lookAhead(15).value;
-        var res3 = strm31.lookAhead(19).value;
-        var res4 = strm31.lookAhead(21).value;
+        global["debug"] = true;
+        var res2 = strm31.lookAhead(15);
+        var res3 = strm31.lookAhead(19);
+        var res4 = strm31.lookAhead(21);
         //expect(res).to.eq(8);
         (0, chai_1.expect)(res2).to.eq(15);
         (0, chai_1.expect)(res3).to.eq(19);
@@ -500,9 +497,9 @@ var SourcesCollectors_1 = require("../../main/typescript/SourcesCollectors");
         strm31.each(function (item) { return console.log(item); });
         //let res = strm31.lookAhead(8);
         global["debug"] = true;
-        var res2 = strm31.lookAhead(15).value;
-        var res3 = strm31.lookAhead(19).value;
-        var res4 = strm31.lookAhead(21).value;
+        var res2 = strm31.lookAhead(15);
+        var res3 = strm31.lookAhead(19);
+        var res4 = strm31.lookAhead(21);
         //expect(res).to.eq(8);
         (0, chai_1.expect)(res2).to.eq(15);
         (0, chai_1.expect)(res3).to.eq(19);
