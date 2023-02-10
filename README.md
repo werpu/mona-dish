@@ -275,7 +275,6 @@ For production purposes please use 0.26++
 
 ## Version 0.25 ++
 * Fixing of bugs in the stream area
-* Speed improvement of the internal lookahead which should improve the stream processing speed for filtered streams
 * API change for the lookAhead (might break old code using it)
 * Added Config Collector similar to Assoc Array Collectors
 
