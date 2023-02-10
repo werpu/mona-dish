@@ -109,6 +109,10 @@ var MessageWrapper = /** @class */ (function () {
     }
     return MessageWrapper;
 }());
+/**
+ * abstract broker class
+ * (The broker is the central distribution unit of messages)
+ */
 var BaseBroker = /** @class */ (function () {
     function BaseBroker() {
         /**
@@ -319,8 +323,12 @@ var broadCastChannelBrokerGenerator = function (name) {
 };
 var DEFAULT_CHANNEL_GROUP = "brokr";
 /**
- * a broker which hooks into the Broadcast Channel broker
+ * a broker which hooks into the Broadcast Channel
  * either via shim or substitute lib
+ *
+ * The broadcast channels are a standardized messaging library
+ * The broker mechanism sets a layer on top to make it more manageable!
+ *
  */
 var BroadcastChannelBroker = /** @class */ (function (_super) {
     __extends(BroadcastChannelBroker, _super);

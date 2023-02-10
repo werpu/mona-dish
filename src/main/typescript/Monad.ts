@@ -16,7 +16,7 @@
  */
 
 /**
- * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
+ * A module which keeps  basic monad like definitions in place
  * Useful if you need the functions in another library to keep its dependencies down
  */
 

@@ -25,7 +25,7 @@ var Lang;
 (function (Lang) {
     //should be in lang, but for now here to avoid recursive imports, not sure if typescript still has a problem with those
     /**
-     * helper function to savely resolve anything
+     * helper function to safely resolve anything
      * this is not an elvis operator, it resolves
      * a value without exception in a tree and if
      * it is not resolvable then an optional of
@@ -52,6 +52,12 @@ var Lang;
         }
     }
     Lang.saveResolve = saveResolve;
+    /**
+     * lazy resolve... aka the function is called on resolve and a default value also
+     * is a producing function (called only if the original producer does not produce any result)
+     * @param resolverProducer the producer for the resolve
+     * @param defaultValue the default value producer function
+     */
     function saveResolveLazy(resolverProducer, defaultValue) {
         if (defaultValue === void 0) { defaultValue = null; }
         try {
@@ -114,7 +120,7 @@ var Lang;
     }
     Lang.objToArray = objToArray;
     /**
-     * equalsIgnoreCase, case insensitive comparison of two strings
+     * equalsIgnoreCase, case-insensitive comparison of two strings
      *
      * @param source
      * @param destination
@@ -137,7 +143,7 @@ var Lang;
     }
     Lang.assertType = assertType;
     /**
-     * Backported from dojo
+     * Back ported from Dojo
      * a failsafe string determination method
      * (since in javascript String != "" typeof alone fails!)
      * @param it {|Object|} the object to be checked for being a string
@@ -149,6 +155,10 @@ var Lang;
         return !!arguments.length && it != null && (typeof it == "string" || it instanceof String); // Boolean
     }
     Lang.isString = isString;
+    /**
+     * Back-ported, a failsafe determination code for checking whether an object is a function
+     * @param it the object to check for being a function
+     */
     function isFunc(it) {
         return it instanceof Function || typeof it === "function";
     }

@@ -58,7 +58,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Config = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.ValueEmbedder = exports.Optional = exports.Monad = void 0;
 /**
- * A module which keeps  basic monadish like definitions in place without any sidedependencies to other modules.
+ * A module which keeps  basic monad like definitions in place
  * Useful if you need the functions in another library to keep its dependencies down
  */
 /*IMonad definitions*/

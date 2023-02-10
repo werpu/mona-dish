@@ -22,12 +22,12 @@ import {Config} from "./Monad";
 
 /**
  * special status of the datasource location pointer
- * if an access, outside of the possible data boundaries is happening
+ * if an access, outside - of the possible data boundaries is happening
  * (example for instance current without a first next call, or next
  * which goes over the last possible dataset), an iteration status return
  * value is returned marking this boundary instead of a classical element
  *
- * Note this is only internally used but must be implemented to fullfill
+ * Note this is only internally used but must be implemented to fulfill
  * internal contracts, the end user will never see those values if he uses
  * streams!
  */
@@ -55,12 +55,14 @@ export interface IStreamDataSource<T> {
     next(): T | ITERATION_STATUS;
 
     /**
-     * returns the next element in the stream
-     * difference to next is, that the internal data position
-     * is not changed, so next still will deliver the next item from the current
-     * data position. Look ahead is mostly needed internally
-     * by possible endless data constructs which have no fixed data boundary, or index
-     * positions. (aka infinite sets, or flatmapped constructs)
+     * looks ahead cnt without changing the internal data "pointers" of the data source
+     * (this is mostly needed by possibly infinite constructs like lazy streams,
+     * because they do not know by definition their
+     * boundaries)
+     *
+     * @param cnt the elements to look ahead
+     * @return either the element or ITERATION_STATUS.EO_STRM if we hit the end of the stream before
+     * finding the "cnt" element
      */
     lookAhead(cnt ?: number): T | ITERATION_STATUS;
 
@@ -103,6 +105,10 @@ function calculateSkips(next_strm: IStreamDataSource<any>) {
     return --pos;
 }
 
+/**
+ * A data source which combines multiple streams sequentially into one
+ * (this is used internally by  flatmap, but also can be used externally)
+ */
 export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
 
     private  activeStrm;
@@ -229,7 +235,7 @@ export class SequenceDataSource implements IStreamDataSource<number> {
 
 
 /**
- * implementation of iteratable on top of array
+ * implementation of a datasource on top of a standard array
  */
 export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     value: Array<T>;
@@ -329,6 +335,15 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
         return found;
     }
 
+    /**
+     * looks ahead cnt without changing the internal data "pointers" of the data source
+     * (this is mostly needed by LazyStreams, because they do not know by definition their
+     * boundaries)
+     *
+     * @param cnt the elements to look ahead
+     * @return either the element or ITERATION_STATUS.EO_STRM if we hit the end of the stream before
+     * finding the "cnt" element
+     */
     lookAhead(cnt = 1): ITERATION_STATUS | T {
         let lookupVal: T | ITERATION_STATUS;
 

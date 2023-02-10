@@ -46,12 +46,12 @@ var Stream_1 = require("./Stream");
 var Monad_1 = require("./Monad");
 /**
  * special status of the datasource location pointer
- * if an access, outside of the possible data boundaries is happening
+ * if an access, outside - of the possible data boundaries is happening
  * (example for instance current without a first next call, or next
  * which goes over the last possible dataset), an iteration status return
  * value is returned marking this boundary instead of a classical element
  *
- * Note this is only internally used but must be implemented to fullfill
+ * Note this is only internally used but must be implemented to fulfill
  * internal contracts, the end user will never see those values if he uses
  * streams!
  */
@@ -67,6 +67,10 @@ function calculateSkips(next_strm) {
     }
     return --pos;
 }
+/**
+ * A data source which combines multiple streams sequentially into one
+ * (this is used internally by  flatmap, but also can be used externally)
+ */
 var MultiStreamDatasource = /** @class */ (function () {
     function MultiStreamDatasource(first) {
         var _a;
@@ -177,7 +181,7 @@ var SequenceDataSource = /** @class */ (function () {
 }());
 exports.SequenceDataSource = SequenceDataSource;
 /**
- * implementation of iteratable on top of array
+ * implementation of a datasource on top of a standard array
  */
 var ArrayStreamDataSource = /** @class */ (function () {
     function ArrayStreamDataSource() {
@@ -270,6 +274,15 @@ var FilteredStreamDatasource = /** @class */ (function () {
         this._current = found;
         return found;
     };
+    /**
+     * looks ahead cnt without changing the internal data "pointers" of the data source
+     * (this is mostly needed by LazyStreams, because they do not know by definition their
+     * boundaries)
+     *
+     * @param cnt the elements to look ahead
+     * @return either the element or ITERATION_STATUS.EO_STRM if we hit the end of the stream before
+     * finding the "cnt" element
+     */
     FilteredStreamDatasource.prototype.lookAhead = function (cnt) {
         var _a;
         if (cnt === void 0) { cnt = 1; }
