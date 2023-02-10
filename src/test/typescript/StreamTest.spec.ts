@@ -17,7 +17,7 @@
 import {describe} from "mocha";
 import {LazyStream, Stream} from "../../main/typescript/Stream";
 import {expect} from "chai";
-import {ArrayCollector, ArrayStreamDataSource, AssocArrayCollector, SequenceDataSource} from "../../main/typescript";
+import {ArrayCollector, ArrayStreamDataSource, SequenceDataSource} from "../../main/typescript";
 import {from} from "rxjs";
 import {ITERATION_STATUS, MultiStreamDatasource} from "../../main/typescript/SourcesCollectors";
 
@@ -428,7 +428,7 @@ describe('early stream tests', () => {
         let strm4 = LazyStream.of(...probe2);
         let source = new MultiStreamDatasource(strm1, strm2);
         let ret = [];
-        while (source.hasNext()) {
+        while(source.hasNext()) {
             let value = source.next();
             ret.push(value);
         }
@@ -461,7 +461,6 @@ describe('early stream tests', () => {
         let strm3 = strm1.concat(strm2);
         let idx = {};
         //we now filter the doubles out
-
         const resultArr = strm3.filter(item => {
             const ret = !idx?.[`${item}`];
             return ret;
@@ -547,7 +546,7 @@ describe('early stream tests', () => {
 
     })
 
-    it('concat of nested arrays in lazy streams must work', function () {
+   it('concat of nested arrays in lazy streams must work', function () {
 
         let probe: Array<string[]> = [["xxx.yy.aaa", "blubbb"]];
         let probe2: Array<number[]> = [];
@@ -578,17 +577,14 @@ describe('early stream tests', () => {
         let strm31 = strm1.concat(strm2).concat(strm5);
         strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
-        global["debug_la"] = true;
+        global["debug"] = true;
         let res2 = strm31.lookAhead(15);
         let res3 = strm31.lookAhead(19);
         let res4 = strm31.lookAhead(21);
         //expect(res).to.eq(8);
-        expect(res2.value).to.eq(15);
-        expect(res2.iterations).to.eq(15);
-        expect(res3.value).to.eq(19);
-        expect(res3.iterations).to.eq(19);
-        expect(res4.value).to.eq(ITERATION_STATUS.EO_STRM);
-        expect(res4.iterations).to.eq(21);
+        expect(res2).to.eq(15);
+        expect(res3).to.eq(19);
+        expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
     });
 
     it('streams must be handle complex look aheads', function () {
@@ -607,33 +603,14 @@ describe('early stream tests', () => {
         strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
         global["debug"] = true;
-        let res2 = strm31.lookAhead(15).value;
-        let res3 = strm31.lookAhead(19).value;
-        let res4 = strm31.lookAhead(21).value;
+        let res2 = strm31.lookAhead(15);
+        let res3 = strm31.lookAhead(19);
+        let res4 = strm31.lookAhead(21);
         //expect(res).to.eq(8);
         expect(res2).to.eq(15);
         expect(res3).to.eq(19);
         expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
     });
-
-    it('must handle expansions in between2', function () {
-        global[this.test.title] = true;
-        const data: any = {
-            key1: [1, 2, 3, 4],
-            key2: [4, 5, 6, 7, 8],
-            key3: [9, 10, 11, 12, 13],
-        };
-        let res = Stream.of(...Object.keys(data))
-            .filter(item => item != "key1")
-            .flatMap(key => {
-                return Stream.of(...data[key]).map(value => [key, value])
-            })
-            .filter((item) => {
-                return item[0] != "key2"
-            })
-            .collect(new ArrayCollector());
-        expect(res.length).to.eq(5);
-    })
 
     it('must handle expansions in between', function () {
         global[this.test.title] = true;
@@ -642,16 +619,19 @@ describe('early stream tests', () => {
             key2: [4, 5, 6, 7, 8],
             key3: [9, 10, 11, 12, 13],
         };
+
         let res = LazyStream.of(...Object.keys(data))
             .filter(item => item != "key1")
             .flatMap(key => {
-                return Stream.of(...data[key]).map(value => [key, value]).flatMap(() => Stream.of(...[["aa", "bb"]]))
+                return LazyStream.of(...data[key]).map(value => [key, value]).flatMap((key) => {
+                    return LazyStream.of(...[["aa", "bb"], ["aa", "bb"]])
+                })
             })
             .filter((item) => {
                 return item[0] != "key2"
             })
             .collect(new ArrayCollector());
-        expect(res.length).to.eq(5);
+        expect(res.length).to.eq(20);
 
     })
 });

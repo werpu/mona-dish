@@ -60,6 +60,13 @@ var ITERATION_STATUS;
     ITERATION_STATUS["EO_STRM"] = "__EO_STRM__";
     ITERATION_STATUS["BEF_STRM"] = "___BEF_STRM__";
 })(ITERATION_STATUS = exports.ITERATION_STATUS || (exports.ITERATION_STATUS = {}));
+function calculateSkips(next_strm) {
+    var pos = 1;
+    while (next_strm.lookAhead(pos) != ITERATION_STATUS.EO_STRM) {
+        pos++;
+    }
+    return --pos;
+}
 var MultiStreamDatasource = /** @class */ (function () {
     function MultiStreamDatasource(first) {
         var _a;
@@ -98,23 +105,20 @@ var MultiStreamDatasource = /** @class */ (function () {
     MultiStreamDatasource.prototype.lookAhead = function (cnt) {
         if (cnt === void 0) { cnt = 1; }
         //lets clone
-        var streamsToProcess = this.strms.slice(this.selectedPos);
-        if (!streamsToProcess.length) {
-            return { iterations: cnt, value: ITERATION_STATUS.EO_STRM };
+        var strms = this.strms.slice(this.selectedPos);
+        if (!strms.length) {
+            return ITERATION_STATUS.EO_STRM;
         }
-        var allStreams = __spreadArray([], __read(streamsToProcess), false);
-        var skippedCount = 0;
-        while (allStreams.length) {
-            var nextStream = allStreams.shift();
-            var lookAheadResult = nextStream.lookAhead(cnt);
-            if (lookAheadResult.value !== ITERATION_STATUS.EO_STRM) {
-                return { iterations: skippedCount + lookAheadResult.iterations, value: lookAheadResult.value };
+        var all_strms = __spreadArray([], __read(strms), false);
+        while (all_strms.length) {
+            var next_strm = all_strms.shift();
+            var lookAhead = next_strm.lookAhead(cnt);
+            if (lookAhead != ITERATION_STATUS.EO_STRM) {
+                return lookAhead;
             }
-            // -1 because the last return value is virtual and not present
-            skippedCount = skippedCount + lookAheadResult.iterations - 1;
-            cnt -= skippedCount;
+            cnt = cnt - calculateSkips(next_strm);
         }
-        return { iterations: skippedCount + 1, value: ITERATION_STATUS.EO_STRM };
+        return ITERATION_STATUS.EO_STRM;
     };
     MultiStreamDatasource.prototype.next = function () {
         if (this.activeStrm.hasNext()) {
@@ -156,10 +160,10 @@ var SequenceDataSource = /** @class */ (function () {
     SequenceDataSource.prototype.lookAhead = function (cnt) {
         if (cnt === void 0) { cnt = 1; }
         if ((this.value + cnt) > this.total - 1) {
-            return { iterations: this.total, value: ITERATION_STATUS.EO_STRM };
+            return ITERATION_STATUS.EO_STRM;
         }
         else {
-            return { iterations: cnt, value: this.value + cnt };
+            return this.value + cnt;
         }
     };
     SequenceDataSource.prototype.reset = function () {
@@ -187,9 +191,9 @@ var ArrayStreamDataSource = /** @class */ (function () {
     ArrayStreamDataSource.prototype.lookAhead = function (cnt) {
         if (cnt === void 0) { cnt = 1; }
         if ((this.dataPos + cnt) > this.value.length - 1) {
-            return { iterations: this.value.length - this.dataPos, value: ITERATION_STATUS.EO_STRM };
+            return ITERATION_STATUS.EO_STRM;
         }
-        return { iterations: cnt, value: this.value[this.dataPos + cnt] };
+        return this.value[this.dataPos + cnt];
     };
     ArrayStreamDataSource.prototype.hasNext = function () {
         return this.value.length - 1 > this.dataPos;
@@ -234,8 +238,8 @@ var FilteredStreamDatasource = /** @class */ (function () {
         var steps = 1;
         var found = false;
         var next;
-        while (!found && (next = this.inputDataSource.lookAhead(steps)).value != ITERATION_STATUS.EO_STRM) {
-            if (this.filterFunc(next.value)) {
+        while (!found && (next = this.inputDataSource.lookAhead(steps)) != ITERATION_STATUS.EO_STRM) {
+            if (this.filterFunc(next)) {
                 this._filterIdx[this._unfilteredPos + steps] = true;
                 found = true;
             }
@@ -254,9 +258,7 @@ var FilteredStreamDatasource = /** @class */ (function () {
         while (this.inputDataSource.hasNext()) {
             this._unfilteredPos++;
             var next = this.inputDataSource.next();
-            //again here we cannot call the filter function twice,
-            // because its state might change, so if indexed,
-            // we have a decent snapshot, either has next or next can trigger
+            //again here we cannot call the filter function twice, because its state might change, so if indexed, we have a decent snapshot, either has next or next can trigger
             //the snapshot
             if (next != ITERATION_STATUS.EO_STRM &&
                 (((_b = (_a = this._filterIdx) === null || _a === void 0 ? void 0 : _a[this._unfilteredPos]) !== null && _b !== void 0 ? _b : false) || this.filterFunc(next))) {
@@ -268,38 +270,18 @@ var FilteredStreamDatasource = /** @class */ (function () {
         this._current = found;
         return found;
     };
-    /**
-     * this lookahead is special
-     * wo only count the unfiltered skipped items
-     * as return item!
-     * The logic of the stream flow, filtered items do not exist
-     * and hence are not actively skipped!
-     *
-     * @param cnt the number of look aheads
-     */
     FilteredStreamDatasource.prototype.lookAhead = function (cnt) {
         var _a;
         if (cnt === void 0) { cnt = 1; }
         var lookupVal;
-        var skipped = 0;
-        for (var loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)).value != ITERATION_STATUS.EO_STRM; loop++) {
+        for (var loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)) != ITERATION_STATUS.EO_STRM; loop++) {
             var inCache = (_a = this._filterIdx) === null || _a === void 0 ? void 0 : _a[this._unfilteredPos + loop];
-            if (inCache || this.filterFunc(lookupVal.value)) {
-                //  cnt--;
-                skipped++;
+            if (inCache || this.filterFunc(lookupVal)) {
                 cnt--;
-                //the filter idx is needed to prevent double calls into the filter
-                //function within a filter loop
                 this._filterIdx[this._unfilteredPos + loop] = true;
             }
         }
-        if (lookupVal.value == ITERATION_STATUS.EO_STRM) {
-            skipped++;
-        }
-        return {
-            iterations: skipped,
-            value: lookupVal.value
-        };
+        return lookupVal;
     };
     FilteredStreamDatasource.prototype.current = function () {
         return this._current;
@@ -337,14 +319,7 @@ var MappedStreamDataSource = /** @class */ (function () {
     MappedStreamDataSource.prototype.lookAhead = function (cnt) {
         if (cnt === void 0) { cnt = 1; }
         var lookAheadVal = this.inputDataSource.lookAhead(cnt);
-        if (lookAheadVal.value == ITERATION_STATUS.EO_STRM) {
-            return lookAheadVal;
-        }
-        //We have to remap, to fullfill the typing
-        return {
-            iterations: lookAheadVal.iterations,
-            value: this.mapFunc(lookAheadVal.value)
-        };
+        return (lookAheadVal == ITERATION_STATUS.EO_STRM) ? lookAheadVal : this.mapFunc(lookAheadVal);
     };
     return MappedStreamDataSource;
 }());
@@ -373,42 +348,38 @@ var FlatMapStreamDataSource = /** @class */ (function () {
         var _a;
         if (cnt === void 0) { cnt = 1; }
         var lookAhead = (_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt);
-        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && lookAhead.value != ITERATION_STATUS.EO_STRM) {
+        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && lookAhead != ITERATION_STATUS.EO_STRM) {
             //this should cover 95% of all cases
             return lookAhead;
         }
         if (this.activeDataSource) {
-            cnt -= (lookAhead.iterations - 1);
+            cnt -= calculateSkips(this.activeDataSource);
         }
         //the idea is basically to look into the streams sub-sequentially for a match
         //after each stream we have to take into consideration that the skipCnt is
         //reduced by the number of datasets we already have looked into in the previous stream/datasource
         //unfortunately for now we have to loop into them, so we introduce a small o2 here
-        var orig_cnt = cnt;
         for (var dsLoop = 1; true; dsLoop++) {
             var datasourceData = this.inputDataSource.lookAhead(dsLoop);
             //we have looped out
             //no embedded data anymore? we are done, data
             //can either be a scalar an array or another datasource
-            if (datasourceData.value === ITERATION_STATUS.EO_STRM) {
-                return datasourceData;
+            if (datasourceData === ITERATION_STATUS.EO_STRM) {
+                return ITERATION_STATUS.EO_STRM;
             }
-            var mappedData = this.mapFunc(datasourceData.value);
+            var mappedData = this.mapFunc(datasourceData);
             //it either comes in as datasource or as array
             //both cases must be unified into a datasource
             var currentDataSource = this.toDatasource(mappedData);
             //we now run again  a lookahead
             var ret = currentDataSource.lookAhead(cnt);
             //if the value is found then we are set
-            if (ret.value != ITERATION_STATUS.EO_STRM) {
-                return {
-                    iterations: orig_cnt,
-                    value: ret.value
-                };
+            if (ret != ITERATION_STATUS.EO_STRM) {
+                return ret;
             }
             //reduce the next lookahead by the number of elements
             //we are now skipping in the current data source
-            cnt -= (ret.iterations - 1);
+            cnt -= calculateSkips(currentDataSource);
         }
     };
     FlatMapStreamDataSource.prototype.toDatasource = function (mapped) {

@@ -32,13 +32,6 @@ export declare enum ITERATION_STATUS {
     EO_STRM = "__EO_STRM__",
     BEF_STRM = "___BEF_STRM__"
 }
-export declare type LOOKAHEAD_RESULT<T> = {
-    iterations: number;
-    value: T;
-} | {
-    iterations: number;
-    value: ITERATION_STATUS;
-};
 /**
  * Every data source wich feeds data into the lazy stream
  * or stream generally must implement this interface
@@ -61,11 +54,8 @@ export interface IStreamDataSource<T> {
      * data position. Look ahead is mostly needed internally
      * by possible endless data constructs which have no fixed data boundary, or index
      * positions. (aka infinite sets, or flatmapped constructs)
-     *
-     * @returns a tuple of iterations and the result, iterations is the number of steps for the result
-     *
      */
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<T>;
+    lookAhead(cnt?: number): T | ITERATION_STATUS;
     /**
      * returns the current element, returns the same element as the previous next call
      * if there is no next before current called then we will call next as initial element
@@ -102,7 +92,7 @@ export declare class MultiStreamDatasource<T> implements IStreamDataSource<T> {
     current(): any;
     hasNext(): boolean;
     private findNextStrm;
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<T>;
+    lookAhead(cnt?: number): T | ITERATION_STATUS;
     next(): any;
     reset(): void;
 }
@@ -116,7 +106,7 @@ export declare class SequenceDataSource implements IStreamDataSource<number> {
     constructor(start: number, total: number);
     hasNext(): boolean;
     next(): number | ITERATION_STATUS;
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<number>;
+    lookAhead(cnt?: number): number | ITERATION_STATUS;
     reset(): void;
     current(): number | ITERATION_STATUS;
 }
@@ -127,7 +117,7 @@ export declare class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     value: Array<T>;
     dataPos: number;
     constructor(...value: Array<T>);
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<T>;
+    lookAhead(cnt?: number): T | ITERATION_STATUS;
     hasNext(): boolean;
     next(): T | ITERATION_STATUS;
     reset(): void;
@@ -157,16 +147,7 @@ export declare class FilteredStreamDatasource<T> implements IStreamDataSource<T>
      * serve the next element
      */
     next(): T | ITERATION_STATUS;
-    /**
-     * this lookahead is special
-     * wo only count the unfiltered skipped items
-     * as return item!
-     * The logic of the stream flow, filtered items do not exist
-     * and hence are not actively skipped!
-     *
-     * @param cnt the number of look aheads
-     */
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<T>;
+    lookAhead(cnt?: number): ITERATION_STATUS | T;
     current(): T | ITERATION_STATUS;
     reset(): void;
 }
@@ -182,7 +163,7 @@ export declare class MappedStreamDataSource<T, S> implements IStreamDataSource<S
     next(): S;
     reset(): void;
     current(): S;
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<S>;
+    lookAhead(cnt?: number): ITERATION_STATUS | S;
 }
 /**
  * Same for flatmap to deal with element -> stream mappings
@@ -203,7 +184,7 @@ export declare class FlatMapStreamDataSource<T, S> implements IStreamDataSource<
     constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>);
     hasNext(): boolean;
     private resolveActiveHasNext;
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<S>;
+    lookAhead(cnt?: number): ITERATION_STATUS | S;
     private toDatasource;
     private resolveNextHasNext;
     next(): S | ITERATION_STATUS;

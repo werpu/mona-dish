@@ -17,7 +17,7 @@
 import { Config, Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
 import { IStream, LazyStream, Stream } from "./Stream";
-import { ICollector, IStreamDataSource, ITERATION_STATUS, LOOKAHEAD_RESULT } from "./SourcesCollectors";
+import { ICollector, IStreamDataSource, ITERATION_STATUS } from "./SourcesCollectors";
 import { _global$ } from "./Global";
 /**
  * in order to poss custom parameters we need to extend the mutation observer init
@@ -957,7 +957,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     limits(end: number): IStream<DomQuery>;
     hasNext(): boolean;
     next(): DomQuery;
-    lookAhead(cnt?: number): LOOKAHEAD_RESULT<DomQuery>;
+    lookAhead(cnt?: number): ITERATION_STATUS | DomQuery;
     current(): DomQuery | ITERATION_STATUS;
     reset(): void;
     attachShadow(params?: {

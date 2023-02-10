@@ -23,7 +23,7 @@ import {
     AssocArrayCollector,
     ICollector,
     IStreamDataSource,
-    ITERATION_STATUS, LOOKAHEAD_RESULT
+    ITERATION_STATUS
 } from "./SourcesCollectors";
 import {Lang} from "./Lang";
 import trim = Lang.trim;
@@ -2333,17 +2333,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
 
-    lookAhead(cnt = 1): LOOKAHEAD_RESULT<DomQuery> {
+    lookAhead(cnt = 1): ITERATION_STATUS | DomQuery {
         if ((this.values.length - 1) < (this.pos + cnt)) {
-            return {
-                iterations: cnt,
-                value: ITERATION_STATUS.EO_STRM
-            };
+            return ITERATION_STATUS.EO_STRM;
         }
-        return {
-            iterations: cnt,
-            value: new DomQuery(this.values[this.pos + cnt])
-        };
+        return new DomQuery(this.values[this.pos + cnt]);
     }
 
 
