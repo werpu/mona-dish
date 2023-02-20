@@ -19,10 +19,9 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "es2015",
     "downlevelIteration": true,
     "lib": [
-      "es5",
       "es2019",
       "dom"
     ],

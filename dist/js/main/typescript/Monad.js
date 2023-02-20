@@ -1,4 +1,3 @@
-"use strict";
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,133 +14,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Config = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.ValueEmbedder = exports.Optional = exports.Monad = void 0;
 /**
  * A module which keeps  basic monad like definitions in place
  * Useful if you need the functions in another library to keep its dependencies down
  */
 /*IMonad definitions*/
-var Lang_1 = require("./Lang");
-var Es2019Array_1 = require("./Es2019Array");
-var objAssign = Lang_1.Lang.objAssign;
+import { Lang } from "./Lang";
+import { Es2019Array } from "./Es2019Array";
+var objAssign = Lang.objAssign;
 /**
  * Implementation of a monad
  * (Side - effect free), no write allowed directly on the monads
  * value state
  */
-var Monad = /** @class */ (function () {
-    function Monad(value) {
+export class Monad {
+    constructor(value) {
         this._value = value;
     }
-    Object.defineProperty(Monad.prototype, "value", {
-        get: function () {
-            return this._value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Monad.prototype.map = function (fn) {
+    get value() {
+        return this._value;
+    }
+    map(fn) {
         if (!fn) {
-            fn = function (inVal) { return inVal; };
+            fn = (inVal) => inVal;
         }
-        var result = fn(this.value);
+        let result = fn(this.value);
         return new Monad(result);
-    };
-    Monad.prototype.flatMap = function (fn) {
-        var mapped = this.map(fn);
+    }
+    flatMap(fn) {
+        let mapped = this.map(fn);
         while ((mapped === null || mapped === void 0 ? void 0 : mapped.value) instanceof Monad) {
             mapped = mapped.value;
         }
         return mapped;
-    };
-    return Monad;
-}());
-exports.Monad = Monad;
+    }
+}
 /**
  * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
  * sugar on top
  * (Side - effect free, since value assignment is not allowed)
  * */
-var Optional = /** @class */ (function (_super) {
-    __extends(Optional, _super);
-    function Optional(value) {
-        return _super.call(this, value) || this;
+export class Optional extends Monad {
+    constructor(value) {
+        super(value);
     }
-    Object.defineProperty(Optional.prototype, "value", {
-        get: function () {
-            if (this._value instanceof Monad) {
-                return this._value.flatMap().value;
-            }
-            return this._value;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Optional.fromNullable = function (value) {
+    get value() {
+        if (this._value instanceof Monad) {
+            return this._value.flatMap().value;
+        }
+        return this._value;
+    }
+    static fromNullable(value) {
         return new Optional(value);
-    };
+    }
     /*syntactic sugar for absent and present checks*/
-    Optional.prototype.isAbsent = function () {
+    isAbsent() {
         return "undefined" == typeof this.value || null == this.value;
-    };
+    }
     /**
      * any value present
      */
-    Optional.prototype.isPresent = function (presentRunnable) {
-        var absent = this.isAbsent();
+    isPresent(presentRunnable) {
+        let absent = this.isAbsent();
         if (!absent && presentRunnable) {
             presentRunnable.call(this, this);
         }
         return !absent;
-    };
-    Optional.prototype.ifPresentLazy = function (presentRunnable) {
-        if (presentRunnable === void 0) { presentRunnable = function () {
-        }; }
+    }
+    ifPresentLazy(presentRunnable = () => {
+    }) {
         this.isPresent.call(this, presentRunnable);
         return this;
-    };
-    Optional.prototype.orElse = function (elseValue) {
+    }
+    orElse(elseValue) {
         if (this.isPresent()) {
             return this;
         }
@@ -150,47 +95,43 @@ var Optional = /** @class */ (function (_super) {
             if (elseValue == null) {
                 return Optional.absent;
             }
-            return this.flatMap(function () { return elseValue; });
+            return this.flatMap(() => elseValue);
         }
-    };
+    }
     /**
      * lazy, passes a function which then is lazily evaluated
      * instead of a direct value
      * @param func
      */
-    Optional.prototype.orElseLazy = function (func) {
+    orElseLazy(func) {
         if (this.isPresent()) {
             return this;
         }
         else {
             return this.flatMap(func);
         }
-    };
+    }
     /*
      * we need to implement it to fulfill the contract, although it is used only internally
      * all values are flattened when accessed anyway, so there is no need to call this method
      */
-    Optional.prototype.flatMap = function (fn) {
-        var val = _super.prototype.flatMap.call(this, fn);
+    flatMap(fn) {
+        let val = super.flatMap(fn);
         if (!(val instanceof Optional)) {
             return Optional.fromNullable(val.value);
         }
         return val.flatMap();
-    };
+    }
     /*
      * elvis operation, take care, if you use this you lose typesafety and refactoring
      * capabilities, unfortunately typescript does not allow to have its own elvis operator
      * this is some syntactic sugar however which is quite useful*/
-    Optional.prototype.getIf = function () {
-        var key = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            key[_i] = arguments[_i];
-        }
-        key = this.preprocessKeys.apply(this, __spreadArray([], __read(key), false));
-        var currentPos = this;
-        for (var cnt = 0; cnt < key.length; cnt++) {
-            var currKey = this.keyVal(key[cnt]);
-            var arrPos = this.arrayIndex(key[cnt]);
+    getIf(...key) {
+        key = this.preprocessKeys(...key);
+        let currentPos = this;
+        for (let cnt = 0; cnt < key.length; cnt++) {
+            let currKey = this.keyVal(key[cnt]);
+            let arrPos = this.arrayIndex(key[cnt]);
             if (currKey === "" && arrPos >= 0) {
                 currentPos = this.getClass().fromNullable(!(currentPos.value instanceof Array) ? null : (currentPos.value.length < arrPos ? null : currentPos.value[arrPos]));
                 if (currentPos.isAbsent()) {
@@ -219,7 +160,7 @@ var Optional = /** @class */ (function (_super) {
             }
         }
         return currentPos;
-    };
+    }
     /**
      * simple match, if the first order function call returns
      * true then there is a match, if the value is not present
@@ -227,12 +168,12 @@ var Optional = /** @class */ (function (_super) {
      *
      * @param fn the first order function performing the match
      */
-    Optional.prototype.match = function (fn) {
+    match(fn) {
         if (this.isAbsent()) {
             return false;
         }
         return fn(this.value);
-    };
+    }
     /**
      * convenience function to flatmap the internal value
      * and replace it with a default in case of being absent
@@ -240,16 +181,15 @@ var Optional = /** @class */ (function (_super) {
      * @param defaultVal
      * @returns {Optional<any>}
      */
-    Optional.prototype.get = function (defaultVal) {
-        if (defaultVal === void 0) { defaultVal = Optional.absent; }
+    get(defaultVal = Optional.absent) {
         if (this.isAbsent()) {
             return this.getClass().fromNullable(defaultVal).flatMap();
         }
         return this.getClass().fromNullable(this.value).flatMap();
-    };
-    Optional.prototype.toJson = function () {
+    }
+    toJson() {
         return JSON.stringify(this.value);
-    };
+    }
     /**
      * helper to override several implementations in a more fluent way
      * by having a getClass operation we can avoid direct calls into the constructor or
@@ -257,41 +197,41 @@ var Optional = /** @class */ (function (_super) {
      * of "this"
      * @returns the type of Optional
      */
-    Optional.prototype.getClass = function () {
+    getClass() {
         return Optional;
-    };
+    }
     /*helper method for getIf with array access aka <name>[<indexPos>]*/
-    Optional.prototype.arrayIndex = function (key) {
-        var start = key.indexOf("[");
-        var end = key.indexOf("]");
+    arrayIndex(key) {
+        let start = key.indexOf("[");
+        let end = key.indexOf("]");
         if (start >= 0 && end > 0 && start < end) {
             return parseInt(key.substring(start + 1, end));
         }
         else {
             return -1;
         }
-    };
+    }
     /*helper method for getIf with array access aka <name>[<indexPos>]*/
-    Optional.prototype.keyVal = function (key) {
-        var start = key.indexOf("[");
+    keyVal(key) {
+        let start = key.indexOf("[");
         if (start >= 0) {
             return key.substring(0, start);
         }
         else {
             return key;
         }
-    };
+    }
     /**
      * additional syntactic sugar which is not part of the usual optional implementation
      * but makes life easier, if you want to sacrifice typesafety and refactoring
      * capabilities in typescript
      */
-    Optional.prototype.getIfPresent = function (key) {
+    getIfPresent(key) {
         if (this.isAbsent()) {
             return this.getClass().absent;
         }
         return this.getClass().fromNullable(this.value[key]).flatMap();
-    };
+    }
     /**
      * elvis like typesafe functional save resolver
      * a typesafe option for getIfPresent
@@ -304,7 +244,7 @@ var Optional = /** @class */ (function (_super) {
      * @param resolver the resolver function, can throw any arbitrary errors, int  the error case
      * the resolution goes towards absent
      */
-    Optional.prototype.resolve = function (resolver) {
+    resolve(resolver) {
         if (this.isAbsent()) {
             return Optional.absent;
         }
@@ -314,14 +254,12 @@ var Optional = /** @class */ (function (_super) {
         catch (e) {
             return Optional.absent;
         }
-    };
-    Optional.prototype.preprocessKeys = function () {
-        var keys = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            keys[_i] = arguments[_i];
-        }
-        return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(keys), false)))().flatMap(function (item) {
-            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(item.split(/]\s*\[/gi)), false)))().map(function (item) {
+    }
+    preprocessKeys(...keys) {
+        return new Es2019Array(...keys)
+            .flatMap(item => {
+            return new Es2019Array(...item.split(/]\s*\[/gi))
+                .map(item => {
                 item = item.replace(/^\s+|\s+$/g, "");
                 if (item.indexOf("[") == -1 && item.indexOf("]") != -1) {
                     item = "[" + item;
@@ -332,12 +270,10 @@ var Optional = /** @class */ (function (_super) {
                 return item;
             });
         });
-    };
-    /*default value for absent*/
-    Optional.absent = Optional.fromNullable(null);
-    return Optional;
-}(Monad));
-exports.Optional = Optional;
+    }
+}
+/*default value for absent*/
+Optional.absent = Optional.fromNullable(null);
 // --------------------- From here onwards we break out the side effect free limits ------------
 /**
  * ValueEmbedder is the writeable version
@@ -347,42 +283,35 @@ exports.Optional = Optional;
  *
  * For the readonly version see Optional
  */
-var ValueEmbedder = /** @class */ (function (_super) {
-    __extends(ValueEmbedder, _super);
-    function ValueEmbedder(rootElem, valueKey) {
-        if (valueKey === void 0) { valueKey = "value"; }
-        var _this = _super.call(this, rootElem) || this;
-        _this.key = valueKey;
-        return _this;
+export class ValueEmbedder extends Optional {
+    constructor(rootElem, valueKey = "value") {
+        super(rootElem);
+        this.key = valueKey;
     }
-    Object.defineProperty(ValueEmbedder.prototype, "value", {
-        get: function () {
-            return this._value ? this._value[this.key] : null;
-        },
-        set: function (newVal) {
-            if (!this._value) {
-                return;
-            }
-            this._value[this.key] = newVal;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    ValueEmbedder.prototype.orElse = function (elseValue) {
-        var alternative = {};
+    get value() {
+        return this._value ? this._value[this.key] : null;
+    }
+    set value(newVal) {
+        if (!this._value) {
+            return;
+        }
+        this._value[this.key] = newVal;
+    }
+    orElse(elseValue) {
+        let alternative = {};
         alternative[this.key] = elseValue;
         return this.isPresent() ? this : new ValueEmbedder(alternative, this.key);
-    };
-    ValueEmbedder.prototype.orElseLazy = function (func) {
+    }
+    orElseLazy(func) {
         if (this.isPresent()) {
             return this;
         }
         else {
-            var alternative = {};
+            let alternative = {};
             alternative[this.key] = func();
             return new ValueEmbedder(alternative, this.key);
         }
-    };
+    }
     /**
      * helper to override several implementations in a more fluent way
      * by having a getClass operation we can avoid direct calls into the constructor or
@@ -390,138 +319,111 @@ var ValueEmbedder = /** @class */ (function (_super) {
      * of "this"
      * @returns ValueEmbedder
      */
-    ValueEmbedder.prototype.getClass = function () {
+    getClass() {
         return ValueEmbedder;
-    };
-    ValueEmbedder.fromNullable = function (value, valueKey) {
-        if (valueKey === void 0) { valueKey = "value"; }
+    }
+    static fromNullable(value, valueKey = "value") {
         return new ValueEmbedder(value, valueKey);
-    };
-    /*default value for absent*/
-    ValueEmbedder.absent = ValueEmbedder.fromNullable(null);
-    return ValueEmbedder;
-}(Optional));
-exports.ValueEmbedder = ValueEmbedder;
+    }
+}
+/*default value for absent*/
+ValueEmbedder.absent = ValueEmbedder.fromNullable(null);
 /**
  * specialized value embedder
  * for our Configuration
  */
-var ConfigEntry = /** @class */ (function (_super) {
-    __extends(ConfigEntry, _super);
-    function ConfigEntry(rootElem, key, arrPos) {
-        var _this = _super.call(this, rootElem, key) || this;
-        _this.arrPos = arrPos !== null && arrPos !== void 0 ? arrPos : -1;
-        return _this;
+class ConfigEntry extends ValueEmbedder {
+    constructor(rootElem, key, arrPos) {
+        super(rootElem, key);
+        this.arrPos = arrPos !== null && arrPos !== void 0 ? arrPos : -1;
     }
-    Object.defineProperty(ConfigEntry.prototype, "value", {
-        get: function () {
-            if (this.key == "" && this.arrPos >= 0) {
-                return this._value[this.arrPos];
-            }
-            else if (this.key && this.arrPos >= 0) {
-                return this._value[this.key][this.arrPos];
-            }
-            return this._value[this.key];
-        },
-        set: function (val) {
-            if (this.key == "" && this.arrPos >= 0) {
-                this._value[this.arrPos] = val;
-                return;
-            }
-            else if (this.key && this.arrPos >= 0) {
-                this._value[this.key][this.arrPos] = val;
-                return;
-            }
-            this._value[this.key] = val;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    /*default value for absent*/
-    ConfigEntry.absent = ConfigEntry.fromNullable(null);
-    return ConfigEntry;
-}(ValueEmbedder));
-exports.CONFIG_VALUE = "__END_POINT__";
-exports.CONFIG_ANY = "__ANY_POINT__";
+    get value() {
+        if (this.key == "" && this.arrPos >= 0) {
+            return this._value[this.arrPos];
+        }
+        else if (this.key && this.arrPos >= 0) {
+            return this._value[this.key][this.arrPos];
+        }
+        return this._value[this.key];
+    }
+    set value(val) {
+        if (this.key == "" && this.arrPos >= 0) {
+            this._value[this.arrPos] = val;
+            return;
+        }
+        else if (this.key && this.arrPos >= 0) {
+            this._value[this.key][this.arrPos] = val;
+            return;
+        }
+        this._value[this.key] = val;
+    }
+}
+/*default value for absent*/
+ConfigEntry.absent = ConfigEntry.fromNullable(null);
+export const CONFIG_VALUE = "__END_POINT__";
+export const CONFIG_ANY = "__ANY_POINT__";
 /**
  * Config, basically an optional wrapper for a json structure
  * (not Side - effect free, since we can alter the internal config state
  * without generating a new config), not sure if we should make it side - effect free
  * since this would swallow a lot of performance and ram
  */
-var Config = /** @class */ (function (_super) {
-    __extends(Config, _super);
-    function Config(root, configDef) {
-        var _this = _super.call(this, root) || this;
-        _this.configDef = configDef;
-        return _this;
+export class Config extends Optional {
+    constructor(root, configDef) {
+        super(root);
+        this.configDef = configDef;
     }
-    Object.defineProperty(Config.prototype, "shallowCopy", {
-        /**
-         * shallow copy getter, copies only the first level, references the deeper nodes
-         * in a shared manner
-         */
-        get: function () {
-            return this.shallowCopy$();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Config.prototype.shallowCopy$ = function () {
-        var ret = new Config({});
+    /**
+     * shallow copy getter, copies only the first level, references the deeper nodes
+     * in a shared manner
+     */
+    get shallowCopy() {
+        return this.shallowCopy$();
+    }
+    shallowCopy$() {
+        let ret = new Config({});
         ret.shallowMerge(this.value);
         return ret;
-    };
-    Object.defineProperty(Config.prototype, "deepCopy", {
-        /**
-         * deep copy, copies all config nodes
-         */
-        get: function () {
-            return this.deepCopy$();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Config.prototype.deepCopy$ = function () {
+    }
+    /**
+     * deep copy, copies all config nodes
+     */
+    get deepCopy() {
+        return this.deepCopy$();
+    }
+    deepCopy$() {
         return new Config(objAssign({}, this.value));
-    };
+    }
     /**
      * creates a config from an initial value or null
      * @param value
      */
-    Config.fromNullable = function (value) {
+    static fromNullable(value) {
         return new Config(value);
-    };
+    }
     /**
      * simple merge for the root configs
      */
-    Config.prototype.shallowMerge = function (other, overwrite, withAppend) {
-        var _this = this;
-        if (overwrite === void 0) { overwrite = true; }
-        if (withAppend === void 0) { withAppend = false; }
-        var _loop_1 = function (key) {
+    shallowMerge(other, overwrite = true, withAppend = false) {
+        for (let key in other.value) {
             if ('undefined' == typeof key || null == key) {
-                return "continue";
+                continue;
             }
-            if (overwrite || !(key in this_1.value)) {
+            if (overwrite || !(key in this.value)) {
                 if (!withAppend) {
-                    this_1.assign(key).value = other.getIf(key).value;
+                    this.assign(key).value = other.getIf(key).value;
                 }
                 else {
                     if (Array.isArray(other.getIf(key).value)) {
-                        new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(other.getIf(key).value), false)))().forEach(function (item) { return _this.append(key).value = item; });
+                        new Es2019Array(...other.getIf(key).value).forEach(item => this.append(key).value = item);
                     }
                     else {
-                        this_1.append(key).value = other.getIf(key).value;
+                        this.append(key).value = other.getIf(key).value;
                     }
                 }
             }
-        };
-        var this_1 = this;
-        for (var key in other.value) {
-            _loop_1(key);
         }
-    };
+    }
     /**
      * assigns a single value as array, or appends it
      * to an existing value mapping a single value to array
@@ -534,150 +436,126 @@ var Config = /** @class */ (function (_super) {
      *
      * @param {string[]} accessPath
      */
-    Config.prototype.append = function () {
-        var accessPath = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            accessPath[_i] = arguments[_i];
-        }
-        var noKeys = accessPath.length < 1;
+    append(...accessPath) {
+        let noKeys = accessPath.length < 1;
         if (noKeys) {
             return;
         }
-        this.assertAccessPath.apply(this, __spreadArray([], __read(accessPath), false));
-        var lastKey = accessPath[accessPath.length - 1];
-        var pathExists = this.getIf.apply(this, __spreadArray([], __read(accessPath), false)).isPresent();
-        this.buildPath.apply(this, __spreadArray([], __read(accessPath), false));
-        var finalKeyArrPos = this.arrayIndex(lastKey);
+        this.assertAccessPath(...accessPath);
+        let lastKey = accessPath[accessPath.length - 1];
+        let pathExists = this.getIf(...accessPath).isPresent();
+        this.buildPath(...accessPath);
+        let finalKeyArrPos = this.arrayIndex(lastKey);
         if (finalKeyArrPos > -1) {
             throw Error("Append only possible on non array properties, use assign on indexed data");
         }
-        var value = this.getIf.apply(this, __spreadArray([], __read(accessPath), false)).value;
+        let value = this.getIf(...accessPath).value;
         if (!Array.isArray(value)) {
-            value = this.assign.apply(this, __spreadArray([], __read(accessPath), false)).value = [value];
+            value = this.assign(...accessPath).value = [value];
         }
         if (pathExists) {
             value.push({});
         }
         finalKeyArrPos = value.length - 1;
         return new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value, lastKey, finalKeyArrPos);
-    };
+    }
     /**
      * appends to an existing entry (or extends into an array and appends)
      * if the condition is met
      * @param {boolean} condition
      * @param {string[]} accessPath
      */
-    Config.prototype.appendIf = function (condition) {
-        var accessPath = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            accessPath[_i - 1] = arguments[_i];
-        }
+    appendIf(condition, ...accessPath) {
         if (!condition) {
             return { value: null };
         }
-        return this.append.apply(this, __spreadArray([], __read(accessPath), false));
-    };
+        return this.append(...accessPath);
+    }
     /**
      * assigns a new value on the given access path
      * @param accessPath
      */
-    Config.prototype.assign = function () {
-        var accessPath = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            accessPath[_i] = arguments[_i];
-        }
+    assign(...accessPath) {
         if (accessPath.length < 1) {
             return;
         }
-        this.assertAccessPath.apply(this, __spreadArray([], __read(accessPath), false));
-        this.buildPath.apply(this, __spreadArray([], __read(accessPath), false));
-        var currKey = this.keyVal(accessPath[accessPath.length - 1]);
-        var arrPos = this.arrayIndex(accessPath[accessPath.length - 1]);
+        this.assertAccessPath(...accessPath);
+        this.buildPath(...accessPath);
+        let currKey = this.keyVal(accessPath[accessPath.length - 1]);
+        let arrPos = this.arrayIndex(accessPath[accessPath.length - 1]);
         return new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value, currKey, arrPos);
-    };
+    }
     /**
      * assign a value if the condition is set to true, otherwise skip it
      *
      * @param condition the condition, the access accessPath into the config
      * @param accessPath
      */
-    Config.prototype.assignIf = function (condition) {
-        var accessPath = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            accessPath[_i - 1] = arguments[_i];
-        }
-        return condition ? this.assign.apply(this, __spreadArray([], __read(accessPath), false)) : { value: null };
-    };
+    assignIf(condition, ...accessPath) {
+        return condition ? this.assign(...accessPath) : { value: null };
+    }
     /**
      * get if the access path is present (get is reserved as getter with a default, on the current path)
      * TODO will be renamed to something more meaningful and deprecated, the name is ambiguous
      * @param accessPath the access path
      */
-    Config.prototype.getIf = function () {
-        var accessPath = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            accessPath[_i] = arguments[_i];
-        }
-        this.assertAccessPath.apply(this, __spreadArray([], __read(accessPath), false));
-        return this.getClass().fromNullable(_super.prototype.getIf.apply(this, accessPath).value);
-    };
+    getIf(...accessPath) {
+        this.assertAccessPath(...accessPath);
+        return this.getClass().fromNullable(super.getIf.apply(this, accessPath).value);
+    }
     /**
      * gets the current node and if none is present returns a config with a default value
      * @param defaultVal
      */
-    Config.prototype.get = function (defaultVal) {
-        return this.getClass().fromNullable(_super.prototype.get.call(this, defaultVal).value);
-    };
+    get(defaultVal) {
+        return this.getClass().fromNullable(super.get(defaultVal).value);
+    }
     //empties the current config entry
-    Config.prototype.delete = function (key) {
+    delete(key) {
         if (key in this.value) {
             delete this.value[key];
         }
         return this;
-    };
+    }
     /**
      * converts the entire config into a json object
      */
-    Config.prototype.toJson = function () {
+    toJson() {
         return JSON.stringify(this.value);
-    };
-    Config.prototype.getClass = function () {
+    }
+    getClass() {
         return Config;
-    };
-    Config.prototype.setVal = function (val) {
+    }
+    setVal(val) {
         this._value = val;
-    };
+    }
     /**
      * asserts the access path for a semi typed access
       * @param accessPath
      * @private
      */
-    Config.prototype.assertAccessPath = function () {
-        var _this = this;
+    assertAccessPath(...accessPath) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j;
-        var accessPath = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            accessPath[_i] = arguments[_i];
-        }
-        accessPath = this.preprocessKeys.apply(this, __spreadArray([], __read(accessPath), false));
+        accessPath = this.preprocessKeys(...accessPath);
         if (!this.configDef) {
             //untyped
             return;
         }
-        var ERR_ACCESS_PATH = "Access Path to config invalid";
-        var currAccessPos = Optional.fromNullable(Object.keys(this.configDef).map(function (key) {
-            var ret = {};
-            ret[key] = _this.configDef[key];
+        const ERR_ACCESS_PATH = "Access Path to config invalid";
+        let currAccessPos = Optional.fromNullable(Object.keys(this.configDef).map(key => {
+            let ret = {};
+            ret[key] = this.configDef[key];
             return ret;
         }));
-        var _loop_2 = function (cnt) {
-            var currKey = this_2.keyVal(accessPath[cnt]);
-            var arrPos = this_2.arrayIndex(accessPath[cnt]);
+        for (let cnt = 0; cnt < accessPath.length; cnt++) {
+            let currKey = this.keyVal(accessPath[cnt]);
+            let arrPos = this.arrayIndex(accessPath[cnt]);
             //key index
-            if (this_2.isArray(arrPos)) {
+            if (this.isArray(arrPos)) {
                 if (currKey != "") {
                     currAccessPos = Array.isArray(currAccessPos.value) ?
-                        Optional.fromNullable((_b = (_a = new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(currAccessPos.value), false)))().find(function (item) {
+                        Optional.fromNullable((_b = (_a = new Es2019Array(...currAccessPos.value)
+                            .find(item => {
                             var _a;
                             return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false);
                         })) === null || _a === void 0 ? void 0 : _a[currKey]) === null || _b === void 0 ? void 0 : _b[arrPos]) :
@@ -691,7 +569,8 @@ var Config = /** @class */ (function (_super) {
             }
             else {
                 //we now have an array and go further with a singular key
-                currAccessPos = (Array.isArray(currAccessPos.value)) ? Optional.fromNullable((_g = new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(currAccessPos.value), false)))().find(function (item) {
+                currAccessPos = (Array.isArray(currAccessPos.value)) ? Optional.fromNullable((_g = new Es2019Array(...currAccessPos.value)
+                    .find(item => {
                     var _a;
                     return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false);
                 })) === null || _g === void 0 ? void 0 : _g[currKey]) :
@@ -700,41 +579,31 @@ var Config = /** @class */ (function (_super) {
             if (!currAccessPos.isPresent()) {
                 throw Error(ERR_ACCESS_PATH);
             }
-            if (currAccessPos.value == exports.CONFIG_ANY) {
-                return { value: void 0 };
+            if (currAccessPos.value == CONFIG_ANY) {
+                return;
             }
-        };
-        var this_2 = this;
-        for (var cnt = 0; cnt < accessPath.length; cnt++) {
-            var state_1 = _loop_2(cnt);
-            if (typeof state_1 === "object")
-                return state_1.value;
         }
-    };
+    }
     /**
      * builds the config path
      *
      * @param accessPath a sequential array of accessPath containing either a key name or an array reference name[<index>]
      */
-    Config.prototype.buildPath = function () {
-        var accessPath = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            accessPath[_i] = arguments[_i];
-        }
-        accessPath = this.preprocessKeys.apply(this, __spreadArray([], __read(accessPath), false));
-        var val = this;
-        var parentVal = this.getClass().fromNullable(null);
-        var parentPos = -1;
-        var alloc = function (arr, length) {
-            var length1 = arr.length;
-            var length2 = length1 + length;
-            for (var cnt = length1; cnt < length2; cnt++) {
+    buildPath(...accessPath) {
+        accessPath = this.preprocessKeys(...accessPath);
+        let val = this;
+        let parentVal = this.getClass().fromNullable(null);
+        let parentPos = -1;
+        let alloc = function (arr, length) {
+            let length1 = arr.length;
+            let length2 = length1 + length;
+            for (let cnt = length1; cnt < length2; cnt++) {
                 arr.push({});
             }
         };
-        for (var cnt = 0; cnt < accessPath.length; cnt++) {
-            var currKey = this.keyVal(accessPath[cnt]);
-            var arrPos = this.arrayIndex(accessPath[cnt]);
+        for (let cnt = 0; cnt < accessPath.length; cnt++) {
+            let currKey = this.keyVal(accessPath[cnt]);
+            let arrPos = this.arrayIndex(accessPath[cnt]);
             if (this.isArrayPos(currKey, arrPos)) {
                 val.setVal((val.value instanceof Array) ? val.value : []);
                 alloc(val.value, arrPos + 1);
@@ -746,7 +615,7 @@ var Config = /** @class */ (function (_super) {
                 val = this.getClass().fromNullable(val.value[arrPos]);
                 continue;
             }
-            var tempVal = val.getIf(currKey);
+            let tempVal = val.getIf(currKey);
             if (this.isNoArray(arrPos)) {
                 if (tempVal.isAbsent()) {
                     tempVal = this.getClass().fromNullable(val.value[currKey] = {});
@@ -756,7 +625,7 @@ var Config = /** @class */ (function (_super) {
                 }
             }
             else {
-                var arr = (tempVal.value instanceof Array) ? tempVal.value : [];
+                let arr = (tempVal.value instanceof Array) ? tempVal.value : [];
                 alloc(arr, arrPos + 1);
                 val.value[currKey] = arr;
                 tempVal = this.getClass().fromNullable(arr[arrPos]);
@@ -766,17 +635,15 @@ var Config = /** @class */ (function (_super) {
             val = tempVal;
         }
         return this;
-    };
-    Config.prototype.isNoArray = function (arrPos) {
+    }
+    isNoArray(arrPos) {
         return arrPos == -1;
-    };
-    Config.prototype.isArray = function (arrPos) {
+    }
+    isArray(arrPos) {
         return !this.isNoArray(arrPos);
-    };
-    Config.prototype.isArrayPos = function (currKey, arrPos) {
+    }
+    isArrayPos(currKey, arrPos) {
         return currKey === "" && arrPos >= 0;
-    };
-    return Config;
-}(Optional));
-exports.Config = Config;
+    }
+}
 //# sourceMappingURL=Monad.js.map

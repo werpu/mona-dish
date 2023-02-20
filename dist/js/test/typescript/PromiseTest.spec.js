@@ -1,4 +1,3 @@
-"use strict";
 /* Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,231 +13,230 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var chai_1 = require("chai");
-var mocha_1 = require("mocha");
-var Promise_1 = require("../../main/typescript/Promise");
-(0, mocha_1.describe)('promise tests', function () {
-    (0, mocha_1.it)('simple promise', function (done) {
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import { Promise as ShimPromise } from "../../main/typescript/Promise";
+describe('promise tests', () => {
+    it('simple promise', (done) => {
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 apply(1);
             }, 1);
         });
-        var finallyCalled = false;
-        var thenCalled = false;
-        applyPromise.then(function (data) {
+        let finallyCalled = false;
+        let thenCalled = false;
+        applyPromise.then((data) => {
             thenCalled = true;
-            (0, chai_1.expect)(data).to.be.eq(1);
-        }).finally(function () {
+            expect(data).to.be.eq(1);
+        }).finally(() => {
             finallyCalled = true;
-            (0, chai_1.expect)(thenCalled).to.be.true;
-            (0, chai_1.expect)(finallyCalled).to.be.true;
+            expect(thenCalled).to.be.true;
+            expect(finallyCalled).to.be.true;
             done();
         });
     });
-    (0, mocha_1.it)('simple promise failure', function (done) {
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+    it('simple promise failure', (done) => {
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 reject(1);
             }, 1);
         });
-        var finallyCalled = false;
-        var thenCalled = false;
-        applyPromise.catch(function (data) {
+        let finallyCalled = false;
+        let thenCalled = false;
+        applyPromise.catch((data) => {
             thenCalled = true;
-            (0, chai_1.expect)(data).to.be.eq(1);
-        }).finally(function () {
+            expect(data).to.be.eq(1);
+        }).finally(() => {
             finallyCalled = true;
-            (0, chai_1.expect)(thenCalled).to.be.true;
-            (0, chai_1.expect)(finallyCalled).to.be.true;
+            expect(thenCalled).to.be.true;
+            expect(finallyCalled).to.be.true;
             done();
         });
     });
-    (0, mocha_1.it)('chained promise', function (done) {
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+    it('chained promise', (done) => {
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 apply(1);
             }, 1);
         });
-        var finallyCalled = false;
-        var thenCalled = false;
-        var then2Called = false;
-        applyPromise.then(function (data) {
+        let finallyCalled = false;
+        let thenCalled = false;
+        let then2Called = false;
+        applyPromise.then((data) => {
             thenCalled = true;
-            (0, chai_1.expect)(data).to.be.eq(1);
+            expect(data).to.be.eq(1);
             return 2;
-        }).then(function (data) {
+        }).then((data) => {
             then2Called = true;
-            (0, chai_1.expect)(data).to.be.eq(2);
-        }).finally(function () {
+            expect(data).to.be.eq(2);
+        }).finally(() => {
             finallyCalled = true;
-            (0, chai_1.expect)(thenCalled).to.be.true;
-            (0, chai_1.expect)(then2Called).to.be.true;
-            (0, chai_1.expect)(finallyCalled).to.be.true;
+            expect(thenCalled).to.be.true;
+            expect(then2Called).to.be.true;
+            expect(finallyCalled).to.be.true;
             done();
         });
     });
-    (0, mocha_1.it)("Promise all test", function (done) {
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+    it("Promise all test", (done) => {
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 apply(1);
             }, 1);
         });
-        var applyPromise2 = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+        let applyPromise2 = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 apply(2);
             }, 1);
         });
-        var applyPromise3 = Promise_1.Promise.all(applyPromise, applyPromise2);
-        var finallyCalled = false;
-        var thenCalled = false;
-        var then2Called = false;
-        applyPromise.then(function (data) {
+        let applyPromise3 = ShimPromise.all(applyPromise, applyPromise2);
+        let finallyCalled = false;
+        let thenCalled = false;
+        let then2Called = false;
+        applyPromise.then((data) => {
             thenCalled = true;
-            (0, chai_1.expect)(data).to.be.eq(1);
+            expect(data).to.be.eq(1);
             return 2;
         });
-        applyPromise2.then(function (data) {
+        applyPromise2.then((data) => {
             then2Called = true;
-            (0, chai_1.expect)(data).to.be.eq(2);
+            expect(data).to.be.eq(2);
             return 2;
         });
-        applyPromise3.finally(function () {
+        applyPromise3.finally(() => {
             finallyCalled = true;
-            (0, chai_1.expect)(thenCalled).to.be.true;
-            (0, chai_1.expect)(then2Called).to.be.true;
-            (0, chai_1.expect)(finallyCalled).to.be.true;
+            expect(thenCalled).to.be.true;
+            expect(then2Called).to.be.true;
+            expect(finallyCalled).to.be.true;
             done();
         });
     });
-    (0, mocha_1.it)("Promise race test", function (done) {
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+    it("Promise race test", (done) => {
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 apply(1);
             }, 1);
         });
-        var applyPromise2 = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+        let applyPromise2 = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 apply(2);
             }, 6);
         });
-        var applyPromise3 = Promise_1.Promise.race(applyPromise, applyPromise2);
-        var finallyCalled = false;
-        var thenCalled = false;
-        var then2Called = false;
-        applyPromise.then(function (data) {
+        let applyPromise3 = ShimPromise.race(applyPromise, applyPromise2);
+        let finallyCalled = false;
+        let thenCalled = false;
+        let then2Called = false;
+        applyPromise.then((data) => {
             thenCalled = true;
-            (0, chai_1.expect)(data).to.be.eq(1);
+            expect(data).to.be.eq(1);
             return 2;
         });
-        applyPromise2.then(function (data) {
+        applyPromise2.then((data) => {
             then2Called = true;
-            (0, chai_1.expect)(data).to.be.eq(2);
+            expect(data).to.be.eq(2);
             return 2;
         });
-        applyPromise3.then(function (val) {
+        applyPromise3.then((val) => {
             finallyCalled = true;
         });
-        Promise_1.Promise.all(applyPromise3).finally(function () {
-            (0, chai_1.expect)(thenCalled || then2Called).to.be.true;
-            (0, chai_1.expect)(then2Called).to.be.eq(false);
-            (0, chai_1.expect)(finallyCalled).to.be.true;
+        ShimPromise.all(applyPromise3).finally(() => {
+            expect(thenCalled || then2Called).to.be.true;
+            expect(then2Called).to.be.eq(false);
+            expect(finallyCalled).to.be.true;
             done();
         });
     });
-    (0, mocha_1.it)("Promise chain test", function (done) {
-        var chainExecuted = false;
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+    it("Promise chain test", (done) => {
+        let chainExecuted = false;
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 apply(1);
             }, 1);
         });
-        applyPromise.then(function () {
-            return new Promise_1.Promise(function (apply, reject) {
-                setTimeout(function () {
+        applyPromise.then(() => {
+            return new ShimPromise((apply, reject) => {
+                setTimeout(() => {
                     apply(2);
                 }, 6);
             });
-        }).then(function () {
+        }).then(() => {
             chainExecuted = true;
             done();
         });
     });
-    (0, mocha_1.it)("Promise chain2 test", function (done) {
-        var chainExecuted = false;
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+    it("Promise chain2 test", (done) => {
+        let chainExecuted = false;
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 reject(1);
             }, 1);
         });
-        applyPromise.catch(function () {
-            return new Promise_1.Promise(function (apply, reject) {
-                setTimeout(function () {
+        applyPromise.catch(() => {
+            return new ShimPromise((apply, reject) => {
+                setTimeout(() => {
                     apply(2);
                 }, 6);
             });
-        }).then(function () {
+        }).then(() => {
             chainExecuted = true;
             done();
         });
     });
-    (0, mocha_1.it)("Promise chain3 test", function (done) {
-        var chainExecuted = false;
-        var promise2Called = false;
-        var promise3Called = false;
-        var promise4Called = false;
-        var applyPromise = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+    it("Promise chain3 test", (done) => {
+        let chainExecuted = false;
+        let promise2Called = false;
+        let promise3Called = false;
+        let promise4Called = false;
+        let applyPromise = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 reject(1);
             }, 1);
-        }).catch(function () {
-            return new Promise_1.Promise(function (apply, reject) {
-                setTimeout(function () {
+        }).catch(() => {
+            return new ShimPromise((apply, reject) => {
+                setTimeout(() => {
                     apply(2);
                 }, 6);
             });
-        }).then(function () {
+        }).then(() => {
             chainExecuted = true;
-            return Promise_1.Promise.reject(true);
-        }).catch(function (val) {
+            return ShimPromise.reject(true);
+        }).catch((val) => {
             promise4Called = val;
         });
-        var applyPromise2 = new Promise_1.Promise(function (apply, reject) {
-            setTimeout(function () {
+        let applyPromise2 = new ShimPromise((apply, reject) => {
+            setTimeout(() => {
                 reject(1);
             }, 1);
-        }).then(function () {
+        }).then(() => {
             promise2Called = true;
         });
-        var applyPromise3 = Promise_1.Promise.all(applyPromise, applyPromise2).then(function () {
+        let applyPromise3 = ShimPromise.all(applyPromise, applyPromise2).then(() => {
             promise3Called = true;
         });
-        Promise_1.Promise.all(applyPromise, applyPromise2, applyPromise3).finally(function () {
-            (0, chai_1.expect)(chainExecuted).to.be.true;
-            (0, chai_1.expect)(promise3Called).to.be.true;
-            (0, chai_1.expect)(promise4Called).to.be.true;
+        ShimPromise.all(applyPromise, applyPromise2, applyPromise3).finally(() => {
+            expect(chainExecuted).to.be.true;
+            expect(promise3Called).to.be.true;
+            expect(promise4Called).to.be.true;
             done();
         });
     });
-    (0, mocha_1.it)("Promise resolve test", function (done) {
-        var promisCalled = false;
-        var original = Promise_1.Promise.resolve(true);
-        var cast = Promise_1.Promise.resolve(original);
+    it("Promise resolve test", (done) => {
+        let promisCalled = false;
+        const original = ShimPromise.resolve(true);
+        const cast = ShimPromise.resolve(original);
         cast.then(function (v) {
             promisCalled = true;
-            (0, chai_1.expect)(v).to.be.true;
+            expect(v).to.be.true;
             done();
         });
     });
-    (0, mocha_1.it)("Promise reject test", function (done) {
-        var promisCalled = false;
-        var original = Promise_1.Promise.resolve(true);
-        var original2 = Promise_1.Promise.resolve(original);
-        var cast = Promise_1.Promise.reject(original2);
+    it("Promise reject test", (done) => {
+        let promisCalled = false;
+        const original = ShimPromise.resolve(true);
+        const original2 = ShimPromise.resolve(original);
+        const cast = ShimPromise.reject(original2);
         cast.catch(function (v) {
             promisCalled = true;
-            (0, chai_1.expect)(v).to.be.true;
+            expect(v).to.be.true;
             done();
         });
     });

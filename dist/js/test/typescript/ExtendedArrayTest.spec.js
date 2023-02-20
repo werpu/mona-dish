@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,12 +16,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * specific language governing permissions and limitations
  * under the License.
  */
-var mocha_1 = require("mocha");
-var chai_1 = require("chai");
-var Es2019Array_1 = require("../../main/typescript/Es2019Array");
-(0, mocha_1.describe)('Extended tests', function () {
-    var arr;
-    var origFlatmap = null;
+import { describe } from "mocha";
+import { expect } from "chai";
+import { Es2019Array } from "../../main/typescript/Es2019Array";
+describe('Extended tests', function () {
+    let arr;
+    let origFlatmap = null;
     beforeEach(function () {
         if (Array.prototype.flatMap) {
             origFlatmap = Array.prototype.flatMap;
@@ -35,25 +33,25 @@ var Es2019Array_1 = require("../../main/typescript/Es2019Array");
     after(function () {
         Array.prototype.flatMap = origFlatmap;
     });
-    it("must handle flatmap correctly", function () {
-        arr = new Es2019Array_1.Es2019Array("10", "20", "30", ["40", "50"], "60");
-        var retArr = arr.flatMap((function (item) { return item; }), true);
-        (0, chai_1.expect)(retArr.length).to.eq(6);
+    it("must handle flatmap correctly", () => {
+        arr = new Es2019Array("10", "20", "30", ["40", "50"], "60");
+        let retArr = arr.flatMap((item => item), true);
+        expect(retArr.length).to.eq(6);
     });
-    it("must handle deeply nested items correctly", function () {
-        arr = new Es2019Array_1.Es2019Array("10", "20", "30", ["40", "50", ["55", "56"]], "60");
-        var retArr = arr.flatMap((function (item) { return item; }), true).flatMap(function (item) { return item; });
+    it("must handle deeply nested items correctly", () => {
+        arr = new Es2019Array("10", "20", "30", ["40", "50", ["55", "56"]], "60");
+        let retArr = arr.flatMap((item => item), true).flatMap(item => item);
         //second nesting level cannot be flatmapped, flatmap only works on one level usually
         //TODO this needs further investigation
-        (0, chai_1.expect)(retArr.length).to.eq(8);
+        expect(retArr.length).to.eq(8);
     });
-    it("must keep the order", function () {
-        arr = new Es2019Array_1.Es2019Array("10", "20", "30", ["40", "50", ["55", "56"]], "60");
-        var retArr = arr.flatMap((function (item) { return item; }), true).flatMap((function (item) { return item; }), true);
-        (0, chai_1.expect)(retArr.length).to.eq(8);
-        var result = new Es2019Array_1.Es2019Array("10", "20", "30", "40", "50", ["55", "56"], "60").flatMap(function (item) { return item; });
-        retArr.forEach(function (item, pos) {
-            (0, chai_1.expect)(item).to.eq(result[pos]);
+    it("must keep the order", () => {
+        arr = new Es2019Array("10", "20", "30", ["40", "50", ["55", "56"]], "60");
+        let retArr = arr.flatMap((item => item), true).flatMap((item => item), true);
+        expect(retArr.length).to.eq(8);
+        let result = new Es2019Array("10", "20", "30", "40", "50", ["55", "56"], "60").flatMap(item => item);
+        retArr.forEach((item, pos) => {
+            expect(item).to.eq(result[pos]);
         });
     });
 });

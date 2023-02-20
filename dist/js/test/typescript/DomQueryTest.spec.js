@@ -1,4 +1,3 @@
-"use strict";
 /* Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -23,54 +22,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var chai_1 = require("chai");
-var mocha_1 = require("mocha");
-var typescript_1 = require("../../main/typescript");
-var rxjs_1 = require("rxjs");
-var trim = typescript_1.Lang.trim;
-var tobago_with_header_1 = require("./markups/tobago-with-header");
-var tobago_without_header_1 = require("./markups/tobago-without-header");
-var jsdom = require("jsdom");
-var JSDOM = jsdom.JSDOM;
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+import { ArrayCollector, DomQuery, DomQueryCollector, Lang, LazyStream, Stream } from "../../main/typescript";
+import { from } from "rxjs";
+var trim = Lang.trim;
+import { tobagoSheetWithHeader } from "./markups/tobago-with-header";
+import { tobagoSheetWithoutHeader } from "./markups/tobago-without-header";
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
 global.window = {};
-var dom = null;
-(0, mocha_1.describe)('DOMQuery tests', function () {
+let dom = null;
+describe('DOMQuery tests', function () {
     beforeEach(function () {
-        dom = new JSDOM("\n            <!DOCTYPE html>\n        <html lang=\"en\">\n        <head>\n            <meta charset=\"UTF-8\">\n            <title>Title</title>\n            </head>\n            <body>\n                <div id=\"id_1\"></div>\n                <div id=\"id_2\"  booga=\"blarg\" class=\"blarg2\"></div>\n                <div id=\"id_3\" class=\"blarg1 blarg2\"></div>\n                <div id=\"id_4\"></div>\n            </body>\n            </html>\n    \n    ", {
+        dom = new JSDOM(`
+            <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>Title</title>
+            </head>
+            <body>
+                <div id="id_1"></div>
+                <div id="id_2"  booga="blarg" class="blarg2"></div>
+                <div id="id_3" class="blarg1 blarg2"></div>
+                <div id="id_4"></div>
+            </body>
+            </html>
+    
+    `, {
             contentType: "text/html",
             runScripts: "dangerously",
             resources: "usable",
-            url: "file://".concat(__dirname, "/index.html")
+            url: `file://${__dirname}/index.html`
         });
-        var window = dom.window;
+        let window = dom.window;
         global.dom = dom;
         global.window = window;
         global.body = window.document.body;
@@ -81,555 +67,584 @@ var dom = null;
     });
     this.afterEach(function () {
     });
-    (0, mocha_1.it)('basic init', function () {
-        var probe1 = new typescript_1.DomQuery(window.document.body);
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        var probe3 = new typescript_1.DomQuery(probe1, probe2);
-        var probe4 = new typescript_1.DomQuery(window.document.body, probe3);
-        (0, chai_1.expect)(probe1.length).to.be.eq(1);
-        (0, chai_1.expect)(probe2.length == 4).to.be.true;
-        (0, chai_1.expect)(probe3.length == 5).to.be.true;
+    it('basic init', function () {
+        let probe1 = new DomQuery(window.document.body);
+        let probe2 = DomQuery.querySelectorAll("div");
+        let probe3 = new DomQuery(probe1, probe2);
+        let probe4 = new DomQuery(window.document.body, probe3);
+        expect(probe1.length).to.be.eq(1);
+        expect(probe2.length == 4).to.be.true;
+        expect(probe3.length == 5).to.be.true;
         //still under discussion (we might index to avoid doubles)
-        (0, chai_1.expect)(probe4.length == 6).to.be.true;
+        expect(probe4.length == 6).to.be.true;
     });
-    (0, mocha_1.it)('proper iterator api and rxjs mapping', function () {
-        var probe1 = new typescript_1.DomQuery(window.document.body);
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        var o1 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe1));
-        var o2 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe2));
-        var cnt1 = 0;
-        var isDQuery = false;
-        var cnt2 = 0;
-        o1.subscribe(function (item) {
+    it('proper iterator api and rxjs mapping', function () {
+        let probe1 = new DomQuery(window.document.body);
+        let probe2 = DomQuery.querySelectorAll("div");
+        let o1 = from(Stream.ofDataSource(probe1));
+        let o2 = from(Stream.ofDataSource(probe2));
+        let cnt1 = 0;
+        let isDQuery = false;
+        let cnt2 = 0;
+        o1.subscribe((item) => {
             cnt1++;
         });
-        o2.subscribe(function (item) {
+        o2.subscribe((item) => {
             cnt2++;
-            isDQuery = (item.length == 1) && (item instanceof typescript_1.DomQuery);
+            isDQuery = (item.length == 1) && (item instanceof DomQuery);
         });
-        (0, chai_1.expect)(probe1.length).to.be.eq(1);
-        (0, chai_1.expect)(probe2.length == 4).to.be.true;
-        (0, chai_1.expect)(isDQuery).to.be.true;
+        expect(probe1.length).to.be.eq(1);
+        expect(probe2.length == 4).to.be.true;
+        expect(isDQuery).to.be.true;
     });
-    (0, mocha_1.it)('proper iterator api and rxjs mapping with observable', function () {
-        var probe1 = new typescript_1.DomQuery(window.document.body);
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        var o1 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe1));
-        var o2 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe2));
-        var cnt1 = 0;
-        var isDQuery = false;
-        var cnt2 = 0;
-        o1.subscribe(function (item) {
+    it('proper iterator api and rxjs mapping with observable', function () {
+        let probe1 = new DomQuery(window.document.body);
+        let probe2 = DomQuery.querySelectorAll("div");
+        let o1 = from(Stream.ofDataSource(probe1));
+        let o2 = from(Stream.ofDataSource(probe2));
+        let cnt1 = 0;
+        let isDQuery = false;
+        let cnt2 = 0;
+        o1.subscribe((item) => {
             cnt1++;
         });
-        o2.subscribe(function (item) {
+        o2.subscribe((item) => {
             cnt2++;
-            isDQuery = (item.length == 1) && (item instanceof typescript_1.DomQuery);
+            isDQuery = (item.length == 1) && (item instanceof DomQuery);
         });
-        (0, chai_1.expect)(probe1.length).to.be.eq(1);
-        (0, chai_1.expect)(probe2.length == 4).to.be.true;
-        (0, chai_1.expect)(isDQuery).to.be.true;
+        expect(probe1.length).to.be.eq(1);
+        expect(probe2.length == 4).to.be.true;
+        expect(isDQuery).to.be.true;
     });
-    (0, mocha_1.it)('domquery ops test filter', function () {
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        probe2 = probe2.filter(function (item) { return item.id.match(function (id) { return id != "id_1"; }); });
-        (0, chai_1.expect)(probe2.length == 3);
+    it('domquery ops test filter', function () {
+        let probe2 = DomQuery.querySelectorAll("div");
+        probe2 = probe2.filter((item) => item.id.match((id) => id != "id_1"));
+        expect(probe2.length == 3);
     });
-    (0, mocha_1.it)('global eval test', function () {
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        probe2 = probe2.filter(function (item) { return item.id.match(function (id) { return id != "id_1"; }); });
-        (0, chai_1.expect)(probe2.length == 3);
+    it('global eval test', function () {
+        let probe2 = DomQuery.querySelectorAll("div");
+        probe2 = probe2.filter((item) => item.id.match((id) => id != "id_1"));
+        expect(probe2.length == 3);
     });
-    (0, mocha_1.it)('must detach', function () {
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div#id_1");
+    it('must detach', function () {
+        let probe2 = DomQuery.querySelectorAll("div#id_1");
         probe2.detach();
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div#id_1").isPresent()).to.be.false;
-        probe2.appendTo(typescript_1.DomQuery.querySelectorAll("body"));
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div#id_1").isPresent()).to.be.true;
+        expect(DomQuery.querySelectorAll("div#id_1").isPresent()).to.be.false;
+        probe2.appendTo(DomQuery.querySelectorAll("body"));
+        expect(DomQuery.querySelectorAll("div#id_1").isPresent()).to.be.true;
     });
-    (0, mocha_1.it)('domquery ops test2 each', function () {
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div#id_1");
-        typescript_1.DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello'");
-        (0, chai_1.expect)(probe2.html().value).to.eq("hello");
-        (0, chai_1.expect)(typescript_1.DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello'")).to.eq(-1);
-        typescript_1.DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello2'", "nonci");
-        (0, chai_1.expect)(probe2.html().value).to.eq("hello2");
+    it('domquery ops test2 each', () => {
+        let probe2 = DomQuery.querySelectorAll("div#id_1");
+        DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello'");
+        expect(probe2.html().value).to.eq("hello");
+        expect(DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello'")).to.eq(-1);
+        DomQuery.globalEval("document.getElementById('id_1').innerHTML = 'hello2'", "nonci");
+        expect(probe2.html().value).to.eq("hello2");
     });
-    (0, mocha_1.it)('domquery ops test2 with sticky eval code', function () {
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div#id_1");
-        typescript_1.DomQuery.globalEvalSticky("document.getElementById('id_1').innerHTML = 'hello'");
-        (0, chai_1.expect)(probe2.html().value).to.eq("hello");
-        (0, chai_1.expect)(typescript_1.DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello'")).not.to.eq(-1);
-        typescript_1.DomQuery.globalEvalSticky("document.getElementById('id_1').innerHTML = 'hello2'", "nonci");
-        (0, chai_1.expect)(probe2.html().value).to.eq("hello2");
-        (0, chai_1.expect)(typescript_1.DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello2'")).not.to.eq(-1);
+    it('domquery ops test2 with sticky eval code', () => {
+        let probe2 = DomQuery.querySelectorAll("div#id_1");
+        DomQuery.globalEvalSticky("document.getElementById('id_1').innerHTML = 'hello'");
+        expect(probe2.html().value).to.eq("hello");
+        expect(DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello'")).not.to.eq(-1);
+        DomQuery.globalEvalSticky("document.getElementById('id_1').innerHTML = 'hello2'", "nonci");
+        expect(probe2.html().value).to.eq("hello2");
+        expect(DomQuery.byId(document.head).innerHTML.indexOf("document.getElementById('id_1').innerHTML = 'hello2'")).not.to.eq(-1);
     });
-    (0, mocha_1.it)('domquery ops test2 eachNode', function () {
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        var noIter = 0;
-        probe2 = probe2.each(function (item, cnt) {
-            (0, chai_1.expect)(item instanceof typescript_1.DomQuery).to.be.true;
-            (0, chai_1.expect)(noIter == cnt).to.be.true;
+    it('domquery ops test2 eachNode', function () {
+        let probe2 = DomQuery.querySelectorAll("div");
+        let noIter = 0;
+        probe2 = probe2.each((item, cnt) => {
+            expect(item instanceof DomQuery).to.be.true;
+            expect(noIter == cnt).to.be.true;
             noIter++;
         });
-        (0, chai_1.expect)(noIter == 4).to.be.true;
+        expect(noIter == 4).to.be.true;
     });
-    (0, mocha_1.it)('domquery ops test2 byId', function () {
-        var probe2 = typescript_1.DomQuery.byId("id_1");
-        (0, chai_1.expect)(probe2.length == 1).to.be.true;
-        probe2 = typescript_1.DomQuery.byTagName("div");
-        (0, chai_1.expect)(probe2.length == 4).to.be.true;
+    it('domquery ops test2 byId', function () {
+        let probe2 = DomQuery.byId("id_1");
+        expect(probe2.length == 1).to.be.true;
+        probe2 = DomQuery.byTagName("div");
+        expect(probe2.length == 4).to.be.true;
     });
-    (0, mocha_1.it)('outerhtml and eval tests', function () {
-        var probe1 = new typescript_1.DomQuery(window.document.body);
-        probe1.querySelectorAll("#id_1").outerHTML("\n            <div id='barg'>\n            \n            </div>\n            <script type=\"text/javascript\">\n                document.getElementById('blarg').innerHTML = 'hello world';\n            </script>\n            ", true, true);
-        (0, chai_1.expect)(window.document.body.innerHTML.indexOf("hello world") != -1).to.be.true;
-        (0, chai_1.expect)(window.document.head.innerHTML.indexOf("hello world") == -1).to.be.true;
-        (0, chai_1.expect)(window.document.body.innerHTML.indexOf("id_1") == -1).to.be.true;
-        (0, chai_1.expect)(window.document.body.innerHTML.indexOf("blarg") != -1).to.be.true;
+    it('outerhtml and eval tests', function () {
+        let probe1 = new DomQuery(window.document.body);
+        probe1.querySelectorAll("#id_1").outerHTML(`
+            <div id='barg'>
+            
+            </div>
+            <script type="text/javascript">
+                document.getElementById('blarg').innerHTML = 'hello world';
+            </script>
+            `, true, true);
+        expect(window.document.body.innerHTML.indexOf("hello world") != -1).to.be.true;
+        expect(window.document.head.innerHTML.indexOf("hello world") == -1).to.be.true;
+        expect(window.document.body.innerHTML.indexOf("id_1") == -1).to.be.true;
+        expect(window.document.body.innerHTML.indexOf("blarg") != -1).to.be.true;
     });
-    (0, mocha_1.it)('attr test and eval tests', function () {
-        var probe1 = new typescript_1.DomQuery(document);
+    it('attr test and eval tests', function () {
+        let probe1 = new DomQuery(document);
         probe1.querySelectorAll("div#id_2").attr("style").value = "border=1;";
-        var blarg = probe1.querySelectorAll("div#id_2").attr("booga").value;
-        var style = probe1.querySelectorAll("div#id_2").attr("style").value;
-        var nonexistent = probe1.querySelectorAll("div#id_2").attr("buhaha").value;
-        (0, chai_1.expect)(blarg).to.be.eq("blarg");
-        (0, chai_1.expect)(style).to.be.eq("border=1;");
-        (0, chai_1.expect)(nonexistent).to.be.eq(null);
+        let blarg = probe1.querySelectorAll("div#id_2").attr("booga").value;
+        let style = probe1.querySelectorAll("div#id_2").attr("style").value;
+        let nonexistent = probe1.querySelectorAll("div#id_2").attr("buhaha").value;
+        expect(blarg).to.be.eq("blarg");
+        expect(style).to.be.eq("border=1;");
+        expect(nonexistent).to.be.eq(null);
     });
-    (0, mocha_1.it)('style must work ', function () {
-        var probe1 = new typescript_1.DomQuery(document);
-        var probe = probe1.querySelectorAll("div#id_2");
+    it('style must work ', function () {
+        let probe1 = new DomQuery(document);
+        let probe = probe1.querySelectorAll("div#id_2");
         probe.style("border").value = "10px solid red";
         probe.style("color").value = "blue";
-        var styleNodeLevel = probe.getAsElem(0).value.style['color'];
-        (0, chai_1.expect)(probe.style("border").value).to.eq("10px solid red");
-        (0, chai_1.expect)(probe.style("color").value).to.eq("blue");
-        (0, chai_1.expect)(styleNodeLevel).to.eq('blue');
+        let styleNodeLevel = probe.getAsElem(0).value.style['color'];
+        expect(probe.style("border").value).to.eq("10px solid red");
+        expect(probe.style("color").value).to.eq("blue");
+        expect(styleNodeLevel).to.eq('blue');
     });
-    (0, mocha_1.it)('must perform addClass and hasClass correctly', function () {
-        var probe1 = new typescript_1.DomQuery(document);
-        var element = probe1.querySelectorAll("div#id_2");
+    it('must perform addClass and hasClass correctly', function () {
+        let probe1 = new DomQuery(document);
+        let element = probe1.querySelectorAll("div#id_2");
         element.addClass("booga").addClass("Booga2");
-        var classdef = element.attr("class").value;
-        (0, chai_1.expect)(classdef).to.eq("blarg2 booga Booga2");
+        let classdef = element.attr("class").value;
+        expect(classdef).to.eq("blarg2 booga Booga2");
         element.removeClass("booga2");
-        (0, chai_1.expect)(element.hasClass("booga2")).to.be.false;
-        (0, chai_1.expect)(element.hasClass("booga")).to.be.true;
+        expect(element.hasClass("booga2")).to.be.false;
+        expect(element.hasClass("booga")).to.be.true;
     });
-    (0, mocha_1.it)('must perform addClass and hasClass correctly 2', function () {
-        var probe1 = new typescript_1.DomQuery(document);
-        var element = probe1.querySelectorAll(".blarg2");
+    it('must perform addClass and hasClass correctly 2', function () {
+        let probe1 = new DomQuery(document);
+        let element = probe1.querySelectorAll(".blarg2");
         element.addClass("booga").addClass("Booga2");
-        var classdef = element.attr("class").value;
-        (0, chai_1.expect)(classdef).to.eq("blarg2 booga Booga2");
+        let classdef = element.attr("class").value;
+        expect(classdef).to.eq("blarg2 booga Booga2");
         element.removeClass("booga2");
-        (0, chai_1.expect)(element.hasClass("booga2")).to.be.false;
-        (0, chai_1.expect)(element.hasClass("booga")).to.be.true;
-        (0, chai_1.expect)(element.hasClass("blarg2")).to.be.true;
+        expect(element.hasClass("booga2")).to.be.false;
+        expect(element.hasClass("booga")).to.be.true;
+        expect(element.hasClass("blarg2")).to.be.true;
     });
-    (0, mocha_1.it)('must perform addClass and hasClass correctly 2', function () {
-        var probe1 = new typescript_1.DomQuery(document);
-        var element = probe1.querySelectorAll(".blarg2");
+    it('must perform addClass and hasClass correctly 2', function () {
+        let probe1 = new DomQuery(document);
+        let element = probe1.querySelectorAll(".blarg2");
         element.addClass("booga").addClass("Booga2");
-        (0, chai_1.expect)(probe1.querySelectorAll(".Booga2").length).eq(2);
+        expect(probe1.querySelectorAll(".Booga2").length).eq(2);
     });
-    (0, mocha_1.it)('must perform insert before and insert after correctly', function () {
-        var probe1 = new typescript_1.DomQuery(document).querySelectorAll("#id_2");
-        var insert = typescript_1.DomQuery.fromMarkup("<div id='insertedBefore'></div><div id='insertedBefore2'></div>");
-        var insert2 = typescript_1.DomQuery.fromMarkup("<div id='insertedAfter'></div><div id='insertedAfter2'></div>");
+    it('must perform insert before and insert after correctly', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("#id_2");
+        let insert = DomQuery.fromMarkup("<div id='insertedBefore'></div><div id='insertedBefore2'></div>");
+        let insert2 = DomQuery.fromMarkup("<div id='insertedAfter'></div><div id='insertedAfter2'></div>");
         probe1.insertBefore(insert);
         probe1.insertAfter(insert2);
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#insertedBefore").isPresent()).to.be.true;
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#insertedBefore2").isPresent()).to.be.true;
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#id_2").isPresent()).to.be.true;
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#insertedAfter").isPresent()).to.be.true;
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("#insertedAfter2").isPresent()).to.be.true;
+        expect(DomQuery.querySelectorAll("#insertedBefore").isPresent()).to.be.true;
+        expect(DomQuery.querySelectorAll("#insertedBefore2").isPresent()).to.be.true;
+        expect(DomQuery.querySelectorAll("#id_2").isPresent()).to.be.true;
+        expect(DomQuery.querySelectorAll("#insertedAfter").isPresent()).to.be.true;
+        expect(DomQuery.querySelectorAll("#insertedAfter2").isPresent()).to.be.true;
     });
-    (0, mocha_1.it)('do not create new <html> tag on <header', function () {
-        var fromMarkupWithHeader = typescript_1.DomQuery.fromMarkup(tobago_with_header_1.tobagoSheetWithHeader);
-        var fromMarkupWithoutHeader = typescript_1.DomQuery.fromMarkup(tobago_without_header_1.tobagoSheetWithoutHeader);
-        (0, chai_1.expect)(fromMarkupWithHeader.tagName.value === "HTML").to.be.false;
-        (0, chai_1.expect)(fromMarkupWithoutHeader.tagName.value === "HTML").to.be.false;
+    it('do not create new <html> tag on <header', function () {
+        const fromMarkupWithHeader = DomQuery.fromMarkup(tobagoSheetWithHeader);
+        const fromMarkupWithoutHeader = DomQuery.fromMarkup(tobagoSheetWithoutHeader);
+        expect(fromMarkupWithHeader.tagName.value === "HTML").to.be.false;
+        expect(fromMarkupWithoutHeader.tagName.value === "HTML").to.be.false;
     });
-    (0, mocha_1.it)('do not falsely assume standard tag', function () {
-        var fromMarkup1 = typescript_1.DomQuery.fromMarkup("\n        <head-mine>booga</head-mine>\n        ");
-        var fromMarkup2 = typescript_1.DomQuery.fromMarkup("\n        <body_mine>booga</body_mine>\n        \n        ");
-        (0, chai_1.expect)(fromMarkup1.tagName.value === "HTML").to.be.false;
-        (0, chai_1.expect)(fromMarkup1.tagName.value === "HTML").to.be.false;
-        (0, chai_1.expect)(fromMarkup1.tagName.value === "HEAD").to.be.false;
-        (0, chai_1.expect)(fromMarkup2.tagName.value === "BODY").to.be.false;
+    it('do not falsely assume standard tag', function () {
+        const fromMarkup1 = DomQuery.fromMarkup(`
+        <head-mine>booga</head-mine>
+        `);
+        const fromMarkup2 = DomQuery.fromMarkup(`
+        <body_mine>booga</body_mine>
+        
+        `);
+        expect(fromMarkup1.tagName.value === "HTML").to.be.false;
+        expect(fromMarkup1.tagName.value === "HTML").to.be.false;
+        expect(fromMarkup1.tagName.value === "HEAD").to.be.false;
+        expect(fromMarkup2.tagName.value === "BODY").to.be.false;
     });
-    (0, mocha_1.it)('it must stream', function () {
-        var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = typescript_1.Stream.ofDataSource(probe1).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(coll.length == 4).to.be.true;
+    it('it must stream', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll = Stream.ofDataSource(probe1).collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
         probe1.reset();
-        coll = typescript_1.LazyStream.ofStreamDataSource(probe1).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(coll.length == 4).to.be.true;
+        coll = LazyStream.ofStreamDataSource(probe1).collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
     });
-    (0, mocha_1.it)('it must stream to a domquery', function () {
-        var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = typescript_1.Stream.ofDataSource(probe1).collect(new typescript_1.DomQueryCollector());
-        (0, chai_1.expect)(coll.length == 4).to.be.true;
+    it('it must stream to a domquery', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll = Stream.ofDataSource(probe1).collect(new DomQueryCollector());
+        expect(coll.length == 4).to.be.true;
         probe1.reset();
-        coll = typescript_1.LazyStream.ofStreamDataSource(probe1).collect(new typescript_1.DomQueryCollector());
-        (0, chai_1.expect)(coll.length == 4).to.be.true;
+        coll = LazyStream.ofStreamDataSource(probe1).collect(new DomQueryCollector());
+        expect(coll.length == 4).to.be.true;
     });
-    (0, mocha_1.it)('it must have parents', function () {
-        var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = typescript_1.Stream.ofDataSource(probe1.parentsWhileMatch("body")).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(coll.length == 1).to.be.true;
+    it('it must have parents', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll = Stream.ofDataSource(probe1.parentsWhileMatch("body")).collect(new ArrayCollector());
+        expect(coll.length == 1).to.be.true;
     });
-    (0, mocha_1.it)("must have a working insertBefore and insertAfter", function () {
-        var probe1 = new typescript_1.DomQuery(document).byId("id_2");
-        probe1.insertBefore(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0\"></div><div id=\"id_x_1\"></div>"));
-        probe1.insertAfter(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0_1\"></div><div id=\"id_x_1_1\"></div>"));
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").length).to.eq(8);
-        typescript_1.DomQuery.querySelectorAll("body").innerHTML = trim(typescript_1.DomQuery.querySelectorAll("body").innerHTML.replace(/>\s*</gi, "><"));
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("body").childNodes.length).to.eq(8);
-        var innerHtml = typescript_1.DomQuery.querySelectorAll("body").innerHTML;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > 0).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0_1") > innerHtml.indexOf("id_2")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1_1") > innerHtml.indexOf("id_x_0_1")).to.be.true;
+    it("must have a working insertBefore and insertAfter", function () {
+        let probe1 = new DomQuery(document).byId("id_2");
+        probe1.insertBefore(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+        probe1.insertAfter(DomQuery.fromMarkup(` <div id="id_x_0_1"></div><div id="id_x_1_1"></div>`));
+        expect(DomQuery.querySelectorAll("div").length).to.eq(8);
+        DomQuery.querySelectorAll("body").innerHTML = trim(DomQuery.querySelectorAll("body").innerHTML.replace(/>\s*</gi, "><"));
+        expect(DomQuery.querySelectorAll("body").childNodes.length).to.eq(8);
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_0_1") > innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1_1") > innerHtml.indexOf("id_x_0_1")).to.be.true;
     });
-    (0, mocha_1.it)("must have a working replace", function () {
-        var probe1 = new typescript_1.DomQuery(document).byId("id_1");
-        probe1.replace(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0\"></div><div id=\"id_x_1\"></div>"));
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").length).to.eq(5);
-        var innerHtml = typescript_1.DomQuery.querySelectorAll("body").innerHTML;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > 0).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > 0).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_2")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_1") == -1).to.be.true;
+    it("must have a working replace", function () {
+        let probe1 = new DomQuery(document).byId("id_1");
+        probe1.replace(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+        expect(DomQuery.querySelectorAll("div").length).to.eq(5);
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
+        expect(innerHtml.indexOf("id_1") == -1).to.be.true;
     });
-    (0, mocha_1.it)("must have a working replace - 2", function () {
-        var probe1 = new typescript_1.DomQuery(document).byId("id_2");
-        probe1.replace(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0\"></div><div id=\"id_x_1\"></div>"));
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").length).to.eq(5);
-        var innerHtml = typescript_1.DomQuery.querySelectorAll("body").innerHTML;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > 0).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_0")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > 0).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_0")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_2") == -1).to.be.true;
+    it("must have a working replace - 2", function () {
+        let probe1 = new DomQuery(document).byId("id_2");
+        probe1.replace(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+        expect(DomQuery.querySelectorAll("div").length).to.eq(5);
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_0")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_3")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_0")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") < innerHtml.indexOf("id_3")).to.be.true;
+        expect(innerHtml.indexOf("id_2") == -1).to.be.true;
     });
-    (0, mocha_1.it)("must have a working replace - 3", function () {
-        var probe1 = new typescript_1.DomQuery(document).byId("id_4");
-        probe1.replace(typescript_1.DomQuery.fromMarkup(" <div id=\"id_x_0\"></div><div id=\"id_x_1\"></div>"));
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").length).to.eq(5);
-        var innerHtml = typescript_1.DomQuery.querySelectorAll("body").innerHTML;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > 0).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_2")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_3")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > 0).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_1")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_2")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_3")).to.be.true;
-        (0, chai_1.expect)(innerHtml.indexOf("id_4") == -1).to.be.true;
+    it("must have a working replace - 3", function () {
+        let probe1 = new DomQuery(document).byId("id_4");
+        probe1.replace(DomQuery.fromMarkup(` <div id="id_x_0"></div><div id="id_x_1"></div>`));
+        expect(DomQuery.querySelectorAll("div").length).to.eq(5);
+        let innerHtml = DomQuery.querySelectorAll("body").innerHTML;
+        expect(innerHtml.indexOf("id_x_0") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") > innerHtml.indexOf("id_3")).to.be.true;
+        expect(innerHtml.indexOf("id_x_0") < innerHtml.indexOf("id_x_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > 0).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_1")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_2")).to.be.true;
+        expect(innerHtml.indexOf("id_x_1") > innerHtml.indexOf("id_3")).to.be.true;
+        expect(innerHtml.indexOf("id_4") == -1).to.be.true;
     });
-    (0, mocha_1.it)("must have a working input handling", function () {
-        typescript_1.DomQuery.querySelectorAll("body").innerHTML = "<form id=\"blarg\">\n    <div id=\"embed1\">\n        <input type=\"text\" id=\"id_1\" name=\"id_1\" value=\"id_1_val\"></input>\n        <input type=\"text\" id=\"id_2\" name=\"id_2\" value=\"id_2_val\" disabled=\"disabled\"> </input>\n        <textarea type=\"text\" id=\"id_3\" name=\"id_3\">textareaVal</textarea>\n\n        <fieldset>\n            <input type=\"radio\" id=\"mc\" name=\"cc_1\" value=\"Mastercard\" checked=\"checked\"></input>\n            <label for=\"mc\"> Mastercard</label>\n            <input type=\"radio\" id=\"vi\" name=\"cc_1\" value=\"Visa\"></input>\n            <label for=\"vi\"> Visa</label>\n            <input type=\"radio\" id=\"ae\" name=\"cc_1\" value=\"AmericanExpress\"></input>\n            <label for=\"ae\"> American Express</label>\n        </fieldset>\n        <select id=\"val_5\" name=\"val_5\" name=\"top5\" size=\"5\">\n            <option>barg</option>\n            <option>jjj</option>\n            <option selected>akaka</option>\n            <option>blon</option>\n            <option>slashs</option>\n        </select>\n    </div>\n</form>\n       ";
-        var length = typescript_1.DomQuery.querySelectorAll("form").elements.length;
-        (0, chai_1.expect)(length == 8).to.be.true;
-        var length1 = typescript_1.DomQuery.querySelectorAll("body").elements.length;
-        (0, chai_1.expect)(length1 == 8).to.be.true;
-        var length2 = typescript_1.DomQuery.byId("embed1").elements.length;
-        (0, chai_1.expect)(length2 == 8).to.be.true;
-        var count = typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
-            .map(function (item) { return item.disabled ? 1 : 0; })
-            .reduce(function (val1, val2) { return val1 + val2; }, 0);
-        (0, chai_1.expect)(count.value).to.eq(1);
-        typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
-            .filter(function (item) { return item.disabled; })
-            .each(function (item) { return item.disabled = false; });
-        count = typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
-            .map(function (item) { return item.disabled ? 1 : 0; })
-            .reduce(function (val1, val2) { return val1 + val2; }, 0);
-        (0, chai_1.expect)(count.value).to.eq(0);
-        count = typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
-            .map(function (item) { return item.attr("checked").isPresent() ? 1 : 0; })
-            .reduce(function (val1, val2) { return val1 + val2; }, 0);
-        (0, chai_1.expect)(count.value).to.eq(1);
-        (0, chai_1.expect)(typescript_1.DomQuery.byId("id_1").inputValue.value == "id_1_val").to.be.true;
-        typescript_1.DomQuery.byId("id_1").inputValue.value = "booga";
-        (0, chai_1.expect)(typescript_1.DomQuery.byId("id_1").inputValue.value == "booga").to.be.true;
-        (0, chai_1.expect)(typescript_1.DomQuery.byId("id_3").inputValue.value).to.eq("textareaVal");
-        typescript_1.DomQuery.byId("id_3").inputValue.value = "hello world";
-        (0, chai_1.expect)(typescript_1.DomQuery.byId("id_3").inputValue.value).to.eq("hello world");
-        var cfg = typescript_1.DomQuery.querySelectorAll("form").elements.encodeFormElement();
-        (0, chai_1.expect)(cfg.getIf("id_1").value[0]).to.eq("booga");
-        (0, chai_1.expect)(cfg.getIf("id_2").value[0]).to.eq("id_2_val");
-        (0, chai_1.expect)(cfg.getIf("id_3").value[0]).to.eq("hello world");
-        (0, chai_1.expect)(cfg.getIf("cc_1").value[0]).to.eq("Mastercard");
-        (0, chai_1.expect)(cfg.getIf("val_5").value[0]).to.eq("akaka");
+    it("must have a working input handling", function () {
+        DomQuery.querySelectorAll("body").innerHTML = `<form id="blarg">
+    <div id="embed1">
+        <input type="text" id="id_1" name="id_1" value="id_1_val"></input>
+        <input type="text" id="id_2" name="id_2" value="id_2_val" disabled="disabled"> </input>
+        <textarea type="text" id="id_3" name="id_3">textareaVal</textarea>
+
+        <fieldset>
+            <input type="radio" id="mc" name="cc_1" value="Mastercard" checked="checked"></input>
+            <label for="mc"> Mastercard</label>
+            <input type="radio" id="vi" name="cc_1" value="Visa"></input>
+            <label for="vi"> Visa</label>
+            <input type="radio" id="ae" name="cc_1" value="AmericanExpress"></input>
+            <label for="ae"> American Express</label>
+        </fieldset>
+        <select id="val_5" name="val_5" name="top5" size="5">
+            <option>barg</option>
+            <option>jjj</option>
+            <option selected>akaka</option>
+            <option>blon</option>
+            <option>slashs</option>
+        </select>
+    </div>
+</form>
+       `;
+        let length = DomQuery.querySelectorAll("form").elements.length;
+        expect(length == 8).to.be.true;
+        let length1 = DomQuery.querySelectorAll("body").elements.length;
+        expect(length1 == 8).to.be.true;
+        let length2 = DomQuery.byId("embed1").elements.length;
+        expect(length2 == 8).to.be.true;
+        let count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .map(item => item.disabled ? 1 : 0)
+            .reduce((val1, val2) => val1 + val2, 0);
+        expect(count.value).to.eq(1);
+        Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .filter(item => item.disabled)
+            .each(item => item.disabled = false);
+        count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .map(item => item.disabled ? 1 : 0)
+            .reduce((val1, val2) => val1 + val2, 0);
+        expect(count.value).to.eq(0);
+        count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .map(item => item.attr("checked").isPresent() ? 1 : 0)
+            .reduce((val1, val2) => val1 + val2, 0);
+        expect(count.value).to.eq(1);
+        expect(DomQuery.byId("id_1").inputValue.value == "id_1_val").to.be.true;
+        DomQuery.byId("id_1").inputValue.value = "booga";
+        expect(DomQuery.byId("id_1").inputValue.value == "booga").to.be.true;
+        expect(DomQuery.byId("id_3").inputValue.value).to.eq("textareaVal");
+        DomQuery.byId("id_3").inputValue.value = "hello world";
+        expect(DomQuery.byId("id_3").inputValue.value).to.eq("hello world");
+        let cfg = DomQuery.querySelectorAll("form").elements.encodeFormElement();
+        expect(cfg.getIf("id_1").value[0]).to.eq("booga");
+        expect(cfg.getIf("id_2").value[0]).to.eq("id_2_val");
+        expect(cfg.getIf("id_3").value[0]).to.eq("hello world");
+        expect(cfg.getIf("cc_1").value[0]).to.eq("Mastercard");
+        expect(cfg.getIf("val_5").value[0]).to.eq("akaka");
     });
-    (0, mocha_1.it)("must have a proper loadScriptEval execution", function (done) {
-        typescript_1.DomQuery.byTagName("body").loadScriptEval("./fixtures/test.js");
-        setTimeout(function () {
-            (0, chai_1.expect)(typescript_1.DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
+    it("must have a proper loadScriptEval execution", function (done) {
+        DomQuery.byTagName("body").loadScriptEval("./fixtures/test.js");
+        setTimeout(() => {
+            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
             done();
         }, 100);
     });
-    (0, mocha_1.it)("must have first etc working", function () {
-        (0, chai_1.expect)(typescript_1.DomQuery.querySelectorAll("div").first().id.value).to.eq("id_1");
+    it("must have first etc working", function () {
+        expect(DomQuery.querySelectorAll("div").first().id.value).to.eq("id_1");
     });
-    (0, mocha_1.it)("runscript runcss", function (done) {
-        typescript_1.DomQuery.byTagName("body").innerHTML = "\n            <div id=\"first\"></div>\n            <div id=\"second\"></div>\n            <div id=\"third\"></div>\n            <div id=\"fourth\"></div>\n            \n            <script type=\"text/javascript\">\n                document.getElementById(\"first\").innerHTML = \"hello world\";\n            </script>\n            <script type=\"text/javascript\">\n            //<![CDATA[\n                document.getElementById(\"second\").innerHTML = \"hello world\";\n            //]]>    \n            </script>\n            <script type=\"text/javascript\">\n            <!--\n                document.getElementById(\"third\").innerHTML = \"hello world\";\n            //-->   \n            </script>\n              <script type=\"text/javascript\">\n            //<!--\n                document.getElementById(\"fourth\").innerHTML = \"hello world\";\n            //-->   \n            </script>\n        \n            <style type=\"text/css\">\n                #first {\n                    border: 1px solid black;\n                }\n            </style>\n            \n            <link rel=\"stylesheet\" href=\"./fixtures/blank.css\"></link>\n        ";
-        var content = typescript_1.DomQuery.byTagName("body").runScripts().runCss();
-        (0, chai_1.expect)(content.byId("first").innerHTML).to.eq("hello world");
-        (0, chai_1.expect)(content.byId("second").innerHTML).to.eq("hello world");
-        (0, chai_1.expect)(content.byId("third").innerHTML).to.eq("hello world");
-        (0, chai_1.expect)(content.byId("fourth").innerHTML).to.eq("hello world");
-        (0, chai_1.expect)(typescript_1.DomQuery.byTagName("head")
+    it("runscript runcss", function (done) {
+        DomQuery.byTagName("body").innerHTML = `
+            <div id="first"></div>
+            <div id="second"></div>
+            <div id="third"></div>
+            <div id="fourth"></div>
+            
+            <script type="text/javascript">
+                document.getElementById("first").innerHTML = "hello world";
+            </script>
+            <script type="text/javascript">
+            //<![CDATA[
+                document.getElementById("second").innerHTML = "hello world";
+            //]]>    
+            </script>
+            <script type="text/javascript">
+            <!--
+                document.getElementById("third").innerHTML = "hello world";
+            //-->   
+            </script>
+              <script type="text/javascript">
+            //<!--
+                document.getElementById("fourth").innerHTML = "hello world";
+            //-->   
+            </script>
+        
+            <style type="text/css">
+                #first {
+                    border: 1px solid black;
+                }
+            </style>
+            
+            <link rel="stylesheet" href="./fixtures/blank.css"></link>
+        `;
+        let content = DomQuery.byTagName("body").runScripts().runCss();
+        expect(content.byId("first").innerHTML).to.eq("hello world");
+        expect(content.byId("second").innerHTML).to.eq("hello world");
+        expect(content.byId("third").innerHTML).to.eq("hello world");
+        expect(content.byId("fourth").innerHTML).to.eq("hello world");
+        expect(DomQuery.byTagName("head")
             .querySelectorAll("link[rel='stylesheet'][href='./fixtures/blank.css']").length).to.eq(1);
         done();
     });
     //TODO defer does not work in jsdom
-    (0, mocha_1.it)("must have a proper loadScriptEval deferred", function (done) {
-        typescript_1.DomQuery.byId(document.body).loadScriptEval("./fixtures/test2.js", 200);
-        setTimeout(function () {
-            (0, chai_1.expect)(typescript_1.DomQuery.byId("id_1").innerHTML == "hello world").to.be.false;
+    it("must have a proper loadScriptEval deferred", function (done) {
+        DomQuery.byId(document.body).loadScriptEval("./fixtures/test2.js", 200);
+        setTimeout(() => {
+            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.false;
         }, 100);
-        setTimeout(function () {
-            (0, chai_1.expect)(typescript_1.DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
+        setTimeout(() => {
+            expect(DomQuery.byId("id_1").innerHTML == "hello world").to.be.true;
             done();
         }, 1500);
     });
-    (0, mocha_1.it)("it must handle events properly", function () {
-        var clicked = 0;
-        var listener = function (evt) {
+    it("it must handle events properly", function () {
+        let clicked = 0;
+        let listener = (evt) => {
             clicked++;
         };
-        var eventReceiver = typescript_1.DomQuery.byId("id_1");
+        let eventReceiver = DomQuery.byId("id_1");
         eventReceiver.addEventListener("click", listener);
         eventReceiver.click();
-        (0, chai_1.expect)(clicked).to.eq(1);
+        expect(clicked).to.eq(1);
         eventReceiver.removeEventListener("click", listener);
         eventReceiver.click();
-        (0, chai_1.expect)(clicked).to.eq(1);
+        expect(clicked).to.eq(1);
     });
-    (0, mocha_1.it)("it must handle innerText properly", function (done) {
+    it("it must handle innerText properly", function (done) {
         //jsdom bug
         Object.defineProperty(Object.prototype, 'innerText', {
-            get: function () {
+            get() {
                 return this.textContent;
             },
         });
-        var probe = typescript_1.DomQuery.byId("id_1");
+        let probe = DomQuery.byId("id_1");
         probe.innerHTML = "<div>hello</div><div>world</div>";
-        (0, chai_1.expect)(probe.innerText()).to.eq("helloworld");
+        expect(probe.innerText()).to.eq("helloworld");
         done();
     });
-    (0, mocha_1.it)("it must handle textContent properly", function () {
-        var probe = typescript_1.DomQuery.byId("id_1");
+    it("it must handle textContent properly", function () {
+        let probe = DomQuery.byId("id_1");
         probe.innerHTML = "<div>hello</div><div>world</div>";
-        (0, chai_1.expect)(probe.textContent()).to.eq("helloworld");
+        expect(probe.textContent()).to.eq("helloworld");
     });
-    (0, mocha_1.it)("it must handle iterations properly", function () {
-        var probe = typescript_1.DomQuery.byTagName("div");
-        var resArr = typescript_1.LazyStream.ofStreamDataSource(probe).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(resArr.length).to.eq(4);
+    it("it must handle iterations properly", function () {
+        let probe = DomQuery.byTagName("div");
+        let resArr = LazyStream.ofStreamDataSource(probe).collect(new ArrayCollector());
+        expect(resArr.length).to.eq(4);
         probe.reset();
         while (probe.hasNext()) {
-            var el = probe.next();
-            (0, chai_1.expect)(el.tagName.value.toLowerCase()).to.eq("div");
+            let el = probe.next();
+            expect(el.tagName.value.toLowerCase()).to.eq("div");
         }
-        (0, chai_1.expect)(probe.next()).to.eq(null);
-        var probe2 = typescript_1.DomQuery.byTagName("div").limits(2);
-        resArr = typescript_1.LazyStream.ofStreamDataSource(probe2).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(resArr.length).to.eq(2);
+        expect(probe.next()).to.eq(null);
+        let probe2 = DomQuery.byTagName("div").limits(2);
+        resArr = LazyStream.ofStreamDataSource(probe2).collect(new ArrayCollector());
+        expect(resArr.length).to.eq(2);
     });
-    (0, mocha_1.it)("it must handle subnodes properly", function () {
-        var probe = typescript_1.DomQuery.byTagName("div");
-        (0, chai_1.expect)(probe.subNodes(1, 3).length).to.eq(2);
-        probe = typescript_1.DomQuery.byTagName("body").childNodes.subNodes(0, 2);
-        (0, chai_1.expect)(probe.length).to.eq(2);
-        probe = typescript_1.DomQuery.byTagName("div").subNodes(2);
-        (0, chai_1.expect)(probe.length).to.eq(2);
+    it("it must handle subnodes properly", function () {
+        let probe = DomQuery.byTagName("div");
+        expect(probe.subNodes(1, 3).length).to.eq(2);
+        probe = DomQuery.byTagName("body").childNodes.subNodes(0, 2);
+        expect(probe.length).to.eq(2);
+        probe = DomQuery.byTagName("div").subNodes(2);
+        expect(probe.length).to.eq(2);
     });
-    (0, mocha_1.it)("it must ensure shadow dom creation works properly", function () {
-        var probe = typescript_1.DomQuery.byTagName("div");
+    it("it must ensure shadow dom creation works properly", function () {
+        let probe = DomQuery.byTagName("div");
         try {
             //probably not testable atm, mocha does not have shadow dom support
             //we might be able to shim it in one way or the other
-            var element = probe.attachShadow();
-            (0, chai_1.expect)(element.length > 0).to.eq(true);
+            let element = probe.attachShadow();
+            expect(element.length > 0).to.eq(true);
         }
         catch (e) {
             //not supported we still need to get an error here
-            (0, chai_1.expect)(e.message.indexOf("not supported") != -1).to.be.true;
+            expect(e.message.indexOf("not supported") != -1).to.be.true;
         }
     });
-    (0, mocha_1.it)("parent must break shadow barriers", function () {
-        var probe = typescript_1.DomQuery.fromMarkup("<div id='shadowItem'>hello</div>'");
+    it("parent must break shadow barriers", function () {
+        let probe = DomQuery.fromMarkup("<div id='shadowItem'>hello</div>'");
         try {
             //probably not testable atm, mocha does not have shadow dom support
             //we might be able to shim it in one way or the other
-            var element = typescript_1.DomQuery.byId("id_1").attachShadow();
+            let element = DomQuery.byId("id_1").attachShadow();
             element.append(probe);
-            (0, chai_1.expect)(probe.firstParent("#id_1").length > 0).to.eq(true);
+            expect(probe.firstParent("#id_1").length > 0).to.eq(true);
         }
         catch (e) {
             //not supported we still need to get an error here
-            (0, chai_1.expect)(e.message.indexOf("not supported") != -1).to.be.true;
+            expect(e.message.indexOf("not supported") != -1).to.be.true;
         }
     });
-    (0, mocha_1.it)('it must have a working wait for dom with mut observer and must detect condition after change', function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var probe, ret;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        probe = typescript_1.DomQuery.byId('id_1');
-                        probe.innerHTML = 'true';
-                        return [4 /*yield*/, probe.waitUntilDom(function (element) { return element.innerHTML.indexOf('true') != -1; })];
-                    case 1:
-                        ret = _a.sent();
-                        (0, chai_1.expect)(ret.isPresent());
-                        probe = typescript_1.DomQuery.byId('bosushsdhs');
-                        return [4 /*yield*/, probe.waitUntilDom(function (element) { return element.isAbsent(); })];
-                    case 2:
-                        ret = _a.sent();
-                        (0, chai_1.expect)(ret.isAbsent());
-                        return [2 /*return*/];
-                }
-            });
+    it('it must have a working wait for dom with mut observer and must detect condition after change', function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let probe = DomQuery.byId('id_1');
+            probe.innerHTML = 'true';
+            let ret = yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+            expect(ret.isPresent());
+            probe = DomQuery.byId('bosushsdhs');
+            ret = yield probe.waitUntilDom((element) => element.isAbsent());
+            expect(ret.isAbsent());
         });
     });
-    (0, mocha_1.it)('it must have a working wait for dom with mut observer', function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var probe, ret, ret2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        probe = typescript_1.DomQuery.byId('id_1');
-                        setTimeout(function () { return probe.innerHTML = 'true'; }, 300);
-                        return [4 /*yield*/, probe.waitUntilDom(function (element) { return element.innerHTML.indexOf('true') != -1; })];
-                    case 1:
-                        ret = _a.sent();
-                        delete window.MutationObserver;
-                        delete global.MutationObserver;
-                        probe.innerHTML = "";
-                        setTimeout(function () { return probe.innerHTML = 'true'; }, 300);
-                        return [4 /*yield*/, probe.waitUntilDom(function (element) { return element.innerHTML.indexOf('true') != -1; })];
-                    case 2:
-                        ret2 = _a.sent();
-                        (0, chai_1.expect)(ret.isPresent() && ret2.isPresent());
-                        return [2 /*return*/];
-                }
-            });
+    it('it must have a working wait for dom with mut observer', function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let probe = DomQuery.byId('id_1');
+            setTimeout(() => probe.innerHTML = 'true', 300);
+            let ret = yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+            delete window.MutationObserver;
+            delete global.MutationObserver;
+            probe.innerHTML = "";
+            setTimeout(() => probe.innerHTML = 'true', 300);
+            let ret2 = yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+            expect(ret.isPresent() && ret2.isPresent());
         });
     });
-    (0, mocha_1.it)('it must have a timeout', function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var probe, ex_1, ex2_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        probe = typescript_1.DomQuery.byId('booga');
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        setTimeout(function () { return probe.innerHTML = 'true'; }, 300);
-                        return [4 /*yield*/, probe.waitUntilDom(function (element) { return element.innerHTML.indexOf('true') != -1; })];
-                    case 2:
-                        _a.sent();
-                        chai_1.expect.fail("must have a timeout");
-                        return [3 /*break*/, 4];
-                    case 3:
-                        ex_1 = _a.sent();
-                        (0, chai_1.expect)(!!ex_1);
-                        return [3 /*break*/, 4];
-                    case 4:
-                        _a.trys.push([4, 6, , 7]);
-                        delete window.MutationObserver;
-                        delete global.MutationObserver;
-                        probe.innerHTML = "";
-                        setTimeout(function () { return probe.innerHTML = 'true'; }, 300);
-                        return [4 /*yield*/, probe.waitUntilDom(function (element) { return element.innerHTML.indexOf('true') != -1; })];
-                    case 5:
-                        _a.sent();
-                        chai_1.expect.fail("must have a timeout");
-                        return [3 /*break*/, 7];
-                    case 6:
-                        ex2_1 = _a.sent();
-                        (0, chai_1.expect)(!!ex2_1);
-                        return [3 /*break*/, 7];
-                    case 7: return [2 /*return*/];
-                }
-            });
+    it('it must have a timeout', function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            let probe = DomQuery.byId('booga');
+            try {
+                setTimeout(() => probe.innerHTML = 'true', 300);
+                yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+                expect.fail("must have a timeout");
+            }
+            catch (ex) {
+                expect(!!ex);
+            }
+            try {
+                delete window.MutationObserver;
+                delete global.MutationObserver;
+                probe.innerHTML = "";
+                setTimeout(() => probe.innerHTML = 'true', 300);
+                yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+                expect.fail("must have a timeout");
+            }
+            catch (ex2) {
+                expect(!!ex2);
+            }
         });
     });
-    (0, mocha_1.it)('must handle null inputs correctly', function () {
-        var dq = new typescript_1.DomQuery(null);
-        (0, chai_1.expect)(dq.isAbsent()).to.eq(true);
+    it('must handle null inputs correctly', function () {
+        const dq = new DomQuery(null);
+        expect(dq.isAbsent()).to.eq(true);
     });
-    (0, mocha_1.it)('concat must work as expected resulting', function () {
-        var probe = typescript_1.DomQuery.querySelectorAll("div");
-        var probe2 = typescript_1.DomQuery.querySelectorAll("body");
-        var result = probe.concat(probe2);
-        (0, chai_1.expect)(result.length).to.eq(probe.length + probe2.length);
+    it('concat must work as expected resulting', function () {
+        let probe = DomQuery.querySelectorAll("div");
+        let probe2 = DomQuery.querySelectorAll("body");
+        let result = probe.concat(probe2);
+        expect(result.length).to.eq(probe.length + probe2.length);
         //lets now check for filter double
-        probe2 = typescript_1.DomQuery.querySelectorAll('div');
+        probe2 = DomQuery.querySelectorAll('div');
         result = probe.concat(probe2);
-        (0, chai_1.expect)(result.length).to.eq(probe.length);
+        expect(result.length).to.eq(probe.length);
     });
-    (0, mocha_1.it)('must handle match correctly', function () {
-        var probe = typescript_1.DomQuery.querySelectorAll("div").first();
-        var probe2 = typescript_1.DomQuery.querySelectorAll("body").first();
-        (0, chai_1.expect)(probe.matchesSelector("div")).to.eq(true);
-        (0, chai_1.expect)(probe2.matchesSelector("body")).to.eq(true);
-        (0, chai_1.expect)(probe2.matchesSelector("div")).to.eq(false);
+    it('must handle match correctly', function () {
+        let probe = DomQuery.querySelectorAll("div").first();
+        let probe2 = DomQuery.querySelectorAll("body").first();
+        expect(probe.matchesSelector("div")).to.eq(true);
+        expect(probe2.matchesSelector("body")).to.eq(true);
+        expect(probe2.matchesSelector("div")).to.eq(false);
     });
-    (0, mocha_1.it)('must by recycleable', function () {
-        var probe = typescript_1.DomQuery.querySelectorAll("div");
-        var probe2 = typescript_1.DomQuery.querySelectorAll("body");
-        var res1 = probe.filter(function (item) { return item.matchesSelector("div"); });
-        (0, chai_1.expect)(res1.length).to.eq(4);
-        var res2 = probe.filter(function (item) { return item.matchesSelector("div"); });
-        (0, chai_1.expect)(res2.length).to.eq(4);
+    it('must by recycleable', function () {
+        let probe = DomQuery.querySelectorAll("div");
+        let probe2 = DomQuery.querySelectorAll("body");
+        let res1 = probe.filter(item => item.matchesSelector("div"));
+        expect(res1.length).to.eq(4);
+        let res2 = probe.filter(item => item.matchesSelector("div"));
+        expect(res2.length).to.eq(4);
     });
-    (0, mocha_1.it)('delete must work', function () {
-        var probe = typescript_1.DomQuery.querySelectorAll("body");
-        var probe2 = typescript_1.DomQuery.fromMarkup("<div id='deleteprobe1'>snafu</div>");
+    it('delete must work', function () {
+        let probe = DomQuery.querySelectorAll("body");
+        let probe2 = DomQuery.fromMarkup("<div id='deleteprobe1'>snafu</div>");
         probe2.appendTo(probe);
-        (0, chai_1.expect)(probe.querySelectorAll("#deleteprobe1").isPresent()).to.eq(true);
+        expect(probe.querySelectorAll("#deleteprobe1").isPresent()).to.eq(true);
         probe2.delete();
-        (0, chai_1.expect)(probe.querySelectorAll("#deleteprobe1").isAbsent()).to.eq(true);
+        expect(probe.querySelectorAll("#deleteprobe1").isAbsent()).to.eq(true);
     });
-    (0, mocha_1.it)('must work with rxjs and domquery', function () {
-        var probe = typescript_1.DomQuery.querySelectorAll("div");
-        var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        var probeCnt = 0;
-        var probe2Cnt = 0;
-        (0, rxjs_1.from)(probe).subscribe(function (el) { return probeCnt++; });
-        (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe2)).subscribe(function (el) { return probe2Cnt++; });
-        (0, chai_1.expect)(probeCnt).to.be.above(0);
-        (0, chai_1.expect)(probeCnt).to.eq(probe2Cnt);
+    it('must work with rxjs and domquery', function () {
+        let probe = DomQuery.querySelectorAll("div");
+        let probe2 = DomQuery.querySelectorAll("div");
+        let probeCnt = 0;
+        let probe2Cnt = 0;
+        from(probe).subscribe(el => probeCnt++);
+        from(Stream.ofDataSource(probe2)).subscribe(el => probe2Cnt++);
+        expect(probeCnt).to.be.above(0);
+        expect(probeCnt).to.eq(probe2Cnt);
     });
-    (0, mocha_1.it)('must handle closest properly', function () {
-        var probe = typescript_1.DomQuery.byId("id_1");
+    it('must handle closest properly', function () {
+        let probe = DomQuery.byId("id_1");
         probe.innerHTML = "<div id='inner_elem'>hello world<div id='inner_elem2'></div></div>";
-        var probe2 = typescript_1.DomQuery.byId("inner_elem");
-        (0, chai_1.expect)(probe2.closest("div#id_1").id.value).to.eq("id_1");
-        (0, chai_1.expect)(probe2.parent().closest("div").id.value).to.eq("id_1");
-        probe2 = typescript_1.DomQuery.byId("inner_elem2");
-        (0, chai_1.expect)(probe2.closest("div").id.value).to.eq("inner_elem2");
-        (0, chai_1.expect)(probe2.closest("div#id_1").id.value).to.eq("id_1");
-        (0, chai_1.expect)(probe2.parent().parent().closest("div").id.value).to.eq("id_1");
+        let probe2 = DomQuery.byId("inner_elem");
+        expect(probe2.closest("div#id_1").id.value).to.eq("id_1");
+        expect(probe2.parent().closest("div").id.value).to.eq("id_1");
+        probe2 = DomQuery.byId("inner_elem2");
+        expect(probe2.closest("div").id.value).to.eq("inner_elem2");
+        expect(probe2.closest("div#id_1").id.value).to.eq("id_1");
+        expect(probe2.parent().parent().closest("div").id.value).to.eq("id_1");
     });
 });
 //# sourceMappingURL=DomQueryTest.spec.js.map

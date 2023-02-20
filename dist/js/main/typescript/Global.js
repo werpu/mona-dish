@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports._global$ = void 0;
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -23,9 +20,9 @@ exports._global$ = void 0;
  * various environments handle the global variable different
  * we have to deal with this.
  */
-function _global$() {
+export function _global$() {
     var _a;
-    var _global$ = ('undefined' != typeof globalThis && globalThis.window) ? globalThis.window :
+    let _global$ = ('undefined' != typeof globalThis && globalThis.window) ? globalThis.window :
         ('undefined' != typeof window) ? window :
             ('undefined' != typeof globalThis) ? globalThis :
                 ('undefined' != typeof global && (global === null || global === void 0 ? void 0 : global.window)) ? global.window :
@@ -34,5 +31,4 @@ function _global$() {
     //want the window object
     return (_a = _global$ === null || _global$ === void 0 ? void 0 : _global$.window) !== null && _a !== void 0 ? _a : _global$;
 }
-exports._global$ = _global$;
 //# sourceMappingURL=Global.js.map

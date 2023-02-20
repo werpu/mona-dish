@@ -1,4 +1,3 @@
-"use strict";
 /* Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,35 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Probe1Impl = exports.Probe2Impl = void 0;
-var ArrType = /** @class */ (function () {
-    function ArrType(clazz) {
+class ArrType {
+    constructor(clazz) {
         this.clazz = clazz;
     }
-    return ArrType;
-}());
-var DtoUils = /** @class */ (function () {
-    function DtoUils() {
-    }
-    DtoUils.mapIt = function (target, src, mappings) {
-        for (var key in src) {
+}
+class DtoUils {
+    static mapIt(target, src, mappings) {
+        for (let key in src) {
             if (!src.hasOwnProperty(key)) {
                 continue;
             }
-            var newVal = src[key];
+            let newVal = src[key];
             if (mappings[key] &&
                 mappings[key] instanceof ArrType) {
                 //do the array here
                 target[key] = {};
-                for (var key2 in newVal) {
-                    var subTarget = new mappings[key].clazz(newVal[key2]);
+                for (let key2 in newVal) {
+                    let subTarget = new mappings[key].clazz(newVal[key2]);
                     //   subTarget = this.mapIt(subTarget, <any> newVal[key2]);
                     target[key][key2] = subTarget;
                 }
             }
             else if (mappings && mappings[key]) {
-                var subTarget = new mappings[key](newVal);
+                let subTarget = new mappings[key](newVal);
                 target[key] = subTarget;
             }
             else {
@@ -50,37 +44,35 @@ var DtoUils = /** @class */ (function () {
             }
         }
         return target;
-    };
-    return DtoUils;
-}());
-var BaseDto = /** @class */ (function () {
-    function BaseDto(data, dtoTypes) {
-        if (dtoTypes === void 0) { dtoTypes = {}; }
+    }
+}
+class BaseDto {
+    constructor(data, dtoTypes = {}) {
         this.TYPES = "___mappable_types___";
         this[this.TYPES] = dtoTypes;
         if (data) {
             this.mapIt(this, data);
         }
     }
-    BaseDto.prototype.mapIt = function (target, src) {
-        for (var key in src) {
+    mapIt(target, src) {
+        for (let key in src) {
             if (!src.hasOwnProperty(key)) {
                 continue;
             }
-            var newVal = src[key];
+            let newVal = src[key];
             if (target[this.TYPES] &&
                 target[this.TYPES][key] &&
                 target[this.TYPES][key] instanceof ArrType) {
                 //do the array here
                 target[key] = {};
-                for (var key2 in newVal) {
-                    var subTarget = new target[this.TYPES][key].clazz(newVal[key2]);
+                for (let key2 in newVal) {
+                    let subTarget = new target[this.TYPES][key].clazz(newVal[key2]);
                     //   subTarget = this.mapIt(subTarget, <any> newVal[key2]);
                     target[key][key2] = subTarget;
                 }
             }
             else if (target[this.TYPES] && target[this.TYPES][key]) {
-                var subTarget = new target[this.TYPES][key](newVal);
+                let subTarget = new target[this.TYPES][key](newVal);
                 target[key] = subTarget;
             }
             else {
@@ -88,32 +80,26 @@ var BaseDto = /** @class */ (function () {
             }
         }
         return target;
-    };
-    return BaseDto;
-}());
-var Probe2Impl = /** @class */ (function () {
-    function Probe2Impl(data) {
+    }
+}
+export class Probe2Impl {
+    constructor(data) {
         this.val1 = data.val1;
     }
-    return Probe2Impl;
-}());
-exports.Probe2Impl = Probe2Impl;
+}
 function mixMaps(target, src) {
-    for (var key in src) {
+    for (let key in src) {
         target[key] = src[key];
     }
     return target;
 }
-var Probe1Impl = /** @class */ (function () {
-    function Probe1Impl(data, mixin /*put your own arguments in here*/) {
-        if (mixin === void 0) { mixin = {}; }
+export class Probe1Impl {
+    constructor(data, mixin = {} /*put your own arguments in here*/) {
         DtoUils.mapIt(this, data, mixMaps({
             val3: new ArrType(Probe2Impl),
             val4: new ArrType(Probe2Impl),
             val5: Probe2Impl
         }, mixin));
     }
-    return Probe1Impl;
-}());
-exports.Probe1Impl = Probe1Impl;
+}
 //# sourceMappingURL=MappingProbes.js.map

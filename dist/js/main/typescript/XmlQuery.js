@@ -1,4 +1,3 @@
-"use strict";
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,91 +14,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.XQ = exports.XMLQuery = void 0;
-var Lang_1 = require("./Lang");
-var DomQuery_1 = require("./DomQuery");
-var isString = Lang_1.Lang.isString;
-var Global_1 = require("./Global");
+import { Lang } from "./Lang";
+import { DomQuery } from "./DomQuery";
+var isString = Lang.isString;
+import { _global$ } from "./Global";
 /**
  * xml query as specialized case for DomQuery
  */
-var XMLQuery = /** @class */ (function (_super) {
-    __extends(XMLQuery, _super);
-    function XMLQuery(rootNode, docType) {
-        if (docType === void 0) { docType = "text/xml"; }
-        var _this = this;
-        var createIe11DomQueryShim = function () {
+export class XMLQuery extends DomQuery {
+    constructor(rootNode, docType = "text/xml") {
+        let createIe11DomQueryShim = () => {
             //at the time if wroting ie11 is the only relevant browser
             //left withut any DomQuery support
-            var parser = new ActiveXObject("Microsoft.XMLDOM");
+            let parser = new ActiveXObject("Microsoft.XMLDOM");
             parser.async = false;
             //we shim th dom parser from ie in
             return {
-                parseFromString: function (text, contentType) {
+                parseFromString: (text, contentType) => {
                     return parser.loadXML(text);
                 }
             };
         };
-        var parseXML = function (xml) {
+        let parseXML = (xml) => {
             if (xml == null) {
                 return null;
             }
-            var domParser = Lang_1.Lang.saveResolveLazy(function () { return new ((0, Global_1._global$)()).DOMParser(); }, function () { return createIe11DomQueryShim(); }).value;
+            let domParser = Lang.saveResolveLazy(() => new (_global$()).DOMParser(), () => createIe11DomQueryShim()).value;
             return domParser.parseFromString(xml, docType);
         };
         if (isString(rootNode)) {
-            _this = _super.call(this, parseXML(rootNode)) || this;
+            super(parseXML(rootNode));
         }
         else {
-            _this = _super.call(this, rootNode) || this;
+            super(rootNode);
         }
-        return _this;
     }
-    XMLQuery.prototype.isXMLParserError = function () {
+    isXMLParserError() {
         return this.querySelectorAll("parsererror").isPresent();
-    };
-    XMLQuery.prototype.toString = function () {
-        var ret = [];
-        this.eachElem(function (node) {
+    }
+    toString() {
+        let ret = [];
+        this.eachElem((node) => {
             var _a, _b, _c, _d;
-            var serialized = (_d = (_c = (_b = (_a = ((0, Global_1._global$)())) === null || _a === void 0 ? void 0 : _a.XMLSerializer) === null || _b === void 0 ? void 0 : _b.constructor()) === null || _c === void 0 ? void 0 : _c.serializeToString(node)) !== null && _d !== void 0 ? _d : node === null || node === void 0 ? void 0 : node.xml;
+            let serialized = (_d = (_c = (_b = (_a = (_global$())) === null || _a === void 0 ? void 0 : _a.XMLSerializer) === null || _b === void 0 ? void 0 : _b.constructor()) === null || _c === void 0 ? void 0 : _c.serializeToString(node)) !== null && _d !== void 0 ? _d : node === null || node === void 0 ? void 0 : node.xml;
             if (!!serialized) {
                 ret.push(serialized);
             }
         });
         return ret.join("");
-    };
-    XMLQuery.prototype.parserErrorText = function (joinstr) {
+    }
+    parserErrorText(joinstr) {
         return this.querySelectorAll("parsererror").textContent(joinstr);
-    };
-    XMLQuery.parseXML = function (txt) {
+    }
+    static parseXML(txt) {
         return new XMLQuery(txt);
-    };
-    XMLQuery.parseHTML = function (txt) {
+    }
+    static parseHTML(txt) {
         return new XMLQuery(txt, "text/html");
-    };
-    XMLQuery.fromString = function (txt, parseType) {
-        if (parseType === void 0) { parseType = "text/xml"; }
+    }
+    static fromString(txt, parseType = "text/xml") {
         return new XMLQuery(txt, parseType);
-    };
-    return XMLQuery;
-}(DomQuery_1.DomQuery));
-exports.XMLQuery = XMLQuery;
-exports.XQ = XMLQuery;
+    }
+}
+export const XQ = XMLQuery;
 //# sourceMappingURL=XmlQuery.js.map

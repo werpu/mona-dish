@@ -1,4 +1,3 @@
-"use strict";
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,13 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Lang = void 0;
-var Monad_1 = require("./Monad");
+import { Optional } from "./Monad";
 /**
  * Lang helpers crossported from the apache myfaces project
  */
-var Lang;
+export var Lang;
 (function (Lang) {
     //should be in lang, but for now here to avoid recursive imports, not sure if typescript still has a problem with those
     /**
@@ -41,14 +38,13 @@ var Lang;
      * @param defaultValue an optional default value if the producer failes to produce anything
      * @returns an Optional of the produced value
      */
-    function saveResolve(resolverProducer, defaultValue) {
-        if (defaultValue === void 0) { defaultValue = null; }
+    function saveResolve(resolverProducer, defaultValue = null) {
         try {
-            var result = resolverProducer();
-            return Monad_1.Optional.fromNullable(result !== null && result !== void 0 ? result : defaultValue);
+            let result = resolverProducer();
+            return Optional.fromNullable(result !== null && result !== void 0 ? result : defaultValue);
         }
         catch (e) {
-            return Monad_1.Optional.absent;
+            return Optional.absent;
         }
     }
     Lang.saveResolve = saveResolve;
@@ -58,14 +54,13 @@ var Lang;
      * @param resolverProducer the producer for the resolve
      * @param defaultValue the default value producer function
      */
-    function saveResolveLazy(resolverProducer, defaultValue) {
-        if (defaultValue === void 0) { defaultValue = null; }
+    function saveResolveLazy(resolverProducer, defaultValue = null) {
         try {
-            var result = resolverProducer();
-            return Monad_1.Optional.fromNullable(result !== null && result !== void 0 ? result : defaultValue());
+            let result = resolverProducer();
+            return Optional.fromNullable(result !== null && result !== void 0 ? result : defaultValue());
         }
         catch (e) {
-            return Monad_1.Optional.absent;
+            return Optional.absent;
         }
     }
     Lang.saveResolveLazy = saveResolveLazy;
@@ -75,10 +70,9 @@ var Lang;
      * @param {RegExp} splitter our splitter reglar expression
      * @return a trimmed array of the splitted string
      */
-    function strToArray(it, splitter) {
-        if (splitter === void 0) { splitter = /\./gi; }
-        var ret = [];
-        it.split(splitter).forEach((function (element) {
+    function strToArray(it, splitter = /\./gi) {
+        let ret = [];
+        it.split(splitter).forEach((element => {
             ret.push(trim(element));
         }));
         return ret;
@@ -91,7 +85,7 @@ var Lang;
      */
     function trim(str) {
         str = str.replace(/^\s\s*/, '');
-        var ws = /\s/, i = str.length;
+        let ws = /\s/, i = str.length;
         while (ws.test(str.charAt(--i))) {
             //do nothing
         }
@@ -106,9 +100,7 @@ var Lang;
      * @param pack
      * @returns an array converted from the object
      */
-    function objToArray(obj, offset, pack) {
-        if (offset === void 0) { offset = 0; }
-        if (pack === void 0) { pack = []; }
+    function objToArray(obj, offset = 0, pack = []) {
         if ((obj !== null && obj !== void 0 ? obj : "__undefined__") == "__undefined__") {
             return pack !== null && pack !== void 0 ? pack : null;
         }
@@ -126,8 +118,8 @@ var Lang;
      * @param destination
      */
     function equalsIgnoreCase(source, destination) {
-        var finalSource = source !== null && source !== void 0 ? source : "___no_value__";
-        var finalDest = destination !== null && destination !== void 0 ? destination : "___no_value__";
+        let finalSource = source !== null && source !== void 0 ? source : "___no_value__";
+        let finalDest = destination !== null && destination !== void 0 ? destination : "___no_value__";
         //in any other case we do a strong string comparison
         return finalSource.toLowerCase() === finalDest.toLowerCase();
     }
@@ -165,27 +157,23 @@ var Lang;
     Lang.isFunc = isFunc;
     // code from https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
     // license https://creativecommons.org/licenses/by-sa/2.5/
-    function objAssign(target) {
-        var theArgs = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            theArgs[_i - 1] = arguments[_i];
-        }
+    function objAssign(target, ...theArgs) {
         if (target == null) { // TypeError if undefined or null
             throw new TypeError('Cannot convert undefined or null to object');
         }
-        var to = Object(target);
+        let to = Object(target);
         if (Object.assign) {
-            theArgs.forEach(function (item) { return Object.assign(to, item); });
+            theArgs.forEach(item => Object.assign(to, item));
             return to;
         }
-        theArgs.filter(function (item) { return item != null; }).forEach(function (item) {
-            var nextSource = item;
+        theArgs.filter(item => item != null).forEach(item => {
+            let nextSource = item;
             Object.keys(nextSource)
-                .filter(function (nextKey) { return Object.prototype.hasOwnProperty.call(nextSource, nextKey); })
-                .forEach(function (nextKey) { return to[nextKey] = nextSource[nextKey]; });
+                .filter(nextKey => Object.prototype.hasOwnProperty.call(nextSource, nextKey))
+                .forEach(nextKey => to[nextKey] = nextSource[nextKey]);
         });
         return to;
     }
     Lang.objAssign = objAssign;
-})(Lang = exports.Lang || (exports.Lang = {}));
+})(Lang || (Lang = {}));
 //# sourceMappingURL=Lang.js.map

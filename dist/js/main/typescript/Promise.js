@@ -1,21 +1,3 @@
-"use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CancellablePromise = exports.Promise = exports.interval = exports.timeout = exports.PromiseStatus = void 0;
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -34,42 +16,40 @@ exports.CancellablePromise = exports.Promise = exports.interval = exports.timeou
  * specific language governing permissions and limitations
  * under the License.
  */
-var Monad_1 = require("./Monad");
-var PromiseStatus;
+import { Optional } from "./Monad";
+export var PromiseStatus;
 (function (PromiseStatus) {
     PromiseStatus[PromiseStatus["PENDING"] = 0] = "PENDING";
     PromiseStatus[PromiseStatus["FULLFILLED"] = 1] = "FULLFILLED";
     PromiseStatus[PromiseStatus["REJECTED"] = 2] = "REJECTED";
-})(PromiseStatus = exports.PromiseStatus || (exports.PromiseStatus = {}));
+})(PromiseStatus || (PromiseStatus = {}));
 /*
  * Promise wrappers for timeout and interval
  */
-function timeout(timeout) {
-    var handler = null;
-    return new CancellablePromise(function (apply, reject) {
-        handler = setTimeout(function () { return apply(); }, timeout);
-    }, function () {
+export function timeout(timeout) {
+    let handler = null;
+    return new CancellablePromise((apply, reject) => {
+        handler = setTimeout(() => apply(), timeout);
+    }, () => {
         if (handler) {
             clearTimeout(handler);
             handler = null;
         }
     });
 }
-exports.timeout = timeout;
-function interval(timeout) {
-    var handler = null;
-    return new CancellablePromise(function (apply, reject) {
-        handler = setInterval(function () {
+export function interval(timeout) {
+    let handler = null;
+    return new CancellablePromise((apply, reject) => {
+        handler = setInterval(() => {
             apply();
         }, timeout);
-    }, function () {
+    }, () => {
         if (handler) {
             clearInterval(handler);
             handler = null;
         }
     });
 }
-exports.interval = interval;
 /**
  * a small (probably not 100% correct, although I tried to be correct as possible) Promise implementation
  * for systems which do not have a promise implemented
@@ -77,50 +57,41 @@ exports.interval = interval;
  * is value is a function to operate on, hence no real state is kept internally, except for the then
  * and catch calling order
  */
-var Promise = /** @class */ (function () {
-    function Promise(executor) {
-        var _this = this;
+export class Promise {
+    constructor(executor) {
         this.status = PromiseStatus.PENDING;
         this.allFuncs = [];
         //super(executor);
         this.value = executor;
-        this.value(function (data) { return _this.resolve(data); }, function (data) { return _this.reject(data); });
+        this.value((data) => this.resolve(data), (data) => this.reject(data));
     }
-    Promise.all = function () {
-        var promises = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            promises[_i] = arguments[_i];
-        }
-        var promiseCnt = 0;
-        var myapply;
-        var myPromise = new Promise(function (apply, reject) {
+    static all(...promises) {
+        let promiseCnt = 0;
+        let myapply;
+        let myPromise = new Promise((apply, reject) => {
             myapply = apply;
         });
-        var executor = function () {
+        let executor = () => {
             promiseCnt++;
             if (promises.length == promiseCnt) {
                 myapply();
             }
         };
         executor.__last__ = true;
-        for (var cnt = 0; cnt < promises.length; cnt++) {
+        for (let cnt = 0; cnt < promises.length; cnt++) {
             promises[cnt].finally(executor);
         }
         return myPromise;
-    };
-    Promise.race = function () {
-        var promises = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            promises[_i] = arguments[_i];
-        }
-        var promiseCnt = 0;
-        var myapply;
-        var myreject;
-        var myPromise = new Promise(function (apply, reject) {
+    }
+    static race(...promises) {
+        let promiseCnt = 0;
+        let myapply;
+        let myreject;
+        let myPromise = new Promise((apply, reject) => {
             myapply = apply;
             myreject = reject;
         });
-        var thenexecutor = function () {
+        let thenexecutor = () => {
             if (!!myapply) {
                 myapply();
             }
@@ -129,7 +100,7 @@ var Promise = /** @class */ (function () {
             return null;
         };
         thenexecutor.__last__ = true;
-        var catchexeutor = function () {
+        let catchexeutor = () => {
             if (!!myreject) {
                 myreject();
             }
@@ -138,56 +109,56 @@ var Promise = /** @class */ (function () {
             return null;
         };
         catchexeutor.__last__ = true;
-        for (var cnt = 0; cnt < promises.length; cnt++) {
+        for (let cnt = 0; cnt < promises.length; cnt++) {
             promises[cnt].then(thenexecutor);
             promises[cnt].catch(catchexeutor);
         }
         return myPromise;
-    };
-    Promise.reject = function (reason) {
-        var retVal = new Promise(function (resolve, reject) {
+    }
+    static reject(reason) {
+        let retVal = new Promise((resolve, reject) => {
             //not really doable without a hack
             if (reason instanceof Promise) {
-                reason.then(function (val) {
+                reason.then((val) => {
                     reject(val);
                 });
             }
             else {
-                setTimeout(function () {
+                setTimeout(() => {
                     reject(reason);
                 }, 1);
             }
         });
         return retVal;
-    };
-    Promise.resolve = function (reason) {
-        var retVal = new Promise(function (resolve, reject) {
+    }
+    static resolve(reason) {
+        let retVal = new Promise((resolve, reject) => {
             //not really doable without a hack
             if (reason instanceof Promise) {
-                reason.then(function (val) { return resolve(val); });
+                reason.then((val) => resolve(val));
             }
             else {
-                setTimeout(function () {
+                setTimeout(() => {
                     resolve(reason);
                 }, 1);
             }
         });
         return retVal;
-    };
-    Promise.prototype.then = function (executorFunc, catchfunc) {
+    }
+    then(executorFunc, catchfunc) {
         this.allFuncs.push({ "then": executorFunc });
         if (catchfunc) {
             this.allFuncs.push({ "catch": catchfunc });
         }
         this.spliceLastFuncs();
         return this;
-    };
-    Promise.prototype.catch = function (executorFunc) {
+    }
+    catch(executorFunc) {
         this.allFuncs.push({ "catch": executorFunc });
         this.spliceLastFuncs();
         return this;
-    };
-    Promise.prototype.finally = function (executorFunc) {
+    }
+    finally(executorFunc) {
         if (this.__reason__) {
             this.__reason__.finally(executorFunc);
             return;
@@ -195,14 +166,14 @@ var Promise = /** @class */ (function () {
         this.allFuncs.push({ "finally": executorFunc });
         this.spliceLastFuncs();
         return this;
-    };
-    Promise.prototype.resolve = function (val) {
+    }
+    resolve(val) {
         while (this.allFuncs.length) {
             if (!this.allFuncs[0].then) {
                 break;
             }
-            var fn = this.allFuncs.shift();
-            var funcResult = Monad_1.Optional.fromNullable(fn.then(val));
+            let fn = this.allFuncs.shift();
+            let funcResult = Optional.fromNullable(fn.then(val));
             if (funcResult.isPresent()) {
                 funcResult = funcResult.flatMap();
                 val = funcResult.value;
@@ -220,15 +191,15 @@ var Promise = /** @class */ (function () {
         }
         this.appyFinally();
         this.status = PromiseStatus.FULLFILLED;
-    };
-    Promise.prototype.reject = function (val) {
+    }
+    reject(val) {
         while (this.allFuncs.length) {
             if (this.allFuncs[0].finally) {
                 break;
             }
-            var fn = this.allFuncs.shift();
+            let fn = this.allFuncs.shift();
             if (fn.catch) {
-                var funcResult = Monad_1.Optional.fromNullable(fn.catch(val));
+                let funcResult = Optional.fromNullable(fn.catch(val));
                 if (funcResult.isPresent()) {
                     funcResult = funcResult.flatMap();
                     val = funcResult.value;
@@ -247,20 +218,20 @@ var Promise = /** @class */ (function () {
         }
         this.status = PromiseStatus.REJECTED;
         this.appyFinally();
-    };
-    Promise.prototype.appyFinally = function () {
+    }
+    appyFinally() {
         while (this.allFuncs.length) {
-            var fn = this.allFuncs.shift();
+            let fn = this.allFuncs.shift();
             if (fn.finally) {
                 fn.finally();
             }
         }
-    };
-    Promise.prototype.spliceLastFuncs = function () {
-        var lastFuncs = [];
-        var rest = [];
-        for (var cnt = 0; cnt < this.allFuncs.length; cnt++) {
-            for (var key in this.allFuncs[cnt]) {
+    }
+    spliceLastFuncs() {
+        let lastFuncs = [];
+        let rest = [];
+        for (let cnt = 0; cnt < this.allFuncs.length; cnt++) {
+            for (let key in this.allFuncs[cnt]) {
                 if (this.allFuncs[cnt][key].__last__) {
                     lastFuncs.push(this.allFuncs[cnt]);
                 }
@@ -270,17 +241,15 @@ var Promise = /** @class */ (function () {
             }
         }
         this.allFuncs = rest.concat(lastFuncs);
-    };
-    Promise.prototype.transferIntoNewPromise = function (val) {
-        for (var cnt = 0; cnt < this.allFuncs.length; cnt++) {
-            for (var key in this.allFuncs[cnt]) {
+    }
+    transferIntoNewPromise(val) {
+        for (let cnt = 0; cnt < this.allFuncs.length; cnt++) {
+            for (let key in this.allFuncs[cnt]) {
                 val[key](this.allFuncs[cnt][key]);
             }
         }
-    };
-    return Promise;
-}());
-exports.Promise = Promise;
+    }
+}
 /**
  * a cancellable promise
  * a Promise with a cancel function, which can be cancellend any time
@@ -290,35 +259,31 @@ exports.Promise = Promise;
  * The current then however is fished or a catch is called depending on how the outer
  * operation reacts to a cancel order.
  */
-var CancellablePromise = /** @class */ (function (_super) {
-    __extends(CancellablePromise, _super);
+export class CancellablePromise extends Promise {
     /**
      * @param executor asynchronous callback operation which triggers the callback
      * @param cancellator cancel operation, separate from the trigger operation
      */
-    function CancellablePromise(executor, cancellator) {
-        var _this = _super.call(this, executor) || this;
-        _this.cancellator = function () {
+    constructor(executor, cancellator) {
+        super(executor);
+        this.cancellator = () => {
         };
-        _this.cancellator = cancellator;
-        return _this;
+        this.cancellator = cancellator;
     }
-    CancellablePromise.prototype.cancel = function () {
+    cancel() {
         this.status = PromiseStatus.REJECTED;
         this.appyFinally();
         //lets terminate it once and for all, the finally has been applied
         this.allFuncs = [];
-    };
-    CancellablePromise.prototype.then = function (executorFunc, catchfunc) {
-        return _super.prototype.then.call(this, executorFunc, catchfunc);
-    };
-    CancellablePromise.prototype.catch = function (executorFunc) {
-        return _super.prototype.catch.call(this, executorFunc);
-    };
-    CancellablePromise.prototype.finally = function (executorFunc) {
-        return _super.prototype.finally.call(this, executorFunc);
-    };
-    return CancellablePromise;
-}(Promise));
-exports.CancellablePromise = CancellablePromise;
+    }
+    then(executorFunc, catchfunc) {
+        return super.then(executorFunc, catchfunc);
+    }
+    catch(executorFunc) {
+        return super.catch(executorFunc);
+    }
+    finally(executorFunc) {
+        return super.finally(executorFunc);
+    }
+}
 //# sourceMappingURL=Promise.js.map

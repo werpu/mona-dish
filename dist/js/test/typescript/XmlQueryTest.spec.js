@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -18,18 +16,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * specific language governing permissions and limitations
  * under the License.
  */
-var mocha_1 = require("mocha");
-var typescript_1 = require("../../main/typescript");
-var chai_1 = require("chai");
-var mocha_2 = require("mocha");
-var errorProbe = "<error>\n                <error-name>Error</error-name>\n                <error-message><![CDATA[Message]]></error-message>\n          </error>";
-(0, mocha_1.describe)('xml query tests', function () {
-    (0, mocha_2.it)('must handle the errorPrope correctly', function () {
-        var xmlQuery = new typescript_1.XMLQuery(errorProbe);
-        (0, chai_1.expect)(xmlQuery.querySelectorAll("error-name").isPresent());
-        (0, chai_1.expect)(xmlQuery.querySelectorAll("error-name").textContent('')).eq('Error');
-        (0, chai_1.expect)(xmlQuery.querySelectorAll("error-message").isPresent());
-        (0, chai_1.expect)(xmlQuery.querySelectorAll("error-message").cDATAAsString).eq('Message');
+import { describe } from "mocha";
+import { XMLQuery } from "../../main/typescript";
+import { expect } from "chai";
+import { it } from "mocha";
+let errorProbe = `<error>
+                <error-name>Error</error-name>
+                <error-message><![CDATA[Message]]></error-message>
+          </error>`;
+describe('xml query tests', () => {
+    it('must handle the errorPrope correctly', () => {
+        const xmlQuery = new XMLQuery(errorProbe);
+        expect(xmlQuery.querySelectorAll("error-name").isPresent());
+        expect(xmlQuery.querySelectorAll("error-name").textContent('')).eq('Error');
+        expect(xmlQuery.querySelectorAll("error-message").isPresent());
+        expect(xmlQuery.querySelectorAll("error-message").cDATAAsString).eq('Message');
     });
 });
 /*

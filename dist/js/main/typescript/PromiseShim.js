@@ -1,4 +1,3 @@
-"use strict";
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -20,11 +19,10 @@
 /**
  * Promise shim which uses our Promise implementation in the window context
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var Promise_1 = require("./Promise");
-var Global_1 = require("./Global");
+import { Promise as _Promise } from "./Promise";
+import { _global$ } from "./Global";
 if (!Promise) {
     //we register promise in the global context
-    Global_1._global$["Promise"] = Promise_1.Promise;
+    _global$["Promise"] = _Promise;
 }
 //# sourceMappingURL=PromiseShim.js.map

@@ -1,4 +1,3 @@
-"use strict";
 /* Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,515 +13,492 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var mocha_1 = require("mocha");
-var Stream_1 = require("../../main/typescript/Stream");
-var chai_1 = require("chai");
-var typescript_1 = require("../../main/typescript");
-var rxjs_1 = require("rxjs");
-var SourcesCollectors_1 = require("../../main/typescript/SourcesCollectors");
-(0, mocha_1.describe)('early stream tests', function () {
+import { describe } from "mocha";
+import { LazyStream, Stream } from "../../main/typescript/Stream";
+import { expect } from "chai";
+import { ArrayCollector, ArrayStreamDataSource, SequenceDataSource } from "../../main/typescript";
+import { from } from "rxjs";
+import { ITERATION_STATUS, MultiStreamDatasource } from "../../main/typescript/SourcesCollectors";
+describe('early stream tests', () => {
     beforeEach(function () {
         this.probe = [1, 2, 3, 4, 5];
     });
     it("must iterate normal", function () {
-        var stream = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false));
-        var sum = 0;
-        stream.each(function (data) {
+        let stream = Stream.of(...this.probe);
+        let sum = 0;
+        stream.each((data) => {
             sum = sum + data;
         });
-        (0, chai_1.expect)(sum).to.eq(15);
-        var stream2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false));
+        expect(sum).to.eq(15);
+        let stream2 = LazyStream.of(...this.probe);
         sum = 0;
-        stream2.each(function (data) {
+        stream2.each((data) => {
             sum = sum + data;
         });
-        (0, chai_1.expect)(sum).to.eq(15);
+        expect(sum).to.eq(15);
     });
     it("must iterate filtered", function () {
-        var stream = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false));
-        var sum = 0;
-        stream.filter(function (data) { return data != 5; }).each(function (data) {
+        let stream = Stream.of(...this.probe);
+        let sum = 0;
+        stream.filter((data) => data != 5).each((data) => {
             sum = sum + data;
         });
-        (0, chai_1.expect)(sum).to.eq(10);
-        var stream2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false));
+        expect(sum).to.eq(10);
+        let stream2 = LazyStream.of(...this.probe);
         sum = 0;
-        stream2.filter(function (data) { return data != 5; }).each(function (data) {
+        stream2.filter((data) => data != 5).each((data) => {
             sum = sum + data;
         });
-        (0, chai_1.expect)(sum).to.eq(10);
+        expect(sum).to.eq(10);
     });
     it('must filter properly', function () {
-        var probe0 = new Stream_1.LazyStream(new (typescript_1.ArrayStreamDataSource.bind.apply(typescript_1.ArrayStreamDataSource, __spreadArray([void 0], [1, 2, 3, 4], false)))()).filter(function (item) {
+        let probe0 = new LazyStream(new ArrayStreamDataSource(...[1, 2, 3, 4])).filter(item => {
             return item != null;
-        }).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(probe0.length).to.eq(4);
+        }).collect(new ArrayCollector());
+        expect(probe0.length).to.eq(4);
     });
     it("must stop at the first false", function () {
-        var stream = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false));
-        var callCnt = 0;
-        stream.each(function (item) {
+        let stream = LazyStream.of(...this.probe);
+        let callCnt = 0;
+        stream.each(item => {
             callCnt++;
             return item < 3;
         });
-        (0, chai_1.expect)(callCnt).to.eq(3);
-        stream = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false));
+        expect(callCnt).to.eq(3);
+        stream = Stream.of(...this.probe);
         callCnt = 0;
-        stream.each(function (item) {
+        stream.each(item => {
             callCnt++;
             return item < 3;
         });
-        (0, chai_1.expect)(callCnt).to.eq(3);
-        stream = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false));
+        expect(callCnt).to.eq(3);
+        stream = LazyStream.of(...this.probe);
         callCnt = 0;
         stream
-            .onElem(function (item) {
+            .onElem(item => {
             callCnt++;
         })
-            .each(function (item) {
+            .each(item => {
             return item < 3;
         });
-        (0, chai_1.expect)(callCnt).to.eq(3);
+        expect(callCnt).to.eq(3);
         //special case early stream everything before foreach is handled in a separate step
-        stream = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false));
+        stream = Stream.of(...this.probe);
         callCnt = 0;
         stream
-            .onElem(function (item) {
+            .onElem(item => {
             callCnt++;
         })
-            .each(function (item) {
+            .each(item => {
             return item < 3;
         });
-        (0, chai_1.expect)(callCnt).to.eq(5);
+        expect(callCnt).to.eq(5);
     });
     it("must onElem", function () {
-        var stream = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false));
-        var sum = 0;
-        var sum2 = stream.filter(function (data) { return data != 5; }).onElem(function (data) {
+        let stream = Stream.of(...this.probe);
+        let sum = 0;
+        let sum2 = stream.filter((data) => data != 5).onElem((data) => {
             sum = sum + data;
-        }).reduce(function (el1, el2) { return el1 + el2; }).value;
-        (0, chai_1.expect)(sum).to.eq(10);
-        (0, chai_1.expect)(sum2).to.eq(10);
-        var stream2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false));
+        }).reduce((el1, el2) => el1 + el2).value;
+        expect(sum).to.eq(10);
+        expect(sum2).to.eq(10);
+        let stream2 = LazyStream.of(...this.probe);
         sum = 0;
-        sum2 = stream2.filter(function (data) { return data != 5; }).onElem(function (data) {
+        sum2 = stream2.filter((data) => data != 5).onElem((data) => {
             sum = sum + data;
-        }).reduce(function (el1, el2) { return el1 + el2; }).value;
-        (0, chai_1.expect)(sum).to.eq(10);
-        (0, chai_1.expect)(sum2).to.eq(10);
+        }).reduce((el1, el2) => el1 + el2).value;
+        expect(sum).to.eq(10);
+        expect(sum2).to.eq(10);
     });
     it("must have a correct first last", function () {
-        var stream = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false));
-        var first = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).filter(function (data) { return data != 5; }).onElem(function (data) {
+        let stream = Stream.of(...this.probe);
+        let first = Stream.of(...this.probe).filter((data) => data != 5).onElem((data) => {
         }).first().value;
-        var last = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).filter(function (data) { return data != 5; }).onElem(function (data) {
+        let last = Stream.of(...this.probe).filter((data) => data != 5).onElem((data) => {
         }).last().value;
-        (0, chai_1.expect)(first).to.eq(1);
-        (0, chai_1.expect)(last).to.eq(4);
+        expect(first).to.eq(1);
+        expect(last).to.eq(4);
     });
     it("must have a correct first last lazy", function () {
-        var stream = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false));
-        var first = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).filter(function (data) { return data != 5; }).onElem(function (data) {
+        let stream = LazyStream.of(...this.probe);
+        let first = LazyStream.of(...this.probe).filter((data) => data != 5).onElem((data) => {
             data;
         }).first().value;
-        var last = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).filter(function (data) { return data != 5; }).onElem(function (data) {
+        let last = Stream.of(...this.probe).filter((data) => data != 5).onElem((data) => {
             data;
         }).last().value;
-        (0, chai_1.expect)(first).to.eq(1);
-        (0, chai_1.expect)(last).to.eq(4);
+        expect(first).to.eq(1);
+        expect(last).to.eq(4);
     });
     it("must have a correct limits", function () {
-        var cnt = 0;
-        var last = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).filter(function (data) { return data != 5; }).limits(2).onElem(function (data) {
+        let cnt = 0;
+        let last = Stream.of(...this.probe).filter((data) => data != 5).limits(2).onElem((data) => {
             cnt++;
         }).last().value;
-        (0, chai_1.expect)(last).to.eq(2);
-        (0, chai_1.expect)(cnt).to.eq(2);
+        expect(last).to.eq(2);
+        expect(cnt).to.eq(2);
     });
     it("must initialize correctly from assoc array", function () {
-        var probe = {
+        let probe = {
             key1: "val1",
             key2: 2,
             key3: "val3"
         };
-        var arr1 = [];
-        var arr2 = [];
-        Stream_1.Stream.ofAssoc(probe).each(function (item) {
-            (0, chai_1.expect)(item.length).to.eq(2);
+        let arr1 = [];
+        let arr2 = [];
+        Stream.ofAssoc(probe).each(item => {
+            expect(item.length).to.eq(2);
             arr1.push(item[0]);
             arr2.push(item[1]);
         });
-        (0, chai_1.expect)(arr1.join(",")).to.eq("key1,key2,key3");
-        (0, chai_1.expect)(arr2.join(",")).to.eq("val1,2,val3");
+        expect(arr1.join(",")).to.eq("key1,key2,key3");
+        expect(arr2.join(",")).to.eq("val1,2,val3");
     });
     it("must have a correct lazy limits", function () {
-        var last = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).filter(function (data) { return data != 5; }).limits(2).onElem(function (data) {
+        let last = LazyStream.of(...this.probe).filter((data) => data != 5).limits(2).onElem((data) => {
             data;
         }).last().value;
-        (0, chai_1.expect)(last).to.eq(2);
+        expect(last).to.eq(2);
     });
     it("must correctly lazily flatmap", function () {
-        var resultingArr = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, [data, 2]); }).value;
-        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
-        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        let resultingArr = LazyStream.of(...this.probe).flatMap((data) => LazyStream.of(...[data, 2])).value;
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
     it("must correctly lazily flatmap with arrays", function () {
-        var resultingArr = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return [data, 2]; }).value;
-        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
-        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
-        resultingArr = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, [data, 2]); }).value;
-        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
-        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        let resultingArr = LazyStream.of(...this.probe).flatMap((data) => [data, 2]).value;
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        resultingArr = LazyStream.of(...this.probe).flatMap((data) => LazyStream.of(...[data, 2])).value;
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
     it("must correctly early flatmap", function () {
-        var resultingArr = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return Stream_1.Stream.of.apply(Stream_1.Stream, [data, 2]); }).value;
-        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
-        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        let resultingArr = Stream.of(...this.probe).flatMap((data) => Stream.of(...[data, 2])).value;
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
     it("must correctly early flatmap with arrays", function () {
-        var resultingArr = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return [data, 2]; }).value;
-        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
-        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        let resultingArr = Stream.of(...this.probe).flatMap((data) => [data, 2]).value;
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
     it("must correctly flatmap intermixed", function () {
-        var resultingArr = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return Stream_1.Stream.of.apply(Stream_1.Stream, [data, 2]); }).value;
-        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
-        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        let resultingArr = LazyStream.of(...this.probe).flatMap((data) => Stream.of(...[data, 2])).value;
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
     it("must correctly flatmap intermixed2", function () {
-        var resultingArr = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).flatMap(function (data) { return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, [data, 2]); }).value;
-        (0, chai_1.expect)(resultingArr.length == 10).to.be.true;
-        (0, chai_1.expect)(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
+        let resultingArr = Stream.of(...this.probe).flatMap((data) => LazyStream.of(...[data, 2])).value;
+        expect(resultingArr.length == 10).to.be.true;
+        expect(resultingArr.join(",")).to.eq("1,2,2,2,3,2,4,2,5,2");
     });
     it("must correctly pass anyMatch allMatch noneMatch", function () {
-        var anyMatch = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).anyMatch(function (item) { return item == 3; });
-        var allMatch = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).allMatch(function (item) { return item < 6; });
-        var noneMatch = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.probe), false)).noneMatch(function (item) { return item > 5; });
-        (0, chai_1.expect)(anyMatch).to.be.true;
-        (0, chai_1.expect)(allMatch).to.be.true;
-        (0, chai_1.expect)(noneMatch).to.be.true;
+        let anyMatch = LazyStream.of(...this.probe).anyMatch((item) => item == 3);
+        let allMatch = LazyStream.of(...this.probe).allMatch((item) => item < 6);
+        let noneMatch = LazyStream.of(...this.probe).noneMatch((item) => item > 5);
+        expect(anyMatch).to.be.true;
+        expect(allMatch).to.be.true;
+        expect(noneMatch).to.be.true;
     });
     it("must correctly pass anyMatch allMatch noneMatch early", function () {
-        var anyMatch = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).anyMatch(function (item) { return item == 3; });
-        var allMatch = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).allMatch(function (item) { return item < 6; });
-        var noneMatch = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.probe), false)).noneMatch(function (item) { return item > 5; });
-        (0, chai_1.expect)(anyMatch).to.be.true;
-        (0, chai_1.expect)(allMatch).to.be.true;
-        (0, chai_1.expect)(noneMatch).to.be.true;
+        let anyMatch = Stream.of(...this.probe).anyMatch((item) => item == 3);
+        let allMatch = Stream.of(...this.probe).allMatch((item) => item < 6);
+        let noneMatch = Stream.of(...this.probe).noneMatch((item) => item > 5);
+        expect(anyMatch).to.be.true;
+        expect(allMatch).to.be.true;
+        expect(noneMatch).to.be.true;
     });
     it("must sort correctly", function () {
-        var probe = [1, 5, 3, 2, 4];
-        var res = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe), false)).sort(function (el1, el2) { return el1 - el2; })
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(res.join(",")).to.eq("1,2,3,4,5");
+        let probe = [1, 5, 3, 2, 4];
+        let res = Stream.of(...probe)
+            .sort((el1, el2) => el1 - el2)
+            .collect(new ArrayCollector());
+        expect(res.join(",")).to.eq("1,2,3,4,5");
     });
     it("must sort correctly lazy", function () {
-        var probe = [1, 5, 3, 2, 4];
-        var res = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false)).sort(function (el1, el2) { return el1 - el2; })
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(res.join(",")).to.eq("1,2,3,4,5");
+        let probe = [1, 5, 3, 2, 4];
+        let res = LazyStream.of(...probe)
+            .sort((el1, el2) => el1 - el2)
+            .collect(new ArrayCollector());
+        expect(res.join(",")).to.eq("1,2,3,4,5");
     });
     it("must handle a sequence of numbers correctly", function () {
-        var datasource = new typescript_1.SequenceDataSource(0, 10);
-        var res = Stream_1.LazyStream.ofStreamDataSource(datasource)
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(res.length == 10).to.be.true;
-        (0, chai_1.expect)(res[0] == 0).to.be.true;
-        (0, chai_1.expect)(res[9] == 9).to.be.true;
-        (0, chai_1.expect)(res[4] == 4).to.be.true;
+        let datasource = new SequenceDataSource(0, 10);
+        let res = LazyStream.ofStreamDataSource(datasource)
+            .collect(new ArrayCollector());
+        expect(res.length == 10).to.be.true;
+        expect(res[0] == 0).to.be.true;
+        expect(res[9] == 9).to.be.true;
+        expect(res[4] == 4).to.be.true;
     });
     it("must handle a reduced sequence of numbers correctly", function () {
-        var datasource = new typescript_1.SequenceDataSource(1, 10);
-        var res = Stream_1.LazyStream.ofStreamDataSource(datasource)
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(res.length == 9).to.be.true;
-        (0, chai_1.expect)(res[0] == 1).to.be.true;
-        (0, chai_1.expect)(res[8] == 9).to.be.true;
-        (0, chai_1.expect)(res[4] == 5).to.be.true;
+        let datasource = new SequenceDataSource(1, 10);
+        let res = LazyStream.ofStreamDataSource(datasource)
+            .collect(new ArrayCollector());
+        expect(res.length == 9).to.be.true;
+        expect(res[0] == 1).to.be.true;
+        expect(res[8] == 9).to.be.true;
+        expect(res[4] == 5).to.be.true;
     });
     it("must concat correctly", function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [6, 7, 8, 9, 10];
-        var probe3 = [11, 12, 13, 14, 15];
-        var stream1 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe), false));
-        var stream2 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe2), false));
-        var stream3 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe3), false));
-        var finalStream = stream1.concat(stream2, stream3);
-        (0, chai_1.expect)(finalStream.collect(new typescript_1.ArrayCollector()).length).to.eq(15);
-        (0, chai_1.expect)(finalStream.collect(new typescript_1.ArrayCollector())[0]).to.eq(1);
-        (0, chai_1.expect)(finalStream.collect(new typescript_1.ArrayCollector())[14]).to.eq(15);
-        (0, chai_1.expect)(finalStream.collect(new typescript_1.ArrayCollector())[7]).to.eq(8);
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [6, 7, 8, 9, 10];
+        let probe3 = [11, 12, 13, 14, 15];
+        let stream1 = Stream.of(...probe);
+        let stream2 = Stream.of(...probe2);
+        let stream3 = Stream.of(...probe3);
+        let finalStream = stream1.concat(stream2, stream3);
+        expect(finalStream.collect(new ArrayCollector()).length).to.eq(15);
+        expect(finalStream.collect(new ArrayCollector())[0]).to.eq(1);
+        expect(finalStream.collect(new ArrayCollector())[14]).to.eq(15);
+        expect(finalStream.collect(new ArrayCollector())[7]).to.eq(8);
     });
     it("must concat correctly lazily", function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [6, 7, 8, 9, 10];
-        var probe3 = [11, 12, 13, 14, 15];
-        var stream1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false));
-        var stream2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var stream3 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe3), false));
-        var finalStream = stream1.concat(stream2, stream3);
-        var retArr = finalStream.collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(retArr.length).to.eq(15);
-        (0, chai_1.expect)(retArr[0]).to.eq(1);
-        (0, chai_1.expect)(retArr[14]).to.eq(15);
-        (0, chai_1.expect)(retArr[7]).to.eq(8);
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [6, 7, 8, 9, 10];
+        let probe3 = [11, 12, 13, 14, 15];
+        let stream1 = LazyStream.of(...probe);
+        let stream2 = LazyStream.of(...probe2);
+        let stream3 = LazyStream.of(...probe3);
+        let finalStream = stream1.concat(stream2, stream3);
+        let retArr = finalStream.collect(new ArrayCollector());
+        expect(retArr.length).to.eq(15);
+        expect(retArr[0]).to.eq(1);
+        expect(retArr[14]).to.eq(15);
+        expect(retArr[7]).to.eq(8);
     });
-    it("must work with rxjs and early streams", function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [6, 7, 8, 9, 10];
-        var stream1 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe), false)).filter(function (item) {
+    it("must work with rxjs and early streams", () => {
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [6, 7, 8, 9, 10];
+        let stream1 = Stream.of(...probe).filter(item => {
             return item != 2;
         });
-        var stream2 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe2), false));
-        var o1 = (0, rxjs_1.from)(stream1);
-        var o2 = (0, rxjs_1.from)(stream2);
-        var cnt1 = 0;
-        var val1 = 0;
-        o1.subscribe(function (value) {
+        let stream2 = Stream.of(...probe2);
+        let o1 = from(stream1);
+        let o2 = from(stream2);
+        let cnt1 = 0;
+        let val1 = 0;
+        o1.subscribe(value => {
             cnt1++;
             val1 = value;
         });
         //one item filtered
-        (0, chai_1.expect)(cnt1 == probe.length - 1).to.be.true;
-        (0, chai_1.expect)(val1).to.eq(5);
-        var cnt2 = 0;
-        var val2 = 0;
-        o2.subscribe(function (value) {
+        expect(cnt1 == probe.length - 1).to.be.true;
+        expect(val1).to.eq(5);
+        let cnt2 = 0;
+        let val2 = 0;
+        o2.subscribe(value => {
             cnt2++;
             val2 = value;
         });
-        (0, chai_1.expect)(cnt2 == probe2.length).to.be.true;
-        (0, chai_1.expect)(val2).to.eq(10);
+        expect(cnt2 == probe2.length).to.be.true;
+        expect(val2).to.eq(10);
     });
-    it("must work with rxjs and Lazy Streams", function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [6, 7, 8, 9, 10];
-        var stream1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false)).filter(function (item) {
+    it("must work with rxjs and Lazy Streams", () => {
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [6, 7, 8, 9, 10];
+        let stream1 = LazyStream.of(...probe).filter(item => {
             return item != 2;
         });
         ;
-        var stream2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var o1 = (0, rxjs_1.from)(stream1);
-        var o2 = (0, rxjs_1.from)(stream2);
-        var cnt1 = 0;
-        var val1 = 0;
-        o1.subscribe(function (value) {
+        let stream2 = LazyStream.of(...probe2);
+        let o1 = from(stream1);
+        let o2 = from(stream2);
+        let cnt1 = 0;
+        let val1 = 0;
+        o1.subscribe(value => {
             cnt1++;
             val1 = value;
         });
-        (0, chai_1.expect)(cnt1 == probe.length - 1).to.be.true;
-        (0, chai_1.expect)(val1).to.eq(5);
-        var cnt2 = 0;
-        var val2 = 0;
-        o2.subscribe(function (value) {
+        expect(cnt1 == probe.length - 1).to.be.true;
+        expect(val1).to.eq(5);
+        let cnt2 = 0;
+        let val2 = 0;
+        o2.subscribe(value => {
             cnt2++;
             val2 = value;
         });
-        (0, chai_1.expect)(cnt2 == probe.length).to.be.true;
-        (0, chai_1.expect)(val2).to.eq(10);
+        expect(cnt2 == probe.length).to.be.true;
+        expect(val2).to.eq(10);
     });
     it('must test the multistream data source', function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [1, 2, 3, 4, 5];
-        var probe3 = [1, 2, 3, 4, 5];
-        var strm1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false));
-        var strm2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var strm3 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var strm4 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var source = new SourcesCollectors_1.MultiStreamDatasource(strm1, strm2);
-        var ret = [];
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [1, 2, 3, 4, 5];
+        let probe3 = [1, 2, 3, 4, 5];
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+        let strm3 = LazyStream.of(...probe2);
+        let strm4 = LazyStream.of(...probe2);
+        let source = new MultiStreamDatasource(strm1, strm2);
+        let ret = [];
         while (source.hasNext()) {
-            var value = source.next();
+            let value = source.next();
             ret.push(value);
         }
-        (0, chai_1.expect)(ret.length == 10).to.be.true;
+        expect(ret.length == 10).to.be.true;
         source.reset();
-        var strm = Stream_1.LazyStream.ofStreamDataSource(source);
-        var ret2 = strm.collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(ret2.length == 10).to.be.true;
-        source = new SourcesCollectors_1.MultiStreamDatasource(strm1, strm2, strm3);
+        let strm = LazyStream.ofStreamDataSource(source);
+        let ret2 = strm.collect(new ArrayCollector());
+        expect(ret2.length == 10).to.be.true;
+        source = new MultiStreamDatasource(strm1, strm2, strm3);
         source.reset();
-        strm = Stream_1.LazyStream.ofStreamDataSource(source);
-        ret2 = strm.collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(ret2.length == 15).to.be.true;
+        strm = LazyStream.ofStreamDataSource(source);
+        ret2 = strm.collect(new ArrayCollector());
+        expect(ret2.length == 15).to.be.true;
         strm.reset();
-        ret2 = strm4.concat(strm).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(ret2.length == 20).to.be.true;
+        ret2 = strm4.concat(strm).collect(new ArrayCollector());
+        expect(ret2.length == 20).to.be.true;
     });
     it('it must concat with lazy streams', function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [1, 2, 3, 4, 5];
-        var strm1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false));
-        var strm2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var strm3 = strm1.concat(strm2);
-        var idx = {};
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [1, 2, 3, 4, 5];
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+        let strm3 = strm1.concat(strm2);
+        let idx = {};
         //we now filter the doubles out
-        var resultArr = strm3.filter(function (item) {
-            var ret = !(idx === null || idx === void 0 ? void 0 : idx["".concat(item)]);
+        const resultArr = strm3.filter(item => {
+            const ret = !(idx === null || idx === void 0 ? void 0 : idx[`${item}`]);
             return ret;
         })
-            .map(function (item) {
-            idx["".concat(item)] = true;
+            .map(item => {
+            idx[`${item}`] = true;
             return item;
         })
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(resultArr.length).to.eq(5);
+            .collect(new ArrayCollector());
+        expect(resultArr.length).to.eq(5);
     });
     it('streams must be recycleable after first usage', function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [1, 2, 3, 4, 5];
-        var strm1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false));
-        var strm2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var strm3 = strm1.concat(strm2);
-        var arr = strm3.filter(function (item) {
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [1, 2, 3, 4, 5];
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+        let strm3 = strm1.concat(strm2);
+        let arr = strm3.filter(item => {
             return true;
-        }).collect(new typescript_1.ArrayCollector());
-        var idx = {};
+        }).collect(new ArrayCollector());
+        let idx = {};
         //we now filter the doubles out
-        var resultArr = strm3.filter(function (item) {
-            var ret = !(idx === null || idx === void 0 ? void 0 : idx["".concat(item)]);
+        const resultArr = strm3.filter(item => {
+            const ret = !(idx === null || idx === void 0 ? void 0 : idx[`${item}`]);
             return ret;
         })
-            .map(function (item) {
-            idx["".concat(item)] = true;
+            .map(item => {
+            idx[`${item}`] = true;
             return item;
         })
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(resultArr.length).to.eq(5);
+            .collect(new ArrayCollector());
+        expect(resultArr.length).to.eq(5);
     });
     it('lazy streams must be recycleable after first usage', function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [1, 2, 3, 4, 5];
-        var strm1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false));
-        var strm2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var strm3 = strm1.concat(strm2);
-        var arr = strm3.filter(function (item) {
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [1, 2, 3, 4, 5];
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+        let strm3 = strm1.concat(strm2);
+        let arr = strm3.filter(item => {
             return true;
-        }).collect(new typescript_1.ArrayCollector());
-        var idx = {};
+        }).collect(new ArrayCollector());
+        let idx = {};
         //we now filter the doubles out
-        var resultArr = strm3.filter(function (item) {
-            var ret = !(idx === null || idx === void 0 ? void 0 : idx["".concat(item)]);
+        const resultArr = strm3.filter(item => {
+            const ret = !(idx === null || idx === void 0 ? void 0 : idx[`${item}`]);
             return ret;
         })
-            .map(function (item) {
-            idx["".concat(item)] = true;
+            .map(item => {
+            idx[`${item}`] = true;
             return item;
         })
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(resultArr.length).to.eq(5);
+            .collect(new ArrayCollector());
+        expect(resultArr.length).to.eq(5);
     });
     it('concat of nested arrays in streams must work', function () {
-        var probe = [["xxx.yy.aaa", "blubbb"]];
-        var probe2 = [];
-        var strm1 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe), false)).concat(Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe2), false)));
-        var arr1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false)).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(arr1.length == probe.length).to.be.true;
-        (0, chai_1.expect)(arr1[0].length == probe[0].length).to.be.true;
-        var resArr = strm1.collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(resArr.length == 1).to.be.true;
-        (0, chai_1.expect)(resArr[0].length == 2).to.be.true;
+        let probe = [["xxx.yy.aaa", "blubbb"]];
+        let probe2 = [];
+        let strm1 = Stream.of(...probe).concat(Stream.of(...probe2));
+        let arr1 = LazyStream.of(...probe).collect(new ArrayCollector());
+        expect(arr1.length == probe.length).to.be.true;
+        expect(arr1[0].length == probe[0].length).to.be.true;
+        let resArr = strm1.collect(new ArrayCollector());
+        expect(resArr.length == 1).to.be.true;
+        expect(resArr[0].length == 2).to.be.true;
     });
     it('concat of nested arrays in lazy streams must work', function () {
-        var probe = [["xxx.yy.aaa", "blubbb"]];
-        var probe2 = [];
-        var strm1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false)).concat(Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false)));
-        var arr1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false)).collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(arr1.length == probe.length).to.be.true;
-        (0, chai_1.expect)(arr1[0].length == probe[0].length).to.be.true;
-        var resArr = strm1.collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(resArr.length == 1).to.be.true;
-        (0, chai_1.expect)(resArr[0].length == 2).to.be.true;
+        let probe = [["xxx.yy.aaa", "blubbb"]];
+        let probe2 = [];
+        let strm1 = LazyStream.of(...probe).concat(LazyStream.of(...probe2));
+        let arr1 = LazyStream.of(...probe).collect(new ArrayCollector());
+        expect(arr1.length == probe.length).to.be.true;
+        expect(arr1[0].length == probe[0].length).to.be.true;
+        let resArr = strm1.collect(new ArrayCollector());
+        expect(resArr.length == 1).to.be.true;
+        expect(resArr[0].length == 2).to.be.true;
         // not fully working yet, the corner case with empty stream passed fails
     });
     it('lazy streams must be handle complex look aheads', function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [6, 7, 8, 9, 10];
-        var probe3 = [11, 12, 13, 14, 15];
-        var probe4 = [16, 17, 18, 19, 20];
-        var strm1 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe), false));
-        var strm2 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe2), false));
-        var strm3 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe3), false));
-        var strm4 = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(probe4), false));
-        var strm5 = strm3.concat(strm4);
-        var strm31 = strm1.concat(strm2).concat(strm5);
-        strm31.each(function (item) { return console.log(item); });
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [6, 7, 8, 9, 10];
+        let probe3 = [11, 12, 13, 14, 15];
+        let probe4 = [16, 17, 18, 19, 20];
+        let strm1 = LazyStream.of(...probe);
+        let strm2 = LazyStream.of(...probe2);
+        let strm3 = LazyStream.of(...probe3);
+        let strm4 = LazyStream.of(...probe4);
+        let strm5 = strm3.concat(strm4);
+        let strm31 = strm1.concat(strm2).concat(strm5);
+        strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
         global["debug"] = true;
-        var res2 = strm31.lookAhead(15);
-        var res3 = strm31.lookAhead(19);
-        var res4 = strm31.lookAhead(21);
+        let res2 = strm31.lookAhead(15);
+        let res3 = strm31.lookAhead(19);
+        let res4 = strm31.lookAhead(21);
         //expect(res).to.eq(8);
-        (0, chai_1.expect)(res2).to.eq(15);
-        (0, chai_1.expect)(res3).to.eq(19);
-        (0, chai_1.expect)(res4).to.eq(SourcesCollectors_1.ITERATION_STATUS.EO_STRM);
+        expect(res2).to.eq(15);
+        expect(res3).to.eq(19);
+        expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
     });
     it('streams must be handle complex look aheads', function () {
-        var probe = [1, 2, 3, 4, 5];
-        var probe2 = [6, 7, 8, 9, 10];
-        var probe3 = [11, 12, 13, 14, 15];
-        var probe4 = [16, 17, 18, 19, 20];
-        var strm1 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe), false));
-        var strm2 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe2), false));
-        var strm3 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe3), false));
-        var strm4 = Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(probe4), false));
-        var strm5 = strm3.concat(strm4);
-        var strm31 = strm1.concat(strm2).concat(strm5);
-        strm31.each(function (item) { return console.log(item); });
+        let probe = [1, 2, 3, 4, 5];
+        let probe2 = [6, 7, 8, 9, 10];
+        let probe3 = [11, 12, 13, 14, 15];
+        let probe4 = [16, 17, 18, 19, 20];
+        let strm1 = Stream.of(...probe);
+        let strm2 = Stream.of(...probe2);
+        let strm3 = Stream.of(...probe3);
+        let strm4 = Stream.of(...probe4);
+        let strm5 = strm3.concat(strm4);
+        let strm31 = strm1.concat(strm2).concat(strm5);
+        strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
         global["debug"] = true;
-        var res2 = strm31.lookAhead(15);
-        var res3 = strm31.lookAhead(19);
-        var res4 = strm31.lookAhead(21);
+        let res2 = strm31.lookAhead(15);
+        let res3 = strm31.lookAhead(19);
+        let res4 = strm31.lookAhead(21);
         //expect(res).to.eq(8);
-        (0, chai_1.expect)(res2).to.eq(15);
-        (0, chai_1.expect)(res3).to.eq(19);
-        (0, chai_1.expect)(res4).to.eq(SourcesCollectors_1.ITERATION_STATUS.EO_STRM);
+        expect(res2).to.eq(15);
+        expect(res3).to.eq(19);
+        expect(res4).to.eq(ITERATION_STATUS.EO_STRM);
     });
     it('must handle expansions in between', function () {
         global[this.test.title] = true;
-        var data = {
+        const data = {
             key1: [1, 2, 3, 4],
             key2: [4, 5, 6, 7, 8],
             key3: [9, 10, 11, 12, 13],
         };
-        var res = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(Object.keys(data)), false)).filter(function (item) { return item != "key1"; })
-            .flatMap(function (key) {
-            return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(data[key]), false)).map(function (value) { return [key, value]; }).flatMap(function (key) {
-                return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, [["aa", "bb"], ["aa", "bb"]]);
+        let res = LazyStream.of(...Object.keys(data))
+            .filter(item => item != "key1")
+            .flatMap(key => {
+            return LazyStream.of(...data[key]).map(value => [key, value]).flatMap((key) => {
+                return LazyStream.of(...[["aa", "bb"], ["aa", "bb"]]);
             });
         })
-            .filter(function (item) {
+            .filter((item) => {
             return item[0] != "key2";
         })
-            .collect(new typescript_1.ArrayCollector());
-        (0, chai_1.expect)(res.length).to.eq(20);
+            .collect(new ArrayCollector());
+        expect(res.length).to.eq(20);
     });
 });
 //# sourceMappingURL=StreamTest.spec.js.map

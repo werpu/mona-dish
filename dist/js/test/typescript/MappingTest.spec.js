@@ -1,4 +1,3 @@
-"use strict";
 /* Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-var MappingProbes_1 = require("./MappingProbes");
-var chai_1 = require("chai");
-var mocha_1 = require("mocha");
-(0, mocha_1.describe)('mapping tests', function () {
-    (0, mocha_1.it)('must map correctly', function () {
-        var probe2 = { val1: "hello from probe2" };
-        var probe1 = {
+import { Probe1Impl, Probe2Impl } from "./MappingProbes";
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
+describe('mapping tests', () => {
+    it('must map correctly', () => {
+        let probe2 = { val1: "hello from probe2" };
+        let probe1 = {
             val1: "hello from probe1",
             val2: new Date(),
             val3: { "hello": probe2 },
@@ -29,11 +27,11 @@ var mocha_1 = require("mocha");
             val5: probe2,
             val6: "something",
         };
-        var probe1Impl = new MappingProbes_1.Probe1Impl(probe1);
-        (0, chai_1.expect)(probe1Impl.val1).to.be.eq(probe1.val1);
-        (0, chai_1.expect)(probe1Impl.val4[1] instanceof MappingProbes_1.Probe2Impl).to.be.eq(true);
-        (0, chai_1.expect)(probe1Impl.val5 instanceof MappingProbes_1.Probe2Impl).to.be.eq(true);
-        (0, chai_1.expect)(probe1Impl.val3["hello"] instanceof MappingProbes_1.Probe2Impl).to.be.eq(true);
+        let probe1Impl = new Probe1Impl(probe1);
+        expect(probe1Impl.val1).to.be.eq(probe1.val1);
+        expect(probe1Impl.val4[1] instanceof Probe2Impl).to.be.eq(true);
+        expect(probe1Impl.val5 instanceof Probe2Impl).to.be.eq(true);
+        expect(probe1Impl.val3["hello"] instanceof Probe2Impl).to.be.eq(true);
     });
 });
 //# sourceMappingURL=MappingTest.spec.js.map

@@ -1,4 +1,3 @@
-"use strict";
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,132 +14,102 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __read = (this && this.__read) || function (o, n) {
-    var m = typeof Symbol === "function" && o[Symbol.iterator];
-    if (!m) return o;
-    var i = m.call(o), r, ar = [], e;
-    try {
-        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-    }
-    catch (error) { e = { error: error }; }
-    finally {
-        try {
-            if (r && !r.done && (m = i["return"])) m.call(i);
-        }
-        finally { if (e) throw e.error; }
-    }
-    return ar;
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LazyStream = exports.Stream = exports.FlatMapStreamDataSource = void 0;
 /*
  * A small stream implementation
  */
-var Monad_1 = require("./Monad");
-var SourcesCollectors_1 = require("./SourcesCollectors");
+import { Optional } from "./Monad";
+import { ArrayCollector, ArrayStreamDataSource, calculateSkips, FilteredStreamDatasource, ITERATION_STATUS, MappedStreamDataSource, MultiStreamDatasource } from "./SourcesCollectors";
 /**
  * Same for flatmap to deal with element -> stream mappings
  */
-var FlatMapStreamDataSource = /** @class */ (function () {
-    function FlatMapStreamDataSource(func, parent) {
+export class FlatMapStreamDataSource {
+    constructor(func, parent) {
         this.walkedDataSources = [];
         this._currPos = 0;
         this.mapFunc = func;
         this.inputDataSource = parent;
     }
-    FlatMapStreamDataSource.prototype.hasNext = function () {
+    hasNext() {
         return this.resolveActiveHasNext() || this.resolveNextHasNext();
-    };
-    FlatMapStreamDataSource.prototype.resolveActiveHasNext = function () {
-        var next = false;
+    }
+    resolveActiveHasNext() {
+        let next = false;
         if (this.activeDataSource) {
             next = this.activeDataSource.hasNext();
         }
         return next;
-    };
-    FlatMapStreamDataSource.prototype.lookAhead = function (cnt) {
+    }
+    lookAhead(cnt = 1) {
         var _a;
-        if (cnt === void 0) { cnt = 1; }
-        var lookAhead = (_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt);
-        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && lookAhead != SourcesCollectors_1.ITERATION_STATUS.EO_STRM) {
+        let lookAhead = (_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt);
+        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && lookAhead != ITERATION_STATUS.EO_STRM) {
             //this should cover 95% of all cases
             return lookAhead;
         }
         if (this.activeDataSource) {
-            cnt -= (0, SourcesCollectors_1.calculateSkips)(this.activeDataSource);
+            cnt -= calculateSkips(this.activeDataSource);
         }
         //the idea is basically to look into the streams sub-sequentially for a match
         //after each stream we have to take into consideration that the skipCnt is
         //reduced by the number of datasets we already have looked into in the previous stream/datasource
         //unfortunately for now we have to loop into them, so we introduce a small o2 here
-        for (var dsLoop = 1; true; dsLoop++) {
-            var datasourceData = this.inputDataSource.lookAhead(dsLoop);
+        for (let dsLoop = 1; true; dsLoop++) {
+            let datasourceData = this.inputDataSource.lookAhead(dsLoop);
             //we have looped out
             //no embedded data anymore? we are done, data
             //can either be a scalar an array or another datasource
-            if (datasourceData === SourcesCollectors_1.ITERATION_STATUS.EO_STRM) {
-                return SourcesCollectors_1.ITERATION_STATUS.EO_STRM;
+            if (datasourceData === ITERATION_STATUS.EO_STRM) {
+                return ITERATION_STATUS.EO_STRM;
             }
-            var mappedData = this.mapFunc(datasourceData);
+            let mappedData = this.mapFunc(datasourceData);
             //it either comes in as datasource or as array
             //both cases must be unified into a datasource
-            var currentDataSource = this.toDatasource(mappedData);
+            let currentDataSource = this.toDatasource(mappedData);
             //we now run again  a lookahead
-            var ret = currentDataSource.lookAhead(cnt);
+            let ret = currentDataSource.lookAhead(cnt);
             //if the value is found then we are set
-            if (ret != SourcesCollectors_1.ITERATION_STATUS.EO_STRM) {
+            if (ret != ITERATION_STATUS.EO_STRM) {
                 return ret;
             }
             //reduce the next lookahead by the number of elements
             //we are now skipping in the current data source
-            cnt -= (0, SourcesCollectors_1.calculateSkips)(currentDataSource);
+            cnt -= calculateSkips(currentDataSource);
         }
-    };
-    FlatMapStreamDataSource.prototype.toDatasource = function (mapped) {
-        var ds = Array.isArray(mapped) ? new (SourcesCollectors_1.ArrayStreamDataSource.bind.apply(SourcesCollectors_1.ArrayStreamDataSource, __spreadArray([void 0], __read(mapped), false)))() : mapped;
+    }
+    toDatasource(mapped) {
+        let ds = Array.isArray(mapped) ? new ArrayStreamDataSource(...mapped) : mapped;
         this.walkedDataSources.push(ds);
         return ds;
-    };
-    FlatMapStreamDataSource.prototype.resolveNextHasNext = function () {
-        var next = false;
+    }
+    resolveNextHasNext() {
+        let next = false;
         while (!next && this.inputDataSource.hasNext()) {
-            var mapped = this.mapFunc(this.inputDataSource.next());
+            let mapped = this.mapFunc(this.inputDataSource.next());
             this.activeDataSource = this.toDatasource(mapped);
             next = this.activeDataSource.hasNext();
         }
         return next;
-    };
-    FlatMapStreamDataSource.prototype.next = function () {
+    }
+    next() {
         if (this.hasNext()) {
             this._currPos++;
             return this.activeDataSource.next();
         }
-    };
-    FlatMapStreamDataSource.prototype.reset = function () {
+    }
+    reset() {
         this.inputDataSource.reset();
-        this.walkedDataSources.forEach(function (ds) { return ds.reset(); });
+        this.walkedDataSources.forEach(ds => ds.reset());
         this.walkedDataSources = [];
         this._currPos = 0;
         this.activeDataSource = null;
-    };
-    FlatMapStreamDataSource.prototype.current = function () {
+    }
+    current() {
         if (!this.activeDataSource) {
             this.hasNext();
         }
         return this.activeDataSource.current();
-    };
-    return FlatMapStreamDataSource;
-}());
-exports.FlatMapStreamDataSource = FlatMapStreamDataSource;
+    }
+}
 /**
  * A simple typescript based reimplementation of streams
  *
@@ -150,210 +119,193 @@ exports.FlatMapStreamDataSource = FlatMapStreamDataSource;
  * to provide infinite data sources and generic data providers, the downside
  * is, it might be a tad slower in some situations
  */
-var Stream = /** @class */ (function () {
-    function Stream() {
-        var value = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            value[_i] = arguments[_i];
-        }
+export class Stream {
+    constructor(...value) {
         this._limits = -1;
         this.pos = -1;
         this.value = value;
     }
-    Stream.of = function () {
-        var data = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            data[_i] = arguments[_i];
-        }
-        return new (Stream.bind.apply(Stream, __spreadArray([void 0], __read(data), false)))();
-    };
-    Stream.ofAssoc = function (data) {
-        return this.of.apply(this, __spreadArray([], __read(Object.keys(data)), false)).map(function (key) { return [key, data[key]]; });
-    };
-    Stream.ofDataSource = function (dataSource) {
-        var value = [];
+    static of(...data) {
+        return new Stream(...data);
+    }
+    static ofAssoc(data) {
+        return this.of(...Object.keys(data)).map(key => [key, data[key]]);
+    }
+    static ofDataSource(dataSource) {
+        let value = [];
         while (dataSource.hasNext()) {
             value.push(dataSource.next());
         }
-        return new (Stream.bind.apply(Stream, __spreadArray([void 0], __read(value), false)))();
-    };
-    Stream.ofDomQuery = function (value) {
-        return Stream.of.apply(Stream, __spreadArray([], __read(value.asArray), false));
-    };
-    Stream.ofConfig = function (value) {
-        return Stream.of.apply(Stream, __spreadArray([], __read(Object.keys(value.value)), false)).map(function (key) { return [key, value.value[key]]; });
-    };
-    Stream.prototype.current = function () {
+        return new Stream(...value);
+    }
+    static ofDomQuery(value) {
+        return Stream.of(...value.asArray);
+    }
+    static ofConfig(value) {
+        return Stream.of(...Object.keys(value.value)).map(key => [key, value.value[key]]);
+    }
+    current() {
         if (this.pos == -1) {
-            return SourcesCollectors_1.ITERATION_STATUS.BEF_STRM;
+            return ITERATION_STATUS.BEF_STRM;
         }
         if (this.pos >= this.value.length) {
-            return SourcesCollectors_1.ITERATION_STATUS.EO_STRM;
+            return ITERATION_STATUS.EO_STRM;
         }
         return this.value[this.pos];
-    };
-    Stream.prototype.limits = function (end) {
+    }
+    limits(end) {
         this._limits = end;
         return this;
-    };
+    }
     /**
      * concat for streams, so that you can concat two streams together
      * @param toAppend
      */
-    Stream.prototype.concat = function () {
-        var toAppend = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            toAppend[_i] = arguments[_i];
-        }
-        var toConcat = [this].concat(toAppend);
-        return Stream.of.apply(Stream, __spreadArray([], __read(toConcat), false)).flatMap(function (item) { return item; });
-    };
-    Stream.prototype.onElem = function (fn) {
-        for (var cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
+    concat(...toAppend) {
+        let toConcat = [this].concat(toAppend);
+        return Stream.of(...toConcat).flatMap(item => item);
+    }
+    onElem(fn) {
+        for (let cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             if (fn(this.value[cnt], cnt) === false) {
                 break;
             }
         }
         return this;
-    };
-    Stream.prototype.each = function (fn) {
+    }
+    each(fn) {
         this.onElem(fn);
         this.reset();
-    };
-    Stream.prototype.map = function (fn) {
+    }
+    map(fn) {
         if (!fn) {
-            fn = function (inval) { return inval; };
+            fn = (inval) => inval;
         }
-        var res = [];
-        this.each(function (item) {
+        let res = [];
+        this.each((item) => {
             res.push(fn(item));
         });
-        return new (Stream.bind.apply(Stream, __spreadArray([void 0], __read(res), false)))();
-    };
+        return new Stream(...res);
+    }
     /*
      * we need to implement it to fullfill the contract, although it is used only internally
      * all values are flattened when accessed anyway, so there is no need to call this methiod
      */
-    Stream.prototype.flatMap = function (fn) {
-        var ret = [];
-        this.each(function (item) {
-            var strmR = fn(item);
+    flatMap(fn) {
+        let ret = [];
+        this.each(item => {
+            let strmR = fn(item);
             ret = Array.isArray(strmR) ? ret.concat(strmR) : ret.concat(strmR.value);
         });
-        return Stream.of.apply(Stream, __spreadArray([], __read(ret), false));
-    };
-    Stream.prototype.filter = function (fn) {
-        var res = [];
-        this.each(function (data) {
+        return Stream.of(...ret);
+    }
+    filter(fn) {
+        let res = [];
+        this.each((data) => {
             if (fn(data)) {
                 res.push(data);
             }
         });
-        return new (Stream.bind.apply(Stream, __spreadArray([void 0], __read(res), false)))();
-    };
-    Stream.prototype.reduce = function (fn, startVal) {
-        if (startVal === void 0) { startVal = null; }
-        var offset = startVal != null ? 0 : 1;
-        var val1 = startVal != null ? startVal : this.value.length ? this.value[0] : null;
-        for (var cnt = offset; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
+        return new Stream(...res);
+    }
+    reduce(fn, startVal = null) {
+        let offset = startVal != null ? 0 : 1;
+        let val1 = startVal != null ? startVal : this.value.length ? this.value[0] : null;
+        for (let cnt = offset; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             val1 = fn(val1, this.value[cnt]);
         }
         this.reset();
-        return Monad_1.Optional.fromNullable(val1);
-    };
-    Stream.prototype.first = function () {
+        return Optional.fromNullable(val1);
+    }
+    first() {
         this.reset();
-        return this.value && this.value.length ? Monad_1.Optional.fromNullable(this.value[0]) : Monad_1.Optional.absent;
-    };
-    Stream.prototype.last = function () {
+        return this.value && this.value.length ? Optional.fromNullable(this.value[0]) : Optional.absent;
+    }
+    last() {
         //could be done via reduce, but is faster this way
-        var length = this._limits > 0 ? Math.min(this._limits, this.value.length) : this.value.length;
+        let length = this._limits > 0 ? Math.min(this._limits, this.value.length) : this.value.length;
         this.reset();
-        return Monad_1.Optional.fromNullable(length ? this.value[length - 1] : null);
-    };
-    Stream.prototype.anyMatch = function (fn) {
-        for (var cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
+        return Optional.fromNullable(length ? this.value[length - 1] : null);
+    }
+    anyMatch(fn) {
+        for (let cnt = 0; cnt < this.value.length && (this._limits == -1 || cnt < this._limits); cnt++) {
             if (fn(this.value[cnt])) {
                 return true;
             }
         }
         this.reset();
         return false;
-    };
-    Stream.prototype.allMatch = function (fn) {
+    }
+    allMatch(fn) {
         if (!this.value.length) {
             return false;
         }
-        var matches = 0;
-        for (var cnt = 0; cnt < this.value.length; cnt++) {
+        let matches = 0;
+        for (let cnt = 0; cnt < this.value.length; cnt++) {
             if (fn(this.value[cnt])) {
                 matches++;
             }
         }
         this.reset();
         return matches == this.value.length;
-    };
-    Stream.prototype.noneMatch = function (fn) {
-        var matches = 0;
-        for (var cnt = 0; cnt < this.value.length; cnt++) {
+    }
+    noneMatch(fn) {
+        let matches = 0;
+        for (let cnt = 0; cnt < this.value.length; cnt++) {
             if (!fn(this.value[cnt])) {
                 matches++;
             }
         }
         this.reset();
         return matches == this.value.length;
-    };
-    Stream.prototype.sort = function (comparator) {
-        var newArr = this.value.slice().sort(comparator);
-        return Stream.of.apply(Stream, __spreadArray([], __read(newArr), false));
-    };
-    Stream.prototype.collect = function (collector) {
-        this.each(function (data) { return collector.collect(data); });
+    }
+    sort(comparator) {
+        let newArr = this.value.slice().sort(comparator);
+        return Stream.of(...newArr);
+    }
+    collect(collector) {
+        this.each(data => collector.collect(data));
         this.reset();
         return collector.finalValue;
-    };
+    }
     //-- internally exposed methods needed for the interconnectivity
-    Stream.prototype.hasNext = function () {
-        var isLimitsReached = this._limits != -1 && this.pos >= this._limits - 1;
-        var isEndOfArray = this.pos >= this.value.length - 1;
+    hasNext() {
+        let isLimitsReached = this._limits != -1 && this.pos >= this._limits - 1;
+        let isEndOfArray = this.pos >= this.value.length - 1;
         return !(isLimitsReached || isEndOfArray);
-    };
-    Stream.prototype.next = function () {
+    }
+    next() {
         if (!this.hasNext()) {
             return null;
         }
         this.pos++;
         return this.value[this.pos];
-    };
-    Stream.prototype.lookAhead = function (cnt) {
-        if (cnt === void 0) { cnt = 1; }
+    }
+    lookAhead(cnt = 1) {
         if ((this.pos + cnt) >= this.value.length) {
-            return SourcesCollectors_1.ITERATION_STATUS.EO_STRM;
+            return ITERATION_STATUS.EO_STRM;
         }
         return this.value[this.pos + cnt];
-    };
-    Stream.prototype[Symbol.iterator] = function () {
-        var _this = this;
+    }
+    [Symbol.iterator]() {
         return {
-            next: function () {
-                var done = !_this.hasNext();
-                var val = _this.next();
+            next: () => {
+                let done = !this.hasNext();
+                let val = this.next();
                 return {
                     done: done,
                     value: val
                 };
             }
         };
-    };
+    }
     /*get observable(): Observable<T> {
         return from(this);
     }*/
-    Stream.prototype.reset = function () {
+    reset() {
         this.pos = -1;
-    };
-    return Stream;
-}());
-exports.Stream = Stream;
+    }
+}
 /**
  * Lazy implementation of a Stream
  * The idea is to connect the intermediate
@@ -382,8 +334,8 @@ exports.Stream = Stream;
  * or an internal limit is hit.
  *
  */
-var LazyStream = /** @class */ (function () {
-    function LazyStream(parent) {
+export class LazyStream {
+    constructor(parent) {
         this._limits = -1;
         /*
          * needed to have the limits check working
@@ -393,120 +345,109 @@ var LazyStream = /** @class */ (function () {
         this.pos = -1;
         this.dataSource = parent;
     }
-    LazyStream.of = function () {
-        var values = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            values[_i] = arguments[_i];
-        }
-        return new LazyStream(new (SourcesCollectors_1.ArrayStreamDataSource.bind.apply(SourcesCollectors_1.ArrayStreamDataSource, __spreadArray([void 0], __read(values), false)))());
-    };
-    LazyStream.ofAssoc = function (data) {
-        return this.of.apply(this, __spreadArray([], __read(Object.keys(data)), false)).map(function (key) { return [key, data[key]]; });
-    };
-    LazyStream.ofStreamDataSource = function (value) {
+    static of(...values) {
+        return new LazyStream(new ArrayStreamDataSource(...values));
+    }
+    static ofAssoc(data) {
+        return this.of(...Object.keys(data)).map(key => [key, data[key]]);
+    }
+    static ofStreamDataSource(value) {
         return new LazyStream(value);
-    };
-    LazyStream.ofDomQuery = function (value) {
-        return LazyStream.of.apply(LazyStream, __spreadArray([], __read(value.asArray), false));
-    };
-    LazyStream.ofConfig = function (value) {
-        return LazyStream.of.apply(LazyStream, __spreadArray([], __read(Object.keys(value.value)), false)).map(function (key) { return [key, value.value[key]]; });
-    };
-    LazyStream.prototype.hasNext = function () {
+    }
+    static ofDomQuery(value) {
+        return LazyStream.of(...value.asArray);
+    }
+    static ofConfig(value) {
+        return LazyStream.of(...Object.keys(value.value)).map(key => [key, value.value[key]]);
+    }
+    hasNext() {
         if (this.isOverLimits()) {
             return false;
         }
         return this.dataSource.hasNext();
-    };
-    LazyStream.prototype.next = function () {
-        var next = this.dataSource.next();
+    }
+    next() {
+        let next = this.dataSource.next();
         // @ts-ignore
         this.pos++;
         return next;
-    };
-    LazyStream.prototype.lookAhead = function (cnt) {
-        if (cnt === void 0) { cnt = 1; }
+    }
+    lookAhead(cnt = 1) {
         return this.dataSource.lookAhead(cnt);
-    };
-    LazyStream.prototype.current = function () {
+    }
+    current() {
         return this.dataSource.current();
-    };
-    LazyStream.prototype.reset = function () {
+    }
+    reset() {
         this.dataSource.reset();
         this.pos = -1;
         this._limits = -1;
-    };
+    }
     /**
      * concat for streams, so that you can concat two streams together
      * @param toAppend
      */
-    LazyStream.prototype.concat = function () {
-        var toAppend = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            toAppend[_i] = arguments[_i];
-        }
+    concat(...toAppend) {
         //this.dataSource =  new MultiStreamDatasource<T>(this, ... toAppend);
         //return this;
-        return LazyStream.ofStreamDataSource(new SourcesCollectors_1.MultiStreamDatasource(this, toAppend));
+        return LazyStream.ofStreamDataSource(new MultiStreamDatasource(this, toAppend));
         //return LazyStream.of(<IStream<T>>this, ...toAppend).flatMap(item => item);
-    };
-    LazyStream.prototype.nextFilter = function (fn) {
+    }
+    nextFilter(fn) {
         if (this.hasNext()) {
-            var newVal = this.next();
+            let newVal = this.next();
             if (!fn(newVal)) {
                 return this.nextFilter(fn);
             }
             return newVal;
         }
         return null;
-    };
-    LazyStream.prototype.limits = function (max) {
+    }
+    limits(max) {
         this._limits = max;
         return this;
-    };
+    }
     //main stream methods
-    LazyStream.prototype.collect = function (collector) {
+    collect(collector) {
         while (this.hasNext()) {
-            var t = this.next();
+            let t = this.next();
             collector.collect(t);
         }
         this.reset();
         return collector.finalValue;
-    };
-    LazyStream.prototype.onElem = function (fn) {
-        var _this = this;
-        return new LazyStream(new SourcesCollectors_1.MappedStreamDataSource(function (el) {
-            if (fn(el, _this.pos) === false) {
-                _this.stop();
+    }
+    onElem(fn) {
+        return new LazyStream(new MappedStreamDataSource((el) => {
+            if (fn(el, this.pos) === false) {
+                this.stop();
             }
             return el;
         }, this));
-    };
-    LazyStream.prototype.filter = function (fn) {
-        return new LazyStream(new SourcesCollectors_1.FilteredStreamDatasource(fn, this));
-    };
-    LazyStream.prototype.map = function (fn) {
-        return new LazyStream(new SourcesCollectors_1.MappedStreamDataSource(fn, this));
-    };
-    LazyStream.prototype.flatMap = function (fn) {
+    }
+    filter(fn) {
+        return new LazyStream(new FilteredStreamDatasource(fn, this));
+    }
+    map(fn) {
+        return new LazyStream(new MappedStreamDataSource(fn, this));
+    }
+    flatMap(fn) {
         return new LazyStream(new FlatMapStreamDataSource(fn, this));
-    };
+    }
     //endpoint
-    LazyStream.prototype.each = function (fn) {
+    each(fn) {
         while (this.hasNext()) {
             if (fn(this.next()) === false) {
                 this.stop();
             }
         }
         this.reset();
-    };
-    LazyStream.prototype.reduce = function (fn, startVal) {
-        if (startVal === void 0) { startVal = null; }
+    }
+    reduce(fn, startVal = null) {
         if (!this.hasNext()) {
-            return Monad_1.Optional.absent;
+            return Optional.absent;
         }
-        var value1;
-        var value2 = null;
+        let value1;
+        let value2 = null;
         if (startVal != null) {
             value1 = startVal;
             value2 = this.next();
@@ -514,7 +455,7 @@ var LazyStream = /** @class */ (function () {
         else {
             value1 = this.next();
             if (!this.hasNext()) {
-                return Monad_1.Optional.fromNullable(value1);
+                return Optional.fromNullable(value1);
             }
             value2 = this.next();
         }
@@ -524,81 +465,74 @@ var LazyStream = /** @class */ (function () {
             value1 = fn(value1, value2);
         }
         this.reset();
-        return Monad_1.Optional.fromNullable(value1);
-    };
-    LazyStream.prototype.last = function () {
+        return Optional.fromNullable(value1);
+    }
+    last() {
         if (!this.hasNext()) {
-            return Monad_1.Optional.absent;
+            return Optional.absent;
         }
-        return this.reduce(function (el1, el2) { return el2; });
-    };
-    LazyStream.prototype.first = function () {
+        return this.reduce((el1, el2) => el2);
+    }
+    first() {
         this.reset();
         if (!this.hasNext()) {
-            return Monad_1.Optional.absent;
+            return Optional.absent;
         }
-        return Monad_1.Optional.fromNullable(this.next());
-    };
-    LazyStream.prototype.anyMatch = function (fn) {
+        return Optional.fromNullable(this.next());
+    }
+    anyMatch(fn) {
         while (this.hasNext()) {
             if (fn(this.next())) {
                 return true;
             }
         }
         return false;
-    };
-    LazyStream.prototype.allMatch = function (fn) {
+    }
+    allMatch(fn) {
         while (this.hasNext()) {
             if (!fn(this.next())) {
                 return false;
             }
         }
         return true;
-    };
-    LazyStream.prototype.noneMatch = function (fn) {
+    }
+    noneMatch(fn) {
         while (this.hasNext()) {
             if (fn(this.next())) {
                 return false;
             }
         }
         return true;
-    };
-    LazyStream.prototype.sort = function (comparator) {
-        var arr = this.collect(new SourcesCollectors_1.ArrayCollector());
+    }
+    sort(comparator) {
+        let arr = this.collect(new ArrayCollector());
         arr = arr.sort(comparator);
-        return LazyStream.of.apply(LazyStream, __spreadArray([], __read(arr), false));
-    };
-    Object.defineProperty(LazyStream.prototype, "value", {
-        get: function () {
-            return this.collect(new SourcesCollectors_1.ArrayCollector());
-        },
-        enumerable: false,
-        configurable: true
-    });
-    LazyStream.prototype[Symbol.iterator] = function () {
-        var _this = this;
+        return LazyStream.of(...arr);
+    }
+    get value() {
+        return this.collect(new ArrayCollector());
+    }
+    [Symbol.iterator]() {
         return {
-            next: function () {
-                var done = !_this.hasNext();
-                var val = _this.next();
+            next: () => {
+                let done = !this.hasNext();
+                let val = this.next();
                 return {
                     done: done,
                     value: val
                 };
             }
         };
-    };
+    }
     /*get observable(): Observable<T> {
         return from(this);
     }*/
-    LazyStream.prototype.stop = function () {
+    stop() {
         this.pos = this._limits + 1000000000;
         this._limits = 0;
-    };
-    LazyStream.prototype.isOverLimits = function () {
+    }
+    isOverLimits() {
         return this._limits != -1 && this.pos >= this._limits - 1;
-    };
-    return LazyStream;
-}());
-exports.LazyStream = LazyStream;
+    }
+}
 //# sourceMappingURL=Stream.js.map

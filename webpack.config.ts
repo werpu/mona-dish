@@ -44,6 +44,7 @@ export default  (env: any) => {
             XmlQuery: "./src/main/typescript/XmlQuery.ts",
             Promise: "./src/main/typescript/Promise.ts",
             Stream: "./src/main/typescript/Stream.ts",
+            Es2019Array: "./src/main/typescript/Es2019Array.ts",
             TagBuilder: "./src/main/typescript/TagBuilder.ts",
             Messaging: "./src/main/typescript/Messaging.ts",
             PromiseShim: "./src/main/typescript/PromiseShim.ts",
