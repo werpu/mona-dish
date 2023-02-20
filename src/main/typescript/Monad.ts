@@ -23,8 +23,7 @@
 /*IMonad definitions*/
 
 import {Lang} from "./Lang";
-import {ArrayCollector, AssocArrayCollector} from "./SourcesCollectors";
-import {Stream} from "./Stream";
+import {Es2019Array} from "./Es2019Array";
 import objAssign = Lang.objAssign;
 
 
@@ -38,7 +37,7 @@ export interface IFunctor<T> {
 }
 
 /**
- * IMonad definition, basically a functor with a flaptmap implementation (flatmap reduces all nested monads after a
+ * IMonad definition, basically a functor with a flatMap implementation, flatMap reduces all nested monads after a
  * function call f into a monad with the nesting level of 1
  *
  * flatmap flats nested Monads into a IMonad of the deepest nested implementation
@@ -57,10 +56,11 @@ export interface IIdentity<T> extends IFunctor<T> {
     readonly value: T;
 }
 
+
 /**
  *  custom value holder definition, since we are not pure functional
  *  but iterative we have structures which allow the assignment of a value
- *  also not all structures are sideffect free
+ *  also not all structures are side - effect free
  */
 export interface IValueHolder<T> {
     value: T | Array<T>;
@@ -68,7 +68,7 @@ export interface IValueHolder<T> {
 
 /**
  * Implementation of a monad
- * (Sideffect free), no write allowed directly on the monads
+ * (Side - effect free), no write allowed directly on the monads
  * value state
  */
 export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
@@ -84,7 +84,7 @@ export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
 
     map<R>(fn?: (data: T) => R): Monad<R> {
         if (!fn) {
-            fn = (inval: any) => <R>inval;
+            fn = (inVal: any) => <R>inVal;
         }
         let result: R = fn(this.value);
         return new Monad(result);
@@ -103,7 +103,7 @@ export class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
 /**
  * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
  * sugar on top
- * (Sideeffect free, since value assignment is not allowed)
+ * (Side - effect free, since value assignment is not allowed)
  * */
 export class Optional<T> extends Monad<T> {
 
@@ -173,8 +173,8 @@ export class Optional<T> extends Monad<T> {
     }
 
     /*
-     * we need to implement it to fullfill the contract, although it is used only internally
-     * all values are flattened when accessed anyway, so there is no need to call this methiod
+     * we need to implement it to fulfill the contract, although it is used only internally
+     * all values are flattened when accessed anyway, so there is no need to call this method
      */
     flatMap<R>(fn?: (data: T) => R): Optional<any> {
         let val = super.flatMap(fn);
@@ -187,7 +187,7 @@ export class Optional<T> extends Monad<T> {
 
     /*
      * elvis operation, take care, if you use this you lose typesafety and refactoring
-     * capabilites, unfortunately typesceript does not allow to have its own elvis operator
+     * capabilities, unfortunately typescript does not allow to have its own elvis operator
      * this is some syntactic sugar however which is quite useful*/
     getIf<R>(...key: string[]): Optional<R> {
 
@@ -223,9 +223,7 @@ export class Optional<T> extends Monad<T> {
                 currentPos = this.getClass().fromNullable(currentPos.value[arrPos]);
             }
         }
-        let retVal = currentPos;
-
-        return retVal;
+        return currentPos;
     }
 
     /**
@@ -266,7 +264,7 @@ export class Optional<T> extends Monad<T> {
      * by having a getClass operation we can avoid direct calls into the constructor or
      * static methods and do not have to implement several methods which rely on the type
      * of "this"
-     * @returns {Monadish.Optional}
+     * @returns the type of Optional
      */
     protected getClass(): any {
         return Optional;
@@ -331,9 +329,9 @@ export class Optional<T> extends Monad<T> {
 
 
     protected preprocessKeys(...keys): string[] {
-        return Stream.of(...keys)
+        return new Es2019Array(...keys)
             .flatMap(item => {
-                return Stream.of(...item.split(/\]\s*\[/gi))
+                return new Es2019Array(...item.split(/]\s*\[/gi))
                     .map(item => {
                         item = item.replace(/^\s+|\s+$/g, "");
                         if(item.indexOf("[") == -1 && item.indexOf("]") != -1) {
@@ -344,17 +342,16 @@ export class Optional<T> extends Monad<T> {
                         }
                         return item;
                     })
-            })
-
-            .collect(new ArrayCollector());
+            });
     }
 }
 
-// --------------------- From here onwards we break out the sideffects free limits ------------
+
+// --------------------- From here onwards we break out the side effect free limits ------------
 
 /**
  * ValueEmbedder is the writeable version
- * of optional, it basically is a wrappber
+ * of optional, it basically is a wrapper
  * around a construct which has a state
  * and can be written to.
  *
@@ -405,7 +402,7 @@ export class ValueEmbedder<T> extends Optional<T> implements IValueHolder<T> {
      * by having a getClass operation we can avoid direct calls into the constructor or
      * static methods and do not have to implement several methods which rely on the type
      * of "this"
-     * @returns {Monadish.Optional}
+     * @returns ValueEmbedder
      */
     protected getClass(): any {
         return ValueEmbedder;
@@ -461,18 +458,15 @@ class ConfigEntry<T> extends ValueEmbedder<T> {
 
 export const CONFIG_VALUE = "__END_POINT__";
 export const CONFIG_ANY = "__ANY_POINT__";
-const ALL_VALUES = "*";
-
-
 
 export type ConfigDef = {[key: string]: any};
 
 
 /**
  * Config, basically an optional wrapper for a json structure
- * (not sideeffect free, since we can alter the internal config state
- * without generating a new config), not sure if we should make it sideffect free
- * since this would swallow a lot of performane and ram
+ * (not Side - effect free, since we can alter the internal config state
+ * without generating a new config), not sure if we should make it side - effect free
+ * since this would swallow a lot of performance and ram
  */
 export class Config extends Optional<any> {
     constructor(root: any, private configDef ?: ConfigDef) {
@@ -488,7 +482,9 @@ export class Config extends Optional<any> {
     }
 
     protected shallowCopy$(): Config {
-        return new Config(Stream.ofAssoc(this.value).collect(new AssocArrayCollector()));
+        let ret = new Config({});
+        ret.shallowMerge(this.value);
+        return ret;
     }
 
     /**
@@ -523,7 +519,7 @@ export class Config extends Optional<any> {
                     this.assign(key).value = other.getIf(key).value;
                 } else {
                     if (Array.isArray(other.getIf(key).value)) {
-                        Stream.of(...other.getIf(key).value).each(item => this.append(key).value = item);
+                        new Es2019Array(...other.getIf(key).value).forEach(item => this.append(key).value = item);
                     } else {
                         this.append(key).value = other.getIf(key).value;
                     }
@@ -552,8 +548,6 @@ export class Config extends Optional<any> {
         this.assertAccessPath(...accessPath);
 
         let lastKey = accessPath[accessPath.length - 1];
-        let currKey, finalKey = this.keyVal(lastKey);
-
         let pathExists = this.getIf(...accessPath).isPresent();
         this.buildPath(...accessPath);
 
@@ -570,11 +564,9 @@ export class Config extends Optional<any> {
         }
         finalKeyArrPos = value.length - 1;
 
-        let retVal = new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value,
+        return new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value,
             lastKey, finalKeyArrPos
         );
-
-        return retVal;
     }
 
     /**
@@ -591,7 +583,7 @@ export class Config extends Optional<any> {
     }
 
     /**
-     * assings an new value on the given access path
+     * assigns a new value on the given access path
      * @param accessPath
      */
     assign(...accessPath): IValueHolder<any> {
@@ -604,11 +596,9 @@ export class Config extends Optional<any> {
 
         let currKey = this.keyVal(accessPath[accessPath.length - 1]);
         let arrPos = this.arrayIndex(accessPath[accessPath.length - 1]);
-        let retVal = new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value,
+        return new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value,
             currKey, arrPos
         );
-
-        return retVal;
     }
 
 
@@ -624,7 +614,7 @@ export class Config extends Optional<any> {
 
     /**
      * get if the access path is present (get is reserved as getter with a default, on the current path)
-     * TODO will be renamed to something more meaningful and deprecated, the name is ambigous
+     * TODO will be renamed to something more meaningful and deprecated, the name is ambiguous
      * @param accessPath the access path
      */
     getIf(...accessPath: Array<string>): Config {
@@ -657,13 +647,7 @@ export class Config extends Optional<any> {
         return JSON.stringify(this.value);
     }
 
-    /**
-     * returns the first config level as streeam
-     */
-    get stream(): Stream<[string, any]> {
-        return Stream.of(... Object.keys(this.value)).map(key => [key, this.value[key]]);
-    }
-    
+
     protected getClass(): any {
         return Config;
     }
@@ -674,7 +658,7 @@ export class Config extends Optional<any> {
 
 
     /**
-     * asserts the access path for a semy typed access
+     * asserts the access path for a semi typed access
       * @param accessPath
      * @private
      */
@@ -685,54 +669,48 @@ export class Config extends Optional<any> {
             return;
         }
 
-        let currAccessPos = null;
-
         const ERR_ACCESS_PATH = "Access Path to config invalid";
-        const ABSENT = "__ABSENT__";
-        currAccessPos = this.configDef;
-
-
+        let currAccessPos: any = Optional.fromNullable(Object.keys(this.configDef).map(key => {
+            let ret = {};
+            ret[key] = this.configDef[key];
+            return ret;
+        }));
 
         for (let cnt = 0; cnt < accessPath.length; cnt++) {
             let currKey = this.keyVal(accessPath[cnt]);
-            let arrPos = this.arrayIndex(accessPath[cnt]);
+            let arrPos: any = this.arrayIndex(accessPath[cnt]);
 
             //key index
             if(this.isArray(arrPos)) {
                 if(currKey != "") {
-                    currAccessPos = (Array.isArray(currAccessPos)) ?
-                        Stream.of(...currAccessPos)
-                            .filter(item => !!(item?.[currKey] ?? false))
-                            .map(item => item?.[currKey]).first() :
-                        Optional.fromNullable(currAccessPos?.[currKey] ?? null);
+                    currAccessPos =  Array.isArray(currAccessPos.value) ?
+                         Optional.fromNullable(new Es2019Array(...currAccessPos.value)
+                            .find(item => {
+                                return !!(item?.[currKey] ?? false)
+                            })?.[currKey]?.[arrPos]) :
+                        Optional.fromNullable(currAccessPos.value?.[currKey]?.[arrPos] ?? null);
+
                 } else {
-                    currAccessPos = (Array.isArray(currAccessPos)) ?
-                        Stream.of(...currAccessPos)
-                            .filter(item => Array.isArray(item))
-                            .flatMap(item => Stream.of(...item)).first() : Optional.absent;
+                    currAccessPos = (Array.isArray(currAccessPos.value)) ?
+                        Optional.fromNullable(currAccessPos.value?.[arrPos]) : Optional.absent;
                 }
                 //we noe store either the current array or the filtered look ahead to go further
             } else {
                 //we now have an array and go further with a singular key
-                currAccessPos = (Array.isArray(currAccessPos)) ? Stream.of(...currAccessPos)
-                        .filter(item => !! (item?.[currKey] ?? false))
-                        .map(item => item?.[currKey])
-                        .first():
-                Optional.fromNullable(currAccessPos?.[currKey] ?? null);
+                currAccessPos = (Array.isArray(currAccessPos.value)) ? Optional.fromNullable(new Es2019Array(...currAccessPos.value)
+                        .find(item => {
+                            return !! (item?.[currKey] ?? false);
+                        })?.[currKey])  :
+                Optional.fromNullable(currAccessPos.value?.[currKey] ?? null);
             }
             if(!currAccessPos.isPresent()) {
                 throw Error(ERR_ACCESS_PATH)
             }
-            currAccessPos = currAccessPos.value;
-
-            //no further testing needed, from this point onwards we are on our own
-            if(currAccessPos == CONFIG_ANY) {
+            if(currAccessPos.value == CONFIG_ANY) {
                 return;
             }
         }
-
     }
-
 
     /**
      * builds the config path

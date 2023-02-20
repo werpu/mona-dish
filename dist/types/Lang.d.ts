@@ -20,7 +20,7 @@ import { Optional } from "./Monad";
  */
 export declare module Lang {
     /**
-     * helper function to savely resolve anything
+     * helper function to safely resolve anything
      * this is not an elvis operator, it resolves
      * a value without exception in a tree and if
      * it is not resolvable then an optional of
@@ -37,6 +37,12 @@ export declare module Lang {
      * @returns an Optional of the produced value
      */
     function saveResolve<T>(resolverProducer: () => T, defaultValue?: T): Optional<T>;
+    /**
+     * lazy resolve... aka the function is called on resolve and a default value also
+     * is a producing function (called only if the original producer does not produce any result)
+     * @param resolverProducer the producer for the resolve
+     * @param defaultValue the default value producer function
+     */
     function saveResolveLazy<T>(resolverProducer: () => T, defaultValue?: () => T): Optional<T>;
     /**
      * String to array function performs a string to array transformation
@@ -61,7 +67,7 @@ export declare module Lang {
      */
     function objToArray<T>(obj: any, offset?: number, pack?: Array<T>): Array<T>;
     /**
-     * equalsIgnoreCase, case insensitive comparison of two strings
+     * equalsIgnoreCase, case-insensitive comparison of two strings
      *
      * @param source
      * @param destination
@@ -75,13 +81,17 @@ export declare module Lang {
      */
     function assertType(probe: any, theType: any): boolean;
     /**
-     * Backported from dojo
+     * Back ported from Dojo
      * a failsafe string determination method
      * (since in javascript String != "" typeof alone fails!)
      * @param it {|Object|} the object to be checked for being a string
      * @return true in case of being a string false otherwise
      */
     function isString(it?: any): boolean;
+    /**
+     * Back-ported, a failsafe determination code for checking whether an object is a function
+     * @param it the object to check for being a function
+     */
     function isFunc(it: any): boolean;
     function objAssign(target: any, ...theArgs: any): any;
 }

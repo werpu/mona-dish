@@ -116,7 +116,6 @@ var __values = (this && this.__values) || function(o) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DQ$ = exports.DQ = exports.DomQueryCollector = exports.DomQuery = exports.Style = exports.ElementAttribute = void 0;
 var Monad_1 = require("./Monad");
-var Stream_1 = require("./Stream");
 var SourcesCollectors_1 = require("./SourcesCollectors");
 var Lang_1 = require("./Lang");
 var trim = Lang_1.Lang.trim;
@@ -124,6 +123,7 @@ var isString = Lang_1.Lang.isString;
 var eqi = Lang_1.Lang.equalsIgnoreCase;
 var Global_1 = require("./Global");
 var objToArray = Lang_1.Lang.objToArray;
+var Es2019Array_1 = require("./Es2019Array");
 /**
  *
  *        // - submit checkboxes and radio inputs only if checked
@@ -501,7 +501,7 @@ var DomQuery = /** @class */ (function () {
     });
     Object.defineProperty(DomQuery.prototype, "checked", {
         get: function () {
-            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.values), false)).allMatch(function (el) { return !!el.checked; });
+            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.values), false)))().every(function (el) { return !!el.checked; });
         },
         set: function (newChecked) {
             this.eachElem(function (el) { return el.checked = newChecked; });
@@ -578,83 +578,59 @@ var DomQuery = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
-    Object.defineProperty(DomQuery.prototype, "stream", {
-        /**
-         * binding into stream
-         */
-        get: function () {
-            return new (Stream_1.Stream.bind.apply(Stream_1.Stream, __spreadArray([void 0], __read(this.asArray), false)))();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(DomQuery.prototype, "lazyStream", {
-        /**
-         * fetches a lazy stream representation
-         * lazy should be applied if you have some filters etc.
-         * in between, this can reduce the number of post filter operations
-         * and ram usage
-         * significantly because the operations are done lazily and stop
-         * once they hit a dead end.
-         */
-        get: function () {
-            return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.asArray), false));
-        },
-        enumerable: false,
-        configurable: true
-    });
     Object.defineProperty(DomQuery.prototype, "asArray", {
         get: function () {
             // filter not supported by IE11
-            return [].concat(Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.rootNode), false)).filter(function (item) {
+            var items = new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.rootNode), false)))().filter(function (item) {
                 return item != null;
-            })
-                .map(function (item) {
+            }).map(function (item) {
                 return DomQuery.byId(item);
-            }).collect(new SourcesCollectors_1.ArrayCollector()));
+            });
+            return items;
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(DomQuery.prototype, "offsetWidth", {
         get: function () {
-            return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.rootNode), false)).filter(function (item) { return item != null; })
+            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.rootNode), false)))().filter(function (item) { return item != null; })
                 .map(function (elem) { return elem.offsetWidth; })
-                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0).value;
+                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0);
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(DomQuery.prototype, "offsetHeight", {
         get: function () {
-            return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.rootNode), false)).filter(function (item) { return item != null; })
+            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.rootNode), false)))().filter(function (item) { return item != null; })
                 .map(function (elem) { return elem.offsetHeight; })
-                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0).value;
+                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0);
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(DomQuery.prototype, "offsetLeft", {
         get: function () {
-            return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.rootNode), false)).filter(function (item) { return item != null; })
+            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.rootNode), false)))().filter(function (item) { return item != null; })
                 .map(function (elem) { return elem.offsetLeft; })
-                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0).value;
+                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0);
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(DomQuery.prototype, "offsetTop", {
         get: function () {
-            return Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(this.rootNode), false)).filter(function (item) { return item != null; })
+            return new Es2019Array_1.Es2019Array(this.rootNode)
+                .filter(function (item) { return item != null; })
                 .map(function (elem) { return elem.offsetTop; })
-                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0).value;
+                .reduce(function (accumulate, incoming) { return accumulate + incoming; }, 0);
         },
         enumerable: false,
         configurable: true
     });
     Object.defineProperty(DomQuery.prototype, "asNodeArray", {
         get: function () {
-            return [].concat(Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.rootNode), false)).filter(function (item) { return item != null; }).collect(new SourcesCollectors_1.ArrayCollector()));
+            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.rootNode.filter(function (item) { return item != null; })), false)))();
         },
         enumerable: false,
         configurable: true
@@ -859,9 +835,8 @@ var DomQuery = /** @class */ (function () {
     DomQuery.prototype.byId = function (id, includeRoot) {
         var res = [];
         if (includeRoot) {
-            res = res.concat(Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(((this === null || this === void 0 ? void 0 : this.rootNode) || [])), false)).filter(function (item) { return id == item.id; })
-                .map(function (item) { return new DomQuery(item); })
-                .collect(new SourcesCollectors_1.ArrayCollector()));
+            res = res.concat.apply(res, __spreadArray([], __read(new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(((this === null || this === void 0 ? void 0 : this.rootNode) || [])), false)))().filter((function (item) { return id == item.id; }))
+                .map(function (item) { return new DomQuery(item); })), false));
         }
         // for some strange kind of reason the # selector fails
         // on hidden elements we use the attributes match selector
@@ -872,9 +847,8 @@ var DomQuery = /** @class */ (function () {
     DomQuery.prototype.byIdDeep = function (id, includeRoot) {
         var res = [];
         if (includeRoot) {
-            res = res.concat(Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(((this === null || this === void 0 ? void 0 : this.rootNode) || [])), false)).filter(function (item) { return id == item.id; })
-                .map(function (item) { return new DomQuery(item); })
-                .collect(new SourcesCollectors_1.ArrayCollector()));
+            res = res.concat(new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(((this === null || this === void 0 ? void 0 : this.rootNode) || [])), false)))().filter(function (item) { return id == item.id; })
+                .map(function (item) { return new DomQuery(item); }));
         }
         var subItems = this.querySelectorAllDeep("[id=\"".concat(id, "\"]"));
         if (subItems.length) {
@@ -892,9 +866,8 @@ var DomQuery = /** @class */ (function () {
         var _a;
         var res = [];
         if (includeRoot) {
-            res = Stream_1.LazyStream.of.apply(Stream_1.LazyStream, __spreadArray([], __read(((_a = this === null || this === void 0 ? void 0 : this.rootNode) !== null && _a !== void 0 ? _a : [])), false)).filter(function (element) { return (element === null || element === void 0 ? void 0 : element.tagName) == tagName; })
-                .reduce(function (reduction, item) { return reduction.concat([item]); }, res)
-                .orElse(res).value;
+            res = new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(((_a = this === null || this === void 0 ? void 0 : this.rootNode) !== null && _a !== void 0 ? _a : [])), false)))().filter(function (element) { return (element === null || element === void 0 ? void 0 : element.tagName) == tagName; })
+                .reduce(function (reduction, item) { return reduction.concat([item]); }, res);
         }
         (deep) ? res.push(this.querySelectorAllDeep(tagName)) : res.push(this.querySelectorAll(tagName));
         return new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(res), false)))();
@@ -1040,11 +1013,8 @@ var DomQuery = /** @class */ (function () {
      */
     DomQuery.prototype.matchesSelector = function (selector) {
         var _this = this;
-        var ret = this.lazyStream
-            .map(function (item) { return _this._mozMatchesSelector(item.getAsElem(0).value, selector); })
-            .filter(function (match) { return match; })
-            .first();
-        return ret.isPresent();
+        return this.asArray
+            .some(function (item) { return _this._mozMatchesSelector(item.getAsElem(0).value, selector); });
     };
     /**
      * easy node traversal, you can pass
@@ -1091,7 +1061,7 @@ var DomQuery = /** @class */ (function () {
         return this;
     };
     DomQuery.prototype.each = function (func) {
-        Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.rootNode), false)).each(function (item, cnt) {
+        new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.rootNode), false)))().forEach(function (item, cnt) {
             // we could use a filter, but for the best performance we don´t
             if (item == null) {
                 return;
@@ -1478,7 +1448,7 @@ var DomQuery = /** @class */ (function () {
                 // scripts before we run the 'include' command
                 // this.globalEval(finalScripts.join("\n"));
                 var joinedScripts_1 = [];
-                Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(scriptsToProcess), false)).each(function (item) {
+                new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(scriptsToProcess), false)))().forEach(function (item) {
                     if (!item.nonce) {
                         joinedScripts_1.push(item.evalText);
                     }
@@ -1564,10 +1534,10 @@ var DomQuery = /** @class */ (function () {
         try {
             var scriptElements = new DomQuery(this.filterSelector("script"), this.querySelectorAll("script"));
             // script execution order by relative pos in their dom tree
-            scriptElements.stream
-                .flatMap(function (item) { return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item.values), false)); })
+            scriptElements.asArray
+                .flatMap(function (item) { return __spreadArray([], __read(item.values), false); })
                 .sort(function (node1, node2) { return node1.compareDocumentPosition(node2) - 3; }) // preceding 2, following == 4)
-                .each(function (item) { return execScript(item); });
+                .forEach(function (item) { return execScript(item); });
             evalCollectedScripts(finalScripts);
         }
         catch (e) {
@@ -1610,19 +1580,20 @@ var DomQuery = /** @class */ (function () {
             else if (tagName && eqi(tagName, "style")) {
                 var innerText_1 = _toReplace.innerHTML.replace(/\s+/gi, "");
                 var styles = head.querySelectorAll("style");
-                styles = styles.stream.filter(function (style) {
+                var filteredStyles = styles.asArray.filter(function (style) {
                     return style.innerHTML.replace(/\s+/gi, "") == innerText_1;
-                }).collect(new DomQueryCollector());
+                });
+                styles = new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(filteredStyles), false)))();
                 if (!styles.length) { //already present
                     head.append(_toReplace);
                 }
             }
         };
         var scriptElements = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
-        scriptElements.stream
-            .flatMap(function (item) { return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item.values), false)); })
+        scriptElements.asArray
+            .flatMap(function (item) { return __spreadArray([], __read(item.values), false); })
             .sort(function (node1, node2) { return node1.compareDocumentPosition(node2) - 3; })
-            .each(function (item) { return execCss(item); });
+            .forEach(function (item) { return execCss(item); });
         return this;
     };
     /**
@@ -1644,12 +1615,14 @@ var DomQuery = /** @class */ (function () {
      * fires an event
      */
     DomQuery.prototype.fireEvent = function (eventName, options) {
+        // merge with last one having the highest priority
         var _this = this;
         if (options === void 0) { options = {}; }
-        // merge with last one having the highest priority
-        var finalOptions = Stream_1.Stream.ofAssoc({
+        var finalOptions = new Monad_1.Config({
             bubbles: true, cancelable: true
-        }).concat(Stream_1.Stream.ofAssoc(options)).collect(new SourcesCollectors_1.AssocArrayCollector());
+        });
+        finalOptions.shallowMerge(new Monad_1.Config(options));
+        finalOptions = JSON.parse(finalOptions.toJson());
         this.eachElem(function (node) {
             var doc;
             if (node.ownerDocument) {
@@ -1700,17 +1673,14 @@ var DomQuery = /** @class */ (function () {
                 // IE-old school style, you can drop this if you don't need to support IE8 and lower
                 var event_2 = doc.createEventObject();
                 event_2.synthetic = true; // allow detection of synthetic events
-                Stream_1.Stream.ofAssoc(finalOptions).each(function (_a) {
-                    var _b = __read(_a, 2), key = _b[0], value = _b[1];
-                    event_2[key] = value;
-                });
+                Object.keys(finalOptions).forEach(function (key) { return event_2[key] = finalOptions[key]; });
                 node.fireEvent("on" + eventName, event_2);
             }
         });
     };
     DomQuery.prototype.textContent = function (joinString) {
         if (joinString === void 0) { joinString = ""; }
-        return this.stream
+        return this.asArray
             .map(function (value) {
             var item = value.getAsElem(0).orElseLazy(function () {
                 return {
@@ -1719,11 +1689,11 @@ var DomQuery = /** @class */ (function () {
             }).value;
             return item.textContent || "";
         })
-            .reduce(function (text1, text2) { return [text1, joinString, text2].join(""); }, "").value;
+            .reduce(function (text1, text2) { return [text1, joinString, text2].join(""); }, "");
     };
     DomQuery.prototype.innerText = function (joinString) {
         if (joinString === void 0) { joinString = ""; }
-        return this.stream
+        var ret = this.asArray
             .map(function (value) {
             var item = value.getAsElem(0).orElseLazy(function () {
                 return {
@@ -1732,7 +1702,10 @@ var DomQuery = /** @class */ (function () {
             }).value;
             return item.innerText || "";
         })
-            .reduce(function (text1, text2) { return [text1, text2].join(joinString); }, "").value;
+            .reduce(function (text1, text2) {
+            return [text1, text2].join(joinString);
+        }, "");
+        return ret;
     };
     /**
      * encodes all input elements properly into respective
@@ -1823,16 +1796,22 @@ var DomQuery = /** @class */ (function () {
     Object.defineProperty(DomQuery.prototype, "cDATAAsString", {
         get: function () {
             var TYPE_CDATA_BLOCK = 4;
-            var res = this.lazyStream.flatMap(function (item) {
-                return item.childNodes.stream;
-            }).filter(function (item) {
-                var _a, _b;
-                return ((_b = (_a = item === null || item === void 0 ? void 0 : item.value) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.nodeType) == TYPE_CDATA_BLOCK;
-            }).reduce(function (reduced, item) {
+            var res = this.asArray
+                .flatMap(function (item) { return item.childNodes.asArray; })
+                .filter(function (item) { var _a, _b; return ((_b = (_a = item === null || item === void 0 ? void 0 : item.value) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.nodeType) == TYPE_CDATA_BLOCK; })
+                .reduce(function (reduced, item) {
                 var _a, _b, _c;
                 reduced.push((_c = (_b = (_a = item === null || item === void 0 ? void 0 : item.value) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.data) !== null && _c !== void 0 ? _c : "");
                 return reduced;
-            }, []).value;
+            }, []);
+            /*let res: any = this.lazyStream.flatMap(item => {
+                return item.childNodes.stream
+            }).filter(item => {
+                return item?.value?.value?.nodeType == TYPE_CDATA_BLOCK;
+            }).reduce((reduced: Array<any>, item: DomQuery) => {
+                reduced.push((<any>item?.value?.value)?.data ?? "");
+                return reduced;
+            }, []).value;*/
             // response may contain several blocks
             return res.join("");
         },
@@ -2011,17 +1990,17 @@ var DomQuery = /** @class */ (function () {
      */
     DomQuery.prototype.concat = function (toAttach, filterDoubles) {
         if (filterDoubles === void 0) { filterDoubles = true; }
-        var ret = this.lazyStream.concat(toAttach.lazyStream).collect(new DomQueryCollector());
+        var ret = new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(this.asArray.concat(toAttach.asArray)), false)))();
         // we now filter the doubles out
         if (!filterDoubles) {
             return ret;
         }
         var idx = {}; // ie11 does not support sets, we have to fake it
-        return ret.lazyStream.filter(function (node) {
+        return new (DomQuery.bind.apply(DomQuery, __spreadArray([void 0], __read(ret.asArray.filter(function (node) {
             var notFound = !(idx === null || idx === void 0 ? void 0 : idx[node.value.value.outerHTML]);
             idx[node.value.value.outerHTML] = true;
             return notFound;
-        }).collect(new DomQueryCollector());
+        })), false)))();
     };
     DomQuery.prototype.append = function (elem) {
         this.each(function (item) { return elem.appendTo(item); });

@@ -16,7 +16,7 @@
 
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {ArrayCollector, DomQuery, DomQueryCollector, Lang, LazyStream} from "../../main/typescript";
+import {ArrayCollector, DomQuery, DomQueryCollector, Lang, LazyStream, Stream} from "../../main/typescript";
 import {from} from "rxjs";
 import trim = Lang.trim;
 import {tobagoSheetWithHeader} from "./markups/tobago-with-header";
@@ -86,8 +86,8 @@ describe('DOMQuery tests', function () {
         let probe1 = new DomQuery(window.document.body);
         let probe2 = DomQuery.querySelectorAll("div");
 
-        let o1 = from(probe1.stream);
-        let o2 = from(probe2.stream);
+        let o1 = from(Stream.ofDataSource(probe1));
+        let o2 = from(Stream.ofDataSource(probe2));
 
         let cnt1 = 0;
         let isDQuery = false;
@@ -112,8 +112,8 @@ describe('DOMQuery tests', function () {
         let probe1 = new DomQuery(window.document.body);
         let probe2 = DomQuery.querySelectorAll("div");
 
-        let o1 = from(probe1.stream);
-        let o2 = from(probe2.stream);
+        let o1 = from(Stream.ofDataSource(probe1));
+        let o2 = from(Stream.ofDataSource(probe2));
 
         let cnt1 = 0;
         let isDQuery = false;
@@ -327,26 +327,26 @@ describe('DOMQuery tests', function () {
 
     it('it must stream', function () {
         let probe1 = new DomQuery(document).querySelectorAll("div");
-        let coll: Array<any> = probe1.stream.collect(new ArrayCollector());
+        let coll: Array<any> = Stream.ofDataSource(probe1).collect(new ArrayCollector());
         expect(coll.length == 4).to.be.true;
-
-        coll = probe1.lazyStream.collect(new ArrayCollector());
+        probe1.reset();
+        coll = LazyStream.ofStreamDataSource(probe1).collect(new ArrayCollector());
         expect(coll.length == 4).to.be.true;
 
     });
 
     it('it must stream to a domquery', function () {
         let probe1 = new DomQuery(document).querySelectorAll("div");
-        let coll: DomQuery = probe1.stream.collect(new DomQueryCollector());
+        let coll: DomQuery = Stream.ofDataSource(probe1).collect(new DomQueryCollector());
         expect(coll.length == 4).to.be.true;
-
-        coll = probe1.lazyStream.collect(new DomQueryCollector());
+        probe1.reset();
+        coll = LazyStream.ofStreamDataSource(probe1).collect(new DomQueryCollector());
         expect(coll.length == 4).to.be.true;
     });
 
     it('it must have parents', function () {
         let probe1 = new DomQuery(document).querySelectorAll("div");
-        let coll: Array<any> = probe1.parentsWhileMatch("body").stream.collect(new ArrayCollector());
+        let coll: Array<any> = Stream.ofDataSource(probe1.parentsWhileMatch("body")).collect(new ArrayCollector());
         expect(coll.length == 1).to.be.true;
 
     });
@@ -470,22 +470,22 @@ describe('DOMQuery tests', function () {
         let length2 = DomQuery.byId("embed1").elements.length;
         expect(length2 == 8).to.be.true;
 
-        let count = DomQuery.byId("embed1").elements
-            .stream.map<number>(item => item.disabled ? 1 : 0)
+        let count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .map<number>(item => item.disabled ? 1 : 0)
             .reduce((val1, val2) => val1 + val2, 0);
         expect(count.value).to.eq(1);
 
-        DomQuery.byId("embed1").elements
-            .stream.filter(item => item.disabled)
+        Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .filter(item => item.disabled)
             .each(item => item.disabled = false);
 
-        count = DomQuery.byId("embed1").elements
-            .stream.map<number>(item => item.disabled ? 1 : 0)
+        count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .map<number>(item => item.disabled ? 1 : 0)
             .reduce((val1, val2) => val1 + val2, 0);
         expect(count.value).to.eq(0);
 
-        count = DomQuery.byId("embed1").elements
-            .stream.map<number>(item => item.attr("checked").isPresent() ? 1 : 0)
+        count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
+            .map<number>(item => item.attr("checked").isPresent() ? 1 : 0)
             .reduce((val1, val2) => val1 + val2, 0);
         expect(count.value).to.eq(1);
 
@@ -598,7 +598,7 @@ describe('DOMQuery tests', function () {
 
     });
 
-    it("it must handle innerText properly", function () {
+    it("it must handle innerText properly", function (done) {
 
         //jsdom bug
         Object.defineProperty(Object.prototype, 'innerText', {
@@ -610,6 +610,7 @@ describe('DOMQuery tests', function () {
         let probe = DomQuery.byId("id_1");
         probe.innerHTML = "<div>hello</div><div>world</div>";
         expect(probe.innerText()).to.eq("helloworld");
+        done();
     });
     it("it must handle textContent properly", function () {
         let probe = DomQuery.byId("id_1");
@@ -619,7 +620,7 @@ describe('DOMQuery tests', function () {
 
     it("it must handle iterations properly", function () {
         let probe = DomQuery.byTagName("div");
-        let resArr = probe.lazyStream.collect(new ArrayCollector());
+        let resArr = LazyStream.ofStreamDataSource(probe).collect(new ArrayCollector());
         expect(resArr.length).to.eq(4);
 
         probe.reset();
@@ -770,7 +771,7 @@ describe('DOMQuery tests', function () {
         let probeCnt = 0;
         let probe2Cnt = 0;
         from(probe).subscribe(el => probeCnt++);
-        from(probe2.stream).subscribe(el => probe2Cnt++);
+        from(Stream.ofDataSource(probe2)).subscribe(el => probe2Cnt++);
         expect(probeCnt).to.be.above(0);
         expect(probeCnt).to.eq(probe2Cnt);
     });

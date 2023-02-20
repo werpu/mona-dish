@@ -95,8 +95,8 @@ var dom = null;
     (0, mocha_1.it)('proper iterator api and rxjs mapping', function () {
         var probe1 = new typescript_1.DomQuery(window.document.body);
         var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        var o1 = (0, rxjs_1.from)(probe1.stream);
-        var o2 = (0, rxjs_1.from)(probe2.stream);
+        var o1 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe1));
+        var o2 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe2));
         var cnt1 = 0;
         var isDQuery = false;
         var cnt2 = 0;
@@ -114,8 +114,8 @@ var dom = null;
     (0, mocha_1.it)('proper iterator api and rxjs mapping with observable', function () {
         var probe1 = new typescript_1.DomQuery(window.document.body);
         var probe2 = typescript_1.DomQuery.querySelectorAll("div");
-        var o1 = (0, rxjs_1.from)(probe1.stream);
-        var o2 = (0, rxjs_1.from)(probe2.stream);
+        var o1 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe1));
+        var o2 = (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe2));
         var cnt1 = 0;
         var isDQuery = false;
         var cnt2 = 0;
@@ -263,21 +263,23 @@ var dom = null;
     });
     (0, mocha_1.it)('it must stream', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = probe1.stream.collect(new typescript_1.ArrayCollector());
+        var coll = typescript_1.Stream.ofDataSource(probe1).collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(coll.length == 4).to.be.true;
-        coll = probe1.lazyStream.collect(new typescript_1.ArrayCollector());
+        probe1.reset();
+        coll = typescript_1.LazyStream.ofStreamDataSource(probe1).collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(coll.length == 4).to.be.true;
     });
     (0, mocha_1.it)('it must stream to a domquery', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = probe1.stream.collect(new typescript_1.DomQueryCollector());
+        var coll = typescript_1.Stream.ofDataSource(probe1).collect(new typescript_1.DomQueryCollector());
         (0, chai_1.expect)(coll.length == 4).to.be.true;
-        coll = probe1.lazyStream.collect(new typescript_1.DomQueryCollector());
+        probe1.reset();
+        coll = typescript_1.LazyStream.ofStreamDataSource(probe1).collect(new typescript_1.DomQueryCollector());
         (0, chai_1.expect)(coll.length == 4).to.be.true;
     });
     (0, mocha_1.it)('it must have parents', function () {
         var probe1 = new typescript_1.DomQuery(document).querySelectorAll("div");
-        var coll = probe1.parentsWhileMatch("body").stream.collect(new typescript_1.ArrayCollector());
+        var coll = typescript_1.Stream.ofDataSource(probe1.parentsWhileMatch("body")).collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(coll.length == 1).to.be.true;
     });
     (0, mocha_1.it)("must have a working insertBefore and insertAfter", function () {
@@ -346,19 +348,19 @@ var dom = null;
         (0, chai_1.expect)(length1 == 8).to.be.true;
         var length2 = typescript_1.DomQuery.byId("embed1").elements.length;
         (0, chai_1.expect)(length2 == 8).to.be.true;
-        var count = typescript_1.DomQuery.byId("embed1").elements
-            .stream.map(function (item) { return item.disabled ? 1 : 0; })
+        var count = typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
+            .map(function (item) { return item.disabled ? 1 : 0; })
             .reduce(function (val1, val2) { return val1 + val2; }, 0);
         (0, chai_1.expect)(count.value).to.eq(1);
-        typescript_1.DomQuery.byId("embed1").elements
-            .stream.filter(function (item) { return item.disabled; })
+        typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
+            .filter(function (item) { return item.disabled; })
             .each(function (item) { return item.disabled = false; });
-        count = typescript_1.DomQuery.byId("embed1").elements
-            .stream.map(function (item) { return item.disabled ? 1 : 0; })
+        count = typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
+            .map(function (item) { return item.disabled ? 1 : 0; })
             .reduce(function (val1, val2) { return val1 + val2; }, 0);
         (0, chai_1.expect)(count.value).to.eq(0);
-        count = typescript_1.DomQuery.byId("embed1").elements
-            .stream.map(function (item) { return item.attr("checked").isPresent() ? 1 : 0; })
+        count = typescript_1.Stream.ofDataSource(typescript_1.DomQuery.byId("embed1").elements)
+            .map(function (item) { return item.attr("checked").isPresent() ? 1 : 0; })
             .reduce(function (val1, val2) { return val1 + val2; }, 0);
         (0, chai_1.expect)(count.value).to.eq(1);
         (0, chai_1.expect)(typescript_1.DomQuery.byId("id_1").inputValue.value == "id_1_val").to.be.true;
@@ -419,7 +421,7 @@ var dom = null;
         eventReceiver.click();
         (0, chai_1.expect)(clicked).to.eq(1);
     });
-    (0, mocha_1.it)("it must handle innerText properly", function () {
+    (0, mocha_1.it)("it must handle innerText properly", function (done) {
         //jsdom bug
         Object.defineProperty(Object.prototype, 'innerText', {
             get: function () {
@@ -429,6 +431,7 @@ var dom = null;
         var probe = typescript_1.DomQuery.byId("id_1");
         probe.innerHTML = "<div>hello</div><div>world</div>";
         (0, chai_1.expect)(probe.innerText()).to.eq("helloworld");
+        done();
     });
     (0, mocha_1.it)("it must handle textContent properly", function () {
         var probe = typescript_1.DomQuery.byId("id_1");
@@ -437,7 +440,7 @@ var dom = null;
     });
     (0, mocha_1.it)("it must handle iterations properly", function () {
         var probe = typescript_1.DomQuery.byTagName("div");
-        var resArr = probe.lazyStream.collect(new typescript_1.ArrayCollector());
+        var resArr = typescript_1.LazyStream.ofStreamDataSource(probe).collect(new typescript_1.ArrayCollector());
         (0, chai_1.expect)(resArr.length).to.eq(4);
         probe.reset();
         while (probe.hasNext()) {
@@ -613,7 +616,7 @@ var dom = null;
         var probeCnt = 0;
         var probe2Cnt = 0;
         (0, rxjs_1.from)(probe).subscribe(function (el) { return probeCnt++; });
-        (0, rxjs_1.from)(probe2.stream).subscribe(function (el) { return probe2Cnt++; });
+        (0, rxjs_1.from)(typescript_1.Stream.ofDataSource(probe2)).subscribe(function (el) { return probe2Cnt++; });
         (0, chai_1.expect)(probeCnt).to.be.above(0);
         (0, chai_1.expect)(probeCnt).to.eq(probe2Cnt);
     });

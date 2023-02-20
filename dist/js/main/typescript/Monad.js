@@ -63,12 +63,11 @@ exports.Config = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.ValueEmbedd
  */
 /*IMonad definitions*/
 var Lang_1 = require("./Lang");
-var SourcesCollectors_1 = require("./SourcesCollectors");
-var Stream_1 = require("./Stream");
+var Es2019Array_1 = require("./Es2019Array");
 var objAssign = Lang_1.Lang.objAssign;
 /**
  * Implementation of a monad
- * (Sideffect free), no write allowed directly on the monads
+ * (Side - effect free), no write allowed directly on the monads
  * value state
  */
 var Monad = /** @class */ (function () {
@@ -84,7 +83,7 @@ var Monad = /** @class */ (function () {
     });
     Monad.prototype.map = function (fn) {
         if (!fn) {
-            fn = function (inval) { return inval; };
+            fn = function (inVal) { return inVal; };
         }
         var result = fn(this.value);
         return new Monad(result);
@@ -102,7 +101,7 @@ exports.Monad = Monad;
 /**
  * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
  * sugar on top
- * (Sideeffect free, since value assignment is not allowed)
+ * (Side - effect free, since value assignment is not allowed)
  * */
 var Optional = /** @class */ (function (_super) {
     __extends(Optional, _super);
@@ -168,8 +167,8 @@ var Optional = /** @class */ (function (_super) {
         }
     };
     /*
-     * we need to implement it to fullfill the contract, although it is used only internally
-     * all values are flattened when accessed anyway, so there is no need to call this methiod
+     * we need to implement it to fulfill the contract, although it is used only internally
+     * all values are flattened when accessed anyway, so there is no need to call this method
      */
     Optional.prototype.flatMap = function (fn) {
         var val = _super.prototype.flatMap.call(this, fn);
@@ -180,7 +179,7 @@ var Optional = /** @class */ (function (_super) {
     };
     /*
      * elvis operation, take care, if you use this you lose typesafety and refactoring
-     * capabilites, unfortunately typesceript does not allow to have its own elvis operator
+     * capabilities, unfortunately typescript does not allow to have its own elvis operator
      * this is some syntactic sugar however which is quite useful*/
     Optional.prototype.getIf = function () {
         var key = [];
@@ -219,8 +218,7 @@ var Optional = /** @class */ (function (_super) {
                 currentPos = this.getClass().fromNullable(currentPos.value[arrPos]);
             }
         }
-        var retVal = currentPos;
-        return retVal;
+        return currentPos;
     };
     /**
      * simple match, if the first order function call returns
@@ -257,7 +255,7 @@ var Optional = /** @class */ (function (_super) {
      * by having a getClass operation we can avoid direct calls into the constructor or
      * static methods and do not have to implement several methods which rely on the type
      * of "this"
-     * @returns {Monadish.Optional}
+     * @returns the type of Optional
      */
     Optional.prototype.getClass = function () {
         return Optional;
@@ -322,8 +320,8 @@ var Optional = /** @class */ (function (_super) {
         for (var _i = 0; _i < arguments.length; _i++) {
             keys[_i] = arguments[_i];
         }
-        return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(keys), false)).flatMap(function (item) {
-            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item.split(/\]\s*\[/gi)), false)).map(function (item) {
+        return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(keys), false)))().flatMap(function (item) {
+            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(item.split(/]\s*\[/gi)), false)))().map(function (item) {
                 item = item.replace(/^\s+|\s+$/g, "");
                 if (item.indexOf("[") == -1 && item.indexOf("]") != -1) {
                     item = "[" + item;
@@ -333,18 +331,17 @@ var Optional = /** @class */ (function (_super) {
                 }
                 return item;
             });
-        })
-            .collect(new SourcesCollectors_1.ArrayCollector());
+        });
     };
     /*default value for absent*/
     Optional.absent = Optional.fromNullable(null);
     return Optional;
 }(Monad));
 exports.Optional = Optional;
-// --------------------- From here onwards we break out the sideffects free limits ------------
+// --------------------- From here onwards we break out the side effect free limits ------------
 /**
  * ValueEmbedder is the writeable version
- * of optional, it basically is a wrappber
+ * of optional, it basically is a wrapper
  * around a construct which has a state
  * and can be written to.
  *
@@ -391,7 +388,7 @@ var ValueEmbedder = /** @class */ (function (_super) {
      * by having a getClass operation we can avoid direct calls into the constructor or
      * static methods and do not have to implement several methods which rely on the type
      * of "this"
-     * @returns {Monadish.Optional}
+     * @returns ValueEmbedder
      */
     ValueEmbedder.prototype.getClass = function () {
         return ValueEmbedder;
@@ -446,12 +443,11 @@ var ConfigEntry = /** @class */ (function (_super) {
 }(ValueEmbedder));
 exports.CONFIG_VALUE = "__END_POINT__";
 exports.CONFIG_ANY = "__ANY_POINT__";
-var ALL_VALUES = "*";
 /**
  * Config, basically an optional wrapper for a json structure
- * (not sideeffect free, since we can alter the internal config state
- * without generating a new config), not sure if we should make it sideffect free
- * since this would swallow a lot of performane and ram
+ * (not Side - effect free, since we can alter the internal config state
+ * without generating a new config), not sure if we should make it side - effect free
+ * since this would swallow a lot of performance and ram
  */
 var Config = /** @class */ (function (_super) {
     __extends(Config, _super);
@@ -472,7 +468,9 @@ var Config = /** @class */ (function (_super) {
         configurable: true
     });
     Config.prototype.shallowCopy$ = function () {
-        return new Config(Stream_1.Stream.ofAssoc(this.value).collect(new SourcesCollectors_1.AssocArrayCollector()));
+        var ret = new Config({});
+        ret.shallowMerge(this.value);
+        return ret;
     };
     Object.defineProperty(Config.prototype, "deepCopy", {
         /**
@@ -511,7 +509,7 @@ var Config = /** @class */ (function (_super) {
                 }
                 else {
                     if (Array.isArray(other.getIf(key).value)) {
-                        Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(other.getIf(key).value), false)).each(function (item) { return _this.append(key).value = item; });
+                        new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(other.getIf(key).value), false)))().forEach(function (item) { return _this.append(key).value = item; });
                     }
                     else {
                         this_1.append(key).value = other.getIf(key).value;
@@ -547,7 +545,6 @@ var Config = /** @class */ (function (_super) {
         }
         this.assertAccessPath.apply(this, __spreadArray([], __read(accessPath), false));
         var lastKey = accessPath[accessPath.length - 1];
-        var currKey, finalKey = this.keyVal(lastKey);
         var pathExists = this.getIf.apply(this, __spreadArray([], __read(accessPath), false)).isPresent();
         this.buildPath.apply(this, __spreadArray([], __read(accessPath), false));
         var finalKeyArrPos = this.arrayIndex(lastKey);
@@ -562,8 +559,7 @@ var Config = /** @class */ (function (_super) {
             value.push({});
         }
         finalKeyArrPos = value.length - 1;
-        var retVal = new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value, lastKey, finalKeyArrPos);
-        return retVal;
+        return new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value, lastKey, finalKeyArrPos);
     };
     /**
      * appends to an existing entry (or extends into an array and appends)
@@ -582,7 +578,7 @@ var Config = /** @class */ (function (_super) {
         return this.append.apply(this, __spreadArray([], __read(accessPath), false));
     };
     /**
-     * assings an new value on the given access path
+     * assigns a new value on the given access path
      * @param accessPath
      */
     Config.prototype.assign = function () {
@@ -597,8 +593,7 @@ var Config = /** @class */ (function (_super) {
         this.buildPath.apply(this, __spreadArray([], __read(accessPath), false));
         var currKey = this.keyVal(accessPath[accessPath.length - 1]);
         var arrPos = this.arrayIndex(accessPath[accessPath.length - 1]);
-        var retVal = new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value, currKey, arrPos);
-        return retVal;
+        return new ConfigEntry(accessPath.length == 1 ? this.value : this.getIf.apply(this, accessPath.slice(0, accessPath.length - 1)).value, currKey, arrPos);
     };
     /**
      * assign a value if the condition is set to true, otherwise skip it
@@ -615,7 +610,7 @@ var Config = /** @class */ (function (_super) {
     };
     /**
      * get if the access path is present (get is reserved as getter with a default, on the current path)
-     * TODO will be renamed to something more meaningful and deprecated, the name is ambigous
+     * TODO will be renamed to something more meaningful and deprecated, the name is ambiguous
      * @param accessPath the access path
      */
     Config.prototype.getIf = function () {
@@ -646,17 +641,6 @@ var Config = /** @class */ (function (_super) {
     Config.prototype.toJson = function () {
         return JSON.stringify(this.value);
     };
-    Object.defineProperty(Config.prototype, "stream", {
-        /**
-         * returns the first config level as streeam
-         */
-        get: function () {
-            var _this = this;
-            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(Object.keys(this.value)), false)).map(function (key) { return [key, _this.value[key]]; });
-        },
-        enumerable: false,
-        configurable: true
-    });
     Config.prototype.getClass = function () {
         return Config;
     };
@@ -664,12 +648,13 @@ var Config = /** @class */ (function (_super) {
         this._value = val;
     };
     /**
-     * asserts the access path for a semy typed access
+     * asserts the access path for a semi typed access
       * @param accessPath
      * @private
      */
     Config.prototype.assertAccessPath = function () {
-        var _a, _b;
+        var _this = this;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
         var accessPath = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             accessPath[_i] = arguments[_i];
@@ -679,41 +664,43 @@ var Config = /** @class */ (function (_super) {
             //untyped
             return;
         }
-        var currAccessPos = null;
         var ERR_ACCESS_PATH = "Access Path to config invalid";
-        var ABSENT = "__ABSENT__";
-        currAccessPos = this.configDef;
+        var currAccessPos = Optional.fromNullable(Object.keys(this.configDef).map(function (key) {
+            var ret = {};
+            ret[key] = _this.configDef[key];
+            return ret;
+        }));
         var _loop_2 = function (cnt) {
             var currKey = this_2.keyVal(accessPath[cnt]);
             var arrPos = this_2.arrayIndex(accessPath[cnt]);
             //key index
             if (this_2.isArray(arrPos)) {
                 if (currKey != "") {
-                    currAccessPos = (Array.isArray(currAccessPos)) ?
-                        Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(currAccessPos), false)).filter(function (item) { var _a; return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false); })
-                            .map(function (item) { return item === null || item === void 0 ? void 0 : item[currKey]; }).first() :
-                        Optional.fromNullable((_a = currAccessPos === null || currAccessPos === void 0 ? void 0 : currAccessPos[currKey]) !== null && _a !== void 0 ? _a : null);
+                    currAccessPos = Array.isArray(currAccessPos.value) ?
+                        Optional.fromNullable((_b = (_a = new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(currAccessPos.value), false)))().find(function (item) {
+                            var _a;
+                            return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false);
+                        })) === null || _a === void 0 ? void 0 : _a[currKey]) === null || _b === void 0 ? void 0 : _b[arrPos]) :
+                        Optional.fromNullable((_e = (_d = (_c = currAccessPos.value) === null || _c === void 0 ? void 0 : _c[currKey]) === null || _d === void 0 ? void 0 : _d[arrPos]) !== null && _e !== void 0 ? _e : null);
                 }
                 else {
-                    currAccessPos = (Array.isArray(currAccessPos)) ?
-                        Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(currAccessPos), false)).filter(function (item) { return Array.isArray(item); })
-                            .flatMap(function (item) { return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(item), false)); }).first() : Optional.absent;
+                    currAccessPos = (Array.isArray(currAccessPos.value)) ?
+                        Optional.fromNullable((_f = currAccessPos.value) === null || _f === void 0 ? void 0 : _f[arrPos]) : Optional.absent;
                 }
                 //we noe store either the current array or the filtered look ahead to go further
             }
             else {
                 //we now have an array and go further with a singular key
-                currAccessPos = (Array.isArray(currAccessPos)) ? Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(currAccessPos), false)).filter(function (item) { var _a; return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false); })
-                    .map(function (item) { return item === null || item === void 0 ? void 0 : item[currKey]; })
-                    .first() :
-                    Optional.fromNullable((_b = currAccessPos === null || currAccessPos === void 0 ? void 0 : currAccessPos[currKey]) !== null && _b !== void 0 ? _b : null);
+                currAccessPos = (Array.isArray(currAccessPos.value)) ? Optional.fromNullable((_g = new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(currAccessPos.value), false)))().find(function (item) {
+                    var _a;
+                    return !!((_a = item === null || item === void 0 ? void 0 : item[currKey]) !== null && _a !== void 0 ? _a : false);
+                })) === null || _g === void 0 ? void 0 : _g[currKey]) :
+                    Optional.fromNullable((_j = (_h = currAccessPos.value) === null || _h === void 0 ? void 0 : _h[currKey]) !== null && _j !== void 0 ? _j : null);
             }
             if (!currAccessPos.isPresent()) {
                 throw Error(ERR_ACCESS_PATH);
             }
-            currAccessPos = currAccessPos.value;
-            //no further testing needed, from this point onwards we are on our own
-            if (currAccessPos == exports.CONFIG_ANY) {
+            if (currAccessPos.value == exports.CONFIG_ANY) {
                 return { value: void 0 };
             }
         };

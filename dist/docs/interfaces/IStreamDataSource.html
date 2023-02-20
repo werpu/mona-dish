@@ -40,7 +40,7 @@ or stream generally must implement this interface</p>
 <li><a href="../classes/SequenceDataSource.html" class="tsd-signature-type" data-tsd-kind="Class">SequenceDataSource</a></li>
 <li><a href="../classes/Stream.html" class="tsd-signature-type" data-tsd-kind="Class">Stream</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/8e01cb0/src/main/typescript/SourcesCollectors.ts#L45">SourcesCollectors.ts:45</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/7e619e3/src/main/typescript/SourcesCollectors.ts#L52">SourcesCollectors.ts:52</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -66,7 +66,7 @@ if there is no next before current called then we will call next as initial elem
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/8e01cb0/src/main/typescript/SourcesCollectors.ts#L71">SourcesCollectors.ts:71</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/7e619e3/src/main/typescript/SourcesCollectors.ts#L80">SourcesCollectors.ts:80</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="hasNext" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>has<wbr/>Next</span><a href="#hasNext" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -77,27 +77,30 @@ if there is no next before current called then we will call next as initial elem
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/8e01cb0/src/main/typescript/SourcesCollectors.ts#L50">SourcesCollectors.ts:50</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/7e619e3/src/main/typescript/SourcesCollectors.ts#L57">SourcesCollectors.ts:57</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="lookAhead" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>look<wbr/>Ahead</span><a href="#lookAhead" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
 <li class="tsd-signature tsd-anchor-link" id="lookAhead.lookAhead-1">look<wbr/>Ahead<span class="tsd-signature-symbol">(</span>cnt<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span><a href="#lookAhead.lookAhead-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>returns the next element in the stream
-difference to next is, that the internal data position
-is not changed, so next still will deliver the next item from the current
-data position. Look ahead is mostly needed internally
-by possible endless data constructs which have no fixed data boundary, or index
-positions. (aka infinite sets, or flatmapped constructs)</p>
+<div class="tsd-comment tsd-typography"><p>looks ahead cnt without changing the internal data &quot;pointers&quot; of the data source
+(this is mostly needed by possibly infinite constructs like lazy streams,
+because they do not know by definition their
+boundaries)</p>
+
+<h3>Returns</h3><p>either the element or ITERATION_STATUS.EO_STRM if we hit the end of the stream before
+finding the &quot;cnt&quot; element</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> cnt: <span class="tsd-signature-type">number</span></h5></li></ul></div>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> cnt: <span class="tsd-signature-type">number</span></h5>
+<div class="tsd-comment tsd-typography"><p>the elements to look ahead</p>
+</div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/8e01cb0/src/main/typescript/SourcesCollectors.ts#L65">SourcesCollectors.ts:65</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/7e619e3/src/main/typescript/SourcesCollectors.ts#L74">SourcesCollectors.ts:74</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="next" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>next</span><a href="#next" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -107,7 +110,7 @@ positions. (aka infinite sets, or flatmapped constructs)</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ITERATION_STATUS</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/8e01cb0/src/main/typescript/SourcesCollectors.ts#L55">SourcesCollectors.ts:55</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/7e619e3/src/main/typescript/SourcesCollectors.ts#L62">SourcesCollectors.ts:62</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-interface"><a id="reset" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>reset</span><a href="#reset" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-interface">
@@ -117,7 +120,7 @@ positions. (aka infinite sets, or flatmapped constructs)</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/8e01cb0/src/main/typescript/SourcesCollectors.ts#L76">SourcesCollectors.ts:76</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/7e619e3/src/main/typescript/SourcesCollectors.ts#L85">SourcesCollectors.ts:85</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

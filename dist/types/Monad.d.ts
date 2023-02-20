@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Stream } from "./Stream";
 /**
  * IFunctor interface,
  * defines an interface which allows to map a functor
@@ -24,7 +23,7 @@ export interface IFunctor<T> {
     map<R>(fn: (data: T) => R): IFunctor<R>;
 }
 /**
- * IMonad definition, basically a functor with a flaptmap implementation (flatmap reduces all nested monads after a
+ * IMonad definition, basically a functor with a flatMap implementation, flatMap reduces all nested monads after a
  * function call f into a monad with the nesting level of 1
  *
  * flatmap flats nested Monads into a IMonad of the deepest nested implementation
@@ -44,14 +43,14 @@ export interface IIdentity<T> extends IFunctor<T> {
 /**
  *  custom value holder definition, since we are not pure functional
  *  but iterative we have structures which allow the assignment of a value
- *  also not all structures are sideffect free
+ *  also not all structures are side - effect free
  */
 export interface IValueHolder<T> {
     value: T | Array<T>;
 }
 /**
  * Implementation of a monad
- * (Sideffect free), no write allowed directly on the monads
+ * (Side - effect free), no write allowed directly on the monads
  * value state
  */
 export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> {
@@ -64,7 +63,7 @@ export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> 
 /**
  * optional implementation, an optional is basically an implementation of a Monad with additional syntactic
  * sugar on top
- * (Sideeffect free, since value assignment is not allowed)
+ * (Side - effect free, since value assignment is not allowed)
  * */
 export declare class Optional<T> extends Monad<T> {
     static absent: Optional<any>;
@@ -108,7 +107,7 @@ export declare class Optional<T> extends Monad<T> {
      * by having a getClass operation we can avoid direct calls into the constructor or
      * static methods and do not have to implement several methods which rely on the type
      * of "this"
-     * @returns {Monadish.Optional}
+     * @returns the type of Optional
      */
     protected getClass(): any;
     protected arrayIndex(key: string): number;
@@ -136,7 +135,7 @@ export declare class Optional<T> extends Monad<T> {
 }
 /**
  * ValueEmbedder is the writeable version
- * of optional, it basically is a wrappber
+ * of optional, it basically is a wrapper
  * around a construct which has a state
  * and can be written to.
  *
@@ -155,7 +154,7 @@ export declare class ValueEmbedder<T> extends Optional<T> implements IValueHolde
      * by having a getClass operation we can avoid direct calls into the constructor or
      * static methods and do not have to implement several methods which rely on the type
      * of "this"
-     * @returns {Monadish.Optional}
+     * @returns ValueEmbedder
      */
     protected getClass(): any;
     static fromNullable<V extends Optional<T>, T>(value?: any, valueKey?: string): V;
@@ -167,9 +166,9 @@ export declare type ConfigDef = {
 };
 /**
  * Config, basically an optional wrapper for a json structure
- * (not sideeffect free, since we can alter the internal config state
- * without generating a new config), not sure if we should make it sideffect free
- * since this would swallow a lot of performane and ram
+ * (not Side - effect free, since we can alter the internal config state
+ * without generating a new config), not sure if we should make it side - effect free
+ * since this would swallow a lot of performance and ram
  */
 export declare class Config extends Optional<any> {
     private configDef?;
@@ -215,7 +214,7 @@ export declare class Config extends Optional<any> {
      */
     appendIf(condition: boolean, ...accessPath: string[]): IValueHolder<any>;
     /**
-     * assings an new value on the given access path
+     * assigns a new value on the given access path
      * @param accessPath
      */
     assign(...accessPath: any[]): IValueHolder<any>;
@@ -228,7 +227,7 @@ export declare class Config extends Optional<any> {
     assignIf(condition: boolean, ...accessPath: Array<any>): IValueHolder<any>;
     /**
      * get if the access path is present (get is reserved as getter with a default, on the current path)
-     * TODO will be renamed to something more meaningful and deprecated, the name is ambigous
+     * TODO will be renamed to something more meaningful and deprecated, the name is ambiguous
      * @param accessPath the access path
      */
     getIf(...accessPath: Array<string>): Config;
@@ -242,14 +241,10 @@ export declare class Config extends Optional<any> {
      * converts the entire config into a json object
      */
     toJson(): any;
-    /**
-     * returns the first config level as streeam
-     */
-    get stream(): Stream<[string, any]>;
     protected getClass(): any;
     private setVal;
     /**
-     * asserts the access path for a semy typed access
+     * asserts the access path for a semi typed access
       * @param accessPath
      * @private
      */

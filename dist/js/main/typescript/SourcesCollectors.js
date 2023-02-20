@@ -41,9 +41,9 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.ConfigCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.InverseArrayCollector = exports.ArrayCollector = exports.FlatMapStreamDataSource = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.MultiStreamDatasource = exports.ITERATION_STATUS = void 0;
-var Stream_1 = require("./Stream");
+exports.ArrayCollector = exports.QueryFormStringCollector = exports.QueryFormDataCollector = exports.FormDataCollector = exports.ConfigCollector = exports.AssocArrayCollector = exports.Run = exports.ArrayAssocArrayCollector = exports.InverseArrayCollector = exports.ShimArrayCollector = exports.MappedStreamDataSource = exports.FilteredStreamDatasource = exports.ArrayStreamDataSource = exports.SequenceDataSource = exports.MultiStreamDatasource = exports.calculateSkips = exports.ITERATION_STATUS = void 0;
 var Monad_1 = require("./Monad");
+var Es2019Array_1 = require("./Es2019Array");
 /**
  * special status of the datasource location pointer
  * if an access, outside - of the possible data boundaries is happening
@@ -67,6 +67,7 @@ function calculateSkips(next_strm) {
     }
     return --pos;
 }
+exports.calculateSkips = calculateSkips;
 /**
  * A data source which combines multiple streams sequentially into one
  * (this is used internally by  flatmap, but also can be used externally)
@@ -338,120 +339,26 @@ var MappedStreamDataSource = /** @class */ (function () {
 }());
 exports.MappedStreamDataSource = MappedStreamDataSource;
 /**
- * Same for flatmap to deal with element -> stream mappings
- */
-var FlatMapStreamDataSource = /** @class */ (function () {
-    function FlatMapStreamDataSource(func, parent) {
-        this.walkedDataSources = [];
-        this._currPos = 0;
-        this.mapFunc = func;
-        this.inputDataSource = parent;
-    }
-    FlatMapStreamDataSource.prototype.hasNext = function () {
-        return this.resolveActiveHasNext() || this.resolveNextHasNext();
-    };
-    FlatMapStreamDataSource.prototype.resolveActiveHasNext = function () {
-        var next = false;
-        if (this.activeDataSource) {
-            next = this.activeDataSource.hasNext();
-        }
-        return next;
-    };
-    FlatMapStreamDataSource.prototype.lookAhead = function (cnt) {
-        var _a;
-        if (cnt === void 0) { cnt = 1; }
-        var lookAhead = (_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt);
-        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && lookAhead != ITERATION_STATUS.EO_STRM) {
-            //this should cover 95% of all cases
-            return lookAhead;
-        }
-        if (this.activeDataSource) {
-            cnt -= calculateSkips(this.activeDataSource);
-        }
-        //the idea is basically to look into the streams sub-sequentially for a match
-        //after each stream we have to take into consideration that the skipCnt is
-        //reduced by the number of datasets we already have looked into in the previous stream/datasource
-        //unfortunately for now we have to loop into them, so we introduce a small o2 here
-        for (var dsLoop = 1; true; dsLoop++) {
-            var datasourceData = this.inputDataSource.lookAhead(dsLoop);
-            //we have looped out
-            //no embedded data anymore? we are done, data
-            //can either be a scalar an array or another datasource
-            if (datasourceData === ITERATION_STATUS.EO_STRM) {
-                return ITERATION_STATUS.EO_STRM;
-            }
-            var mappedData = this.mapFunc(datasourceData);
-            //it either comes in as datasource or as array
-            //both cases must be unified into a datasource
-            var currentDataSource = this.toDatasource(mappedData);
-            //we now run again  a lookahead
-            var ret = currentDataSource.lookAhead(cnt);
-            //if the value is found then we are set
-            if (ret != ITERATION_STATUS.EO_STRM) {
-                return ret;
-            }
-            //reduce the next lookahead by the number of elements
-            //we are now skipping in the current data source
-            cnt -= calculateSkips(currentDataSource);
-        }
-    };
-    FlatMapStreamDataSource.prototype.toDatasource = function (mapped) {
-        var ds = Array.isArray(mapped) ? new (ArrayStreamDataSource.bind.apply(ArrayStreamDataSource, __spreadArray([void 0], __read(mapped), false)))() : mapped;
-        this.walkedDataSources.push(ds);
-        return ds;
-    };
-    FlatMapStreamDataSource.prototype.resolveNextHasNext = function () {
-        var next = false;
-        while (!next && this.inputDataSource.hasNext()) {
-            var mapped = this.mapFunc(this.inputDataSource.next());
-            this.activeDataSource = this.toDatasource(mapped);
-            next = this.activeDataSource.hasNext();
-        }
-        return next;
-    };
-    FlatMapStreamDataSource.prototype.next = function () {
-        if (this.hasNext()) {
-            this._currPos++;
-            return this.activeDataSource.next();
-        }
-    };
-    FlatMapStreamDataSource.prototype.reset = function () {
-        this.inputDataSource.reset();
-        this.walkedDataSources.forEach(function (ds) { return ds.reset(); });
-        this.walkedDataSources = [];
-        this._currPos = 0;
-        this.activeDataSource = null;
-    };
-    FlatMapStreamDataSource.prototype.current = function () {
-        if (!this.activeDataSource) {
-            this.hasNext();
-        }
-        return this.activeDataSource.current();
-    };
-    return FlatMapStreamDataSource;
-}());
-exports.FlatMapStreamDataSource = FlatMapStreamDataSource;
-/**
  * For the time being we only need one collector
  * a collector which collects a stream back into arrays
  */
-var ArrayCollector = /** @class */ (function () {
-    function ArrayCollector() {
-        this.data = [];
+var ShimArrayCollector = /** @class */ (function () {
+    function ShimArrayCollector() {
+        this.data = new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], [], false)))();
     }
-    ArrayCollector.prototype.collect = function (element) {
+    ShimArrayCollector.prototype.collect = function (element) {
         this.data.push(element);
     };
-    Object.defineProperty(ArrayCollector.prototype, "finalValue", {
+    Object.defineProperty(ShimArrayCollector.prototype, "finalValue", {
         get: function () {
             return this.data;
         },
         enumerable: false,
         configurable: true
     });
-    return ArrayCollector;
+    return ShimArrayCollector;
 }());
-exports.ArrayCollector = ArrayCollector;
+exports.ShimArrayCollector = ShimArrayCollector;
 /**
  * collects the values as inverse array
  */
@@ -579,9 +486,8 @@ var QueryFormStringCollector = /** @class */ (function () {
     };
     Object.defineProperty(QueryFormStringCollector.prototype, "finalValue", {
         get: function () {
-            return Stream_1.Stream.of.apply(Stream_1.Stream, __spreadArray([], __read(this.formData), false)).map(function (keyVal) { return keyVal.join("="); })
-                .reduce(function (item1, item2) { return [item1, item2].join("&"); })
-                .orElse("").value;
+            return new (Es2019Array_1.Es2019Array.bind.apply(Es2019Array_1.Es2019Array, __spreadArray([void 0], __read(this.formData), false)))().map(function (keyVal) { return keyVal.join("="); })
+                .reduce(function (item1, item2) { return [item1, item2].join("&"); });
         },
         enumerable: false,
         configurable: true
@@ -589,4 +495,25 @@ var QueryFormStringCollector = /** @class */ (function () {
     return QueryFormStringCollector;
 }());
 exports.QueryFormStringCollector = QueryFormStringCollector;
+/**
+ * For the time being we only need one collector
+ * a collector which collects a stream back into arrays
+ */
+var ArrayCollector = /** @class */ (function () {
+    function ArrayCollector() {
+        this.data = [];
+    }
+    ArrayCollector.prototype.collect = function (element) {
+        this.data.push(element);
+    };
+    Object.defineProperty(ArrayCollector.prototype, "finalValue", {
+        get: function () {
+            return this.data;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ArrayCollector;
+}());
+exports.ArrayCollector = ArrayCollector;
 //# sourceMappingURL=SourcesCollectors.js.map

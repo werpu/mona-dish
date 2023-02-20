@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { StreamMapper } from "./Stream";
 import { DomQuery } from "./DomQuery";
 import { Config } from "./Monad";
 /**
  * special status of the datasource location pointer
- * if an access, outside of the possible data boundaries is happening
+ * if an access, outside - of the possible data boundaries is happening
  * (example for instance current without a first next call, or next
  * which goes over the last possible dataset), an iteration status return
  * value is returned marking this boundary instead of a classical element
  *
- * Note this is only internally used but must be implemented to fullfill
+ * Note this is only internally used but must be implemented to fulfill
  * internal contracts, the end user will never see those values if he uses
  * streams!
  */
@@ -32,6 +31,7 @@ export declare enum ITERATION_STATUS {
     EO_STRM = "__EO_STRM__",
     BEF_STRM = "___BEF_STRM__"
 }
+export declare function calculateSkips(next_strm: IStreamDataSource<any>): number;
 /**
  * Every data source wich feeds data into the lazy stream
  * or stream generally must implement this interface
@@ -48,12 +48,14 @@ export interface IStreamDataSource<T> {
      */
     next(): T | ITERATION_STATUS;
     /**
-     * returns the next element in the stream
-     * difference to next is, that the internal data position
-     * is not changed, so next still will deliver the next item from the current
-     * data position. Look ahead is mostly needed internally
-     * by possible endless data constructs which have no fixed data boundary, or index
-     * positions. (aka infinite sets, or flatmapped constructs)
+     * looks ahead cnt without changing the internal data "pointers" of the data source
+     * (this is mostly needed by possibly infinite constructs like lazy streams,
+     * because they do not know by definition their
+     * boundaries)
+     *
+     * @param cnt the elements to look ahead
+     * @return either the element or ITERATION_STATUS.EO_STRM if we hit the end of the stream before
+     * finding the "cnt" element
      */
     lookAhead(cnt?: number): T | ITERATION_STATUS;
     /**
@@ -83,6 +85,10 @@ export interface ICollector<T, S> {
      */
     finalValue: S;
 }
+/**
+ * A data source which combines multiple streams sequentially into one
+ * (this is used internally by  flatmap, but also can be used externally)
+ */
 export declare class MultiStreamDatasource<T> implements IStreamDataSource<T> {
     private first;
     private activeStrm;
@@ -111,7 +117,7 @@ export declare class SequenceDataSource implements IStreamDataSource<number> {
     current(): number | ITERATION_STATUS;
 }
 /**
- * implementation of iteratable on top of array
+ * implementation of a datasource on top of a standard array
  */
 export declare class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     value: Array<T>;
@@ -147,6 +153,15 @@ export declare class FilteredStreamDatasource<T> implements IStreamDataSource<T>
      * serve the next element
      */
     next(): T | ITERATION_STATUS;
+    /**
+     * looks ahead cnt without changing the internal data "pointers" of the data source
+     * (this is mostly needed by LazyStreams, because they do not know by definition their
+     * boundaries)
+     *
+     * @param cnt the elements to look ahead
+     * @return either the element or ITERATION_STATUS.EO_STRM if we hit the end of the stream before
+     * finding the "cnt" element
+     */
     lookAhead(cnt?: number): ITERATION_STATUS | T;
     current(): T | ITERATION_STATUS;
     reset(): void;
@@ -166,36 +181,10 @@ export declare class MappedStreamDataSource<T, S> implements IStreamDataSource<S
     lookAhead(cnt?: number): ITERATION_STATUS | S;
 }
 /**
- * Same for flatmap to deal with element -> stream mappings
- */
-export declare class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
-    mapFunc: StreamMapper<T>;
-    inputDataSource: IStreamDataSource<T>;
-    /**
-     * the currently active stream
-     * coming from an incoming element
-     * once the end of this one is reached
-     * it is swapped out by another one
-     * from the next element
-     */
-    activeDataSource: IStreamDataSource<S>;
-    walkedDataSources: any[];
-    _currPos: number;
-    constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>);
-    hasNext(): boolean;
-    private resolveActiveHasNext;
-    lookAhead(cnt?: number): ITERATION_STATUS | S;
-    private toDatasource;
-    private resolveNextHasNext;
-    next(): S | ITERATION_STATUS;
-    reset(): void;
-    current(): S | ITERATION_STATUS;
-}
-/**
  * For the time being we only need one collector
  * a collector which collects a stream back into arrays
  */
-export declare class ArrayCollector<S> implements ICollector<S, Array<S>> {
+export declare class ShimArrayCollector<S> implements ICollector<S, Array<S>> {
     private data;
     collect(element: S): void;
     get finalValue(): Array<S>;
@@ -279,4 +268,13 @@ export declare class QueryFormStringCollector implements ICollector<DomQuery, st
     formData: [[string, string]];
     collect(element: DomQuery): void;
     get finalValue(): string;
+}
+/**
+ * For the time being we only need one collector
+ * a collector which collects a stream back into arrays
+ */
+export declare class ArrayCollector<S> implements ICollector<S, Array<S>> {
+    private data;
+    collect(element: S): void;
+    get finalValue(): Array<S>;
 }

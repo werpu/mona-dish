@@ -286,20 +286,42 @@ do not need it anymore. CancellablePromise is still enabled.</li>
 <ul>
 <li>Optional typed and semi typed configs which allow fixed keys and subtrees of keys which are not predefined</li>
 </ul>
-<p>Note Versions 0.25++ are unstable which means they are for now for development purposes
-Stable will from now on be even numbers
-unstable odd numbers</p>
-<p>For production purposes please use 0.26++</p>
 
 <a href="#version-025-" id="version-025-" style="color: inherit; text-decoration: none;">
   <h2>Version 0.25 ++</h2>
 </a>
 <ul>
 <li>Fixing of bugs in the stream area</li>
-<li>Speed improvement of the internal lookahead which should improve the stream processing speed for filtered streams</li>
 <li>API change for the lookAhead (might break old code using it)</li>
 <li>Added Config Collector similar to Assoc Array Collectors</li>
 </ul>
+<p>This is from now on a development branch, to finally split between
+unstable and stable </p>
+
+<a href="#version-026-" id="version-026-" style="color: inherit; text-decoration: none;">
+  <h2>Version 0.26 ++</h2>
+</a>
+<ul>
+<li>Fixing of bugs in the stream area</li>
+<li>API change for the lookAhead (might break old code using it)</li>
+<li>Added Config Collector similar to Assoc Array Collectors</li>
+</ul>
+<p>This is from now on a stable branch (and all even numbered ones will be,
+with every odd branch there will be a higher even numbered one release
+to avoid accidental downloads)</p>
+
+<a href="#note-important-api-change-version-has-yet-to-be-determined" id="note-important-api-change-version-has-yet-to-be-determined" style="color: inherit; text-decoration: none;">
+  <h2>note important API change (version has yet to be determined)</h2>
+</a>
+<p>In order to reduce the possible include size, there now is a stronger decoupling between streams
+and DomQuery. You now can use DomQuery without linking the Streams.
+In order to do so, the API has slightly changed.
+DomQuery.streams now is gone
+To generate a Stream of a DomQuery object you can use 
+Stream.ofDomQuery and LazyStream.ofDomQuery</p>
+<p>The reason was that Streams have a significant code overhead and with ES2019 the native
+api has somewhat reached the status of good enough with the inclusion of map.
+(internally we provide a non, bleeding shim for that functionality)</p>
 </div></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">

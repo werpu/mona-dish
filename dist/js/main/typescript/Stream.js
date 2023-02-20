@@ -41,12 +41,106 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     return to.concat(ar || Array.prototype.slice.call(from));
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LazyStream = exports.Stream = void 0;
+exports.LazyStream = exports.Stream = exports.FlatMapStreamDataSource = void 0;
 /*
  * A small stream implementation
  */
 var Monad_1 = require("./Monad");
 var SourcesCollectors_1 = require("./SourcesCollectors");
+/**
+ * Same for flatmap to deal with element -> stream mappings
+ */
+var FlatMapStreamDataSource = /** @class */ (function () {
+    function FlatMapStreamDataSource(func, parent) {
+        this.walkedDataSources = [];
+        this._currPos = 0;
+        this.mapFunc = func;
+        this.inputDataSource = parent;
+    }
+    FlatMapStreamDataSource.prototype.hasNext = function () {
+        return this.resolveActiveHasNext() || this.resolveNextHasNext();
+    };
+    FlatMapStreamDataSource.prototype.resolveActiveHasNext = function () {
+        var next = false;
+        if (this.activeDataSource) {
+            next = this.activeDataSource.hasNext();
+        }
+        return next;
+    };
+    FlatMapStreamDataSource.prototype.lookAhead = function (cnt) {
+        var _a;
+        if (cnt === void 0) { cnt = 1; }
+        var lookAhead = (_a = this === null || this === void 0 ? void 0 : this.activeDataSource) === null || _a === void 0 ? void 0 : _a.lookAhead(cnt);
+        if ((this === null || this === void 0 ? void 0 : this.activeDataSource) && lookAhead != SourcesCollectors_1.ITERATION_STATUS.EO_STRM) {
+            //this should cover 95% of all cases
+            return lookAhead;
+        }
+        if (this.activeDataSource) {
+            cnt -= (0, SourcesCollectors_1.calculateSkips)(this.activeDataSource);
+        }
+        //the idea is basically to look into the streams sub-sequentially for a match
+        //after each stream we have to take into consideration that the skipCnt is
+        //reduced by the number of datasets we already have looked into in the previous stream/datasource
+        //unfortunately for now we have to loop into them, so we introduce a small o2 here
+        for (var dsLoop = 1; true; dsLoop++) {
+            var datasourceData = this.inputDataSource.lookAhead(dsLoop);
+            //we have looped out
+            //no embedded data anymore? we are done, data
+            //can either be a scalar an array or another datasource
+            if (datasourceData === SourcesCollectors_1.ITERATION_STATUS.EO_STRM) {
+                return SourcesCollectors_1.ITERATION_STATUS.EO_STRM;
+            }
+            var mappedData = this.mapFunc(datasourceData);
+            //it either comes in as datasource or as array
+            //both cases must be unified into a datasource
+            var currentDataSource = this.toDatasource(mappedData);
+            //we now run again  a lookahead
+            var ret = currentDataSource.lookAhead(cnt);
+            //if the value is found then we are set
+            if (ret != SourcesCollectors_1.ITERATION_STATUS.EO_STRM) {
+                return ret;
+            }
+            //reduce the next lookahead by the number of elements
+            //we are now skipping in the current data source
+            cnt -= (0, SourcesCollectors_1.calculateSkips)(currentDataSource);
+        }
+    };
+    FlatMapStreamDataSource.prototype.toDatasource = function (mapped) {
+        var ds = Array.isArray(mapped) ? new (SourcesCollectors_1.ArrayStreamDataSource.bind.apply(SourcesCollectors_1.ArrayStreamDataSource, __spreadArray([void 0], __read(mapped), false)))() : mapped;
+        this.walkedDataSources.push(ds);
+        return ds;
+    };
+    FlatMapStreamDataSource.prototype.resolveNextHasNext = function () {
+        var next = false;
+        while (!next && this.inputDataSource.hasNext()) {
+            var mapped = this.mapFunc(this.inputDataSource.next());
+            this.activeDataSource = this.toDatasource(mapped);
+            next = this.activeDataSource.hasNext();
+        }
+        return next;
+    };
+    FlatMapStreamDataSource.prototype.next = function () {
+        if (this.hasNext()) {
+            this._currPos++;
+            return this.activeDataSource.next();
+        }
+    };
+    FlatMapStreamDataSource.prototype.reset = function () {
+        this.inputDataSource.reset();
+        this.walkedDataSources.forEach(function (ds) { return ds.reset(); });
+        this.walkedDataSources = [];
+        this._currPos = 0;
+        this.activeDataSource = null;
+    };
+    FlatMapStreamDataSource.prototype.current = function () {
+        if (!this.activeDataSource) {
+            this.hasNext();
+        }
+        return this.activeDataSource.current();
+    };
+    return FlatMapStreamDataSource;
+}());
+exports.FlatMapStreamDataSource = FlatMapStreamDataSource;
 /**
  * A simple typescript based reimplementation of streams
  *
@@ -82,6 +176,12 @@ var Stream = /** @class */ (function () {
             value.push(dataSource.next());
         }
         return new (Stream.bind.apply(Stream, __spreadArray([void 0], __read(value), false)))();
+    };
+    Stream.ofDomQuery = function (value) {
+        return Stream.of.apply(Stream, __spreadArray([], __read(value.asArray), false));
+    };
+    Stream.ofConfig = function (value) {
+        return Stream.of.apply(Stream, __spreadArray([], __read(Object.keys(value.value)), false)).map(function (key) { return [key, value.value[key]]; });
     };
     Stream.prototype.current = function () {
         if (this.pos == -1) {
@@ -306,6 +406,12 @@ var LazyStream = /** @class */ (function () {
     LazyStream.ofStreamDataSource = function (value) {
         return new LazyStream(value);
     };
+    LazyStream.ofDomQuery = function (value) {
+        return LazyStream.of.apply(LazyStream, __spreadArray([], __read(value.asArray), false));
+    };
+    LazyStream.ofConfig = function (value) {
+        return LazyStream.of.apply(LazyStream, __spreadArray([], __read(Object.keys(value.value)), false)).map(function (key) { return [key, value.value[key]]; });
+    };
     LazyStream.prototype.hasNext = function () {
         if (this.isOverLimits()) {
             return false;
@@ -383,7 +489,7 @@ var LazyStream = /** @class */ (function () {
         return new LazyStream(new SourcesCollectors_1.MappedStreamDataSource(fn, this));
     };
     LazyStream.prototype.flatMap = function (fn) {
-        return new LazyStream(new SourcesCollectors_1.FlatMapStreamDataSource(fn, this));
+        return new LazyStream(new FlatMapStreamDataSource(fn, this));
     };
     //endpoint
     LazyStream.prototype.each = function (fn) {

@@ -18,18 +18,29 @@
  */
 import {describe} from "mocha";
 import { expect } from "chai";
-import {ExtendedArray} from "../../main/typescript/ExtendedArray";
+import {Es2019Array} from "../../main/typescript/Es2019Array";
+
 
 describe('Extended tests', function () {
 
-    let arr: ExtendedArray<any>;
+    let arr: Es2019Array<any>;
 
+    let origFlatmap: any = null;
     beforeEach(function () {
-
+        if(Array.prototype.flatMap) {
+            origFlatmap = Array.prototype.flatMap;
+            // we remove the flatmap from the array
+            // so that our custom function can take over
+            delete Array.prototype.flatMap;
+        }
     });
 
+    after(function () {
+        Array.prototype.flatMap = origFlatmap;
+    })
+
     it("must handle flatmap correctly", () => {
-        arr = new ExtendedArray<any>("10", "20", "30", ["40", "50"], "60")
+        arr = new Es2019Array<any>("10", "20", "30", ["40", "50"], "60")
         let retArr = arr.flatMap((item => item) , true);
 
         expect(retArr.length).to.eq(6);
@@ -37,7 +48,7 @@ describe('Extended tests', function () {
     });
 
     it("must handle deeply nested items correctly", () => {
-        arr = new ExtendedArray<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
+        arr = new Es2019Array<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
         let retArr = arr.flatMap((item => item) , true).flatMap(item=>item);
 
         //second nesting level cannot be flatmapped, flatmap only works on one level usually
@@ -47,11 +58,11 @@ describe('Extended tests', function () {
     });
 
     it("must keep the order", () => {
-        arr = new ExtendedArray<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
+        arr = new Es2019Array<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
         let retArr = arr.flatMap((item => item) , true).flatMap((item => item) , true);
 
         expect(retArr.length).to.eq(8);
-        let result = new ExtendedArray<any>("10", "20", "30", "40", "50", ["55", "56"], "60").flatMap(item => item);
+        let result = new Es2019Array<any>("10", "20", "30", "40", "50", ["55", "56"], "60").flatMap(item => item);
 
         retArr.forEach((item, pos) => {
             expect(item).to.eq(result[pos]);

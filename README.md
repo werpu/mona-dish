@@ -290,4 +290,17 @@ to avoid accidental downloads)
 
 
 
+## note important API change (version has yet to be determined)
+In order to reduce the possible include size, there now is a stronger decoupling between streams
+and DomQuery. You now can use DomQuery without linking the Streams.
+In order to do so, the API has slightly changed.
+DomQuery.streams now is gone
+To generate a Stream of a DomQuery object you can use 
+Stream.ofDomQuery and LazyStream.ofDomQuery
+
+The reason was that Streams have a significant code overhead and with ES2019 the native
+api has somewhat reached the status of good enough with the inclusion of map.
+(internally we provide a non, bleeding shim for that functionality)
+
+
                    

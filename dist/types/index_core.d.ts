@@ -20,5 +20,4 @@ export { DomQuery, ElementAttribute, DomQueryCollector, DQ, DQ$ } from "./DomQue
 export { Lang } from "./Lang";
 export { Config, CONFIG_VALUE, CONFIG_ANY, ConfigDef, Monad, IValueHolder, IFunctor, IMonad, IIdentity, Optional, ValueEmbedder } from "./Monad";
 export { XMLQuery, XQ } from "./XmlQuery";
-export { Stream, LazyStream, IteratableConsumer, IStream } from "./Stream";
-export { ArrayStreamDataSource, MappedStreamDataSource, FilteredStreamDatasource, FlatMapStreamDataSource, SequenceDataSource, QueryFormStringCollector, IStreamDataSource, ICollector, ArrayCollector, AssocArrayCollector, FormDataCollector, QueryFormDataCollector } from "./SourcesCollectors";
+export { QueryFormStringCollector, IStreamDataSource, ICollector, ArrayCollector, AssocArrayCollector, FormDataCollector, QueryFormDataCollector } from "./SourcesCollectors";

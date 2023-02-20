@@ -64,6 +64,10 @@ export declare class Message {
     encoded: boolean;
     constructor(message?: any, targetOrigin?: string);
 }
+/**
+ * abstract broker class
+ * (The broker is the central distribution unit of messages)
+ */
 declare abstract class BaseBroker {
     static readonly EVENT_TYPE = "brokerEvent";
     /**
@@ -146,8 +150,12 @@ declare abstract class BaseBroker {
     protected markMessageAsProcessed(message: Message): void;
 }
 /**
- * a broker which hooks into the Broadcast Channel broker
+ * a broker which hooks into the Broadcast Channel
  * either via shim or substitute lib
+ *
+ * The broadcast channels are a standardized messaging library
+ * The broker mechanism sets a layer on top to make it more manageable!
+ *
  */
 export declare class BroadcastChannelBroker extends BaseBroker {
     private brokerFactory;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { expect } from 'chai';
-import { describe, it } from 'mocha';
-import {Optional, Config} from "../../main/typescript/index";
+import {expect} from 'chai';
+import {describe, it} from 'mocha';
+import {Config, Optional, Stream} from "../../main/typescript/index";
 import {CONFIG_ANY, CONFIG_VALUE, ConfigDef} from "../../main/typescript/Monad";
 
 //TODO saveResolveTest
@@ -214,7 +214,7 @@ describe('Typed Config tests', () => {
                     static booga2 = CONFIG_VALUE;
                 }, CONFIG_VALUE
             ]
-        },[{data4: CONFIG_VALUE}], CONFIG_VALUE];
+        }, CONFIG_VALUE,[{data4: CONFIG_VALUE}, CONFIG_VALUE]];
 
         static data3 = [class {
             static data4 = CONFIG_ANY; //whatever comes below does not have a clear structure anymore
@@ -274,7 +274,7 @@ describe('Typed Config tests', () => {
         val3 = config.getIf("data2[0]", "data3[0]", "booga2").value;
         expect(val3).eq("hellobooga2");
 
-        global["debug"] = true;
+
         val3 = config.getIf("data2[2]", "[0]", "data4").value;
         expect(val3).eq("hello4");
 
@@ -287,7 +287,7 @@ describe('Typed Config tests', () => {
         val3 = config.getIf("data2[2][1]").value;
         expect(val3).eq("hello4_1");
 
-
+        global["debug_arr"] = true;
         val3 = config.getIf("data3[0]","data4","data5").value;
         expect(val3).eq("hello");
 
@@ -298,7 +298,8 @@ describe('Typed Config tests', () => {
             expect(true).to.be.true;
         }
 
-        expect(config.getIf("data3[1]","data4","data5").isAbsent()).eq(true);
+
+        expect(config.getIf("data3[0]","data4","arr").isAbsent()).eq(true);
 
         try {
             config.getIf("data2[2][0]","data5").value;
@@ -320,14 +321,14 @@ describe('Typed Config tests', () => {
         let {config, configDef} = setup();
         let data1 = false;
         let data2 = false;
-        config.stream.each(([key, data]) => {
+        Stream.ofConfig(config).each(([key, data]) => {
             if(key == "data") {
                 data1 = true;
                 expect(data.value).to.eq(1);
                 expect(data.value2).to.eq(Optional.absent);
 
             }
-            if(key == "data") {
+            if(key == "data2") {
                 data2 = true;
             }
         })

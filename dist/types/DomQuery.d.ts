@@ -16,9 +16,9 @@
  */
 import { Config, Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
-import { IStream, LazyStream, Stream } from "./Stream";
 import { ICollector, IStreamDataSource, ITERATION_STATUS } from "./SourcesCollectors";
 import { _global$ } from "./Global";
+import { Es2019Array } from "./Es2019Array";
 /**
  * in order to poss custom parameters we need to extend the mutation observer init
  */
@@ -124,14 +124,6 @@ interface IDomQuery {
      * The child nodes of this node collection as readonly attribute
      */
     readonly childNodes: DomQuery;
-    /**
-     * an early stream representation for this DomQuery
-     */
-    readonly stream: Stream<DomQuery>;
-    /**
-     * lazy stream representation for this DomQuery
-     */
-    readonly lazyStream: LazyStream<DomQuery>;
     /**
      * transform this node collection to an array
      */
@@ -430,7 +422,7 @@ interface IDomQuery {
     firstParent(selector: string): DomQuery;
     /**
      * all parents until the selector match stops
-     * @param tagName
+     * @param selector
      */
     parentsWhileMatch(selector: string): DomQuery;
     /**
@@ -617,25 +609,12 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     set disabled(disabled: boolean);
     removeAttribute(name: string): void;
     get childNodes(): DomQuery;
-    /**
-     * binding into stream
-     */
-    get stream(): Stream<DomQuery>;
-    /**
-     * fetches a lazy stream representation
-     * lazy should be applied if you have some filters etc.
-     * in between, this can reduce the number of post filter operations
-     * and ram usage
-     * significantly because the operations are done lazily and stop
-     * once they hit a dead end.
-     */
-    get lazyStream(): LazyStream<DomQuery>;
-    get asArray(): Array<DomQuery>;
+    get asArray(): Es2019Array<DomQuery>;
     get offsetWidth(): number;
     get offsetHeight(): number;
     get offsetLeft(): number;
     get offsetTop(): number;
-    get asNodeArray(): Array<DomQuery>;
+    get asNodeArray(): Array<Element>;
     static querySelectorAllDeep(selector: string): DomQuery;
     /**
      * easy query selector all producer
@@ -954,7 +933,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     get cDATAAsString(): string;
     subNodes(from: number, to?: number): DomQuery;
     _limits: number;
-    limits(end: number): IStream<DomQuery>;
+    limits(end: number): DomQuery;
     hasNext(): boolean;
     next(): DomQuery;
     lookAhead(cnt?: number): ITERATION_STATUS | DomQuery;
@@ -998,7 +977,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * @param toAttach the elements to attach
      * @param filterDoubles filter out possible double elements (aka same markup)
      */
-    concat(toAttach: DomQuery, filterDoubles?: boolean): any;
+    concat(toAttach: DomQuery, filterDoubles?: boolean): DomQuery;
     append(elem: DomQuery): DomQuery;
     prependTo(elem: DomQuery): DomQuery;
     prepend(elem: DomQuery): DomQuery;

@@ -224,7 +224,7 @@ var Monad_1 = require("../../main/typescript/Monad");
                         _d),
                     Monad_1.CONFIG_VALUE
                 ],
-                _c), [{ data4: Monad_1.CONFIG_VALUE }], Monad_1.CONFIG_VALUE],
+                _c), Monad_1.CONFIG_VALUE, [{ data4: Monad_1.CONFIG_VALUE }, Monad_1.CONFIG_VALUE]],
         _a.data3 = [(_e = /** @class */ (function () {
                     function class_5() {
                     }
@@ -273,7 +273,6 @@ var Monad_1 = require("../../main/typescript/Monad");
         (0, chai_1.expect)(val3).eq("hello2");
         val3 = config.getIf("data2[0]", "data3[0]", "booga2").value;
         (0, chai_1.expect)(val3).eq("hellobooga2");
-        global["debug"] = true;
         val3 = config.getIf("data2[2]", "[0]", "data4").value;
         (0, chai_1.expect)(val3).eq("hello4");
         val3 = config.getIf("data2[2][0]", "data4").value;
@@ -282,6 +281,7 @@ var Monad_1 = require("../../main/typescript/Monad");
         (0, chai_1.expect)(val3).eq("hello4_1");
         val3 = config.getIf("data2[2][1]").value;
         (0, chai_1.expect)(val3).eq("hello4_1");
+        global["debug_arr"] = true;
         val3 = config.getIf("data3[0]", "data4", "data5").value;
         (0, chai_1.expect)(val3).eq("hello");
         try {
@@ -291,7 +291,7 @@ var Monad_1 = require("../../main/typescript/Monad");
         catch (err) {
             (0, chai_1.expect)(true).to.be.true;
         }
-        (0, chai_1.expect)(config.getIf("data3[1]", "data4", "data5").isAbsent()).eq(true);
+        (0, chai_1.expect)(config.getIf("data3[0]", "data4", "arr").isAbsent()).eq(true);
         try {
             config.getIf("data2[2][0]", "data5").value;
             (0, chai_1.expect)(true).to.be.false;
@@ -311,14 +311,14 @@ var Monad_1 = require("../../main/typescript/Monad");
         var _a = setup(), config = _a.config, configDef = _a.configDef;
         var data1 = false;
         var data2 = false;
-        config.stream.each(function (_a) {
+        index_1.Stream.ofConfig(config).each(function (_a) {
             var _b = __read(_a, 2), key = _b[0], data = _b[1];
             if (key == "data") {
                 data1 = true;
                 (0, chai_1.expect)(data.value).to.eq(1);
                 (0, chai_1.expect)(data.value2).to.eq(index_1.Optional.absent);
             }
-            if (key == "data") {
+            if (key == "data2") {
                 data2 = true;
             }
         });

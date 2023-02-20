@@ -21,12 +21,11 @@ export {Lang} from "./Lang";
 export {Config, CONFIG_VALUE, CONFIG_ANY, ConfigDef, Monad, IValueHolder, IFunctor, IMonad, IIdentity, Optional, ValueEmbedder} from "./Monad";
 export {CancellablePromise, IPromise, PromiseStatus} from "./Promise";
 export {XMLQuery, XQ} from "./XmlQuery";
-export {Stream, LazyStream, IteratableConsumer, IStream} from "./Stream";
+export {Stream, LazyStream, IteratableConsumer, FlatMapStreamDataSource, IStream} from "./Stream";
 export {
     ArrayStreamDataSource,
     MappedStreamDataSource,
     FilteredStreamDatasource,
-    FlatMapStreamDataSource,
     MultiStreamDatasource,
     SequenceDataSource,
     QueryFormStringCollector,

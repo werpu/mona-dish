@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { IMonad, IValueHolder, Optional } from "./Monad";
+import { Config, IMonad, IValueHolder, Optional } from "./Monad";
 import { ICollector, IStreamDataSource, ITERATION_STATUS } from "./SourcesCollectors";
+import { DomQuery } from "./DomQuery";
 export declare type StreamMapper<T> = (data: T) => IStreamDataSource<any>;
 export declare type ArrayMapper<T> = (data: T) => Array<any>;
 export declare type IteratableConsumer<T> = (data: T, pos?: number) => void | boolean;
@@ -23,6 +24,32 @@ export declare type Reducable<T, V> = (val1: T | V, val2: T) => V;
 export declare type Matchable<T> = (data: T) => boolean;
 export declare type Mappable<T, R> = (data: T) => R;
 export declare type Comparator<T> = (el1: T, el2: T) => number;
+/**
+ * Same for flatmap to deal with element -> stream mappings
+ */
+export declare class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
+    mapFunc: StreamMapper<T>;
+    inputDataSource: IStreamDataSource<T>;
+    /**
+     * the currently active stream
+     * coming from an incoming element
+     * once the end of this one is reached
+     * it is swapped out by another one
+     * from the next element
+     */
+    activeDataSource: IStreamDataSource<S>;
+    walkedDataSources: any[];
+    _currPos: number;
+    constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>);
+    hasNext(): boolean;
+    private resolveActiveHasNext;
+    lookAhead(cnt?: number): ITERATION_STATUS | S;
+    private toDatasource;
+    private resolveNextHasNext;
+    next(): S | ITERATION_STATUS;
+    reset(): void;
+    current(): S | ITERATION_STATUS;
+}
 /**
  * Generic interface defining a stream
  */
@@ -156,6 +183,8 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
         [key: string]: T;
     }): Stream<[string, T]>;
     static ofDataSource<T>(dataSource: IStreamDataSource<T>): Stream<T>;
+    static ofDomQuery(value: DomQuery): Stream<DomQuery>;
+    static ofConfig(value: Config): Stream<[string, any]>;
     current(): T | ITERATION_STATUS;
     limits(end: number): Stream<T>;
     /**
@@ -219,6 +248,8 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
         [key: string]: T;
     }): LazyStream<[string, T]>;
     static ofStreamDataSource<T>(value: IStreamDataSource<T>): LazyStream<T>;
+    static ofDomQuery(value: DomQuery): LazyStream<DomQuery>;
+    static ofConfig(value: Config): LazyStream<[string, any]>;
     constructor(parent: IStreamDataSource<T>);
     hasNext(): boolean;
     next(): T | ITERATION_STATUS;
