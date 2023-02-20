@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QueryFormDataCollector = exports.FormDataCollector = exports.AssocArrayCollector = exports.ArrayCollector = exports.QueryFormStringCollector = exports.XQ = exports.XMLQuery = exports.ValueEmbedder = exports.Optional = exports.Monad = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.Config = exports.Lang = exports.DQ$ = exports.DQ = exports.DomQueryCollector = exports.ElementAttribute = exports.DomQuery = void 0;
+exports.XQ = exports.XMLQuery = exports.ValueEmbedder = exports.Optional = exports.Monad = exports.CONFIG_ANY = exports.CONFIG_VALUE = exports.Config = exports.Lang = exports.DQ$ = exports.DQ = exports.DomQueryCollector = exports.ElementAttribute = exports.DomQuery = void 0;
 /*!
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -37,10 +37,4 @@ Object.defineProperty(exports, "ValueEmbedder", { enumerable: true, get: functio
 var XmlQuery_1 = require("./XmlQuery");
 Object.defineProperty(exports, "XMLQuery", { enumerable: true, get: function () { return XmlQuery_1.XMLQuery; } });
 Object.defineProperty(exports, "XQ", { enumerable: true, get: function () { return XmlQuery_1.XQ; } });
-var SourcesCollectors_1 = require("./SourcesCollectors");
-Object.defineProperty(exports, "QueryFormStringCollector", { enumerable: true, get: function () { return SourcesCollectors_1.QueryFormStringCollector; } });
-Object.defineProperty(exports, "ArrayCollector", { enumerable: true, get: function () { return SourcesCollectors_1.ArrayCollector; } });
-Object.defineProperty(exports, "AssocArrayCollector", { enumerable: true, get: function () { return SourcesCollectors_1.AssocArrayCollector; } });
-Object.defineProperty(exports, "FormDataCollector", { enumerable: true, get: function () { return SourcesCollectors_1.FormDataCollector; } });
-Object.defineProperty(exports, "QueryFormDataCollector", { enumerable: true, get: function () { return SourcesCollectors_1.QueryFormDataCollector; } });
 //# sourceMappingURL=index_core.js.map
