@@ -327,10 +327,20 @@ describe('DOMQuery tests', function () {
 
     it('it must stream', function () {
         let probe1 = new DomQuery(document).querySelectorAll("div");
-        let coll: Array<any> = Stream.ofDataSource(probe1).collect(new ArrayCollector());
+        let coll: Array<any> = Stream.ofDomQuery(probe1).collect(new ArrayCollector());
         expect(coll.length == 4).to.be.true;
-        probe1.reset();
-        coll = LazyStream.ofStreamDataSource(probe1).collect(new ArrayCollector());
+
+        coll = LazyStream.ofDomQuery(probe1).collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
+
+    });
+
+    it('it must stream - DQ API (dynamically added)', function () {
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll: Array<any> = probe1.stream.collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
+
+        coll = probe1.lazyStream.collect(new ArrayCollector());
         expect(coll.length == 4).to.be.true;
 
     });
