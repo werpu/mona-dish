@@ -125,6 +125,14 @@ interface IDomQuery {
      */
     readonly childNodes: DomQuery;
     /**
+     * an early stream representation for this DomQuery
+     */
+    readonly stream: any;
+    /**
+     * lazy stream representation for this DomQuery
+     */
+    readonly lazyStream: any;
+    /**
      * transform this node collection to an array
      */
     readonly asArray: Array<DomQuery>;
@@ -550,6 +558,8 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     get value(): Optional<Element>;
     get values(): Element[];
     get global(): any;
+    get stream(): any;
+    get lazyStream(): any;
     /**
      * returns the id of the first element
      */

@@ -26,12 +26,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import { Config, Optional, ValueEmbedder } from "./Monad";
 import { ITERATION_STATUS } from "./SourcesCollectors";
 import { Lang } from "./Lang";
+import { _global$ } from "./Global";
+import { Es2019Array } from "./Es2019Array";
 var trim = Lang.trim;
 var isString = Lang.isString;
 var eqi = Lang.equalsIgnoreCase;
-import { _global$ } from "./Global";
 var objToArray = Lang.objToArray;
-import { Es2019Array } from "./Es2019Array";
 /**
  *
  *        // - submit checkboxes and radio inputs only if checked
@@ -255,6 +255,12 @@ export class DomQuery {
     }
     get global() {
         return _global$;
+    }
+    get stream() {
+        throw Error("Not implemented, include Stream.ts for this to work");
+    }
+    get lazyStream() {
+        throw Error("Not implemented, include Stream.ts for this to work");
     }
     /**
      * returns the id of the first element
@@ -488,10 +494,10 @@ export class DomQuery {
         const doc = document.implementation.createHTMLDocument("");
         markup = trim(markup);
         let lowerMarkup = markup.toLowerCase();
-        if (lowerMarkup.search(/\<\!doctype[^\w\-]+/gi) != -1 ||
-            lowerMarkup.search(/\<html[^\w\-]+/gi) != -1 ||
-            lowerMarkup.search(/\<head[^\w\-]+/gi) != -1 ||
-            lowerMarkup.search(/\<body[^\w\-]+/gi) != -1) {
+        if (lowerMarkup.search(/<!doctype[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/<html[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/<head[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/<body[^\w\-]+/gi) != -1) {
             doc.documentElement.innerHTML = markup;
             return new DomQuery(doc.documentElement);
         }
@@ -1427,7 +1433,7 @@ export class DomQuery {
             .reduce((text1, text2) => [text1, joinString, text2].join(""), "");
     }
     innerText(joinString = "") {
-        let ret = this.asArray
+        return this.asArray
             .map((value) => {
             let item = value.getAsElem(0).orElseLazy(() => {
                 return {
@@ -1439,7 +1445,6 @@ export class DomQuery {
             .reduce((text1, text2) => {
             return [text1, text2].join(joinString);
         }, "");
-        return ret;
     }
     /**
      * encodes all input elements properly into respective

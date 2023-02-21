@@ -18,19 +18,15 @@
 import {Config, Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 
-import {
-    ICollector,
-    IStreamDataSource,
-    ITERATION_STATUS
-} from "./SourcesCollectors";
+import {ICollector, IStreamDataSource, ITERATION_STATUS} from "./SourcesCollectors";
 import {Lang} from "./Lang";
+import {_global$} from "./Global";
+import {Es2019Array} from "./Es2019Array";
 import trim = Lang.trim;
 
 import isString = Lang.isString;
 import eqi = Lang.equalsIgnoreCase;
-import {_global$} from "./Global";
 import objToArray = Lang.objToArray;
-import {Es2019Array} from "./Es2019Array";
 
 declare var ownerDocument: any;
 
@@ -303,7 +299,14 @@ interface IDomQuery {
      * The child nodes of this node collection as readonly attribute
      */
     readonly childNodes: DomQuery;
-
+    /**
+     * an early stream representation for this DomQuery
+     */
+    readonly stream: any;
+    /**
+     * lazy stream representation for this DomQuery
+     */
+    readonly lazyStream: any;
     /**
      * transform this node collection to an array
      */
@@ -846,6 +849,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return _global$;
     }
 
+    get stream(): any {
+        throw Error("Not implemented, include Stream.ts for this to work")
+    }
+
+    get lazyStream(): any {
+        throw Error("Not implemented, include Stream.ts for this to work")
+    }
+
     /**
      * returns the id of the first element
      */
@@ -1112,10 +1123,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         const doc = document.implementation.createHTMLDocument("");
         markup = trim(markup);
         let lowerMarkup = markup.toLowerCase();
-        if (lowerMarkup.search(/\<\!doctype[^\w\-]+/gi) != -1 ||
-            lowerMarkup.search(/\<html[^\w\-]+/gi) != -1 ||
-            lowerMarkup.search(/\<head[^\w\-]+/gi) != -1 ||
-            lowerMarkup.search(/\<body[^\w\-]+/gi) != -1) {
+        if (lowerMarkup.search(/<!doctype[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/<html[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/<head[^\w\-]+/gi) != -1 ||
+            lowerMarkup.search(/<body[^\w\-]+/gi) != -1) {
             doc.documentElement.innerHTML = markup;
             return new DomQuery(doc.documentElement);
         } else {
@@ -2142,7 +2153,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
     innerText(joinString: string = ""): string {
-        let ret = this.asArray
+        return this.asArray
             .map((value: DomQuery) => {
                 let item = value.getAsElem(0).orElseLazy(() => {
                     return <any>{
@@ -2154,7 +2165,6 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             .reduce((text1, text2) => {
                 return [text1, text2].join(joinString)
             }, "");
-        return ret;
     }
 
     /**
