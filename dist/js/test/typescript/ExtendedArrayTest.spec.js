@@ -22,16 +22,23 @@ import { Es2019Array } from "../../main/typescript/Es2019Array";
 describe('Extended tests', function () {
     let arr;
     let origFlatmap = null;
+    let origFlat = null;
     beforeEach(function () {
         if (Array.prototype.flatMap) {
             origFlatmap = Array.prototype.flatMap;
             // we remove the flatmap from the array
             // so that our custom function can take over
             delete Array.prototype.flatMap;
+            origFlat = Array.prototype.flat;
+            // we remove the flatmap from the array
+            // so that our custom function can take over
+            delete Array.prototype.flatMap;
+            delete Array.prototype.flat;
         }
     });
     after(function () {
         Array.prototype.flatMap = origFlatmap;
+        Array.prototype.flat = origFlat;
     });
     it("must handle flatmap correctly", () => {
         arr = new Es2019Array("10", "20", "30", ["40", "50"], "60");
@@ -53,6 +60,15 @@ describe('Extended tests', function () {
         retArr.forEach((item, pos) => {
             expect(item).to.eq(result[pos]);
         });
+    });
+    it("must flatten properly", () => {
+        arr = new Es2019Array(...[[[1, 2]], [[3, 4]], [[5, 6]]]);
+        let flattened = arr.flat();
+        expect(flattened[0][0]).to.eq(1);
+        expect(flattened[2][1]).to.eq(6);
+        flattened = arr.flat(3);
+        expect(flattened[0]).to.eq(1);
+        expect(flattened[5]).to.eq(6);
     });
 });
 //# sourceMappingURL=ExtendedArrayTest.spec.js.map

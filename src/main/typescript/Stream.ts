@@ -803,3 +803,23 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 }
 
 
+/**
+ * 1.0 backwards compatibility functions
+ *
+ * this restores the stream and lazy stream
+ * property on DomQuery on prototype level
+ *
+ */
+
+Object.defineProperty(DomQuery.prototype, "stream", {
+    get: function stream(){
+        return Stream.ofDomQuery(this);
+    }
+})
+
+
+Object.defineProperty(DomQuery.prototype, "lazyStream", {
+    get: function lazyStream(){
+        return LazyStream.ofDomQuery(this);
+    }
+})

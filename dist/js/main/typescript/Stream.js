@@ -19,6 +19,7 @@
  */
 import { Optional } from "./Monad";
 import { ArrayCollector, ArrayStreamDataSource, calculateSkips, FilteredStreamDatasource, ITERATION_STATUS, MappedStreamDataSource, MultiStreamDatasource } from "./SourcesCollectors";
+import { DomQuery } from "./DomQuery";
 /**
  * Same for flatmap to deal with element -> stream mappings
  */
@@ -535,4 +536,21 @@ export class LazyStream {
         return this._limits != -1 && this.pos >= this._limits - 1;
     }
 }
+/**
+ * 1.0 backwards compatibility functions
+ *
+ * this restores the stream and lazy stream
+ * property on DomQuery on prototype level
+ *
+ */
+Object.defineProperty(DomQuery.prototype, "stream", {
+    get: function stream() {
+        return Stream.ofDomQuery(this);
+    }
+});
+Object.defineProperty(DomQuery.prototype, "lazyStream", {
+    get: function lazyStream() {
+        return LazyStream.ofDomQuery(this);
+    }
+});
 //# sourceMappingURL=Stream.js.map
