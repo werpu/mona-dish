@@ -8,6 +8,7 @@
  */
 export declare class Es2019Array<T> extends Array<T> {
     constructor(...another: T[]);
+    map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[];
     concat(...items: any[]): T[];
     reverse(): T[];
     slice(start?: number, end?: number): T[];

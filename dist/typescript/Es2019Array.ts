@@ -20,6 +20,10 @@ export class Es2019Array<T> extends Array<T> {
         }
     }
 
+    map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
+        return new Es2019Array<U>(...super.map(callbackfn));
+    }
+
     concat(...items): T[] {
         return new Es2019Array(...super.concat(...items));
     }

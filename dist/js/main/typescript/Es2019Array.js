@@ -17,6 +17,9 @@ export class Es2019Array extends Array {
             this.flat = (flatLevel = 1) => this._flat(flatLevel);
         }
     }
+    map(callbackfn, thisArg) {
+        return new Es2019Array(...super.map(callbackfn));
+    }
     concat(...items) {
         return new Es2019Array(...super.concat(...items));
     }
