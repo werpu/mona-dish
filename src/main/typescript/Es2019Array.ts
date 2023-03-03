@@ -7,46 +7,75 @@
  * We must remap all array producing functions in order to keep
  * the delegation active, once we are in!
  */
-export class Es2019Array<T> extends Array<T> {
+
+
+
+
+
+class Es2019Array_<T>  extends Array<T>{
+
+    _another: T[];
 
     constructor(...another: T[]) {
         super(...another);
+        if((another as any)._another)  {
+            this._another = (another as any)._another;
+        } else {
+            this._another = another;
+        }
+
         //for testing it definitely runs into this branch because we are on es5 level
-        if (!(<any>Array.prototype).flatMap) {
+        //if (!(<any>Array.prototype).flatMap) {
             this.flatMap = (flatMapFun) => this._flatMap(flatMapFun) as any;
-        }
-        if (!(<any>Array.prototype).flat) {
+        //}
+        //if (!(<any>Array.prototype).flat) {
             this.flat = (flatLevel: number = 1) => this._flat(flatLevel);
-        }
+        //}
     }
 
     map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
-        return new Es2019Array<U>(...super.map(callbackfn));
+        const ret = Array.prototype.map.call(this._another, callbackfn, thisArg);
+        return new Es2019Array(... ret);
     }
 
     concat(...items): T[] {
-        return new Es2019Array(...super.concat(...items));
+        const ret = Array.prototype.concat.call(this._another, ...items);
+        return new Es2019Array(... ret);
     }
 
     reverse(): T[] {
-        return new Es2019Array(...super.reverse());
+        const ret = Array.prototype.reverse.call(this._another);
+        return new Es2019Array(... ret);
     }
 
     slice(start?: number, end?: number): T[] {
-        return new Es2019Array(...super.slice(start, end));
+        const ret = Array.prototype.slice.call(this._another, start, end);
+        return new Es2019Array(...ret);
     }
 
     splice(start: number, deleteCount?: number): T[] {
-        return new Es2019Array(...super.splice(start, deleteCount));
+        const ret = Array.prototype.splice.call(this._another, start, deleteCount);
+        return new Es2019Array(...ret);
     }
 
     filter<S extends T>(predicate: (value: T, index: number, array: T[]) => any, thisArg?: any): S[] {
-        return new Es2019Array(...super.filter(predicate, thisArg) as any);
+        const ret = Array.prototype.filter.call(this._another, predicate, thisArg);
+        return new Es2019Array(...ret);
     }
 
 
+    reduce(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue?: T): T {
+        const ret = Array.prototype.reduce.call(this._another, callbackfn, initialValue);
+        return ret;
+    }
+
+    /*reduceRight(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, array: T[]) => T, initialValue: T): T {
+        const ret = Array.prototype.reduceRight.call(callbackfn, initialValue);
+        return ret;
+    }*/
+
     private _flat(flatDepth = 1) {
-        return this._flatResolve(this, flatDepth);
+        return this._flatResolve(this._another, flatDepth);
     }
 
     private _flatResolve(arr, flatDepth = 1) {
@@ -66,8 +95,39 @@ export class Es2019Array<T> extends Array<T> {
         return new Es2019Array(...res);
     }
 
-    private _flatMap(mapperFunction: Function, noFallback: boolean = false): Es2019Array<T> {
+    private _flatMap(mapperFunction: Function, noFallback: boolean = false): any {
         let res = this.map(item => mapperFunction(item));
         return this._flatResolve(res);
     }
 }
+
+//let _Es2019Array = function<T>(...data: T[]) {};
+
+//let oldProto = Es2019Array.prototype;
+
+function _Es2019Array<T>(...data: T[]): Es2019Array_<T> {
+    let ret = new Es2019Array_<T>(...data);
+    let proxied = new Proxy<Es2019Array_<T>>(ret, {
+        get(target: Es2019Array_<unknown>, p: string | symbol, receiver: any): any {
+            if("symbol" == typeof p) {
+
+                return target._another[p];
+            }
+            if(!isNaN(parseInt(p as string))) {
+                return target._another[p];
+            } else {
+                return target[p];
+            }
+        },
+
+        set(target, property, value): boolean {
+            target[property] = value;
+            target._another[property] = value;
+            return true;
+        }
+
+    });
+    return proxied;
+};
+
+export var Es2019Array: any = _Es2019Array;

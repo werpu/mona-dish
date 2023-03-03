@@ -1014,14 +1014,14 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
 
-    get asArray(): Es2019Array<DomQuery> {
+    get asArray(): DomQuery[] {
         // filter not supported by IE11
-        let items = new Es2019Array<Element>(...this.rootNode).filter(item => {
+        let items = new Es2019Array(...this.rootNode).filter(item => {
             return item != null
         }).map(item => {
             return DomQuery.byId(item)
         });
-        return items as Es2019Array<DomQuery>;
+        return items as DomQuery[];
     }
 
     get offsetWidth(): number {
@@ -1053,7 +1053,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
     get asNodeArray(): Array<Element> {
-        return new Es2019Array<Element>(...this.rootNode.filter(item => item != null));
+        return new Es2019Array(...this.rootNode.filter(item => item != null));
     }
 
 
@@ -1310,9 +1310,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     byTagName(tagName: string, includeRoot ?: boolean, deep ?: boolean): DomQuery {
         let res: Array<Element | DomQuery> = [];
         if (includeRoot) {
-            res = <any>new Es2019Array(...(this?.rootNode ?? []))
+            res = new Es2019Array(...(this?.rootNode ?? []))
                 .filter(element => element?.tagName == tagName)
-                .reduce<Array<Element | DomQuery>>((reduction: any, item: Element) => reduction.concat([item]), res);
+                .reduce((reduction: any, item: Element) => reduction.concat([item]), res);
         }
 
         (deep) ? res.push(this.querySelectorAllDeep(tagName)) : res.push(this.querySelectorAll(tagName));
@@ -2271,8 +2271,12 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         let TYPE_CDATA_BLOCK = 4;
 
         let res = this.asArray
-            .flatMap( item => item.childNodes.asArray)
-            .filter(item => item?.value?.value?.nodeType == TYPE_CDATA_BLOCK)
+            .flatMap( item => {
+                return item.childNodes.asArray;
+            })
+            .filter(item => {
+                return item?.value?.value?.nodeType == TYPE_CDATA_BLOCK;
+            })
             .reduce((reduced: Array<any>, item: DomQuery) => {
                 reduced.push((<any>item?.value?.value)?.data ?? "");
                 return reduced;
@@ -2465,7 +2469,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param filterDoubles filter out possible double elements (aka same markup)
      */
     concat(toAttach: DomQuery, filterDoubles = true): DomQuery {
-        const ret = new DomQuery(...this.asArray.concat(toAttach.asArray));
+        let domQueries = this.asArray;
+        const ret = new DomQuery(...domQueries.concat(toAttach.asArray));
         // we now filter the doubles out
         if (!filterDoubles) {
             return ret;
@@ -2513,7 +2518,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 continue;
             }
             let res = this.rootNode[cnt].querySelectorAll(selector);
-            nodes = nodes.concat(objToArray(res));
+            nodes = nodes.concat(...objToArray(res));
         }
 
         return new DomQuery(...nodes);

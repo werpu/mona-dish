@@ -23,7 +23,7 @@ import {Es2019Array} from "../../main/typescript/Es2019Array";
 
 describe('Extended tests', function () {
 
-    let arr: Es2019Array<any>;
+    let arr: any;
 
     let origFlatmap: any = null;
     let origFlat: any = null;
@@ -47,7 +47,7 @@ describe('Extended tests', function () {
     })
 
     it("must handle flatmap correctly", () => {
-        arr = new Es2019Array<any>("10", "20", "30", ["40", "50"], "60")
+        arr = new Es2019Array(...["10", "20", "30", ["40", "50"], "60"])
         let retArr = arr.flatMap((item => item) , true);
 
         expect(retArr.length).to.eq(6);
@@ -55,7 +55,7 @@ describe('Extended tests', function () {
     });
 
     it("must handle deeply nested items correctly", () => {
-        arr = new Es2019Array<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
+        arr = new Es2019Array(...["10", "20", "30", ["40", "50", ["55", "56"]], "60"])
         let retArr = arr.flatMap((item => item) , true).flatMap(item=>item);
 
         //second nesting level cannot be flatmapped, flatmap only works on one level usually
@@ -65,11 +65,11 @@ describe('Extended tests', function () {
     });
 
     it("must keep the order", () => {
-        arr = new Es2019Array<any>("10", "20", "30", ["40", "50", ["55", "56"]], "60")
+        arr = new Es2019Array(...["10", "20", "30", ["40", "50", ["55", "56"]], "60"])
         let retArr = arr.flatMap((item => item) , true).flatMap((item => item) , true);
 
         expect(retArr.length).to.eq(8);
-        let result = new Es2019Array<any>("10", "20", "30", "40", "50", ["55", "56"], "60").flatMap(item => item);
+        let result = new Es2019Array(...["10", "20", "30", "40", "50", ["55", "56"], "60"]).flatMap(item => item);
 
         retArr.forEach((item, pos) => {
             expect(item).to.eq(result[pos]);
@@ -78,7 +78,7 @@ describe('Extended tests', function () {
     });
 
     it("must flatten properly", () => {
-        arr = new Es2019Array<any>(...[[[1, 2]], [[3, 4]], [[5, 6]]]);
+        arr = new Es2019Array(...[[[1, 2]], [[3, 4]], [[5, 6]]]);
         let flattened = arr.flat();
         expect(flattened[0][0]).to.eq(1);
         expect(flattened[2][1]).to.eq(6);
@@ -86,5 +86,25 @@ describe('Extended tests', function () {
         flattened = arr.flat(3);
         expect(flattened[0]).to.eq(1);
         expect(flattened[5]).to.eq(6);
+    })
+
+    // test had a failing use case in myfaces
+    it('must map-filter-reduce correctly', () => {
+
+        const arr = new Es2019Array(...[1]);
+
+        expect(arr[0]).to.eq(1);
+
+        const res1 = [1].map(item => item+1);
+        const res3 = arr.map(item => item+1);
+
+        expect(res1[0]).to.eq(2);
+        expect(res3[0]).to.eq(2);
+
+        const res = arr.map(item => item+1)
+            .filter(item => !isNaN(item))
+            .reduce((item1, item2) => Math.max(item1, item2), -1);
+
+        expect(res).to.eq(2);
     })
 });

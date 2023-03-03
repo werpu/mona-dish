@@ -1534,8 +1534,13 @@ export class DomQuery {
     get cDATAAsString() {
         let TYPE_CDATA_BLOCK = 4;
         let res = this.asArray
-            .flatMap(item => item.childNodes.asArray)
-            .filter(item => { var _a, _b; return ((_b = (_a = item === null || item === void 0 ? void 0 : item.value) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.nodeType) == TYPE_CDATA_BLOCK; })
+            .flatMap(item => {
+            return item.childNodes.asArray;
+        })
+            .filter(item => {
+            var _a, _b;
+            return ((_b = (_a = item === null || item === void 0 ? void 0 : item.value) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.nodeType) == TYPE_CDATA_BLOCK;
+        })
             .reduce((reduced, item) => {
             var _a, _b, _c;
             reduced.push((_c = (_b = (_a = item === null || item === void 0 ? void 0 : item.value) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.data) !== null && _c !== void 0 ? _c : "");
@@ -1705,7 +1710,8 @@ export class DomQuery {
      * @param filterDoubles filter out possible double elements (aka same markup)
      */
     concat(toAttach, filterDoubles = true) {
-        const ret = new DomQuery(...this.asArray.concat(toAttach.asArray));
+        let domQueries = this.asArray;
+        const ret = new DomQuery(...domQueries.concat(toAttach.asArray));
         // we now filter the doubles out
         if (!filterDoubles) {
             return ret;
@@ -1750,7 +1756,7 @@ export class DomQuery {
                 continue;
             }
             let res = this.rootNode[cnt].querySelectorAll(selector);
-            nodes = nodes.concat(objToArray(res));
+            nodes = nodes.concat(...objToArray(res));
         }
         return new DomQuery(...nodes);
     }

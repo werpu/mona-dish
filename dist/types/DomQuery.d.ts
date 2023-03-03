@@ -18,7 +18,6 @@ import { Config, Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
 import { ICollector, IStreamDataSource, ITERATION_STATUS } from "./SourcesCollectors";
 import { _global$ } from "./Global";
-import { Es2019Array } from "./Es2019Array";
 /**
  * in order to poss custom parameters we need to extend the mutation observer init
  */
@@ -619,7 +618,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     set disabled(disabled: boolean);
     removeAttribute(name: string): void;
     get childNodes(): DomQuery;
-    get asArray(): Es2019Array<DomQuery>;
+    get asArray(): DomQuery[];
     get offsetWidth(): number;
     get offsetHeight(): number;
     get offsetLeft(): number;

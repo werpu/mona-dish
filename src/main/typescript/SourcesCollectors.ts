@@ -411,7 +411,7 @@ export class MappedStreamDataSource<T, S> implements IStreamDataSource<S> {
  * a collector which collects a stream back into arrays
  */
 export class ShimArrayCollector<S> implements ICollector<S, Array<S>> {
-    private data: Array<S> = new Es2019Array<S>(...[]);
+    private data: Array<S> = new Es2019Array(...[]);
 
     collect(element: S) {
         this.data.push(element);
@@ -532,7 +532,7 @@ export class QueryFormStringCollector implements ICollector<DomQuery, string> {
 
     get finalValue(): string {
         return new Es2019Array(...this.formData)
-            .map<string>(keyVal => keyVal.join("="))
+            .map(keyVal => keyVal.join("="))
             .reduce((item1, item2) => [item1, item2].join("&"));
     }
 }
