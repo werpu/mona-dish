@@ -35,32 +35,32 @@ class Es2019Array_<T>  extends Array<T>{
 
     map<U>(callbackfn: (value: T, index: number, array: T[]) => U, thisArg?: any): U[] {
         const ret = Array.prototype.map.call(this._another, callbackfn, thisArg);
-        return new Es2019Array(... ret);
+        return new (_Es2019Array as any) (... ret);
     }
 
     concat(...items): T[] {
         const ret = Array.prototype.concat.call(this._another, ...items);
-        return new Es2019Array(... ret);
+        return new (_Es2019Array as any)(... ret);
     }
 
     reverse(): T[] {
         const ret = Array.prototype.reverse.call(this._another);
-        return new Es2019Array(... ret);
+        return new (_Es2019Array as any)(... ret);
     }
 
     slice(start?: number, end?: number): T[] {
         const ret = Array.prototype.slice.call(this._another, start, end);
-        return new Es2019Array(...ret);
+        return new (_Es2019Array as any)(...ret);
     }
 
     splice(start: number, deleteCount?: number): T[] {
         const ret = Array.prototype.splice.call(this._another, start, deleteCount);
-        return new Es2019Array(...ret);
+        return new (_Es2019Array as any)(...ret);
     }
 
     filter<S extends T>(predicate: (value: T, index: number, array: T[]) => any, thisArg?: any): S[] {
         const ret = Array.prototype.filter.call(this._another, predicate, thisArg);
-        return new Es2019Array(...ret);
+        return new (_Es2019Array as any)(...ret);
     }
 
 
@@ -95,7 +95,7 @@ class Es2019Array_<T>  extends Array<T>{
         return new Es2019Array(...res);
     }
 
-    private _flatMap(mapperFunction: Function, noFallback: boolean = false): any {
+    private _flatMap(mapperFunction: Function): any {
         let res = this.map(item => mapperFunction(item));
         return this._flatResolve(res);
     }
@@ -105,7 +105,7 @@ class Es2019Array_<T>  extends Array<T>{
 
 //let oldProto = Es2019Array.prototype;
 
-function _Es2019Array<T>(...data: T[]): Es2019Array_<T> {
+export function _Es2019Array<T>(...data: T[]): Es2019Array_<T> {
     let ret = new Es2019Array_<T>(...data);
     let proxied = new Proxy<Es2019Array_<T>>(ret, {
         get(target: Es2019Array_<unknown>, p: string | symbol, receiver: any): any {
@@ -130,4 +130,11 @@ function _Es2019Array<T>(...data: T[]): Es2019Array_<T> {
     return proxied;
 };
 
-export var Es2019Array: any = _Es2019Array;
+/**
+ * this is the switch between normal array and our shim
+ * the shim is only provided in case the native browser
+ * does not yet have flatMap support on arrays
+ */
+export var Es2019Array: any = (Array.prototype.flatMap) ? function<T>(...data: T[]): T[] {
+    return data;
+} : _Es2019Array;
