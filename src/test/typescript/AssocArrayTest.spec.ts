@@ -15,7 +15,7 @@
  */
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {assign} from "../../main/typescript/AssocArray";
+import {assign, shallowMerge} from "../../main/typescript/AssocArray";
 
 describe('Assoc Array Helpers test', () => {
     it('simple assoc array', () => {
@@ -39,6 +39,56 @@ describe('Assoc Array Helpers test', () => {
         console.debug(JSON.stringify(config));
         expect(config?.["hello"]?.[5]?.[3]["from"]?.[5]).to.be.eq("me");
         expect(config?.hello[5][3].from[5]).to.be.eq("me");
+    });
+
+    it('must do shallow merge', (done) => {
+        let res = shallowMerge(true, true, {
+            a: "one",
+            b: "two"
+        }, {
+            a: "one_1",
+            b: "two_1",
+            c: "three"
+        });
+
+        expect(res?.a?.[0]).to.eq("one");
+        expect(res?.a?.[1]).to.eq("one_1");
+        expect(res?.b?.[1]).to.eq("two_1");
+        expect(res?.c).to.eq("three");
+        done();
+    });
+
+    it('must do shallow merge 2', (done) => {
+        let res = shallowMerge(false, true, {
+            a: "one",
+            b: "two"
+        }, {
+            a: "one_1",
+            b: "two_1",
+            c: "three"
+        });
+
+        expect(res?.a).to.eq("one");
+        expect(res?.b).to.eq("two");
+        expect(res?.c).to.eq("three");
+        done();
+    });
+
+
+    it('must do shallow merge 3', (done) => {
+        let res = shallowMerge(true, false, {
+            a: "one",
+            b: "two"
+        }, {
+            a: "one_1",
+            b: "two_1",
+            c: "three"
+        });
+
+        expect(res?.a).to.eq("one_1");
+        expect(res?.b).to.eq("two_1");
+        expect(res?.c).to.eq("three");
+        done();
     });
 
 });

@@ -175,7 +175,7 @@ export function deepCopy(fromAssoc: {[key: string]: any}): {[key: string]: any} 
  *
  * @param assocArrays
  */
-export function merge(...assocArrays) {
+export function simpleShallowMerge(...assocArrays) {
     let target = {};
     assocArrays
         .map(arr => {
@@ -187,4 +187,51 @@ export function merge(...assocArrays) {
     return target;
 }
 
-//  TODO overwrite and append
+/**
+ * Shallow merge as in config
+ *
+ * @param overwrite
+ * @param withAppend
+ * @param assocArrays
+ */
+export function shallowMerge(overwrite = true, withAppend = false, ...assocArrays) {
+    let target: {[key: string]: any} = {};
+    assocArrays.map(arr => {
+        return {arr, keys: Object.keys(arr)};
+    }).forEach(({arr, keys}) => {
+        keys.forEach(key => {
+            if(overwrite || !target?.[key]) {
+                if(!withAppend) {
+                    target[key] = arr[key];
+                } else {
+                    if (Array.isArray(arr[key])) {
+                        if('undefined' == typeof target?.[key]) {
+                            target[key] = new Es2019Array(...arr[key])
+                        } else if(!Array.isArray(target[key])) {
+                            let oldVal = target[key];
+                            target[key] = new Es2019Array(...[]);
+                            target[key].push(oldVal);
+                            target[key].push(...arr[key]);
+                        } else {
+                            target[key].push(...arr[key]);
+                        }
+                        //new Es2019Array(...arr[key]).forEach(item => this.append(key).value = item);
+                    } else {
+                        if('undefined' == typeof target?.[key]) {
+                            target[key] = arr[key];
+                        } else if(!Array.isArray(target[key])) {
+                            let oldVal = target[key];
+                            target[key] = new Es2019Array(...[]);
+                            target[key].push(oldVal);
+                            target[key].push(arr[key]);
+                        } else {
+                            target[key].push(arr[key]);
+                        }
+                    }
+                }
+            }
+        })
+    });
+    return target;
+}
+
