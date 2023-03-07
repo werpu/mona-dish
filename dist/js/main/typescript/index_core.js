@@ -18,7 +18,7 @@
  */
 export { DomQuery, ElementAttribute, DomQueryCollector, DQ, DQ$ } from "./DomQuery";
 export { Lang } from "./Lang";
-export { Monad, Optional, ValueEmbedder } from "./Monad";
+export { Config, CONFIG_VALUE, CONFIG_ANY, Monad, Optional, ValueEmbedder } from "./Monad";
 export { XMLQuery, XQ } from "./XmlQuery";
 export { assign, assignIf, append, simpleShallowMerge, shallowMerge } from "./AssocArray";
 //# sourceMappingURL=index_core.js.map
