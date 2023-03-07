@@ -21,5 +21,10 @@ declare class Es2019Array_<T> extends Array<T> {
     private _flatMap;
 }
 export declare function _Es2019Array<T>(...data: T[]): Es2019Array_<T>;
+/**
+ * this is the switch between normal array and our shim
+ * the shim is only provided in case the native browser
+ * does not yet have flatMap support on arrays
+ */
 export declare var Es2019Array: any;
 export {};

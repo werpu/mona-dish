@@ -20,5 +20,5 @@ export { DomQuery, ElementAttribute, DomQueryCollector, DQ, DQ$ } from "./DomQue
 export { Lang } from "./Lang";
 export { Monad, Optional, ValueEmbedder } from "./Monad";
 export { XMLQuery, XQ } from "./XmlQuery";
-export { assign, assignIf, simpleShallowMerge, shallowMerge } from "./AssocArray";
+export { assign, assignIf, append, simpleShallowMerge, shallowMerge } from "./AssocArray";
 //# sourceMappingURL=index_core.js.map

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Config, Optional, ValueEmbedder } from "./Monad";
+import { Optional, ValueEmbedder } from "./Monad";
 import { XMLQuery } from "./XmlQuery";
 import { ICollector, IStreamDataSource, ITERATION_STATUS } from "./SourcesCollectors";
 import { _global$ } from "./Global";
@@ -148,7 +148,7 @@ interface IDomQuery {
      */
     innerHtml: string;
     /**
-     * convenience for dq.id.value to make the code a little bit tighter
+     * convenience for dq.id.value to make the code a little tighter
      */
     nodeId: string;
     /**
@@ -499,7 +499,9 @@ interface IDomQuery {
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge: any): Config;
+    encodeFormElement(toMerge: any): {
+        [key: string]: any;
+    };
     /**
      * fetches the sub-nodes from ... to..
      * @param from
@@ -938,7 +940,9 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge?: Config): Config;
+    encodeFormElement(toMerge?: {}): {
+        [key: string]: any;
+    };
     get cDATAAsString(): string;
     subNodes(from: number, to?: number): DomQuery;
     _limits: number;
@@ -980,7 +984,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * Implementation of an iterator
      * to allow loops over dom query collections
      */
-    [Symbol.iterator](): Iterator<DomQuery, any, undefined>;
+    [Symbol.iterator](): Iterator<DomQuery>;
     /**
      * Concatenates the elements of two Dom Queries into a single one
      * @param toAttach the elements to attach
