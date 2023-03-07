@@ -277,6 +277,21 @@ do not need it anymore. CancellablePromise is still enabled.
 This is from now on a development branch, to finally split between
 unstable and stable 
 
+#### 0.25.20
+Breaking change:
+
+To get reduced coupling between modules
+(I want to make the usage of Config optional)
+DomQuery does not use Config anymore but relies
+on standard associative arrays:
+
+* before: encodeFormElement(toMerge: Config): Config;
+* new: encodeFormElement(toMerge: {[key: string]: any}): {[key: string]: any};
+
+Config now is not a dependency of DomQuery anymore!
+
+A new module AssocArray provides helper functions to provide
+a similar functionality as Config
 
 ## Version 0.26 ++
 * Fixing of bugs in the stream area

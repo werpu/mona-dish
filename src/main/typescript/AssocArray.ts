@@ -51,6 +51,29 @@ export function assign<T>(target: {[key: string]: any}, ...accessPath: string[])
 }
 
 
+export function append<T>(target: {[key: string]: any}, ...accessPath: string[]): IValueHolder<T> {
+    if (accessPath.length < 1) {
+        return IGNORE_ASSIGN;
+    }
+    const lastPathItem = buildPath(target, ...accessPath);
+    let appender: IValueHolder<T> = new (class {
+        set value(value: T | Array<T>) {
+            if(!Array.isArray(value)) {
+                value = [value];
+            }
+            if(!lastPathItem.target[lastPathItem.key]) {
+                lastPathItem.target[lastPathItem.key] = value
+            } else {
+                if(!Array.isArray(lastPathItem.target[lastPathItem.key])) {
+                    lastPathItem.target[lastPathItem.key] = [lastPathItem.target[lastPathItem.key]];
+                }
+                lastPathItem.target[lastPathItem.key].push(...value);
+            }
+        }y
+    })();
+    return appender;
+}
+
 /**
  * uses the known pattern from config
  * assign(target, key1, key2, key3).value = value;
@@ -163,6 +186,8 @@ function buildPath(target, ...accessPath: string[]): { target, key } {
         targetKey = arrPos == -1 ? currKey : arrPos;
         targetVal = arrPos == -1 ? parentVal: parentVal[currKey];
     }
+    // clear off the last value, it is not set yet
+    targetVal[targetKey] = null;
     return {target: targetVal, key: targetKey};
 }
 
@@ -176,15 +201,7 @@ export function deepCopy(fromAssoc: {[key: string]: any}): {[key: string]: any} 
  * @param assocArrays
  */
 export function simpleShallowMerge(...assocArrays) {
-    let target = {};
-    assocArrays
-        .map(arr => {
-            return {arr, keys: Object.keys(arr)};
-        })
-        .forEach(({arr, keys}) => {
-            keys.forEach(key => target[key] = arr[key]);
-    });
-    return target;
+   return shallowMerge(true, false, ...assocArrays);
 }
 
 /**

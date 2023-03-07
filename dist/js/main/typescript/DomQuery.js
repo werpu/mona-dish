@@ -23,7 +23,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { Config, Optional, ValueEmbedder } from "./Monad";
+import { Optional, ValueEmbedder } from "./Monad";
 import { ITERATION_STATUS } from "./SourcesCollectors";
 import { Lang } from "./Lang";
 import { _global$ } from "./Global";
@@ -32,6 +32,7 @@ var trim = Lang.trim;
 var isString = Lang.isString;
 var eqi = Lang.equalsIgnoreCase;
 var objToArray = Lang.objToArray;
+import { append, assign, simpleShallowMerge } from "./AssocArray";
 /**
  *
  *        // - submit checkboxes and radio inputs only if checked
@@ -1360,11 +1361,10 @@ export class DomQuery {
      */
     fireEvent(eventName, options = {}) {
         // merge with last one having the highest priority
-        let finalOptions = new Config({
+        let finalOptions = {
             bubbles: true, cancelable: true
-        });
-        finalOptions.shallowMerge(new Config(options));
-        finalOptions = JSON.parse(finalOptions.toJson());
+        };
+        finalOptions = simpleShallowMerge(finalOptions, options);
         this.eachElem((node) => {
             let doc;
             if (node.ownerDocument) {
@@ -1455,14 +1455,14 @@ export class DomQuery {
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge = new Config({})) {
+    encodeFormElement(toMerge = {}) {
         // browser behavior no element name no encoding (normal submit fails in that case)
         // https:// issues.apache.org/jira/browse/MYFACES-2847
         if (this.name.isAbsent()) {
             return;
         }
         // let´s keep it side-effects free
-        let target = toMerge.shallowCopy;
+        let target = simpleShallowMerge(toMerge);
         this.each((element) => {
             var _a, _b;
             if (element.name.isAbsent()) { // no name, no encoding
@@ -1497,7 +1497,7 @@ export class DomQuery {
                             // let subBuf = [];
                             if (selectElem.options[u].selected) {
                                 let elementOption = selectElem.options[u];
-                                target.append(name).value = (elementOption.getAttribute("value") != null) ?
+                                append(target, name).value = (elementOption.getAttribute("value") != null) ?
                                     elementOption.value : elementOption.text;
                             }
                         }
@@ -1517,14 +1517,14 @@ export class DomQuery {
                     let filesArr = uploadedFiles !== null && uploadedFiles !== void 0 ? uploadedFiles : [];
                     if (filesArr === null || filesArr === void 0 ? void 0 : filesArr.length) { //files can be empty but set
                         // xhr level2, single multiple must be passes as they are
-                        target.assign(name).value = Array.from(filesArr);
+                        assign(target, name).value = Array.from(filesArr);
                     }
                     else {
                         if (!!uploadedFiles) { //we skip empty file elements i
                             return;
                         }
                         //checkboxes etc.. need to be appended
-                        target.append(name).value = element.inputValue.value;
+                        append(target, name).value = element.inputValue.value;
                     }
                 }
             }

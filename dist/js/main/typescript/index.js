@@ -26,4 +26,5 @@ export { ArrayStreamDataSource, MappedStreamDataSource, FilteredStreamDatasource
 export { TagBuilder } from "./TagBuilder";
 export { Message, Broker, BroadcastChannelBroker, NoCrypto } from "./Messaging";
 export { JSONCrypto, ExpiringCrypto } from "./CryptoExtensions";
+export { assign, assignIf, simpleShallowMerge, shallowMerge } from "./AssocArray";
 //# sourceMappingURL=index.js.map

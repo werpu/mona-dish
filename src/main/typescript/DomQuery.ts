@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {Config, Optional, ValueEmbedder} from "./Monad";
+import {Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 
 import {ICollector, IStreamDataSource, ITERATION_STATUS} from "./SourcesCollectors";
@@ -27,6 +27,7 @@ import trim = Lang.trim;
 import isString = Lang.isString;
 import eqi = Lang.equalsIgnoreCase;
 import objToArray = Lang.objToArray;
+import {append, assign, simpleShallowMerge} from "./AssocArray";
 
 declare var ownerDocument: any;
 
@@ -327,7 +328,7 @@ interface IDomQuery {
     innerHtml: string;
 
     /**
-     * convenience for dq.id.value to make the code a little bit tighter
+     * convenience for dq.id.value to make the code a little tighter
      */
     nodeId: string;
 
@@ -744,7 +745,7 @@ interface IDomQuery {
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge): Config;
+    encodeFormElement(toMerge): {[key: string]: any};
 
     /**
      * fetches the sub-nodes from ... to..
@@ -2076,12 +2077,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     fireEvent(eventName: string, options: {[key: string]: any} = {}) {
         // merge with last one having the highest priority
 
-
-        let finalOptions: any = new Config({
+        let finalOptions: any = {
             bubbles: true, cancelable: true
-        });
-        finalOptions.shallowMerge(new Config(options));
-        finalOptions = JSON.parse(finalOptions.toJson());
+        }
+        finalOptions = simpleShallowMerge(finalOptions, options);
 
         this.eachElem((node: Element) => {
             let doc;
@@ -2176,7 +2175,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge = new Config({})): Config {
+    encodeFormElement(toMerge = {}): {[key: string]: any} {
 
         // browser behavior no element name no encoding (normal submit fails in that case)
         // https:// issues.apache.org/jira/browse/MYFACES-2847
@@ -2185,7 +2184,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         }
 
         // let´s keep it side-effects free
-        let target = toMerge.shallowCopy;
+        let target = simpleShallowMerge(toMerge);
 
         this.each((element: DomQuery) => {
             if (element.name.isAbsent()) {// no name, no encoding
@@ -2223,7 +2222,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                             // let subBuf = [];
                             if (selectElem.options[u].selected) {
                                 let elementOption = selectElem.options[u];
-                                target.append(name).value = (elementOption.getAttribute("value") != null) ?
+                                append(target, name).value = (elementOption.getAttribute("value") != null) ?
                                     elementOption.value : elementOption.text;
                             }
                         }
@@ -2251,13 +2250,13 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                     let filesArr: any = uploadedFiles ?? [];
                     if (filesArr?.length) { //files can be empty but set
                         // xhr level2, single multiple must be passes as they are
-                        target.assign(name).value = Array.from(filesArr);
+                        assign(target, name).value = Array.from(filesArr);
                     } else {
                         if(!!uploadedFiles) { //we skip empty file elements i
                             return;
                         }
                         //checkboxes etc.. need to be appended
-                        target.append(name).value = element.inputValue.value;
+                        append(target, name).value = element.inputValue.value;
                     }
                 }
 
@@ -2450,7 +2449,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * Implementation of an iterator
      * to allow loops over dom query collections
      */
-    [Symbol.iterator](): Iterator<DomQuery, any, undefined> {
+    [Symbol.iterator](): Iterator<DomQuery> {
         return {
             next: () => {
                 let done = !this.hasNext();

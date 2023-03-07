@@ -1,7 +1,7 @@
 {
   "name": "mona-dish",
   "__description__": "0.25 unstable experimental branch",
-  "version": "0.25.19",
+  "version": "0.25.20",
   "description": "TypeScript/Javascript set of functional pattern inspired helpers, which will ease your programming live",
   "main": "dist/js/umd/index.js",
   "types": "dist/types/index.d.ts",

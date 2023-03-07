@@ -396,12 +396,12 @@ describe('DOMQuery tests', function () {
         expect(DomQuery.byId("id_3").inputValue.value).to.eq("textareaVal");
         DomQuery.byId("id_3").inputValue.value = "hello world";
         expect(DomQuery.byId("id_3").inputValue.value).to.eq("hello world");
-        let cfg = DomQuery.querySelectorAll("form").elements.encodeFormElement();
-        expect(cfg.getIf("id_1").value[0]).to.eq("booga");
-        expect(cfg.getIf("id_2").value[0]).to.eq("id_2_val");
-        expect(cfg.getIf("id_3").value[0]).to.eq("hello world");
-        expect(cfg.getIf("cc_1").value[0]).to.eq("Mastercard");
-        expect(cfg.getIf("val_5").value[0]).to.eq("akaka");
+        let data = DomQuery.querySelectorAll("form").elements.encodeFormElement();
+        expect(data === null || data === void 0 ? void 0 : data["id_1"][0]).to.eq("booga");
+        expect(data === null || data === void 0 ? void 0 : data["id_2"][0]).to.eq("id_2_val");
+        expect(data === null || data === void 0 ? void 0 : data["id_3"][0]).to.eq("hello world");
+        expect(data === null || data === void 0 ? void 0 : data["cc_1"][0]).to.eq("Mastercard");
+        expect(data === null || data === void 0 ? void 0 : data["val_5"][0]).to.eq("akaka");
     });
     it("must have a proper loadScriptEval execution", function (done) {
         DomQuery.byTagName("body").loadScriptEval("./fixtures/test.js");

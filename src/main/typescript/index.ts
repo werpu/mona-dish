@@ -43,5 +43,6 @@ export {TagBuilder} from "./TagBuilder";
 
 export {Message, Broker, BroadcastChannelBroker, Crypto, NoCrypto, Hash} from "./Messaging";
 export {JSONCrypto, ExpiringCrypto} from "./CryptoExtensions";
+export {assign, assignIf, simpleShallowMerge, shallowMerge} from "./AssocArray"
 
 
