@@ -595,11 +595,10 @@ export class Config extends Optional {
         let parentVal = this.getClass().fromNullable(null);
         let parentPos = -1;
         let alloc = function (arr, length) {
-            let length1 = arr.length;
-            let length2 = length1 + length;
-            for (let cnt = length1; cnt < length2; cnt++) {
-                arr.push({});
-            }
+            let toAdd = [];
+            toAdd.length = length;
+            toAdd[length - 1] = {};
+            arr.push(...toAdd);
         };
         for (let cnt = 0; cnt < accessPath.length; cnt++) {
             let currKey = this.keyVal(accessPath[cnt]);
