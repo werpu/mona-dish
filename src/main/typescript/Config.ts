@@ -97,7 +97,15 @@ export class Config extends Optional<any> {
      * simple merge for the root configs
      */
     shallowMerge(other: Config, overwrite = true, withAppend = false) {
-        this._value = shallowMerge(overwrite, withAppend, this.value, other.value)
+        //shallow merge must be mutable so we have to remap
+        let newThis = shallowMerge(overwrite, withAppend, this.value, other.value);
+        if (Array.isArray(this._value)) {
+            this._value.length = 0;
+            this._value.push(...(newThis as any));
+        } else {
+            Object.getOwnPropertyNames(this._value).forEach(key => delete this._value[key]);
+            Object.getOwnPropertyNames(newThis).forEach(key => this._value[key] = newThis[key]);
+        }
     }
 
     /**

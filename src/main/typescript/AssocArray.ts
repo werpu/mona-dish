@@ -20,16 +20,21 @@
  * arrays. If someone feels uncomfortable using
  * The config system, this is similar!
  */
-import {IValueHolder, Optional} from "./Monad";
+import {IValueHolder} from "./Monad";
 import {Es2019Array} from "./Es2019Array";
 
 /**
  * A nop as assign functionality (aka ignore assign)
  */
-const IGNORE_ASSIGN: IValueHolder<any> = new (class {
+class IgnoreAssign implements IValueHolder<any>  {
+    constructor(private parent: any) {}
+
     set value(value: any | Array<any>) {
     }
-})();
+    get value(): any | Array<any> {
+        return this.parent;
+    }
+};
 
 /**
  * uses the known pattern from config
@@ -39,12 +44,16 @@ const IGNORE_ASSIGN: IValueHolder<any> = new (class {
  */
 export function assign<T>(target: {[key: string]: any}, ...accessPath: string[]): IValueHolder<T> {
     if (accessPath.length < 1) {
-        return IGNORE_ASSIGN;
+        return new IgnoreAssign(target);
     }
     const lastPathItem = buildPath(target, ...accessPath);
     let assigner: IValueHolder<T> = new (class {
         set value(value: T | Array<T>) {
             lastPathItem.target[lastPathItem.key] = value;
+        }
+
+        get value(): T | Array<T> {
+            return lastPathItem.target[lastPathItem.key];
         }
     })();
     return assigner;
@@ -53,7 +62,7 @@ export function assign<T>(target: {[key: string]: any}, ...accessPath: string[])
 
 export function append<T>(target: {[key: string]: any}, ...accessPath: string[]): IValueHolder<T> {
     if (accessPath.length < 1) {
-        return IGNORE_ASSIGN;
+        return new IgnoreAssign(target);
     }
     const lastPathItem = buildPath(target, ...accessPath);
     let appender: IValueHolder<T> = new (class {
@@ -81,8 +90,8 @@ export function append<T>(target: {[key: string]: any}, ...accessPath: string[])
  * @param keys
  */
 export function assignIf<T>(condition: boolean, target: {[key: string]: any}, ...accessPath: string[]): IValueHolder<T> {
-    if (accessPath.length < 1) {
-        return IGNORE_ASSIGN;
+    if ((!condition) || accessPath.length < 1) {
+        return new IgnoreAssign(target);
     }
     return assign(target, ...accessPath);
 }
@@ -95,8 +104,8 @@ export function assignIf<T>(condition: boolean, target: {[key: string]: any}, ..
  * @param keys
  */
 export function appendIf<T>(condition: boolean, target: {[key: string]: any}, ...accessPath: string[]): IValueHolder<T> {
-    if (accessPath.length < 1) {
-        return IGNORE_ASSIGN;
+    if ((!condition) || accessPath.length < 1) {
+        return new IgnoreAssign(target);
     }
     return append(target, ...accessPath);
 }
@@ -255,34 +264,24 @@ export function shallowMerge(overwrite = true, withAppend = false, ...assocArray
         return {arr, keys: Object.keys(arr)};
     }).forEach(({arr, keys}) => {
         keys.forEach(key => {
+            let toAssign = arr[key];
+            if(!Array.isArray(toAssign) && withAppend) {
+                toAssign = new Es2019Array(...[toAssign]);
+            }
             if(overwrite || !target?.[key]) {
                 if(!withAppend) {
                     target[key] = arr[key];
                 } else {
-                    if (Array.isArray(arr[key])) {
                         if('undefined' == typeof target?.[key]) {
-                            target[key] = new Es2019Array(...arr[key])
+                            target[key] = toAssign
                         } else if(!Array.isArray(target[key])) {
                             let oldVal = target[key];
                             target[key] = new Es2019Array(...[]);
                             target[key].push(oldVal);
-                            target[key].push(...arr[key]);
+                            target[key].push(...toAssign);
                         } else {
-                            target[key].push(...arr[key]);
+                            target[key].push(...toAssign);
                         }
-                        //new Es2019Array(...arr[key]).forEach(item => this.append(key).value = item);
-                    } else {
-                        if('undefined' == typeof target?.[key]) {
-                            target[key] = arr[key];
-                        } else if(!Array.isArray(target[key])) {
-                            let oldVal = target[key];
-                            target[key] = new Es2019Array(...[]);
-                            target[key].push(oldVal);
-                            target[key].push(arr[key]);
-                        } else {
-                            target[key].push(arr[key]);
-                        }
-                    }
                 }
             }
         })

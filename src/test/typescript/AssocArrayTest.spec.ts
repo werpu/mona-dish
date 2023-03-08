@@ -87,7 +87,7 @@ describe('Assoc Array Helpers test', () => {
         expect(res?.a?.[0]).to.eq("one");
         expect(res?.a?.[1]).to.eq("one_1");
         expect(res?.b?.[1]).to.eq("two_1");
-        expect(res?.c).to.eq("three");
+        expect(res?.c[0]).to.eq("three");
         done();
     });
 
@@ -101,9 +101,9 @@ describe('Assoc Array Helpers test', () => {
             c: "three"
         });
 
-        expect(res?.a).to.eq("one");
-        expect(res?.b).to.eq("two");
-        expect(res?.c).to.eq("three");
+        expect(res?.a[0]).to.eq("one");
+        expect(res?.b[0]).to.eq("two");
+        expect(res?.c[0]).to.eq("three");
         done();
     });
 

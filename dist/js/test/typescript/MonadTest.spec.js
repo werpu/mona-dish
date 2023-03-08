@@ -149,6 +149,27 @@ describe('Config tests', () => {
         expect(probe.resolve((root) => root.test1.test2.testborked).isAbsent()).to.be.true;
         expect(probe.resolve((root) => root.test1.testborked.test3).isAbsent()).to.be.true;
     });
+    it("must handle gitIf as mutable", () => {
+        let probe = new Config({
+            "myfaces.request.passThrough": {
+                "message": "Hello World"
+            }
+        });
+        probe.getIf("myfaces.request.passThrough").shallowMerge(new Config({
+            "param1": "param1_val",
+            "param2": "param2_val"
+        }));
+        expect(probe.value["myfaces.request.passThrough"].param1).to.eq("param1_val");
+        expect(probe.value["myfaces.request.passThrough"].param2).to.eq("param2_val");
+        expect(probe.value["myfaces.request.passThrough"].message).to.eq("Hello World");
+    });
+    it("must handle corner cases of assign", () => {
+        let probe = new Config({
+            "data": []
+        });
+        probe.assign("data").value.push("value1");
+        expect(probe.value.data.length).to.eq(1);
+    });
     it('Config append must work from single/zero element to multiple elements', () => {
         let probe = new Config({});
         probe.append("test1", "test2", "test3").value = "hello";

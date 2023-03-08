@@ -314,6 +314,25 @@ on standard associative arrays:</p>
 <p>A new module AssocArray provides helper functions to provide
 a similar functionality as Config</p>
 
+<a href="#02526" id="02526" style="color: inherit; text-decoration: none;">
+  <h4>0.25.26</h4>
+</a>
+<p>Another minor breaking change.</p>
+<p>0.25.26 reorganizes the internal data structure of config
+to allow easier access and a direct mapping of associative arrays and arrays.
+(Allows for easier debugging internal data structures and a small speed bump)
+due to this change following construct is not possible anymore</p>
+<p>let conf = new Config({});
+conf.assign(&quot;[5]&quot;,&quot;[6]&quot;,&quot;key&quot;).value = &quot;new value&quot;;</p>
+<p>This goes hand in hand with the newly introduced low level associative array api
+you have to change the code accordingly
+let conf = new Config([]);
+conf.assign(&quot;[5]&quot;,&quot;[6]&quot;,&quot;key&quot;).value = &quot;new value&quot;;</p>
+<p>So always when an array is referenced from root, the root element must be an array otherwise
+an exception is thrown (the same goes for existing subelemements)</p>
+<p>(the same goes implicity for associative arrays in the other direction, 
+arrays cannot have key references anymore with assignments)</p>
+
 <a href="#version-026-" id="version-026-" style="color: inherit; text-decoration: none;">
   <h2>Version 0.26 ++</h2>
 </a>
