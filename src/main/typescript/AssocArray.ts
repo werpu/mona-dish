@@ -69,7 +69,7 @@ export function append<T>(target: {[key: string]: any}, ...accessPath: string[])
                 }
                 lastPathItem.target[lastPathItem.key].push(...value);
             }
-        }y
+        }
     })();
     return appender;
 }
@@ -116,79 +116,82 @@ function isNoArray(arrPos: number): boolean {
     return arrPos == -1;
 }
 
-function alloc(arr: Array<any>, length: number) {
+function alloc(arr: Array<any>, length: number, defaultVal = {}) {
     let toAdd = [];
     toAdd.length = length;
-    toAdd[length - 1] = {};
+    toAdd[length - 1] = defaultVal;
     arr.push(...toAdd);
 }
 
-function preprocessKeys(...keys): string[] {
-    return new Es2019Array(...keys)
-        .flatMap(item => {
-            return new Es2019Array(...item.split(/]\s*\[/gi))
-                .map(item => {
-                    item = item.replace(/^\s+|\s+$/g, "");
-                    if(item.indexOf("[") == -1 && item.indexOf("]") != -1) {
-                        item = "[" + item;
-                    }
-                    if(item.indexOf("]") == -1 && item.indexOf("[") != -1) {
-                        item = item + "]";
-                    }
-                    return item;
-                })
-        });
-}
 
 /**
- * builds up a path
+ * builds up a path, only done if no data is present!
  * @param target
  * @param accessPath
  * @returns the last assignable entry
  */
-function buildPath(target, ...accessPath: string[]): { target, key } {
-    let val = target;
-    let parentVal = target;
-    let targetVal = val;
-    let parentPos = -1;
-    let targetKey = null;
-    accessPath = preprocessKeys(...accessPath);
+export function buildPath(target, ...accessPath: string[]) {
+    accessPath = accessPath.flatMap(path => path.split("["))
+        .map(path => path.indexOf("]") != -1 ? "["+ path : path);
+    //we now have a pattern of having the array accessors always in separate items
+    let parentPtr = target;
+    let parKeyArrPos = null;
+    let currKey = null;
+    let arrPos = -1;
+
     for (let cnt = 0; cnt < accessPath.length; cnt++) {
-        let currKey = keyVal(accessPath[cnt]);
-        let arrPos = arrayIndex(accessPath[cnt]);
+        currKey = keyVal(accessPath[cnt]);
+        arrPos = arrayIndex(accessPath[cnt]);
+        //it now is either key or arrPos
+        if (arrPos != -1) {
+            //case root(array)[5] -> root must be array and allocate 5 elements
+            //case root.item[5] root.item must be array and of 5 elements
+            if(!Array.isArray(parentPtr)) {
+                throw Error("Associative array referenced as index array in path reference");
+            }
 
-        if (isArrayPos(currKey, arrPos)) {
-            targetVal[targetKey] = [];
-            alloc(targetVal[targetKey], arrPos + 1);
-            parentVal = targetVal[targetKey];
-            val = targetVal[targetKey][arrPos];
-            targetKey = arrPos;
-            parentPos = arrPos;
-            continue;
-        }
-
-        let tempVal = val?.[currKey];
-        if (isNoArray(arrPos)) {
-            if ('undefined' == typeof tempVal) {
-                tempVal = val[currKey] = {};
+            //we need to look ahead for proper allocation
+            //not end reached
+            let nextArrPos = -1;
+            if(cnt < accessPath.length - 1) {
+                nextArrPos = arrayIndex(accessPath[cnt + 1])
+            }
+            let dataPresent = 'undefined' != typeof parentPtr?.[arrPos];
+            //no data present check here is needed, because alloc only reserves if not present
+            alloc(parentPtr, arrPos + 1, nextArrPos != -1 ?[]: {});
+            parKeyArrPos = arrPos;
+            //we now go to the reserved element
+            if(cnt == accessPath.length - 1) {
+                parentPtr[arrPos] = (dataPresent) ? parentPtr[arrPos] : null;
             } else {
-                val = tempVal;
+                parentPtr = parentPtr[arrPos];
             }
         } else {
-            let arr = (tempVal instanceof Array) ? tempVal : [];
-            alloc(arr, arrPos + 1);
-            val[currKey] = arr;
-            tempVal = arr[arrPos];
+            if(Array.isArray(parentPtr)) {
+                throw Error("Index array referenced as associative array in path reference");
+            }
+            //again look ahead whether the next value is an array or assoc array
+            let nextArrPos = -1;
+            if(cnt < accessPath.length - 1) {
+                nextArrPos = arrayIndex(accessPath[cnt + 1])
+            }
+            parKeyArrPos = currKey;
+            let dataPresent = 'undefined' != typeof parentPtr?.[currKey];
+            if(cnt == accessPath.length - 1) {
+                if(!dataPresent) {
+                    parentPtr[currKey] = null;
+                }
+            } else {
+                if(!dataPresent) {
+                    parentPtr[currKey] = nextArrPos == -1 ? {} : [];
+                }
+                parentPtr = parentPtr[currKey];
+            }
         }
-        parentVal = val;
-        parentPos = arrPos;
-        val = tempVal;
-        targetKey = arrPos == -1 ? currKey : arrPos;
-        targetVal = arrPos == -1 ? parentVal: parentVal[currKey];
     }
-    // clear off the last value, it is not set yet
-    targetVal[targetKey] = null;
-    return {target: targetVal, key: targetKey};
+
+    return {target: parentPtr, key: parKeyArrPos};
+
 }
 
 export function deepCopy(fromAssoc: {[key: string]: any}): {[key: string]: any} {

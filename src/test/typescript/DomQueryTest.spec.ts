@@ -469,16 +469,24 @@ describe('DOMQuery tests', function () {
             <option>blon</option>
             <option>slashs</option>
         </select>
+        
+        <tobago-select-many-checkbox id="page:animals">
+        <label for="page:animals">Checkbox Group</label>
+        <label><input type="checkbox" name="page:animals" id="page:animals::0" value="Cat" checked="checked">Cat</label>
+        <label><input type="checkbox" name="page:animals" id="page:animals::1" value="Dog">Dog</label>
+        <label><input type="checkbox" name="page:animals" id="page:animals::2" value="Fox" checked="checked">Fox</label>
+        <label><input type="checkbox" name="page:animals" id="page:animals::3" value="Rabbit">Rabbit</label>
+      </tobago-select-many-checkbox>
     </div>
 </form>
        `;
 
         let length = DomQuery.querySelectorAll("form").elements.length;
-        expect(length == 8).to.be.true;
+        expect(length == 12).to.be.true;
         let length1 = DomQuery.querySelectorAll("body").elements.length;
-        expect(length1 == 8).to.be.true;
+        expect(length1 == 12).to.be.true;
         let length2 = DomQuery.byId("embed1").elements.length;
-        expect(length2 == 8).to.be.true;
+        expect(length2 == 12).to.be.true;
 
         let count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
             .map<number>(item => item.disabled ? 1 : 0)
@@ -497,7 +505,7 @@ describe('DOMQuery tests', function () {
         count = Stream.ofDataSource(DomQuery.byId("embed1").elements)
             .map<number>(item => item.attr("checked").isPresent() ? 1 : 0)
             .reduce((val1, val2) => val1 + val2, 0);
-        expect(count.value).to.eq(1);
+        expect(count.value).to.eq(3);
 
         expect(DomQuery.byId("id_1").inputValue.value == "id_1_val").to.be.true;
         DomQuery.byId("id_1").inputValue.value = "booga";
@@ -515,6 +523,9 @@ describe('DOMQuery tests', function () {
         expect(data?.["id_3"][0]).to.eq("hello world");
         expect(data?.["cc_1"][0]).to.eq("Mastercard");
         expect(data?.["val_5"][0]).to.eq("akaka");
+        expect(data?.["page:animals"].length).to.eq(2);
+        expect(data?.["page:animals"][0]).to.eq("Cat");
+        expect(data?.["page:animals"][1]).to.eq("Fox");
     })
 
     it("must have a proper loadScriptEval execution", function (done) {

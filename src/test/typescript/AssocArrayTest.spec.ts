@@ -15,9 +15,32 @@
  */
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {assign, shallowMerge} from "../../main/typescript/AssocArray";
+import {assign, buildPath, shallowMerge} from "../../main/typescript/AssocArray";
 
 describe('Assoc Array Helpers test', () => {
+    it('must have a properly working buildPath', () => {
+        const target = {};
+        const res = buildPath(target, "hello", "world", "from");
+        expect(res.key).to.eq("from");
+        expect(res.target?.from).eq(null);
+    })
+
+    it('must have a properly working buildPath with arrays', () => {
+        let config: { [key: string]: any } = {};
+        const res = buildPath(config,"hello[5]", "world[3]", "from[5]")
+        expect(res.key).eq(5);
+        expect(res.target[5]).equals(null);
+        expect(config.hello[5].world[3].from[5]).to.eq(null);
+    });
+    it('must have a properly working buildPath with arrays 2', () => {
+        let config: { [key: string]: any } = {};
+        const res = buildPath(config,"hello[5][3]", "from[5]")
+        expect(res.key).eq(5);
+        expect(res.target[5]).equals(null);
+        expect(config.hello[5][3].from[5]).to.eq(null);
+    });
+
+
     it('simple assoc array', () => {
         const target = {};
         assign(target, "hello", "world", "from").value = "me";
