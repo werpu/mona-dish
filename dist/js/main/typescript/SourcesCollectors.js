@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Config } from "./Monad";
 import { Es2019Array } from "./Es2019Array";
+import { Config } from "./Config";
 /**
  * special status of the datasource location pointer
  * if an access, outside - of the possible data boundaries is happening

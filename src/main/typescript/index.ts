@@ -18,7 +18,7 @@
  */
 export {DomQuery, ElementAttribute, DomQueryCollector, DQ, DQ$} from "./DomQuery";
 export {Lang} from "./Lang";
-export {Config, CONFIG_VALUE, CONFIG_ANY, ConfigDef, Monad, IValueHolder, IFunctor, IMonad, IIdentity, Optional, ValueEmbedder} from "./Monad";
+export {Monad, IValueHolder, IFunctor, IMonad, IIdentity, Optional, ValueEmbedder} from "./Monad";
 export {CancellablePromise, IPromise, PromiseStatus} from "./Promise";
 export {XMLQuery, XQ} from "./XmlQuery";
 export {Stream, LazyStream, IteratableConsumer, FlatMapStreamDataSource, IStream} from "./Stream";
@@ -44,5 +44,9 @@ export {TagBuilder} from "./TagBuilder";
 export {Message, Broker, BroadcastChannelBroker, Crypto, NoCrypto, Hash} from "./Messaging";
 export {JSONCrypto, ExpiringCrypto} from "./CryptoExtensions";
 export {assign, assignIf, simpleShallowMerge, shallowMerge} from "./AssocArray"
+export {Config} from "./Config";
+export {ConfigDef} from "./Config";
+export {CONFIG_ANY} from "./Config";
+export {CONFIG_VALUE} from "./Config";
 
 

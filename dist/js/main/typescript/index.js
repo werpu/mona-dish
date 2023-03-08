@@ -18,7 +18,7 @@
  */
 export { DomQuery, ElementAttribute, DomQueryCollector, DQ, DQ$ } from "./DomQuery";
 export { Lang } from "./Lang";
-export { Config, CONFIG_VALUE, CONFIG_ANY, Monad, Optional, ValueEmbedder } from "./Monad";
+export { Monad, Optional, ValueEmbedder } from "./Monad";
 export { CancellablePromise, PromiseStatus } from "./Promise";
 export { XMLQuery, XQ } from "./XmlQuery";
 export { Stream, LazyStream, FlatMapStreamDataSource } from "./Stream";
@@ -27,4 +27,7 @@ export { TagBuilder } from "./TagBuilder";
 export { Message, Broker, BroadcastChannelBroker, NoCrypto } from "./Messaging";
 export { JSONCrypto, ExpiringCrypto } from "./CryptoExtensions";
 export { assign, assignIf, simpleShallowMerge, shallowMerge } from "./AssocArray";
+export { Config } from "./Config";
+export { CONFIG_ANY } from "./Config";
+export { CONFIG_VALUE } from "./Config";
 //# sourceMappingURL=index.js.map

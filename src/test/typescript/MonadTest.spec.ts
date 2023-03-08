@@ -16,8 +16,7 @@
 
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import {Config, Optional, Stream} from "../../main/typescript/index";
-import {CONFIG_ANY, CONFIG_VALUE, ConfigDef} from "../../main/typescript/Monad";
+import {Config, CONFIG_ANY, CONFIG_VALUE, ConfigDef, Optional, Stream} from "../../main/typescript/index";
 
 //TODO saveResolveTest
 describe('optional tests', () => {
@@ -127,7 +126,7 @@ describe('Config tests', () => {
     });
 
     it('array config2', () => {
-        let config = setup();
+        let config = new Config([]);
         config.assign("[5]", "world[3]", "from").value = "me";
         expect(config.getIf("[5]", "world[3]", "from").value).to.be.eq("me");
         console.debug(JSON.stringify(config.toJson()));
@@ -136,7 +135,7 @@ describe('Config tests', () => {
     });
 
     it('array config3', () => {
-        let config = setup();
+        let config = new Config([]);
         config.assign("[5]", "[3]", "from").value = "me";
         expect(config.getIf("[5]", "[3]", "from").value).to.be.eq("me");
         console.debug(JSON.stringify(config.toJson()));
@@ -145,7 +144,7 @@ describe('Config tests', () => {
     });
 
     it('array config4', () => {
-        let config = setup();
+        let config = new Config([]);
         config.assign("[5]", "[3]", "[2]").value = "me";
         expect(config.getIf("[5]", "[3]", "[2]").value).to.be.eq("me");
         console.debug(JSON.stringify(config.toJson()));
@@ -154,7 +153,7 @@ describe('Config tests', () => {
     });
 
     it('array config5', () => {
-        let config = setup();
+        let config = new Config([]);
         config.assign("[5]", "world[3]", "from[2]").value = "me";
         expect(config.getIf("[5]", "world[3]", "from[2]").value).to.be.eq("me");
         console.debug(JSON.stringify(config.toJson()));

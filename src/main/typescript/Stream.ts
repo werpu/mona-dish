@@ -18,7 +18,7 @@
 /*
  * A small stream implementation
  */
-import {Config, IMonad, IValueHolder, Optional} from "./Monad";
+import {IMonad, IValueHolder, Optional} from "./Monad";
 import {
     ArrayCollector,
     ArrayStreamDataSource, calculateSkips,
@@ -29,6 +29,7 @@ import {
     MappedStreamDataSource, MultiStreamDatasource
 } from "./SourcesCollectors";
 import {DomQuery} from "./DomQuery";
+import {Config} from "./Config";
 //import {from, Observable} from "rxjs";
 
 

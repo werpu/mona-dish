@@ -20,7 +20,7 @@
  * arrays. If someone feels uncomfortable using
  * The config system, this is similar!
  */
-import {IValueHolder} from "./Monad";
+import {IValueHolder, Optional} from "./Monad";
 import {Es2019Array} from "./Es2019Array";
 
 /**
@@ -88,6 +88,36 @@ export function assignIf<T>(condition: boolean, target: {[key: string]: any}, ..
 }
 
 
+/**
+ * uses the known pattern from config
+ * assign(target, key1, key2, key3).value = value;
+ * @param target
+ * @param keys
+ */
+export function appendIf<T>(condition: boolean, target: {[key: string]: any}, ...accessPath: string[]): IValueHolder<T> {
+    if (accessPath.length < 1) {
+        return IGNORE_ASSIGN;
+    }
+    return append(target, ...accessPath);
+}
+
+export function resolve<T>(target, ...accessPath: string[]): T | null {
+    let ret = null;
+    accessPath = flattenAccessPath(accessPath);
+    let currPtr = target;
+    for(let cnt = 0; cnt < accessPath.length; cnt++) {
+        let accessKeyIndex: number | string = accessPath[cnt];
+        accessKeyIndex = arrayIndex(accessKeyIndex) != -1 ? arrayIndex(accessKeyIndex) : accessKeyIndex;
+        currPtr = currPtr?.[accessKeyIndex];
+        if('undefined' == typeof currPtr) {
+            return null;
+        }
+        ret = currPtr;
+    }
+    return currPtr;
+}
+
+
 function keyVal(key: string): string {
     let start = key.indexOf("[");
 
@@ -124,6 +154,12 @@ function alloc(arr: Array<any>, length: number, defaultVal = {}) {
 }
 
 
+function flattenAccessPath(accessPath: string[]) {
+    return accessPath.flatMap(path => path.split("["))
+        .map(path => path.indexOf("]") != -1 ? "[" + path : path)
+        .filter(path => path != "");
+}
+
 /**
  * builds up a path, only done if no data is present!
  * @param target
@@ -131,8 +167,7 @@ function alloc(arr: Array<any>, length: number, defaultVal = {}) {
  * @returns the last assignable entry
  */
 export function buildPath(target, ...accessPath: string[]) {
-    accessPath = accessPath.flatMap(path => path.split("["))
-        .map(path => path.indexOf("]") != -1 ? "["+ path : path);
+    accessPath = flattenAccessPath(accessPath);
     //we now have a pattern of having the array accessors always in separate items
     let parentPtr = target;
     let parKeyArrPos = null;

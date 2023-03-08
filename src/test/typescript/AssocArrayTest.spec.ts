@@ -41,6 +41,16 @@ describe('Assoc Array Helpers test', () => {
     });
 
 
+    it('must have a properly working buildPath with arrays 3', () => {
+        let config: { [key: string]: any } = {
+            value: []
+        };
+        const res = buildPath(config.value,"[5][3]", "from[5]")
+        expect(res.key).eq(5);
+        expect(res.target[5]).equals(null);
+        expect(config.value[5][3].from[5]).to.eq(null);
+    });
+
     it('simple assoc array', () => {
         const target = {};
         assign(target, "hello", "world", "from").value = "me";

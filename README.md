@@ -293,6 +293,28 @@ Config now is not a dependency of DomQuery anymore!
 A new module AssocArray provides helper functions to provide
 a similar functionality as Config
 
+#### 0.25.26
+Another minor breaking change.
+
+0.25.26 reorganizes the internal data structure of config
+to allow easier access and a direct mapping of associative arrays and arrays.
+(Allows for easier debugging internal data structures and a small speed bump)
+due to this change following construct is not possible anymore
+
+let conf = new Config({});
+conf.assign("[5]","[6]","key").value = "new value";
+
+This goes hand in hand with the newly introduced low level associative array api
+you have to change the code accordingly
+let conf = new Config([]);
+conf.assign("[5]","[6]","key").value = "new value";
+
+So always when an array is referenced from root, the root element must be an array otherwise
+an exception is thrown (the same goes for existing subelemements)
+
+(the same goes implicity for associative arrays in the other direction, 
+arrays cannot have key references anymore with assignments)
+
 ## Version 0.26 ++
 * Fixing of bugs in the stream area
 * API change for the lookAhead (might break old code using it)

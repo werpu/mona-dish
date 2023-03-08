@@ -16,8 +16,8 @@
  */
 
 import {DomQuery} from "./DomQuery";
-import {Config} from "./Monad";
 import {Es2019Array} from "./Es2019Array";
+import {Config} from "./Config";
 
 /**
  * special status of the datasource location pointer
