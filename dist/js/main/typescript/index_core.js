@@ -26,4 +26,5 @@ export { CONFIG_ANY } from "./Config";
 export { CONFIG_VALUE } from "./Config";
 import * as Assoc_1 from "./AssocArray";
 export { Assoc_1 as Assoc };
+export { Es2019Array } from "./Es2019Array";
 //# sourceMappingURL=index_core.js.map
