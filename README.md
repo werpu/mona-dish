@@ -325,9 +325,11 @@ with every odd branch there will be a higher even numbered one release
 to avoid accidental downloads)
 
 
+## Version 0.28++
+### Important API chnage
 
+* Decoupling of Stream and DomQuery
 
-## note important API change (version has yet to be determined)
 In order to reduce the possible include size, there now is a stronger decoupling between streams
 and DomQuery. You now can use DomQuery without linking the Streams.
 In order to do so, the API has slightly changed.
@@ -339,5 +341,21 @@ The reason was that Streams have a significant code overhead and with ES2019 the
 api has somewhat reached the status of good enough with the inclusion of map.
 (internally we provide a non, bleeding shim for that functionality)
 
+If you include Streams the backwards compatibility is restored
+
+* Decoupling of DomQuery and Config
+
+Additional api change, in order do decouple DomQuery and Config
+encodeSubmittableFields now returns an associative array instead
+of a Config. You can convert it back to an associative array simply by using
+
+**new Config(dq.encodeSubmittableFields())**
+
+### Other changes
+* Es2019 Array as non-intrusive Es2019 array shim (providing filter and flapMap to
+browsers which do not support it)
+* New helper module providing functions similar to what config does to plain associative arrays
+* Internal Config data structure reorganisation on top of the new AssocArray helper module
+it now uses plain associative arrays as internal data structure to make debugging easier
 
                    

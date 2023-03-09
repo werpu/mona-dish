@@ -345,9 +345,16 @@ arrays cannot have key references anymore with assignments)</p>
 with every odd branch there will be a higher even numbered one release
 to avoid accidental downloads)</p>
 
-<a href="#note-important-api-change-version-has-yet-to-be-determined" id="note-important-api-change-version-has-yet-to-be-determined" style="color: inherit; text-decoration: none;">
-  <h2>note important API change (version has yet to be determined)</h2>
+<a href="#version-028" id="version-028" style="color: inherit; text-decoration: none;">
+  <h2>Version 0.28++</h2>
 </a>
+
+<a href="#important-api-chnage" id="important-api-chnage" style="color: inherit; text-decoration: none;">
+  <h3>Important API chnage</h3>
+</a>
+<ul>
+<li>Decoupling of Stream and DomQuery</li>
+</ul>
 <p>In order to reduce the possible include size, there now is a stronger decoupling between streams
 and DomQuery. You now can use DomQuery without linking the Streams.
 In order to do so, the API has slightly changed.
@@ -357,6 +364,25 @@ Stream.ofDomQuery and LazyStream.ofDomQuery</p>
 <p>The reason was that Streams have a significant code overhead and with ES2019 the native
 api has somewhat reached the status of good enough with the inclusion of map.
 (internally we provide a non, bleeding shim for that functionality)</p>
+<p>If you include Streams the backwards compatibility is restored</p>
+<ul>
+<li>Decoupling of DomQuery and Config</li>
+</ul>
+<p>Additional api change, in order do decouple DomQuery and Config
+encodeSubmittableFields now returns an associative array instead
+of a Config. You can convert it back to an associative array simply by using</p>
+<p><strong>new Config(dq.encodeSubmittableFields())</strong></p>
+
+<a href="#other-changes" id="other-changes" style="color: inherit; text-decoration: none;">
+  <h3>Other changes</h3>
+</a>
+<ul>
+<li>Es2019 Array as non-intrusive Es2019 array shim (providing filter and flapMap to
+browsers which do not support it)</li>
+<li>New helper module providing functions similar to what config does to plain associative arrays</li>
+<li>Internal Config data structure reorganisation on top of the new AssocArray helper module
+it now uses plain associative arrays as internal data structure to make debugging easier</li>
+</ul>
 </div></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
