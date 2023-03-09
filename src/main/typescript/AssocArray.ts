@@ -164,7 +164,7 @@ function alloc(arr: Array<any>, length: number, defaultVal = {}) {
 
 
 function flattenAccessPath(accessPath: string[]) {
-    return accessPath.flatMap(path => path.split("["))
+    return new Es2019Array(...accessPath).flatMap(path => path.split("["))
         .map(path => path.indexOf("]") != -1 ? "[" + path : path)
         .filter(path => path != "");
 }
@@ -260,7 +260,7 @@ export function simpleShallowMerge(...assocArrays) {
  */
 export function shallowMerge(overwrite = true, withAppend = false, ...assocArrays) {
     let target: {[key: string]: any} = {};
-    assocArrays.map(arr => {
+    new Es2019Array(...assocArrays).map(arr => {
         return {arr, keys: Object.keys(arr)};
     }).forEach(({arr, keys}) => {
         keys.forEach(key => {
