@@ -7,11 +7,6 @@
  * We must remap all array producing functions in order to keep
  * the delegation active, once we are in!
  */
-
-
-
-
-
 class Es2019Array_<T>  extends Array<T>{
 
     _another: T[];

@@ -30,5 +30,5 @@ export { assign, assignIf, simpleShallowMerge, shallowMerge } from "./AssocArray
 export { Config } from "./Config";
 export { CONFIG_ANY } from "./Config";
 export { CONFIG_VALUE } from "./Config";
-export { Es2019Array } from "./Es2019Array";
+export { Es2019Array, _Es2019Array } from "./Es2019Array";
 //# sourceMappingURL=index.js.map
