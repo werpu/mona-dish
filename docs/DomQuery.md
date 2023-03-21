@@ -23,12 +23,15 @@ expect(probe2.length == 3);
 Most of the time, you won´t have to touch the stream api
 because DomQuery provides almost the entire functionality of what
 Streams provide. But there are cases where you have to transform
-a domquery statastructure into a stream and vice vera
+a DomQuery data structure into a stream and vice versa.
 
 ### DomQuery into Streams
 
-Every domquery has a readonly stream and lazystream  property, which shows 
-a stream representation of the DomQuery. 
+Every DomQuery has a readonly stream and lazystream  property, which shows 
+a stream representation of the DomQuery.
+(if you use a build which incorporates Streams, otherwise this functionality is not present - and
+it is not present in the IDomQueryInterface)
+
 
 Example
 
@@ -43,9 +46,39 @@ expect(coll.length == 4).to.be.true;
 
 Streams can also be used to connect the DomQuery into RxJS (see RxJS below)
 
+
+### Alternatives
+
+Streams also have the functionality to generate themselves out of an existing DomQuery object
+the way we handle it for associative arrays and Configs:
+
+Given that DomQueries are Datasources we can generate a Stream by handling them 
+like DataSources
+```typescript
+        let probe1 = new DomQuery(window.document.body);
+        let probe2 = DomQuery.querySelectorAll("div");
+
+        let o1 = from(Stream.ofDataSource(probe1));
+        let o2 = from(Stream.ofDataSource(probe2));
+```
+
+However, in order to improve readability we also have a specialized api:
+
+```typescript
+        let probe1 = new DomQuery(document).querySelectorAll("div");
+        let coll: Array<any> = Stream.ofDomQuery(probe1).collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
+
+        coll = LazyStream.ofDomQuery(probe1).collect(new ArrayCollector());
+        expect(coll.length == 4).to.be.true;
+```
+
+
+
+
 ### Streams into DomQuery
 
-You either can pass an array collected from the stream into DomQuery
+You either, can pass an array collected from the stream into DomQuery
 or can use the DomQuery collector to get a DomQuery object from a strea,
 
 Example
@@ -88,6 +121,12 @@ See [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/RxJS.md) for furt
 
 ```typescript
 interface IDomQuery {
+  interface IDomQuery {
+  /**
+   * reference to the systems global object
+   * (globalThis, window, global, depending on the environment)
+   */
+  readonly global: any;
   /**
    * reads the first element if it exists and returns an optional
    */
@@ -121,11 +160,36 @@ interface IDomQuery {
    */
   readonly name: ValueEmbedder<string>;
   /**
-   * The the value in case of inputs as changeable value
+   * The value in case of inputs as changeable value
    */
   readonly inputValue: ValueEmbedder<string | boolean>;
+
   /**
-   * the underlying form elements as domquery object
+   * accumulated top element offsetWidth
+   */
+  readonly offsetWidth: number;
+  /**
+   * accumulated top element offsetHeight
+   */
+  readonly offsetHeight: number;
+  /**
+   * accumulated top element offsetLeft
+   */
+  readonly offsetLeft: number;
+  /**
+   * accumulated top element offsetTop
+   */
+  readonly offsetTop: number;
+
+
+  /**
+   * abbreviation for inputValue\.value to make
+   * the code terser
+   */
+  val: string | boolean;
+
+  /**
+   * the underlying form elements as DomQuery object
    */
   readonly elements: DomQuery;
   /**
@@ -139,34 +203,45 @@ interface IDomQuery {
   /**
    * an early stream representation for this DomQuery
    */
-  readonly stream: Stream<DomQuery>;
+  readonly stream: any;
   /**
    * lazy stream representation for this DomQuery
    */
-  readonly lazyStream: LazyStream<DomQuery>;
+  readonly lazyStream: any;
   /**
    * transform this node collection to an array
    */
   readonly asArray: Array<DomQuery>;
+
   /**
-   * innerHTML functionality (abbreviation for .html().value or .html('content')
+   * inner html property
+   * setter and getter which works directly on strings
    */
   innerHTML: string;
+
   /**
-   * value accessor for input fields abbreviation for inputValue().value and .inputValue(newValue)
+   * same as innerHTML
+   * will be removed once
+   * my code is transitioned
+   * @deprecated do not use anymore, user innerHTML instead
    */
-  val: any;  
-  
+  innerHtml: string;
+
   /**
-   * returns true if the elements have the tag *tagName* as tag embedded (highest level)
+   * convenience for dq.id.value to make the code a little tighter
+   */
+  nodeId: string;
+
+  /**
+   * returns true if the elements have the tag *tagName* as tag embedded ( highest level )
    * @param tagName
    */
   isTag(tagName: string): boolean;
 
   /**
-   * returns the nth element as domquery
+   * returns the nth element as DomQuery
    * from the internal elements
-   * note if you try to reach a non existing element position
+   * note if you try to reach a non-existing element position
    * you will get back an absent entry
    *
    * @param index the nth index
@@ -176,7 +251,7 @@ interface IDomQuery {
   /**
    * returns the nth element as optional of an Element object
    * @param index the number from the index
-   * @param defaults the default value if the index is overrun default Optional.absent
+   * @param defaults the default value if the index is overrun default Optional\.absent
    */
   getAsElem(index: number, defaults: Optional<any>): Optional<Element>;
 
@@ -193,14 +268,14 @@ interface IDomQuery {
   /**
    * should make the code clearer
    * note if you pass a function
-   * this refers to the active dopmquery object
+   * this refers to the active DomQuery object
    */
   isPresent(presentRunnable ?: (elem ?: DomQuery) => void): boolean;
 
   /**
    * should make the code clearer
    * note if you pass a function
-   * this refers to the active dopmquery object
+   * this refers to the active DomQuery object
    *
    *
    * @param presentRunnable
@@ -214,6 +289,15 @@ interface IDomQuery {
 
   /**
    * query selector all on the existing dom query object
+   *
+   * @param selector the standard selector
+   * @return a DomQuery with the results
+   */
+  querySelectorAll(selector): DomQuery;
+
+
+  /**
+   * closest, walks up the dom tree to fid the closest element to match
    *
    * @param selector the standard selector
    * @return a DomQuery with the results
@@ -243,7 +327,14 @@ interface IDomQuery {
   attr(attr: string, defaultValue: string): ElementAttribute;
 
   /**
-   * hasclass, checks for an existing class in the class attributes
+   * style accessor
+   * @param defaultValue the default value in case nothing is presented (defaults to null)
+   * @param cssProperty
+   */
+  style(cssProperty: string, defaultValue: string): Style;
+
+  /**
+   * Checks for an existing class in the class attributes
    *
    * @param clazz the class to search for
    */
@@ -269,19 +360,19 @@ interface IDomQuery {
   isMultipartCandidate(): boolean;
 
   /**
-   * innerHtml equivalkent
-   * equivalent to jqueries html
+   * innerHtml
+   * equivalent to jQueries html
    * as setter the html is set and the
    * DomQuery is given back
    * as getter the html string is returned
    *
-   * @param inval
+   * @param newInnerHTML
    */
-  html(inval?: string): DomQuery | Optional<string>;
+  html(newInnerHTML?: string): DomQuery | Optional<string>;
 
   /**
    * dispatch event on all children
-   * just a delegated dispatchevent from the standard
+   * just a delegated dispatchEvent from the standard
    * dom working on all queried elements in the monad level
    *
    * @param evt the event to be dispatched
@@ -290,9 +381,9 @@ interface IDomQuery {
 
   /**
    * easy node traversal, you can pass
-   * a set of node selectors which are joined as direct childs
+   * a set of node selectors which are joined as direct children
    *
-   * not the rootnodes are not in the getIf, those are always the child nodes
+   * Note! The root nodes are not in the getIf, those are always the child nodes
    *
    * @param nodeSelector
    */
@@ -313,6 +404,13 @@ interface IDomQuery {
   firstElem(func: (item: Element, cnt?: number) => any): DomQuery;
 
   /**
+   * perform an operation on the first element
+   * returns a DomQuery on the first element only
+   * @param func
+   */
+  lastElem(func: (item: Element, cnt?: number) => any): DomQuery;
+
+  /**
    * same as eachElem, but a DomQuery object is passed down
    *
    * @param func
@@ -326,6 +424,14 @@ interface IDomQuery {
    */
   first(func: (item: DomQuery, cnt?: number) => any): DomQuery;
 
+
+  /**
+   * returns a new dom query containing only the first element max
+   *
+   * @param func a an optional callback function to perform an operation on the first element
+   */
+  last(func: (item: DomQuery, cnt?: number) => any): DomQuery;
+
   /**
    * filter function which filters a subset
    *
@@ -336,16 +442,25 @@ interface IDomQuery {
   /**
    * global eval head appendix method
    * no other methods are supported anymore
-   * @param code the code to be evaled
+   * @param code the code to be evaluated
    * @param  nonce optional  nonce key for higher security
    */
   globalEval(code: string, nonce ?: string): DomQuery;
 
   /**
+   * Runs an eval and keeps the evaluated code in the head
+   * This is a corner condition, where we want to update the head with custom
+   * code and leave the code in (instead of deleting ig)
+   *
+   * @param code the code to be evaluated
+   * @param  nonce optional  nonce key for higher security
+   */
+  globalEvalSticky(code: string, nonce ?: string): DomQuery;
+
+  /**
    * detaches a set of nodes from their parent elements
-   * in a browser independend manner
-   * @param {Object} items the items which need to be detached
-   * @return {Array} an array of nodes with the detached dom nodes
+   * in a browser independent manner
+   * @return {DomQuery} DomQuery of nodes with the detached dom nodes
    */
   detach(): DomQuery;
 
@@ -354,16 +469,47 @@ interface IDomQuery {
    * to the element or first element passed via elem
    * @param elem
    */
-  appendTo(elem: DomQuery): void;
+  appendTo(elem: DomQuery | string): DomQuery;
 
   /**
-   * loads and evals a script from a source uri
+   * appends the passed elements to our existing queries
+   * note, double appends can happen if you are not careful
    *
-   * @param src the source to be loaded and evaled
-   * @param defer in miliseconds execution default (0 == no defer)
+   * @param elem to append
+   */
+  append(elem: DomQuery): DomQuery;
+
+  /**
+   * replace convenience function replaces the domquery elements with the
+   * elements passed as parameter
+   * @param toReplace the replacement elements
+   * @return a reference on the replacement elements
+   */
+  replace(toReplace: DomQuery): DomQuery;
+
+  /**
+   * appends the passed elements to our existing queries
+   * note, double appends can happen if you are not careful
+   *
+   * @param elem to append
+   */
+  prepend(elem: DomQuery): DomQuery;
+
+  /**
+   * prepend equivalent to appendTo
+   *
+   * @param elem the element to prepend to
+   */
+  prependTo(elem: DomQuery): DomQuery;
+
+  /**
+   * loads and evaluates a script from a source uri
+   *
+   * @param src the source to be loaded and evaluated
+   * @param delay in milliseconds execution default (0 == no delay)
    * @param charSet
    */
-  loadScriptEval(src: string, defer: number, charSet: string): void;
+  loadScriptEval(src: string, delay: number, charSet: string): void;
 
   /**
    * insert toInsert after the current element
@@ -380,7 +526,7 @@ interface IDomQuery {
   insertBefore(...toInsert: Array<DomQuery>): DomQuery;
 
   /**
-   * in case the domquery is pointing to nothing the else value is taken into consideration
+   * in case the DomQuery is pointing to nothing the else value is taken into consideration
    * als alternative
    *
    * @param elseValue the else value
@@ -395,21 +541,40 @@ interface IDomQuery {
    */
   orElseLazy(func: () => any): DomQuery;
 
+
   /**
-   * all parents with TagName
-   * @param tagName
+   * find all parents in the hierarchy for which the selector matches
+   * @param selector
    */
-  parents(tagName: string): DomQuery;
+  allParents(selector: string): DomQuery;
+
+  /**
+   * first parents with a matching selector
+   * @param selector
+   */
+  firstParent(selector: string): DomQuery;
+
+  /**
+   * all parents until the selector match stops
+   * @param selector
+   */
+  parentsWhileMatch(selector: string): DomQuery;
+
+
+  /**
+   * the parent of the elements
+   */
+  parent(): DomQuery;
 
   /**
    * copy all attributes of sourceItem to this DomQuery items
    *
-   * @param sourceItem the source item to copy over (can be another domquery or a parsed XML Query item)
+   * @param sourceItem the source item to copy over (can be another DomQuery or a parsed XML Query item)
    */
   copyAttrs(sourceItem: DomQuery | XMLQuery): DomQuery;
 
   /**
-   * outerhtml convenience method
+   * outerHTML convenience method
    * browsers only support innerHTML but
    * for instance for your jsf.js we have a full
    * replace pattern which needs outerHTML processing
@@ -422,10 +587,11 @@ interface IDomQuery {
 
   /**
    * Run through the given nodes in the DomQuery execute the inline scripts
-   * @param whilteListed: optional whitelist function which can filter out script tags which are not processed
+   * @param sticky if set to true the element must be left in the head after eval default === false
+   * @param whiteListed: optional whitelist function which can filter out script tags which are not processed
    * defaults to the standard jsf.js exclusion (we use this code for myfaces)
    */
-  runScripts(whilteListed: (val: string) => boolean): DomQuery;
+  runScripts(sticky?: boolean, whiteListed?: (val: string) => boolean): DomQuery;
 
   /**
    * runs the embedded css
@@ -463,31 +629,32 @@ interface IDomQuery {
   /*
    * pushes  in optionally a new textContent, and/or returns the current text content
    */
-  textContent(joinstr?: string): string;
+  textContent(joinString?: string): string;
 
   /*
    * pushes  in optionally a new innerText, and/or returns the current innerText
    */
-  innerText(joinstr?: string): string;
+  innerText(joinString?: string): string;
 
   /**
    * encodes all input elements properly into respective
    * config entries, this can be used
-   * for legacy systems, for newer usecases, use the
+   * for legacy systems, for newer use-cases, use the
    * HTML5 Form class which all newer browsers provide
    *
    * @param toMerge optional config which can be merged in
    * @return a copy pf
    */
-  encodeFormElement(toMerge): Config;
+  encodeFormElement(toMerge): {[key: string]: any};
 
   /**
-   * fetches the subnodes from ... to..
+   * fetches the sub-nodes from ... to..
    * @param from
    * @param to
    */
   subNodes(from: number, to?: number): DomQuery;
-  
+
+
   /**
    * attach shadow elements
    * 1:1 mapping from attach shadow
@@ -496,18 +663,14 @@ interface IDomQuery {
    */
   attachShadow(modeParams: { [key: string]: string }): DomQuery
 
+
   /**
-   * wait until a condition on the dom is reached, this uses
-   * MutationObservers if present and falls back to an interval
-   * mechanism if not, the WAIT_OPTs are basically the mutation
-   * observer opts with additional timeout and interval attributes
-   * in milisecnds.
+   * wait until a condition on the dom is reached
    *
    * @return a promise on the affected elements where the condition
    * @throws an error in case of a timeout
    */
-  waitUntilDom(condition: (element: DomQuery) => boolean, options?: WAIT_OPTS): Promise<DomQuery>
-  
+  waitUntilDom(condition: (element: DomQuery) => boolean, options: WAIT_OPTS): Promise<DomQuery>;
 }
 ```
 
