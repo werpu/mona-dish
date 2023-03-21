@@ -1310,33 +1310,19 @@ export class DomQuery {
         const execCss = (toReplace) => {
             const _toReplace = DomQuery.byId(toReplace);
             const tagName = _toReplace.tagName.orElse("").value;
-            const head = DomQuery.byTagName("head");
-            if (tagName && eqi(tagName, "link") && eqi(toReplace.getAttribute("rel"), "stylesheet")) {
-                const rel = toReplace.getAttribute("rel");
-                //if possible we are now replacing the existing elements where we reference this stylesheet
-                const matches = head.querySelectorAll(`link[rel='stylesheet'][href='${rel}']`);
-                if (matches.length) {
-                    matches.replace(_toReplace);
-                }
-                else {
-                    head.append(_toReplace);
-                }
-            }
-            else if (tagName && eqi(tagName, "style")) {
-                let innerText = _toReplace.innerHTML.replace(/\s+/gi, "");
-                let styles = head.querySelectorAll("style");
-                let filteredStyles = styles.asArray.filter(style => {
-                    return style.innerHTML.replace(/\s+/gi, "") == innerText;
-                });
-                styles = new DomQuery(...filteredStyles);
-                if (!styles.length) { //already present
-                    head.append(_toReplace);
-                }
-            }
+            let newElement = DomQuery.fromMarkup(`<${tagName.toLowerCase()} />`);
+            newElement = newElement.copyAttrs(_toReplace);
+            newElement.innerHTML = toReplace.innerHTML;
+            // css suffices a simple replace to get it eval-ed, no need
+            // for a full head replace
+            _toReplace.replace(newElement);
         };
         const scriptElements = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
         scriptElements.asArray
             .flatMap(item => [...item.values])
+            // sort to make sure the execution order is correct
+            // this is needed because we mix 2 queries together
+            // -3 is needed due to the compareDocumentPosition return value
             .sort((node1, node2) => node1.compareDocumentPosition(node2) - 3)
             .forEach(item => execCss(item));
         return this;

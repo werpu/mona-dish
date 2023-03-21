@@ -570,7 +570,7 @@ describe('DOMQuery tests', function () {
         
             <style type="text/css">
                 #first {
-                    border: 1px solid black;
+                    border: 10px solid black;
                 }
             </style>
             
@@ -582,8 +582,11 @@ describe('DOMQuery tests', function () {
         expect(content.byId("third").innerHTML).to.eq("hello world");
         expect(content.byId("fourth").innerHTML).to.eq("hello world");
 
-        expect(DomQuery.byTagName("head")
+        expect(DomQuery.byTagName("body")
             .querySelectorAll("link[rel='stylesheet'][href='./fixtures/blank.css']").length).to.eq(1);
+        // must be evaled
+        const cstyle = window.getComputedStyle(content.byId("first").getAsElem(0).value, null)
+        expect(cstyle.getPropertyValue("border")).to.eq("10px solid black");
         done();
 
     });
