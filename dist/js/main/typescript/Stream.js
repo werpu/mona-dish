@@ -336,16 +336,6 @@ export class Stream {
  *
  */
 export class LazyStream {
-    constructor(parent) {
-        this._limits = -1;
-        /*
-         * needed to have the limits check working
-         * we need to keep track of the current position
-         * in the stream
-         */
-        this.pos = -1;
-        this.dataSource = parent;
-    }
     static of(...values) {
         return new LazyStream(new ArrayStreamDataSource(...values));
     }
@@ -360,6 +350,16 @@ export class LazyStream {
     }
     static ofConfig(value) {
         return LazyStream.of(...Object.keys(value.value)).map(key => [key, value.value[key]]);
+    }
+    constructor(parent) {
+        this._limits = -1;
+        /*
+         * needed to have the limits check working
+         * we need to keep track of the current position
+         * in the stream
+         */
+        this.pos = -1;
+        this.dataSource = parent;
     }
     hasNext() {
         if (this.isOverLimits()) {

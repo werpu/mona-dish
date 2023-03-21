@@ -96,7 +96,7 @@ describe('Extended tests', function () {
     });
     // test had a failing use case in myfaces
     it('must map-filter-reduce correctly', () => {
-        const arr = new Es2019Array(...[1]);
+        const arr = new Es2019Array().concat(...[1]);
         expect(arr[0]).to.eq(1);
         const res1 = [1].map(item => item + 1);
         const res3 = arr.map(item => item + 1);

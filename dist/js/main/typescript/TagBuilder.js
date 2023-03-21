@@ -41,14 +41,14 @@ if ("undefined" != typeof _global$) {
  */
 export class TagBuilder {
     // noinspection JSUnusedGlobalSymbols
+    static withTagName(tagName) {
+        return new TagBuilder(tagName);
+    }
+    // noinspection JSUnusedGlobalSymbols
     constructor(tagName) {
         this.extendsType = HTMLElement;
         this.observedAttrs = [];
         this.tagName = tagName;
-    }
-    // noinspection JSUnusedGlobalSymbols
-    static withTagName(tagName) {
-        return new TagBuilder(tagName);
     }
     // noinspection JSUnusedGlobalSymbols
     withObservedAttributes(...oAttrs) {
