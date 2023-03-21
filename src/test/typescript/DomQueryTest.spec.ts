@@ -574,7 +574,7 @@ describe('DOMQuery tests', function () {
                 }
             </style>
             
-            <link rel="stylesheet" href="./fixtures/blank.css"></link>
+            <link rel="stylesheet" href="./fixtures/simple.css"></link>
         `;
         let content = DomQuery.byTagName("body").runScripts().runCss();
         expect(content.byId("first").innerHTML).to.eq("hello world");
@@ -583,12 +583,17 @@ describe('DOMQuery tests', function () {
         expect(content.byId("fourth").innerHTML).to.eq("hello world");
 
         expect(DomQuery.byTagName("body")
-            .querySelectorAll("link[rel='stylesheet'][href='./fixtures/blank.css']").length).to.eq(1);
+            .querySelectorAll("link[rel='stylesheet'][href='./fixtures/simple.css']").length).to.eq(1);
         // must be evaled
         const cstyle = window.getComputedStyle(content.byId("first").getAsElem(0).value, null)
         expect(cstyle.getPropertyValue("border")).to.eq("10px solid black");
-        done();
 
+
+        DomQuery.byTagName("body").waitUntilDom(() => {
+            const cstyle2 = window.getComputedStyle(content.byId("second").getAsElem(0).value, null)
+            return cstyle2.getPropertyValue("border") == "5px solid red";
+        });
+        done();
     });
 
     //TODO defer does not work in jsdom
