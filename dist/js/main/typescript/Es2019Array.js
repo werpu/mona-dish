@@ -102,37 +102,17 @@ export function _Es2019Array(...data) {
     return proxied;
 }
 ;
-export function __Es2019Array_(...data) {
-    let ret = new _Es2019Array_(...data);
-    let proxied = new Proxy(ret, {
-        get(target, p, receiver) {
-            if ("symbol" == typeof p) {
-                return target[p];
-            }
-            if (!isNaN(parseInt(p))) {
-                return target[p];
-            }
-            else {
-                return target[p];
-            }
-        },
-        set(target, property, value) {
-            target[property] = value;
-            return true;
-        }
-    });
-    return proxied;
-}
-;
-class _Es2019Array_ extends Array {
-    constructor(...another) {
-        super(...another);
-    }
-}
 /**
  * this is the switch between normal array and our shim
  * the shim is only provided in case the native browser
  * does not yet have flatMap support on arrays
  */
-export var Es2019Array = _Es2019Array;
+export var Es2019Array = (Array.prototype.flatMap) ? function (...data) {
+    // sometimes the typescript compiler produces
+    // an array without flatmap between boundaries (the result produces True for Array.isArray
+    // but has no flatMap function, could be a node issue also or Typescript!
+    // we remap that (could be related to: https://github.com/microsoft/TypeScript/issues/31033
+    // the check and remap fixes the issue which should not exist in the first place
+    return (data === null || data === void 0 ? void 0 : data.flatMap) ? data : _Es2019Array(...data);
+} : _Es2019Array;
 //# sourceMappingURL=Es2019Array.js.map

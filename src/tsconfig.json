@@ -19,10 +19,10 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "target": "es2015",
+    "target": "es2019",
     "downlevelIteration": true,
     "lib": [
-      "es2019",
+      "es2019.array",
       "dom"
     ],
     "sourceMap": true,

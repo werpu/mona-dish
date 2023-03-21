@@ -13,15 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { ArrayCollector, DomQuery, DomQueryCollector, Lang, LazyStream, Stream } from "../../main/typescript";
@@ -564,53 +555,47 @@ describe('DOMQuery tests', function () {
             expect(e.message.indexOf("not supported") != -1).to.be.true;
         }
     });
-    it('it must have a working wait for dom with mut observer and must detect condition after change', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let probe = DomQuery.byId('id_1');
-            probe.innerHTML = 'true';
-            let ret = yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-            expect(ret.isPresent());
-            probe = DomQuery.byId('bosushsdhs');
-            ret = yield probe.waitUntilDom((element) => element.isAbsent());
-            expect(ret.isAbsent());
-        });
+    it('it must have a working wait for dom with mut observer and must detect condition after change', async function () {
+        let probe = DomQuery.byId('id_1');
+        probe.innerHTML = 'true';
+        let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+        expect(ret.isPresent());
+        probe = DomQuery.byId('bosushsdhs');
+        ret = await probe.waitUntilDom((element) => element.isAbsent());
+        expect(ret.isAbsent());
     });
-    it('it must have a working wait for dom with mut observer', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let probe = DomQuery.byId('id_1');
+    it('it must have a working wait for dom with mut observer', async function () {
+        let probe = DomQuery.byId('id_1');
+        setTimeout(() => probe.innerHTML = 'true', 300);
+        let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+        delete window.MutationObserver;
+        delete global.MutationObserver;
+        probe.innerHTML = "";
+        setTimeout(() => probe.innerHTML = 'true', 300);
+        let ret2 = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+        expect(ret.isPresent() && ret2.isPresent());
+    });
+    it('it must have a timeout', async function () {
+        let probe = DomQuery.byId('booga');
+        try {
             setTimeout(() => probe.innerHTML = 'true', 300);
-            let ret = yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+            await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+            expect.fail("must have a timeout");
+        }
+        catch (ex) {
+            expect(!!ex);
+        }
+        try {
             delete window.MutationObserver;
             delete global.MutationObserver;
             probe.innerHTML = "";
             setTimeout(() => probe.innerHTML = 'true', 300);
-            let ret2 = yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-            expect(ret.isPresent() && ret2.isPresent());
-        });
-    });
-    it('it must have a timeout', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let probe = DomQuery.byId('booga');
-            try {
-                setTimeout(() => probe.innerHTML = 'true', 300);
-                yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-                expect.fail("must have a timeout");
-            }
-            catch (ex) {
-                expect(!!ex);
-            }
-            try {
-                delete window.MutationObserver;
-                delete global.MutationObserver;
-                probe.innerHTML = "";
-                setTimeout(() => probe.innerHTML = 'true', 300);
-                yield probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-                expect.fail("must have a timeout");
-            }
-            catch (ex2) {
-                expect(!!ex2);
-            }
-        });
+            await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+            expect.fail("must have a timeout");
+        }
+        catch (ex2) {
+            expect(!!ex2);
+        }
     });
     it('must handle null inputs correctly', function () {
         const dq = new DomQuery(null);

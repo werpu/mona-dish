@@ -14,15 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 import { Optional, ValueEmbedder } from "./Monad";
 import { ITERATION_STATUS } from "./SourcesCollectors";
 import { Lang } from "./Lang";
@@ -106,7 +97,7 @@ function waitUntilDom(root, condition, options = {
             observer = new MutationObserver(callback);
             // browsers might ignore it, but we cannot break the api in the case
             // hence no timeout is passed
-            let observableOpts = Object.assign({}, options);
+            let observableOpts = { ...options };
             delete observableOpts.timeout;
             root.eachElem(item => {
                 observer.observe(item, observableOpts);
@@ -1602,16 +1593,14 @@ export class DomQuery {
      * @param condition
      * @param options
      */
-    waitUntilDom(condition, options = {
+    async waitUntilDom(condition, options = {
         attributes: true,
         childList: true,
         subtree: true,
         timeout: 500,
         interval: 100
     }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return waitUntilDom(this, condition, options);
-        });
+        return waitUntilDom(this, condition, options);
     }
     /**
      * returns the embedded shadow elements

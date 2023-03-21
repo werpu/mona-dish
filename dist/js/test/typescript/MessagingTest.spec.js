@@ -1,12 +1,3 @@
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -33,11 +24,9 @@ import { BroadcastChannel as BC, enforceOptions } from 'broadcast-channel';
 import { ExpiringCrypto, JSONCrypto } from "../../main/typescript";
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
-function delay(milliseconds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise((resolve) => {
-            setTimeout(resolve, milliseconds);
-        });
+async function delay(milliseconds) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, milliseconds);
     });
 }
 let iframe = `
@@ -114,11 +103,9 @@ describe('Broker tests', function () {
         });
         msg = new Message("booga2");
         iframeBroker.broadcast("channel2", msg);
-        function analyzeDelayed() {
-            return __awaiter(this, void 0, void 0, function* () {
-                yield delay(1000);
-                expect(messageReceived).to.eq(true);
-            });
+        async function analyzeDelayed() {
+            await delay(1000);
+            expect(messageReceived).to.eq(true);
         }
         analyzeDelayed();
     });
@@ -136,11 +123,9 @@ describe('Broker tests', function () {
         broker.broadcast("channel", msg);
         msg = new Message("booga2");
         broker.broadcast("channel2", msg);
-        function analyzeDelayed() {
-            return __awaiter(this, void 0, void 0, function* () {
-                yield delay(400);
-                expect(iframeDoc.querySelectorAll("#received")[0].innerHTML).to.eq("booga");
-            });
+        async function analyzeDelayed() {
+            await delay(400);
+            expect(iframeDoc.querySelectorAll("#received")[0].innerHTML).to.eq("booga");
         }
         analyzeDelayed();
     });
@@ -239,24 +224,24 @@ describe('Broker tests', function () {
         broker2.registerListener(CHANNEL, () => {
             broker2CallCnt++;
         });
-        return (() => __awaiter(this, void 0, void 0, function* () {
-            yield broker1.broadcast(CHANNEL, new Message("booga"));
-            yield broker1.broadcast(CHANNEL, new Message("booga"));
-            yield broker1.broadcast(CHANNEL, new Message("booga"));
-            yield chn1.postMessage({
+        return (async () => {
+            await broker1.broadcast(CHANNEL, new Message("booga"));
+            await broker1.broadcast(CHANNEL, new Message("booga"));
+            await broker1.broadcast(CHANNEL, new Message("booga"));
+            await chn1.postMessage({
                 foo: 'bar'
             });
-            yield chn1.postMessage({
+            await chn1.postMessage({
                 foo: 'bar'
             });
-            yield delay(200);
+            await delay(200);
             expect(chn1CallCnt == 0).to.be.true;
             expect(chn2CallCnt == 2).to.be.true;
             expect(broker1CallCnt == 3).to.eq(true);
             expect(broker2CallCnt == 3).to.eq(true);
             broker1.unregister();
             broker2.unregister();
-        }))();
+        })();
     });
     it('shadow dom handling', function () {
         //closed not possible this seals the element off entirely, this is a no go
@@ -315,180 +300,162 @@ describe('Broker tests', function () {
             done();
         });
     });
-    it('shadow dom handling with Broadcast channel', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            //closed not possible this seals the element off entirely, this is a no go
-            //also a closed shadow root is not recommended, there are other ways of achieving partial
-            //isolation
-            let shadowRoot = document.getElementById('shadow1').attachShadow({ mode: 'closed' });
-            expect(shadowRoot != null).to.be.true;
-            shadowRoot.innerHTML = "<div class='received'>false</div>";
-            //we now attach the brokers
-            let origBroker = new BroadcastChannelBroker();
-            let shadowBroker = new BroadcastChannelBroker();
-            let shadowBrokerReceived = 0;
-            shadowBroker.registerListener(CHANNEL, () => {
-                shadowBrokerReceived++;
-            });
-            let brokerReceived = 0;
-            origBroker.registerListener(CHANNEL, () => {
-                brokerReceived++;
-            });
-            //from root broker into shadow dom
-            origBroker.broadcast(CHANNEL, new Message("booga"));
-            yield delay(100);
-            expect(shadowBrokerReceived).to.be.eq(1);
-            expect(brokerReceived).to.eq(1);
-            //now from shadow dom into broker
-            shadowBroker.broadcast(CHANNEL, new Message("booga2"));
-            yield delay(100);
-            expect(brokerReceived).to.eq(2);
-            origBroker.unregister();
-            shadowBroker.unregister();
-            //not closed shadow dom works in a way, that you basically bind the broker as external
-            //to the external element and then use the message handler to pass the data back into
-            //your shadow Root ... the shadow root is basically an internal isolation you can pass
-            //That way, but you have to do it yourself by defining a broker in your component
+    it('shadow dom handling with Broadcast channel', async function () {
+        //closed not possible this seals the element off entirely, this is a no go
+        //also a closed shadow root is not recommended, there are other ways of achieving partial
+        //isolation
+        let shadowRoot = document.getElementById('shadow1').attachShadow({ mode: 'closed' });
+        expect(shadowRoot != null).to.be.true;
+        shadowRoot.innerHTML = "<div class='received'>false</div>";
+        //we now attach the brokers
+        let origBroker = new BroadcastChannelBroker();
+        let shadowBroker = new BroadcastChannelBroker();
+        let shadowBrokerReceived = 0;
+        shadowBroker.registerListener(CHANNEL, () => {
+            shadowBrokerReceived++;
         });
+        let brokerReceived = 0;
+        origBroker.registerListener(CHANNEL, () => {
+            brokerReceived++;
+        });
+        //from root broker into shadow dom
+        origBroker.broadcast(CHANNEL, new Message("booga"));
+        await delay(100);
+        expect(shadowBrokerReceived).to.be.eq(1);
+        expect(brokerReceived).to.eq(1);
+        //now from shadow dom into broker
+        shadowBroker.broadcast(CHANNEL, new Message("booga2"));
+        await delay(100);
+        expect(brokerReceived).to.eq(2);
+        origBroker.unregister();
+        shadowBroker.unregister();
+        //not closed shadow dom works in a way, that you basically bind the broker as external
+        //to the external element and then use the message handler to pass the data back into
+        //your shadow Root ... the shadow root is basically an internal isolation you can pass
+        //That way, but you have to do it yourself by defining a broker in your component
     });
-    it('basic message with broadcast', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let broker = new BroadcastChannelBroker();
-            let messageReceived = false;
-            broker.registerListener("channel", (message) => {
-                messageReceived = message.message === "booga";
-            });
-            broker.broadcast("channel", new Message("booga"));
-            yield delay(100);
-            expect(messageReceived).to.be.true;
+    it('basic message with broadcast', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        broker.registerListener("channel", (message) => {
+            messageReceived = message.message === "booga";
+        });
+        broker.broadcast("channel", new Message("booga"));
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+    it('basic message with subjects and rxjs', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        broker.registerListener("channel", (message) => {
+            messageReceived = message.message === "booga";
+        });
+        let messageSubject = broker.asSubject("channel");
+        messageSubject.next(new Message("booga"));
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+    it('basic message with subjects and rxjs second test', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        let messageSubject = broker.asSubject("channel");
+        messageSubject.subscribe(message => {
+            messageReceived = message.message === "booga";
+        });
+        broker.broadcast("channel", new Message("booga"));
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+    it('basic message with subjects and rxjs third test', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        let messageSubject = broker.asSubject("channel");
+        messageSubject.subscribe(message => {
+            messageReceived = message.message === "booga";
+        });
+        messageSubject.next(new Message("booga"));
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+    it('basic message with broadcast ans string', async function () {
+        let broker = new BroadcastChannelBroker();
+        let messageReceived = false;
+        broker.registerListener("channel", (message) => {
+            messageReceived = message.message === "booga";
+        });
+        broker.broadcast("channel", "booga");
+        await delay(100);
+        expect(messageReceived).to.be.true;
+        broker.unregister();
+    });
+    it('bidirectional message with Broadcast Channel', async function () {
+        let broker = new BroadcastChannelBroker();
+        let broker2 = new BroadcastChannelBroker();
+        // noinspection DuplicatedCode
+        let answerReceived = false;
+        broker2.registerListener("channel", (message) => {
+            setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
+        });
+        return broker.request("channel", new Message("booga"))
+            .then((message2) => {
+            answerReceived = message2.message === "answer of booga";
+            expect(answerReceived).to.be.true;
+            return true;
+        }).finally(() => {
             broker.unregister();
+            broker2.unregister();
         });
     });
-    it('basic message with subjects and rxjs', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let broker = new BroadcastChannelBroker();
-            let messageReceived = false;
-            broker.registerListener("channel", (message) => {
-                messageReceived = message.message === "booga";
-            });
-            let messageSubject = broker.asSubject("channel");
-            messageSubject.next(new Message("booga"));
-            yield delay(100);
-            expect(messageReceived).to.be.true;
+    it('crypto test 1', async function () {
+        let crypto = new JSONCrypto();
+        let broker = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
+        let broker2 = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
+        // noinspection DuplicatedCode
+        let answerReceived = false;
+        broker2.registerListener("channel", (message) => {
+            setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
+        });
+        return broker.request("channel", new Message("booga"))
+            .then((message2) => {
+            answerReceived = message2.message === "answer of booga";
+            expect(answerReceived).to.be.true;
+            return true;
+        }).finally(() => {
             broker.unregister();
+            broker2.unregister();
         });
     });
-    it('basic message with subjects and rxjs second test', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let broker = new BroadcastChannelBroker();
-            let messageReceived = false;
-            let messageSubject = broker.asSubject("channel");
-            messageSubject.subscribe(message => {
-                messageReceived = message.message === "booga";
-            });
-            broker.broadcast("channel", new Message("booga"));
-            yield delay(100);
-            expect(messageReceived).to.be.true;
-            broker.unregister();
-        });
-    });
-    it('basic message with subjects and rxjs third test', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let broker = new BroadcastChannelBroker();
-            let messageReceived = false;
-            let messageSubject = broker.asSubject("channel");
-            messageSubject.subscribe(message => {
-                messageReceived = message.message === "booga";
-            });
-            messageSubject.next(new Message("booga"));
-            yield delay(100);
-            expect(messageReceived).to.be.true;
-            broker.unregister();
-        });
-    });
-    it('basic message with broadcast ans string', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let broker = new BroadcastChannelBroker();
-            let messageReceived = false;
-            broker.registerListener("channel", (message) => {
-                messageReceived = message.message === "booga";
-            });
-            broker.broadcast("channel", "booga");
-            yield delay(100);
-            expect(messageReceived).to.be.true;
-            broker.unregister();
-        });
-    });
-    it('bidirectional message with Broadcast Channel', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let broker = new BroadcastChannelBroker();
-            let broker2 = new BroadcastChannelBroker();
-            // noinspection DuplicatedCode
-            let answerReceived = false;
-            broker2.registerListener("channel", (message) => {
-                setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
-            });
-            return broker.request("channel", new Message("booga"))
-                .then((message2) => {
-                answerReceived = message2.message === "answer of booga";
-                expect(answerReceived).to.be.true;
-                return true;
-            }).finally(() => {
-                broker.unregister();
-                broker2.unregister();
-            });
-        });
-    });
-    it('crypto test 1', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let crypto = new JSONCrypto();
-            let broker = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
-            let broker2 = new BroadcastChannelBrokerBuilder().withCrypto(crypto).build();
-            // noinspection DuplicatedCode
-            let answerReceived = false;
-            broker2.registerListener("channel", (message) => {
-                setTimeout(() => broker2.answer("channel", message, new Message("answer of booga")), 0);
-            });
-            return broker.request("channel", new Message("booga"))
-                .then((message2) => {
-                answerReceived = message2.message === "answer of booga";
-                expect(answerReceived).to.be.true;
-                return true;
-            }).finally(() => {
-                broker.unregister();
-                broker2.unregister();
-            });
-        });
-    });
-    it('Crypto Timer Extension test 1', function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            let encodeCalled = false;
-            //we use a small dynamically generated implementation for the hash
-            let hashSum = {
-                encode: (encodedData) => {
-                    encodeCalled = true;
-                    return CryptoJS.SHA256(encodedData);
-                }
-            };
-            let expiringCrypto = new ExpiringCrypto(20 /*ms*/, new JSONCrypto(), hashSum);
-            let toEncrypt = "hello world";
-            let encrypted = expiringCrypto.encode(toEncrypt);
-            expect(encrypted).not.to.eq(toEncrypt);
-            let decrypted = expiringCrypto.decode(encrypted);
-            expect(decrypted).to.eq(toEncrypt);
-            decrypted = expiringCrypto.decode(encrypted);
-            expect(decrypted).to.eq(toEncrypt);
-            expect(encodeCalled).to.be.true;
-            yield delay(50);
-            try {
-                expiringCrypto.decode(encrypted);
+    it('Crypto Timer Extension test 1', async function () {
+        let encodeCalled = false;
+        //we use a small dynamically generated implementation for the hash
+        let hashSum = {
+            encode: (encodedData) => {
+                encodeCalled = true;
+                return CryptoJS.SHA256(encodedData);
             }
-            catch (e) {
-                //expected
-                return true;
-            }
-            expect(true).to.be.false;
-        });
+        };
+        let expiringCrypto = new ExpiringCrypto(20 /*ms*/, new JSONCrypto(), hashSum);
+        let toEncrypt = "hello world";
+        let encrypted = expiringCrypto.encode(toEncrypt);
+        expect(encrypted).not.to.eq(toEncrypt);
+        let decrypted = expiringCrypto.decode(encrypted);
+        expect(decrypted).to.eq(toEncrypt);
+        decrypted = expiringCrypto.decode(encrypted);
+        expect(decrypted).to.eq(toEncrypt);
+        expect(encodeCalled).to.be.true;
+        await delay(50);
+        try {
+            expiringCrypto.decode(encrypted);
+        }
+        catch (e) {
+            //expected
+            return true;
+        }
+        expect(true).to.be.false;
     });
 });
 //# sourceMappingURL=MessagingTest.spec.js.map
