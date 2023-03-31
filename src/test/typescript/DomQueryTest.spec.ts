@@ -818,4 +818,15 @@ describe('DOMQuery tests', function () {
         expect(probe2.closest("div#id_1").id.value).to.eq("id_1");
         expect(probe2.parent().parent().closest("div").id.value).to.eq("id_1");
     });
+
+    it("copy attributes must traverse nonce properly", function () {
+        let probe = DomQuery.byId("id_1");
+        probe.innerHTML = "<div id='inner_elem'>hello world<div id='inner_elem2' nonce='nonceValue'></div></div>";
+        let probe2 = DomQuery.byId("inner_elem2");
+        expect((probe2.getAsElem(0).value as any).nonce).to.be.eq('nonceValue');
+        let element2 = DomQuery.fromMarkup('<div></div>');
+        element2.copyAttrs(probe2);
+        expect((element2.getAsElem(0).value as any).nonce).to.be.eq('nonceValue');
+        expect(element2.nonce.value).to.be.eq('nonceValue');
+    })
 });

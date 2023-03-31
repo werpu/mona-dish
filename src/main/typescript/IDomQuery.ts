@@ -62,6 +62,10 @@ export interface IDomQuery {
      */
     readonly offsetTop: number;
 
+    /**
+     * nonce value if our first root element
+     */
+    readonly nonce: Optional<string>;
 
     /**
      * abbreviation for inputValue\.value to make

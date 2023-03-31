@@ -504,6 +504,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return new Es2019Array(...this.rootNode.filter(item => item != null));
     }
 
+    get nonce(): Optional<string> {
+        return Optional.fromNullable((this?.rootNode?.[0] as HTMLElement)?.nonce);
+    }
 
     static querySelectorAllDeep(selector: string) {
         return new DomQuery(document).querySelectorAllDeep(selector);
@@ -1473,9 +1476,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             _toReplace.replace(newElement);
         };
 
-        const scriptElements: DomQuery = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
+        const cssElems: DomQuery = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
 
-        scriptElements.asArray
+        cssElems.asArray
             .flatMap(item => [...item.values])
             // sort to make sure the execution order is correct
             // this is needed because we mix 2 queries together

@@ -358,4 +358,6 @@ browsers which do not support it)
 * Internal Config data structure reorganisation on top of the new AssocArray helper module
 it now uses plain associative arrays as internal data structure to make debugging easier
 
+* added nonce getter to DomQuery (element.nonce.value)
+
                    

@@ -424,6 +424,10 @@ export class DomQuery {
     get asNodeArray() {
         return new Es2019Array(...this.rootNode.filter(item => item != null));
     }
+    get nonce() {
+        var _a, _b;
+        return Optional.fromNullable((_b = (_a = this === null || this === void 0 ? void 0 : this.rootNode) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.nonce);
+    }
     static querySelectorAllDeep(selector) {
         return new DomQuery(document).querySelectorAllDeep(selector);
     }
@@ -1308,8 +1312,8 @@ export class DomQuery {
             // for a full head replace
             _toReplace.replace(newElement);
         };
-        const scriptElements = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
-        scriptElements.asArray
+        const cssElems = new DomQuery(this.filterSelector("link, style"), this.querySelectorAll("link, style"));
+        cssElems.asArray
             .flatMap(item => [...item.values])
             // sort to make sure the execution order is correct
             // this is needed because we mix 2 queries together
