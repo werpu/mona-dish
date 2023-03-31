@@ -505,7 +505,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     }
 
     get nonce(): Optional<string> {
-        return Optional.fromNullable((this?.rootNode?.[0] as HTMLElement)?.nonce);
+        return Optional.fromNullable((this?.rootNode?.[0] as HTMLElement)?.nonce ?? (this?.rootNode?.[0] as HTMLElement)?.getAttribute("nonce"));
     }
 
     static querySelectorAllDeep(selector: string) {
