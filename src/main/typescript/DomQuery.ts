@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import {Optional, ValueEmbedder} from "./Monad";
+import {IValueHolder, Optional, ValueEmbedder} from "./Monad";
 import {XMLQuery} from "./XmlQuery";
 
 import {ICollector, IStreamDataSource, ITERATION_STATUS} from "./SourcesCollectors";
@@ -43,6 +43,38 @@ export interface WAIT_OPTS extends MutationObserverInit {
     interval?: number;
 }
 
+
+class NonceValueEmbedder extends ValueEmbedder<string> {
+
+    constructor(private rootElems: HTMLElement[]) {
+        super(rootElems?.[0], "nonce");
+    }
+
+    isAbsent(): boolean {
+        const value = this.value;
+        return 'undefined' == typeof value || '' == value;
+    }
+
+    get value(): string {
+        return (this?.rootElems?.[0] as HTMLElement)?.nonce ?? (this?.rootElems?.[0] as HTMLElement)?.getAttribute("nonce")
+    }
+
+
+    set value(newVal: string) {
+        if (!this?.rootElems?.length) {
+            return;
+        }
+
+        this.rootElems.forEach((rootElem: HTMLElement) => {
+            if("undefined" != typeof rootElem?.nonce) {
+                rootElem.nonce = newVal
+            } else {
+                rootElem.setAttribute("nonce", newVal);
+            }
+        });
+
+    }
+}
 
 /**
  *
@@ -504,8 +536,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return new Es2019Array(...this.rootNode.filter(item => item != null));
     }
 
-    get nonce(): Optional<string> {
-        return Optional.fromNullable((this?.rootNode?.[0] as HTMLElement)?.nonce ?? (this?.rootNode?.[0] as HTMLElement)?.getAttribute("nonce"));
+    get nonce(): ValueEmbedder<string> {
+        return new NonceValueEmbedder(this.rootNode as HTMLElement[]);
     }
 
     static querySelectorAllDeep(selector: string) {
@@ -1271,11 +1303,20 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                     case "checked":
                         this.resolveAttributeHolder("checked").checked = value;
                         break;
+                    case "nonce":
+                        // nonce will be handled below!
+                        break;
                     default:
                         this.attr(name).value = value;
                 }
             }
         });
+
+        //special nonce handling
+        sourceItem.nonce.isPresent(() => {
+            this.nonce.value = sourceItem.nonce.value;
+        });
+
         return this;
     }
 
