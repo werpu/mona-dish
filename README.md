@@ -351,13 +351,16 @@ of a Config. You can convert it back to an associative array simply by using
 
 **new Config(dq.encodeSubmittableFields())**
 
-### Other changes
+### Other changes 0.28++
 * Es2019 Array as non-intrusive Es2019 array shim (providing filter and flapMap to
 browsers which do not support it)
 * New helper module providing functions similar to what config does to plain associative arrays
 * Internal Config data structure reorganisation on top of the new AssocArray helper module
 it now uses plain associative arrays as internal data structure to make debugging easier
 
-* added nonce getter to DomQuery (element.nonce.value)
+* added nonce ValueHolder to DomQuery (console.log(element.nonce.value) 
+and element.nonce.value = "nonceValue"), or element.nonce.isPresent()
+
+
 
                    
