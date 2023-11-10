@@ -360,7 +360,7 @@ it now uses plain associative arrays as internal data structure to make debuggin
 
 * added nonce ValueHolder to DomQuery (console.log(element.nonce.value) 
 and element.nonce.value = "nonceValue"), or element.nonce.isPresent()
-
+* Fixing shallow copy in AssocArray
 
 
                    
