@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
+    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
+};
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { Config, CONFIG_ANY, CONFIG_VALUE, Optional, Stream } from "../../main/typescript/index";
@@ -198,8 +202,10 @@ describe('Typed Config tests', () => {
      */
     let configDef = (_a = class {
         },
+        __setFunctionName(_a, "configDef"),
         _a.data = (_b = class {
             },
+            __setFunctionName(_b, "data"),
             _b.value = CONFIG_VALUE,
             _b.value2 = CONFIG_VALUE,
             _b.value3 = CONFIG_VALUE,

@@ -24,6 +24,34 @@ var isString = Lang.isString;
 var eqi = Lang.equalsIgnoreCase;
 var objToArray = Lang.objToArray;
 import { append, assign, simpleShallowMerge } from "./AssocArray";
+class NonceValueEmbedder extends ValueEmbedder {
+    constructor(rootElems) {
+        super(rootElems === null || rootElems === void 0 ? void 0 : rootElems[0], "nonce");
+        this.rootElems = rootElems;
+    }
+    isAbsent() {
+        const value = this.value;
+        return 'undefined' == typeof value || '' == value;
+    }
+    get value() {
+        var _a, _b, _c, _d, _e;
+        return (_c = (_b = (_a = this === null || this === void 0 ? void 0 : this.rootElems) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.nonce) !== null && _c !== void 0 ? _c : (_e = (_d = this === null || this === void 0 ? void 0 : this.rootElems) === null || _d === void 0 ? void 0 : _d[0]) === null || _e === void 0 ? void 0 : _e.getAttribute("nonce");
+    }
+    set value(newVal) {
+        var _a;
+        if (!((_a = this === null || this === void 0 ? void 0 : this.rootElems) === null || _a === void 0 ? void 0 : _a.length)) {
+            return;
+        }
+        this.rootElems.forEach((rootElem) => {
+            if ("undefined" != typeof (rootElem === null || rootElem === void 0 ? void 0 : rootElem.nonce)) {
+                rootElem.nonce = newVal;
+            }
+            else {
+                rootElem.setAttribute("nonce", newVal);
+            }
+        });
+    }
+}
 /**
  *
  *        // - submit checkboxes and radio inputs only if checked
@@ -205,7 +233,7 @@ const DEFAULT_WHITELIST = () => {
  * ago, those parts look a bit ancient and will be replaced over time.
  *
  */
-export class DomQuery {
+class DomQuery {
     constructor(...rootNode) {
         this.rootNode = [];
         this.pos = -1;
@@ -425,8 +453,7 @@ export class DomQuery {
         return new Es2019Array(...this.rootNode.filter(item => item != null));
     }
     get nonce() {
-        var _a, _b;
-        return Optional.fromNullable((_b = (_a = this === null || this === void 0 ? void 0 : this.rootNode) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.nonce);
+        return new NonceValueEmbedder(this.rootNode);
     }
     static querySelectorAllDeep(selector) {
         return new DomQuery(document).querySelectorAllDeep(selector);
@@ -1120,10 +1147,17 @@ export class DomQuery {
                     case "checked":
                         this.resolveAttributeHolder("checked").checked = value;
                         break;
+                    case "nonce":
+                        // nonce will be handled below!
+                        break;
                     default:
                         this.attr(name).value = value;
                 }
             }
+        });
+        //special nonce handling
+        sourceItem.nonce.isPresent(() => {
+            this.nonce.value = sourceItem.nonce.value;
         });
         return this;
     }
@@ -1276,7 +1310,7 @@ export class DomQuery {
             // script execution order by relative pos in their dom tree
             scriptElements.asArray
                 .flatMap(item => [...item.values])
-                .sort((node1, node2) => node1.compareDocumentPosition(node2) - 3) // preceding 2, following == 4)
+                .sort((node1, node2) => node2.compareDocumentPosition(node1) - 3) // preceding 2, following == 4)
                 .forEach(item => execScript(item));
             evalCollectedScripts(finalScripts);
         }
@@ -1917,6 +1951,7 @@ DomQuery.absent = new DomQuery();
  * reference to the environmental global object
  */
 DomQuery.global = _global$;
+export { DomQuery };
 /**
  * Various collectors
  * which can be used in conjunction with Streams

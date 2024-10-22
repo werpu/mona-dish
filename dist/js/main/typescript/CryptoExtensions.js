@@ -41,7 +41,7 @@ export class JSONCrypto {
  * I will leave it up to the system integrator to provide a rotating crypto class, because this is highly
  * implementation dependent. But it helps to have a wrapper!
  */
-export class ExpiringCrypto {
+class ExpiringCrypto {
     /**
      * @param timeout timeout in miliseconds until a message is expired
      * @param parentCrypto the embedded decorated crypto algorithm
@@ -104,4 +104,5 @@ export class ExpiringCrypto {
     }
 }
 ExpiringCrypto.MAX_GC_CYCLES = 10;
+export { ExpiringCrypto };
 //# sourceMappingURL=CryptoExtensions.js.map

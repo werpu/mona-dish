@@ -47,7 +47,7 @@ export class Monad {
  * sugar on top
  * (Side - effect free, since value assignment is not allowed)
  * */
-export class Optional extends Monad {
+class Optional extends Monad {
     constructor(value) {
         super(value);
     }
@@ -267,6 +267,7 @@ export class Optional extends Monad {
 }
 /*default value for absent*/
 Optional.absent = Optional.fromNullable(null);
+export { Optional };
 // --------------------- From here onwards we break out the side effect free limits ------------
 /**
  * ValueEmbedder is the writeable version
@@ -276,7 +277,7 @@ Optional.absent = Optional.fromNullable(null);
  *
  * For the readonly version see Optional
  */
-export class ValueEmbedder extends Optional {
+class ValueEmbedder extends Optional {
     constructor(rootElem, valueKey = "value") {
         super(rootElem);
         this.key = valueKey;
@@ -321,4 +322,5 @@ export class ValueEmbedder extends Optional {
 }
 /*default value for absent*/
 ValueEmbedder.absent = ValueEmbedder.fromNullable(null);
+export { ValueEmbedder };
 //# sourceMappingURL=Monad.js.map
