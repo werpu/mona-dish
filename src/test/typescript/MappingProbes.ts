@@ -49,19 +49,19 @@ class DtoUils {
             if (mappings[key]  &&
                 mappings[key] instanceof ArrType) {
                 //do the array here
-                (<any>target)[key] = {};
+                (target as any)[key] = {};
 
                 for (let key2 in newVal) {
                     let subTarget = new mappings[key].clazz(newVal[key2]);
                     //   subTarget = this.mapIt(subTarget, <any> newVal[key2]);
-                    (<any>target)[key][key2] = subTarget;
+                    (target as any)[key][key2] = subTarget;
                 }
             } else if (mappings && mappings[key]) {
                 let subTarget = new mappings[key](newVal);
 
-                (<any>target)[key] = subTarget;
+                (target as any)[key] = subTarget;
             } else {
-                (<any>target)[key] = newVal
+                (target as any)[key] = newVal
             }
 
         }
@@ -96,19 +96,19 @@ class BaseDto<T> {
                 target[this.TYPES][key]  &&
                 target[this.TYPES][key] instanceof ArrType) {
                 //do the array here
-                (<any>target)[key] = {};
+                (target as any)[key] = {};
 
                 for (let key2 in newVal) {
                     let subTarget = new target[this.TYPES][key].clazz(newVal[key2]);
                  //   subTarget = this.mapIt(subTarget, <any> newVal[key2]);
-                    (<any>target)[key][key2] = subTarget;
+                    (target as any)[key][key2] = subTarget;
                 }
             } else if (target[this.TYPES] && target[this.TYPES][key]) {
                 let subTarget = new target[this.TYPES][key](newVal);
 
-                (<any>target)[key] = subTarget;
+                (target as any)[key] = subTarget;
             } else {
-                (<any>target)[key] = newVal
+                (target as any)[key] = newVal
             }
 
         }

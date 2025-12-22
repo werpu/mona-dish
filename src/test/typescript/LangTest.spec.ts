@@ -17,13 +17,13 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import {Lang} from "../../main/typescript/Lang";
-import equalsIgnoreCase = Lang.equalsIgnoreCase;
-import assertType = Lang.assertType;
-import isFunc = Lang.isFunc;
-import isString = Lang.isString;
-import trim = Lang.trim;
-import strToArray = Lang.strToArray;
-import objToArray = Lang.objToArray;
+const equalsIgnoreCase = Lang.equalsIgnoreCase;
+const assertType = Lang.assertType;
+const isFunc = Lang.isFunc;
+const isString = Lang.isString;
+const trim = Lang.trim;
+const strToArray = Lang.strToArray;
+const objToArray = Lang.objToArray;
 
 
 const jsdom = require("jsdom");

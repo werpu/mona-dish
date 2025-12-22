@@ -83,22 +83,18 @@ describe('Broker tests', function () {
 
         let window = dom.window;
 
-        (<any>global).window = window;
-        (<any>global).body = window.document.body;
-        (<any>global).document = window.document;
-        (<any>global).navigator = {
-            language: "en-En"
-        };
+        (global as any).window = window;
+        (global as any).body = window.document.body;
+        (global as any).document = window.document;
 
-
-        (<any>window)["BroadcastChannel"] = BC;
+        (window as any)["BroadcastChannel"] = BC;
         /*this.xhr = sinon.useFakeXMLHttpRequest();
         this.requests = [];
         this.xhr.onCreate = (xhr) => {
             this.requests.push(xhr);
         };
-        (<any>global).XMLHttpRequest = this.xhr;
-        (<any>window).XMLHttpRequest = this.xhr;*/
+        (global as any).XMLHttpRequest = this.xhr;
+        (window as any).XMLHttpRequest = this.xhr;*/
         // enforce this config for all channels
         enforceOptions({
             type: 'simulate'
@@ -109,7 +105,7 @@ describe('Broker tests', function () {
     /*relays a message from an iframe up into the global context*/
     it('from iframe to global', function () {
 
-        let contentWindow = ((<any>global).document.getElementById('iframe1')).contentWindow;
+        let contentWindow = ((global as any).document.getElementById('iframe1')).contentWindow;
         let iframeDoc = contentWindow.document;
         iframeDoc.write(iframe);
         expect(iframeDoc.querySelectorAll("#received").length > 0).to.be.true;
@@ -143,7 +139,7 @@ describe('Broker tests', function () {
      */
     it('from global to iframe', function () {
 
-        let contentWindow = ((<any>global).document.getElementById('iframe1')).contentWindow;
+        let contentWindow = ((global as any).document.getElementById('iframe1')).contentWindow;
         let iframeDoc = contentWindow.document;
         iframeDoc.write(iframe);
         expect(iframeDoc.querySelectorAll("#received").length > 0).to.be.true;
@@ -317,7 +313,7 @@ describe('Broker tests', function () {
         //closed not possible this seals the element off entirely, this is a no go
         //also a closed shadow root is not recommended, there are other ways of achieving partial
         //isolation
-        let shadowRoot: ShadowRoot = (<any>document.getElementById('shadow1')).attachShadow({mode: 'closed'});
+        let shadowRoot: ShadowRoot = (document.getElementById('shadow1')).attachShadow({mode: 'closed'} as any);
         expect(shadowRoot != null).to.be.true;
         shadowRoot.innerHTML = "<div class='received'>false</div>";
 
@@ -388,7 +384,7 @@ describe('Broker tests', function () {
         //closed not possible this seals the element off entirely, this is a no go
         //also a closed shadow root is not recommended, there are other ways of achieving partial
         //isolation
-        let shadowRoot: ShadowRoot = (<any>document.getElementById('shadow1')).attachShadow({mode: 'closed'});
+        let shadowRoot: ShadowRoot = (document.getElementById('shadow1')).attachShadow({mode: 'closed'} as any);
         expect(shadowRoot != null).to.be.true;
         shadowRoot.innerHTML = "<div class='received'>false</div>";
 

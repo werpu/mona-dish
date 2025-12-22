@@ -18,7 +18,7 @@ import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {ArrayCollector, DomQuery, DomQueryCollector, Lang, LazyStream, Stream} from "../../main/typescript";
 import {from} from "rxjs";
-import trim = Lang.trim;
+const trim = Lang.trim;
 import {tobagoSheetWithHeader} from "./markups/tobago-with-header";
 import {tobagoSheetWithoutHeader} from "./markups/tobago-without-header";
 
@@ -54,14 +54,10 @@ describe('DOMQuery tests', function () {
 
         let window = dom.window;
 
-        (<any>global).dom = dom;
-        (<any>global).window = window;
-        (<any>global).body = window.document.body;
-        (<any>global).document = window.document;
-        (<any>global).navigator = {
-            language: "en-En"
-        };
-
+        (global as any).dom = dom;
+        (global as any).window = window;
+        (global as any).body = window.document.body;
+        (global as any).document = window.document;
 
     });
 
@@ -660,7 +656,7 @@ describe('DOMQuery tests', function () {
         }
         expect(probe.next()).to.eq(null);
         let probe2 = DomQuery.byTagName("div").limits(2);
-        resArr = LazyStream.ofStreamDataSource(<any>probe2).collect(new ArrayCollector());
+        resArr = LazyStream.ofStreamDataSource(probe2).collect(new ArrayCollector() as any);
         expect(resArr.length).to.eq(2);
     });
 
