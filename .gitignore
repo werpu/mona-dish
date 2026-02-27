@@ -4,3 +4,13 @@ typescript/*.js
 .idea/
 typings/
 target/
+
+# AI artifacts
+.claude/
+.cursor/
+.copilot/
+.aider*
+.continue/
+.codeium/
+.qodo/
+/CLAUDE.md
