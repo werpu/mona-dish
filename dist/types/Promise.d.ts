@@ -1,6 +1,6 @@
 export declare enum PromiseStatus {
     PENDING = 0,
-    FULLFILLED = 1,
+    FULFILLED = 1,
     REJECTED = 2
 }
 export interface IPromise {

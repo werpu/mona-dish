@@ -22,7 +22,7 @@ We use hash as identifier generation after encryption to make sure
 a trace was possible</p>
 <p>The idea behind this is to have a generic wrapper which allows messages with dynamic encryption
 where keys/salts only exist for a certain period of time before expiring!
-That way someone who implements such a scheme does not have to take care about the bookeeping mechanisms!
+That way someone who implements such a scheme does not have to take care about the bookkeeping mechanisms!
 Or you can use crypto mechanisms which do not have expiring keys and still expire them automatically</p>
 <p>I will leave it up to the system integrator to provide a rotating crypto class, because this is highly
 implementation dependent. But it helps to have a wrapper!</p>
@@ -36,7 +36,7 @@ implementation dependent. But it helps to have a wrapper!</p>
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/Crypto.html" class="tsd-signature-type" data-tsd-kind="Interface">Crypto</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a4aea4cf/src/main/typescript/CryptoExtensions.ts#L69">CryptoExtensions.ts:69</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/dd36149d/src/main/typescript/CryptoExtensions.ts#L69">CryptoExtensions.ts:69</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -63,7 +63,7 @@ implementation dependent. But it helps to have a wrapper!</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5>timeout: <span class="tsd-signature-type">number</span></h5>
-<div class="tsd-comment tsd-typography"><p>timeout in miliseconds until a message is expired</p>
+<div class="tsd-comment tsd-typography"><p>timeout in milliseconds until a message is expired</p>
 </div></li>
 <li>
 <h5>parentCrypto: <a href="../interfaces/Crypto.html" class="tsd-signature-type" data-tsd-kind="Interface">Crypto</a></h5>
@@ -75,7 +75,7 @@ implementation dependent. But it helps to have a wrapper!</p>
 </div></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ExpiringCrypto.html" class="tsd-signature-type" data-tsd-kind="Class">ExpiringCrypto</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a4aea4cf/src/main/typescript/CryptoExtensions.ts#L81">CryptoExtensions.ts:81</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/dd36149d/src/main/typescript/CryptoExtensions.ts#L81">CryptoExtensions.ts:81</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="decode" class="tsd-anchor"></a>
@@ -93,7 +93,7 @@ implementation dependent. But it helps to have a wrapper!</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/Crypto.html">Crypto</a>.<a href="../interfaces/Crypto.html#decode">decode</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a4aea4cf/src/main/typescript/CryptoExtensions.ts#L89">CryptoExtensions.ts:89</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/dd36149d/src/main/typescript/CryptoExtensions.ts#L89">CryptoExtensions.ts:89</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="encode" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>encode</span><a href="#encode" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -110,7 +110,7 @@ calls the encode of the delegated object</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/Crypto.html">Crypto</a>.<a href="../interfaces/Crypto.html#encode">encode</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/a4aea4cf/src/main/typescript/CryptoExtensions.ts#L128">CryptoExtensions.ts:128</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/werpu/mona-dish/blob/dd36149d/src/main/typescript/CryptoExtensions.ts#L128">CryptoExtensions.ts:128</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

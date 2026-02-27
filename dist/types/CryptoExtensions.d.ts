@@ -42,7 +42,7 @@ export declare class JSONCrypto implements Crypto {
  *
  * The idea behind this is to have a generic wrapper which allows messages with dynamic encryption
  * where keys/salts only exist for a certain period of time before expiring!
- * That way someone who implements such a scheme does not have to take care about the bookeeping mechanisms!
+ * That way someone who implements such a scheme does not have to take care about the bookkeeping mechanisms!
  * Or you can use crypto mechanisms which do not have expiring keys and still expire them automatically
  *
  * I will leave it up to the system integrator to provide a rotating crypto class, because this is highly
@@ -57,7 +57,7 @@ export declare class ExpiringCrypto implements Crypto {
     private storedMessages;
     private lastCall;
     /**
-     * @param timeout timeout in miliseconds until a message is expired
+     * @param timeout timeout in milliseconds until a message is expired
      * @param parentCrypto the embedded decorated crypto algorithm
      * @param hashSum hashshum implementation to generate a hash
      */

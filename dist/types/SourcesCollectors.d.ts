@@ -33,7 +33,7 @@ export declare enum ITERATION_STATUS {
 }
 export declare function calculateSkips(next_strm: IStreamDataSource<any>): number;
 /**
- * Every data source wich feeds data into the lazy stream
+ * Every data source which feeds data into the lazy stream
  * or stream generally must implement this interface
  *
  * It is basically an iteratable to the core
