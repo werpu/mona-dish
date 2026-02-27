@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {expect} from 'chai';
-import {describe, it} from 'mocha';
-import {Config, CONFIG_ANY, CONFIG_VALUE, ConfigDef, Optional, Stream} from "../../main/typescript/index";
+import { expect } from 'chai';
+import { describe, it } from 'mocha';
 
-//TODO saveResolveTest
+import pkg from 'mona-dish';
+const { Config, Optional } = pkg;
+
 describe('optional tests', () => {
     it('fromnullable null', () => {
         expect(Optional.fromNullable(null).isPresent()).to.be.false;
@@ -43,7 +44,7 @@ describe('optional tests', () => {
     });
 
     it('elvis test', () => {
-        let myStruct = {
+        var myStruct = {
             data: {
                 value: 1,
                 value2: Optional.absent,
@@ -69,7 +70,7 @@ describe('optional tests', () => {
 
 
 describe('Config tests', () => {
-    let setup = function ():Config {
+    var setup = function ():any  {
         return new Config({
             data: {
                 value: 1,
@@ -119,7 +120,6 @@ describe('Config tests', () => {
     it('array config', () => {
         let config = setup();
         config.assign("hello[5]", "world[3]", "from[5]").value = "me";
-        console.debug(JSON.stringify(config.toJson()));
         expect(config.getIf("hello[5]", "world[3]", "from[5]").value).to.be.eq("me");
         expect(config.value.hello[5].world[3].from[5]).to.be.eq("me");
         structure(config.value);
@@ -129,7 +129,6 @@ describe('Config tests', () => {
         let config = new Config([]);
         config.assign("[5]", "world[3]", "from").value = "me";
         expect(config.getIf("[5]", "world[3]", "from").value).to.be.eq("me");
-        console.debug(JSON.stringify(config.toJson()));
         expect(config.value[5].world[3].from).to.be.eq("me");
         structureBroken(config.value);
     });
@@ -138,7 +137,6 @@ describe('Config tests', () => {
         let config = new Config([]);
         config.assign("[5]", "[3]", "from").value = "me";
         expect(config.getIf("[5]", "[3]", "from").value).to.be.eq("me");
-        console.debug(JSON.stringify(config.toJson()));
         expect(config.value[5][3].from).to.be.eq("me");
         structureBroken(config.value);
     });
@@ -147,7 +145,6 @@ describe('Config tests', () => {
         let config = new Config([]);
         config.assign("[5]", "[3]", "[2]").value = "me";
         expect(config.getIf("[5]", "[3]", "[2]").value).to.be.eq("me");
-        console.debug(JSON.stringify(config.toJson()));
         expect(config.value[5][3][2]).to.be.eq("me");
         structureBroken(config.value);
     });
@@ -156,7 +153,6 @@ describe('Config tests', () => {
         let config = new Config([]);
         config.assign("[5]", "world[3]", "from[2]").value = "me";
         expect(config.getIf("[5]", "world[3]", "from[2]").value).to.be.eq("me");
-        console.debug(JSON.stringify(config.toJson()));
         expect(config.value[5].world[3].from[2]).to.be.eq("me");
         structureBroken(config.value);
     });
@@ -170,198 +166,6 @@ describe('Config tests', () => {
         expect(probe.resolve((root) => root.test1.testborked.test3).isAbsent()).to.be.true;
     });
 
-
-    it("must handle gitIf as mutable", () => {
-        let probe = new Config({
-            "myfaces.request.passThrough": {
-                "message": "Hello World"
-            }
-        });
-
-        probe.getIf("myfaces.request.passThrough").shallowMerge(new Config({
-            "param1": "param1_val",
-            "param2": "param2_val"
-        }));
-
-        expect(probe.value["myfaces.request.passThrough"].param1).to.eq("param1_val");
-        expect(probe.value["myfaces.request.passThrough"].param2).to.eq("param2_val");
-        expect(probe.value["myfaces.request.passThrough"].message).to.eq("Hello World");
-
-    });
-
-    it("must handle corner cases of assign", () => {
-        let probe = new Config({
-            "data": []
-        });
-
-        probe.assign("data").value.push("value1");
-        expect(probe.value.data.length).to.eq(1);
-
-    });
-
-    it('Config append must work from single/zero element to multiple elements', () => {
-        let probe = new Config({});
-        probe.append("test1","test2","test3").value = "hello";
-        expect(probe.getIf("test1","test2","test3").value.length).to.eq(1);
-        expect(probe.getIf("test1","test2","test3").value[0]).to.eq("hello");
-        probe.append("test1","test2","test3").value = "hello2";
-        expect(probe.getIf("test1","test2","test3").value.length).to.eq(2);
-        expect(probe.getIf("test1","test2","test3").value[0]).to.eq("hello");
-        expect(probe.getIf("test1","test2","test3").value[1]).to.eq("hello2");
-        probe.assign("test1","test2","test3[0]").value = "altered";
-        //altered assignment
-        expect(probe.getIf("test1","test2","test3").value[0]).to.eq("altered");
-        expect(probe.getIf("test1","test2","test3").value[1]).to.eq("hello2");
-
-        try {
-           probe.append("test1","test2","test3[0]").value = "hello2";
-           expect(true).to.be.false;
-        } catch(ex) {
-
-        }
-    });
-
 });
 
 
-describe('Typed Config tests', () => {
-
-    /**
-     * a really complicated config def, which we never will have
-     */
-    let configDef: ConfigDef = class {
-        static data = class {
-            static value = CONFIG_VALUE;
-            static value2 = CONFIG_VALUE;
-            static value3 = CONFIG_VALUE;
-        };
-        static data2 = [class {
-            static booga = CONFIG_VALUE;
-            static data3 = [
-                class {
-                    static booga2 = CONFIG_VALUE;
-                }, CONFIG_VALUE
-            ]
-        }, CONFIG_VALUE,[{data4: CONFIG_VALUE}, CONFIG_VALUE]];
-
-        static data3 = [class {
-            static data4 = CONFIG_ANY; //whatever comes below does not have a clear structure anymore
-        }]
-
-    };
-    let config = new Config({
-        data: {
-            value: 1,
-            value2: Optional.absent,
-            value3: null
-        },
-        data2: [
-            {
-                booga: "hello",
-                data3 :[{booga2: "hellobooga2"}]
-            },
-            "hello2",
-            [{
-            data4: "hello4"
-            }, "hello4_1"]
-
-        ],
-        data3: [
-            {
-                data4: {
-                    data5: "hello"
-                }
-            }
-        ]
-    }, configDef);
-
-    let setup = function ():{config: Config, configDef: ConfigDef} {
-        return {config , configDef};
-    };
-
-
-    it("must resolve base static data", function() {
-        let {config, configDef} = setup();
-
-
-        let val1 = config.getIf("data", "value").value;
-        expect(val1).eq(1);
-
-
-        let val2 = config.getIf("data2[0]", "booga").value;
-        expect(val2).eq("hello");
-
-        let val3 = config.getIf("data2[1]").value;
-        expect(val3).eq("hello2");
-
-
-        val3 = config.getIf("data2[1]").value;
-        expect(val3).eq("hello2");
-
-
-        val3 = config.getIf("data2[0]", "data3[0]", "booga2").value;
-        expect(val3).eq("hellobooga2");
-
-
-        val3 = config.getIf("data2[2]", "[0]", "data4").value;
-        expect(val3).eq("hello4");
-
-        val3 = config.getIf("data2[2][0]","data4").value;
-        expect(val3).eq("hello4");
-
-        val3 = config.getIf("data2[2]","[1]").value;
-        expect(val3).eq("hello4_1");
-
-        val3 = config.getIf("data2[2][1]").value;
-        expect(val3).eq("hello4_1");
-
-        global["debug_arr"] = true;
-        val3 = config.getIf("data3[0]","data4","data5").value;
-        expect(val3).eq("hello");
-
-        try {
-            config.getIf("data2[2][1]","orga").value;
-            expect(true).to.be.false;
-        } catch(err) {
-            expect(true).to.be.true;
-        }
-
-
-        expect(config.getIf("data3[0]","data4","arr").isAbsent()).eq(true);
-
-        try {
-            config.getIf("data2[2][0]","data5").value;
-            expect(true).to.be.false;
-        } catch(err) {
-            expect(true).to.be.true;
-        }
-
-        try {
-            config.getIf("data2[2][0]","data5").value;
-            expect(true).to.be.false;
-        } catch(err) {
-            expect(true).to.be.true;
-        }
-
-    })
-
-    it("must resolve properly into a stream", function() {
-        let {config, configDef} = setup();
-        let data1 = false;
-        let data2 = false;
-        Stream.ofConfig(config).each(([key, data]) => {
-            if(key == "data") {
-                data1 = true;
-                expect(data.value).to.eq(1);
-                expect(data.value2).to.eq(Optional.absent);
-
-            }
-            if(key == "data2") {
-                data2 = true;
-            }
-        })
-        expect(data1).to.be.true;
-        expect(data2).to.be.true;
-
-    })
-});

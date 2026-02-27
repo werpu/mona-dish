@@ -5,5 +5,5 @@
   "spec": [
     "src/**/*.spec.*"
   ],
-  "require": "ts-node/register"
+  "require": ["tsconfig-paths/register", "ts-node/register"]
 }

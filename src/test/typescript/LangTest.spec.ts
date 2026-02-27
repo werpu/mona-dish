@@ -1,4 +1,4 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
+/*! Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to you under the Apache License, Version 2.0
@@ -16,18 +16,12 @@
 
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import {Lang} from "../../main/typescript/Lang";
-const equalsIgnoreCase = Lang.equalsIgnoreCase;
-const assertType = Lang.assertType;
-const isFunc = Lang.isFunc;
-const isString = Lang.isString;
-const trim = Lang.trim;
-const strToArray = Lang.strToArray;
-const objToArray = Lang.objToArray;
+import pkg from 'mona-dish';
+const { Lang } = pkg;
 
-
-const jsdom = require("jsdom");
+import jsdom from "jsdom";
 const { JSDOM } = jsdom;
+
 const dom = new JSDOM(`
     <!DOCTYPE html>
 <html lang="en">
@@ -71,7 +65,7 @@ describe('Lang tests', () => {
     it('strToArray working', () => {
         const lang = Lang;
 
-        let arr = strToArray("hello.world.from.me", /\./gi);
+        let arr = lang.strToArray("hello.world.from.me", /\./gi);
 
         expect(arr).to.exist;
         expect(arr.length).to.eq(4);
@@ -84,7 +78,7 @@ describe('Lang tests', () => {
     it('trim working', () => {
         const lang = Lang;
         let origStr = " hello world from me    ";
-        let trimmed = trim(origStr);
+        let trimmed = lang.trim(origStr);
         expect(trimmed).to.exist;
         expect(trimmed).to.eq("hello world from me");
 
@@ -92,43 +86,43 @@ describe('Lang tests', () => {
 
     it('isString working', () => {
         const lang = Lang;
-        expect(isString(" ")).to.be.true;
-        expect(isString('')).to.be.true;
-        expect(isString(null)).to.be.false;
-        expect(isString(undefined)).to.be.false;
-        expect(isString(function() {return true;})).to.be.false;
-        expect(isString(new Probe())).to.be.false;
+        expect(lang.isString(" ")).to.be.true;
+        expect(lang.isString('')).to.be.true;
+        expect(lang.isString(null)).to.be.false;
+        expect(lang.isString(undefined)).to.be.false;
+        expect(lang.isString(function() {return true;})).to.be.false;
+        expect(lang.isString(new Probe())).to.be.false;
     });
 
     it('isFunc working', () => {
         const lang = Lang;
-        expect(isFunc(() => {})).to.be.true;
-        expect(isFunc(function() {return true;})).to.be.true;
-        expect(isFunc("blarg")).to.be.false;
-        expect(isFunc(new Probe())).to.be.false;
+        expect(lang.isFunc(() => {})).to.be.true;
+        expect(lang.isFunc(function() {return true;})).to.be.true;
+        expect(lang.isFunc("blarg")).to.be.false;
+        expect(lang.isFunc(new Probe())).to.be.false;
     });
 
     it('objToArray working', () => {
         const lang = Lang;
         let obj_probe = new Probe();
-        let resultArr = objToArray(obj_probe);
-        expect(assertType(resultArr, Array)).to.be.true;
+        let resultArr = lang.objToArray(obj_probe);
+        expect(lang.assertType(resultArr, Array)).to.be.true;
         expect(resultArr.length).to.eq(0);
         obj_probe = window.document.body.querySelectorAll("div");
-        resultArr = objToArray(obj_probe);
+        resultArr = lang.objToArray(obj_probe);
         expect(resultArr.length).to.eq(4);
-        expect(assertType(resultArr, Array)).to.be.true;
+        expect(lang.assertType(resultArr, Array)).to.be.true;
     });
 
 
 
     it('equals ignore case test', () => {
         const lang = Lang;
-        expect(equalsIgnoreCase(null, null)).to.be.true;
-        expect(equalsIgnoreCase("", "")).to.be.true;
-        expect(equalsIgnoreCase("null", "NuLL")).to.be.true;
-        expect(equalsIgnoreCase("null ", "NuLL")).to.be.false;
-        expect(equalsIgnoreCase("null", "NuLL2")).to.be.false;
+        expect(lang.equalsIgnoreCase(null, null as any)).to.be.true;
+        expect(lang.equalsIgnoreCase("", "")).to.be.true;
+        expect(lang.equalsIgnoreCase("null", "NuLL")).to.be.true;
+        expect(lang.equalsIgnoreCase("null ", "NuLL")).to.be.false;
+        expect(lang.equalsIgnoreCase("null", "NuLL2")).to.be.false;
 
     });
 

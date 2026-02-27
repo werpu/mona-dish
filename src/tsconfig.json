@@ -34,5 +34,10 @@
     "typeRoots": [
       "../node_modules/@types"
     ],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "mona-dish": ["./main/typescript/index_esm_compat"]
+    },
   }
 }
