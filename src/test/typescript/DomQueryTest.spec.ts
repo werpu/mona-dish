@@ -582,7 +582,7 @@ describe('DOMQuery tests', function () {
             .querySelectorAll("link[rel='stylesheet'][href='./fixtures/simple.css']").length).to.eq(1);
         // must be evaled
         const cstyle = window.getComputedStyle(content.byId("first").getAsElem(0).value, null)
-        expect(cstyle.getPropertyValue("border")).to.eq("10px solid black");
+        expect(cstyle.getPropertyValue("border")).to.eq("10px solid rgb(0, 0, 0)");
 
 
         DomQuery.byTagName("body").waitUntilDom(() => {
@@ -626,11 +626,13 @@ describe('DOMQuery tests', function () {
 
     it("it must handle innerText properly", function (done) {
 
-        //jsdom bug
-        Object.defineProperty(Object.prototype, 'innerText', {
+        // jsdom 29+ has native innerText but returns empty for non-rendered elements;
+        // override on HTMLElement.prototype so DomQuery.innerText() returns textContent in tests
+        Object.defineProperty((window as any).HTMLElement.prototype, 'innerText', {
             get() {
                 return this.textContent;
             },
+            configurable: true
         });
 
         let probe = DomQuery.byId("id_1");

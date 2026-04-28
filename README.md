@@ -362,5 +362,10 @@ it now uses plain associative arrays as internal data structure to make debuggin
 and element.nonce.value = "nonceValue"), or element.nonce.isPresent()
 * Fixing shallow copy in AssocArray
 
+### Version 0.30.0
+
+Update to typescript 6.0 in preparation for typescript 7
+
+
 
                    
