@@ -36,14 +36,14 @@ export declare namespace Lang {
      * @param defaultValue an optional default value if the producer fails to produce anything
      * @returns an Optional of the produced value
      */
-    function saveResolve<T>(resolverProducer: () => T, defaultValue?: T): Optional<T>;
+    function saveResolve<T>(resolverProducer: () => T, defaultValue?: T | null): Optional<T>;
     /**
      * lazy resolve... aka the function is called on resolve and a default value also
      * is a producing function (called only if the original producer does not produce any result)
      * @param resolverProducer the producer for the resolve
      * @param defaultValue the default value producer function
      */
-    function saveResolveLazy<T>(resolverProducer: () => T, defaultValue?: () => T): Optional<T>;
+    function saveResolveLazy<T>(resolverProducer: () => T, defaultValue?: (() => T) | null): Optional<T>;
     /**
      * String to array function performs a string to array transformation
      * @param {String} it the string which has to be changed into an array
@@ -72,7 +72,7 @@ export declare namespace Lang {
      * @param source
      * @param destination
      */
-    function equalsIgnoreCase(source?: string, destination?: string): boolean;
+    function equalsIgnoreCase(source?: string | null, destination?: string | null): boolean;
     /**
      * runtime type assertion
      *

@@ -42,7 +42,7 @@ export class XMLQuery extends DomQuery {
             }
         };
 
-        let parseXML = (xml: string): Document => {
+        let parseXML = (xml: string): Document | null => {
             if (xml == null) {
                 return null;
             }

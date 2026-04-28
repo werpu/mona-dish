@@ -34,10 +34,7 @@
       "../node_modules/@types"
     ],
     "types": ["node", "mocha"],
-    "noImplicitAny": true,
-    "strictNullChecks": false,
     "skipLibCheck": true,
-    "useUnknownInCatchVariables": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {

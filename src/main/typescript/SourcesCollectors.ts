@@ -157,6 +157,9 @@ export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
         const all_strms = [...strms];
         while(all_strms.length) {
             let next_strm = all_strms.shift();
+            if (!next_strm) {
+                return ITERATION_STATUS.EO_STRM;
+            }
             let lookAhead = next_strm.lookAhead(cnt);
 
             if (lookAhead != ITERATION_STATUS.EO_STRM) {
@@ -345,7 +348,7 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
      * finding the "cnt" element
      */
     lookAhead(cnt = 1): ITERATION_STATUS | T {
-        let lookupVal: T | ITERATION_STATUS;
+        let lookupVal: T | ITERATION_STATUS = ITERATION_STATUS.EO_STRM;
 
         for (let loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)) != ITERATION_STATUS.EO_STRM; loop++) {
             let inCache = this._filterIdx?.[this._unfilteredPos + loop];

@@ -110,13 +110,13 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
     interval: 100
 }): Promise<DomQuery> {
     return new Promise<DomQuery>((success, error) => {
-        let observer: MutationObserver = null;
+        let observer: MutationObserver | null = null;
         const MUT_ERROR = new Error("Mutation observer timeout");
 
         // we do the same but for now ignore the options on the dom query
         // we cannot use absent here, because the condition might search for an absent element
         function findElement(root: DomQuery, condition: (element: DomQuery) => boolean): DomQuery | null {
-            let found: Element = null;
+            let found: Element | null = null;
             if (!!condition(root)) {
                 return root;
             }
@@ -130,7 +130,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
             return found ? new DomQuery(found) : null;
         }
 
-        let foundElement: DomQuery = root;
+        let foundElement: DomQuery | null = root;
         if (!!(foundElement = findElement(foundElement, condition))) {
             success(new DomQuery(foundElement));
             return;
@@ -138,7 +138,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
 
         if ('undefined' != typeof MutationObserver) {
             const mutTimeout = setTimeout(() => {
-                observer.disconnect();
+                observer?.disconnect();
                 return error(MUT_ERROR);
             }, options.timeout);
 
@@ -146,7 +146,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
                 const found = new DomQuery(mutationList.map((mut) => mut.target)).filter(item => condition(item)).first();
                 if (found.isPresent()) {
                     clearTimeout(mutTimeout);
-                    observer.disconnect();
+                    observer?.disconnect();
                     success(new DomQuery(found || root));
                 }
             }
@@ -157,11 +157,11 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
             let observableOpts = {...options};
             delete observableOpts.timeout;
             root.eachElem(item => {
-                observer.observe(item, observableOpts)
+                observer!.observe(item, observableOpts)
             })
         } else { // fallback for legacy browsers without mutation observer
 
-            let interval = setInterval(() => {
+                let interval: any = setInterval(() => {
                 let found = findElement(root, condition);
                 if (!!found) {
                     if (timeout) {
@@ -183,13 +183,13 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
     });
 }
 
-export class ElementAttribute extends ValueEmbedder<string> {
+export class ElementAttribute extends ValueEmbedder<string | null> {
 
-    constructor(private element: DomQuery, private name: string, private defaultVal: string = null) {
+    constructor(private element: DomQuery, private name: string, private defaultVal: string | null = null) {
         super(element, name);
     }
 
-    get value(): string {
+    get value(): string | null {
         let val: Element[] = this.element.get(0).orElse(...[]).values;
         if (!val.length) {
             return this.defaultVal;
@@ -215,13 +215,13 @@ export class ElementAttribute extends ValueEmbedder<string> {
 
 }
 
-export class Style extends ValueEmbedder<string> {
+export class Style extends ValueEmbedder<string | null> {
 
-    constructor(private element: DomQuery, private name: string, private defaultVal: string = null) {
+    constructor(private element: DomQuery, private name: string, private defaultVal: string | null = null) {
         super(element, name);
     }
 
-    get value(): string {
+    get value(): string | null {
         let val: Element[] = this.element.values;
         if (!val.length) {
             return this.defaultVal;
@@ -288,7 +288,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     pos = -1;
 
-    constructor(...rootNode: Array<Element | ShadowRoot | DomQuery | Document | Array<any> | string>) {
+    constructor(...rootNode: Array<Element | ShadowRoot | DomQuery | Document | Array<any> | string | null | undefined>) {
 
         if (Optional.fromNullable(rootNode).isAbsent() || !rootNode.length) {
             return;
@@ -341,7 +341,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * returns the id of the first element
      */
     get id(): ValueEmbedder<string> {
-        return new ElementAttribute(this.get(0), "id");
+        return new ElementAttribute(this.get(0), "id") as ValueEmbedder<string>;
     }
 
     /**
@@ -808,11 +808,11 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      * @param attr the attribute to set
      * @param defaultValue the default value in case nothing is presented (defaults to null)
      */
-    attr(attr: string, defaultValue: string = null): ElementAttribute {
+    attr(attr: string, defaultValue: string | null = null): ElementAttribute {
         return new ElementAttribute(this, attr, defaultValue);
     }
 
-    style(cssProperty: string, defaultValue: string = null): Style {
+    style(cssProperty: string, defaultValue: string | null = null): Style {
         return new Style(this, cssProperty, defaultValue);
     }
 
@@ -877,7 +877,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         if (Optional.fromNullable(newInnerHTML).isAbsent()) {
             return this.isPresent() ? Optional.fromNullable(this.innerHTML) : Optional.absent;
         }
-        this.innerHTML = newInnerHTML;
+        this.innerHTML = newInnerHTML!;
 
         return this;
     }
@@ -1103,7 +1103,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     globalEvalSticky(code: string, nonce ?: string): DomQuery {
         let head = document.getElementsByTagName("head")[0] || document.documentElement;
         let script = document.createElement("script");
-        this.applyNonce(nonce, script);
+        this.applyNonce(nonce ?? "", script);
         script.type = "text/javascript";
         script.innerHTML = code;
         head.appendChild(script);
@@ -1117,7 +1117,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      */
     detach(): DomQuery {
         this.eachElem((item: Element) => {
-            item.parentNode.removeChild(item);
+            item.parentNode?.removeChild(item);
         });
         return this;
     }
@@ -1180,10 +1180,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 let nextSibling: Element = <any>existingElement.nextSibling;
                 toInsertParams[cnt].eachElem(insertElem => {
                     if (nextSibling) {
-                        rootNode.insertBefore(insertElem, nextSibling);
+                        rootNode?.insertBefore(insertElem, nextSibling);
                         existingElement = nextSibling;
                     } else {
-                        rootNode.appendChild(insertElem);
+                        rootNode?.appendChild(insertElem);
                     }
                 });
 
@@ -1202,7 +1202,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             let rootNode = existingElement.parentNode;
             for (let cnt = 0; cnt < toInsertParams.length; cnt++) {
                 toInsertParams[cnt].eachElem(insertElem => {
-                    rootNode.insertBefore(insertElem, existingElement);
+                    rootNode?.insertBefore(insertElem, existingElement);
                 });
             }
         });
@@ -1333,7 +1333,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      */
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean, deep = false): DomQuery {
         if (this.isAbsent()) {
-            return;
+            return this;
         }
 
         let focusElementId = document?.activeElement?.id;
@@ -1344,7 +1344,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         let firstInsert = nodes.get(0);
         let parentNode = toReplace.parentNode;
         let replaced = firstInsert.getAsElem(0).value;
-        parentNode.replaceChild(replaced, toReplace);
+        parentNode?.replaceChild(replaced, toReplace);
         res.push(new DomQuery(replaced));
         // no replacement possible
         if (this.isAbsent()) {
@@ -1365,7 +1365,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             this.runCss();
         }
 
-        let focusElement = DomQuery.byId(focusElementId);
+        let focusElement = DomQuery.byId(focusElementId ?? "");
         if (focusElementId && focusElement.isPresent() &&
             caretPosition != null && "undefined" != typeof caretPosition) {
             focusElement.eachElem(item => DomQuery.setCaretPosition(item, caretPosition));
@@ -1483,7 +1483,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 .forEach(item => execScript(item as HTMLScriptElement));
 
             evalCollectedScripts(finalScripts);
-        } catch (e) {
+        } catch (e: unknown) {
             if (console && console.error) {
                 // not sure if we
                 // should use our standard
@@ -1491,7 +1491,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 // because in the head appendix
                 // method only a console
                 // error would be raised as well
-                console.error(e.message || e.description);
+                const error = e as { message?: string, description?: string };
+                console.error(error.message || error.description);
             }
         } finally {
             // the usual ie6 fix code
@@ -1499,7 +1500,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             // nulling closures helps somewhat to reduce
             // mem leaks, which are impossible to avoid
             // at this browser
-            execScript = null;
+            execScript = null as any;
         }
         return this;
     }
@@ -1657,7 +1658,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         // browser behavior no element name no encoding (normal submit fails in that case)
         // https:// issues.apache.org/jira/browse/MYFACES-2847
         if (this.name.isAbsent()) {
-            return;
+            return {};
         }
 
         // let´s keep it side-effects free
@@ -1774,7 +1775,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         if (Optional.fromNullable(to).isAbsent()) {
             to = this.length;
         }
-        return new DomQuery(...this.rootNode.slice(from, Math.min(to, this.length)));
+        return new DomQuery(...this.rootNode.slice(from, Math.min(to!, this.length)));
     }
 
 
@@ -1796,7 +1797,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     next(): DomQuery {
         if (!this.hasNext()) {
-            return null;
+            return null as any;
         }
         this.pos++;
         return new DomQuery(this.values[this.pos]);
@@ -1861,7 +1862,9 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             .filter(item => item.hasShadow);
 
 
-        let mapped: Array<ShadowRoot> = (shadowElements.allElems() || []).map(element => element.shadowRoot);
+        let mapped: Array<ShadowRoot> = (shadowElements.allElems() || [])
+            .map(element => element.shadowRoot)
+            .filter((root): root is ShadowRoot => !!root);
         return new DomQuery(...mapped);
     }
 
@@ -2039,8 +2042,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             if (!this.rootNode[cnt]?.closest) {
                 continue;
             }
-            let res = [this.rootNode[cnt].closest(selector)];
-            nodes = nodes.concat(...res);
+            let res = this.rootNode[cnt].closest(selector);
+            if (res) {
+                nodes = nodes.concat(res);
+            }
         }
 
         return new DomQuery(...nodes);

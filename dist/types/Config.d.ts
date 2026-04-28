@@ -12,7 +12,7 @@ export type ConfigDef = {
  */
 export declare class Config extends Optional<any> {
     private configDef?;
-    constructor(root: any, configDef?: ConfigDef);
+    constructor(root: any, configDef?: ConfigDef | undefined);
     /**
      * shallow copy getter, copies only the first level, references the deeper nodes
      * in a shared manner

@@ -613,7 +613,7 @@ describe('early stream tests', () => {
     });
 
     it('must handle expansions in between', function () {
-        (global as any)[this.test.title] = true;
+        (global as any)[this.test!.title] = true;
         const data: any = {
             key1: [1, 2, 3, 4],
             key2: [4, 5, 6, 7, 8],

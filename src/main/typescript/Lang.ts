@@ -42,7 +42,7 @@ export namespace Lang {
      * @param defaultValue an optional default value if the producer fails to produce anything
      * @returns an Optional of the produced value
      */
-    export function saveResolve<T>(resolverProducer: () => T, defaultValue: T = null): Optional<T> {
+    export function saveResolve<T>(resolverProducer: () => T, defaultValue: T | null = null): Optional<T> {
         try {
             let result = resolverProducer();
             return Optional.fromNullable(result ?? defaultValue);
@@ -57,10 +57,10 @@ export namespace Lang {
      * @param resolverProducer the producer for the resolve
      * @param defaultValue the default value producer function
      */
-    export function saveResolveLazy<T>(resolverProducer: () => T, defaultValue: () => T = null): Optional<T> {
+    export function saveResolveLazy<T>(resolverProducer: () => T, defaultValue: (() => T) | null = null): Optional<T> {
         try {
             let result = resolverProducer();
-            return Optional.fromNullable(result ?? defaultValue());
+            return Optional.fromNullable(result ?? defaultValue?.());
         } catch (e) {
             return Optional.absent;
         }
@@ -121,7 +121,7 @@ export namespace Lang {
      * @param source
      * @param destination
      */
-    export function equalsIgnoreCase(source?: string, destination?: string): boolean {
+    export function equalsIgnoreCase(source?: string | null, destination?: string | null): boolean {
         let finalSource = source ?? "___no_value__";
         let finalDest = destination ?? "___no_value__";
 

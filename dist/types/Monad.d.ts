@@ -65,17 +65,17 @@ export declare class Monad<T> implements IMonad<T, Monad<any>>, IValueHolder<T> 
  * sugar on top
  * (Side - effect free, since value assignment is not allowed)
  * */
-export declare class Optional<T> extends Monad<T> {
+export declare class Optional<T> extends Monad<T | null | undefined> {
     static absent: Optional<any>;
-    constructor(value: T);
+    constructor(value: T | null | undefined);
     get value(): T;
-    static fromNullable<V extends Optional<T>, T>(value?: T): Optional<T>;
+    static fromNullable<V extends Optional<T>, T>(value?: T | null): Optional<T>;
     isAbsent(): boolean;
     /**
      * any value present
      */
-    isPresent(presentRunnable?: (val?: Monad<T>) => void): boolean;
-    ifPresentLazy(presentRunnable?: (val?: Monad<T>) => void): Monad<T>;
+    isPresent(presentRunnable?: (val?: Optional<T>) => void): boolean;
+    ifPresentLazy(presentRunnable?: (val?: Optional<T>) => void): Optional<T>;
     orElse(elseValue: any): Optional<any>;
     /**
      * lazy, passes a function which then is lazily evaluated

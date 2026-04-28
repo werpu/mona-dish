@@ -29,22 +29,22 @@ export interface WAIT_OPTS extends MutationObserverInit {
      */
     interval?: number;
 }
-export declare class ElementAttribute extends ValueEmbedder<string> {
+export declare class ElementAttribute extends ValueEmbedder<string | null> {
     private element;
     private name;
     private defaultVal;
-    constructor(element: DomQuery, name: string, defaultVal?: string);
-    get value(): string;
+    constructor(element: DomQuery, name: string, defaultVal?: string | null);
+    get value(): string | null;
     set value(value: string);
     protected getClass(): any;
     static fromNullable<ElementAttribute, T>(value?: any, valueKey?: string): ElementAttribute;
 }
-export declare class Style extends ValueEmbedder<string> {
+export declare class Style extends ValueEmbedder<string | null> {
     private element;
     private name;
     private defaultVal;
-    constructor(element: DomQuery, name: string, defaultVal?: string);
-    get value(): string;
+    constructor(element: DomQuery, name: string, defaultVal?: string | null);
+    get value(): string | null;
     set value(value: string);
     protected getClass(): any;
     static fromNullable<ElementAttribute, T>(value?: any, valueKey?: string): ElementAttribute;
@@ -76,7 +76,7 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
     static global: typeof _global$;
     private rootNode;
     pos: number;
-    constructor(...rootNode: Array<Element | ShadowRoot | DomQuery | Document | Array<any> | string>);
+    constructor(...rootNode: Array<Element | ShadowRoot | DomQuery | Document | Array<any> | string | null | undefined>);
     /**
      * returns the first element
      */
@@ -251,8 +251,8 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * @param attr the attribute to set
      * @param defaultValue the default value in case nothing is presented (defaults to null)
      */
-    attr(attr: string, defaultValue?: string): ElementAttribute;
-    style(cssProperty: string, defaultValue?: string): Style;
+    attr(attr: string, defaultValue?: string | null): ElementAttribute;
+    style(cssProperty: string, defaultValue?: string | null): Style;
     /**
      * Checks for an existing class in the class attributes
      *

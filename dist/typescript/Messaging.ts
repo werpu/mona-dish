@@ -77,9 +77,9 @@ let noEncryption = new NoCrypto();
 
 export class Message {
 
-    creationDate?: number;
-    identifier?: string;
-    targetOrigin?: string;
+    creationDate: number;
+    identifier: string;
+    targetOrigin: string;
     encoded: boolean = false;
 
     constructor(public message: any = {}, targetOrigin = "*") {
@@ -94,7 +94,7 @@ export class Message {
  */
 class MessageWrapper implements CustomEventInit<Message> {
 
-    detail?: Message;
+    detail: Message;
     bubbles?: boolean;
     cancelable?: boolean;
     composed?: boolean;
@@ -258,7 +258,7 @@ abstract class BaseBroker {
         }
 
         if (BaseBroker.isAnswer(request)) {
-            return;
+            return this;
         }
         answer.identifier = BaseBroker.getAnswerId(request);
         this.broadcast(channel, answer);
@@ -288,7 +288,7 @@ abstract class BaseBroker {
         let messageId = message.identifier;
 
         let ret = new Promise<Message>((resolve, reject) => {
-            let timeout: ReturnType<typeof setTimeout> = null;
+            let timeout: ReturnType<typeof setTimeout> | null = null;
             let listener = (message2: Message) => {
                 if (message2.identifier == messageId) {
                     //broadcast from same source, we do not want
@@ -297,7 +297,9 @@ abstract class BaseBroker {
                 }
 
                 if (message2.identifier == "_r_" + messageId) {
-                    clearTimeout(timeout);
+                    if (timeout) {
+                        clearTimeout(timeout);
+                    }
                     this.unregisterListener(channel, listener);
                     resolve(message2);
                 }
@@ -667,7 +669,7 @@ export class Broker extends BaseBroker {
         /*we now notify all iframes lying underneath */
         Array.prototype.slice.call(document.querySelectorAll("iframe")).forEach((element: HTMLIFrameElement) => {
             let messageWrapper = new MessageWrapper(channel, message);
-            element.contentWindow.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
+            element.contentWindow?.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
         });
 
         Array.prototype.slice.call(document.querySelectorAll("[data-broker='1']")).forEach((element: HTMLElement) => element.dispatchEvent(evt))

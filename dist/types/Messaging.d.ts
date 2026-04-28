@@ -58,9 +58,9 @@ export declare class NoCrypto implements Crypto {
 }
 export declare class Message {
     message: any;
-    creationDate?: number;
-    identifier?: string;
-    targetOrigin?: string;
+    creationDate: number;
+    identifier: string;
+    targetOrigin: string;
     encoded: boolean;
     constructor(message?: any, targetOrigin?: string);
 }

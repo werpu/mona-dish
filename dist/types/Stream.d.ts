@@ -38,7 +38,7 @@ export declare class FlatMapStreamDataSource<T, S> implements IStreamDataSource<
      * it is swapped out by another one
      * from the next element
      */
-    activeDataSource: IStreamDataSource<S>;
+    activeDataSource: IStreamDataSource<S> | null;
     walkedDataSources: Array<IStreamDataSource<S>>;
     _currPos: number;
     constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>);
@@ -196,9 +196,9 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     onElem(fn: (data: T, pos?: number) => void | boolean): Stream<T>;
     each(fn: (data: T, pos?: number) => void | boolean): void;
     map<R>(fn?: (data: T) => R): Stream<R>;
-    flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any>;
+    flatMap<R>(fn?: (data: T) => R | Array<any>): Stream<any>;
     filter(fn?: (data: T) => boolean): Stream<T>;
-    reduce<V>(fn: Reducable<T, V | T>, startVal?: V): Optional<V | T>;
+    reduce<V>(fn: Reducable<T, V | T>, startVal?: V | null): Optional<V | T>;
     first(): Optional<T>;
     last(): Optional<T>;
     anyMatch(fn: Matchable<T>): boolean;
@@ -207,7 +207,7 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     sort(comparator: Comparator<T>): IStream<T>;
     collect(collector: ICollector<T, any>): any;
     hasNext(): boolean;
-    next(): T;
+    next(): T | ITERATION_STATUS;
     lookAhead(cnt?: number): T | ITERATION_STATUS;
     [Symbol.iterator](): Iterator<T>;
     reset(): void;
@@ -262,15 +262,15 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
      * @param toAppend
      */
     concat(...toAppend: Array<IStream<T>>): LazyStream<T>;
-    nextFilter(fn: Matchable<T>): T;
+    nextFilter(fn: Matchable<T>): T | ITERATION_STATUS;
     limits(max: number): LazyStream<T>;
     collect(collector: ICollector<T, any>): any;
     onElem(fn: IteratableConsumer<T>): LazyStream<T>;
-    filter(fn: Matchable<T>): LazyStream<T>;
-    map<R>(fn: Mappable<T, R>): LazyStream<any>;
-    flatMap<StreamMapper>(fn: StreamMapper | ArrayMapper<any>): LazyStream<any>;
+    filter(fn?: Matchable<T>): LazyStream<T>;
+    map<R>(fn?: Mappable<T, R>): LazyStream<any>;
+    flatMap<R>(fn?: ((data: T) => R | Array<any>)): LazyStream<any>;
     each(fn: IteratableConsumer<T>): void;
-    reduce<V>(fn: Reducable<T, V>, startVal?: T | V): Optional<T | V>;
+    reduce<V>(fn: Reducable<T, V>, startVal?: T | V | null): Optional<T | V>;
     last(): Optional<T>;
     first(): Optional<T>;
     anyMatch(fn: Matchable<T>): boolean;

@@ -136,11 +136,11 @@ function mixMaps(target: any, src: any): any {
 
 export class Probe1Impl  implements Probe1 {
 
-    val1: string;
-    val2: Date;
+    val1!: string;
+    val2!: Date;
     val3: any;
-    val4: Probe2[];
-    val5: Probe2;
+    val4!: Probe2[];
+    val5!: Probe2;
     val6: any;
 
     constructor(data: Probe1, mixin: any = {} /*put your own arguments in here*/) {

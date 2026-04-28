@@ -212,7 +212,7 @@ export class Config extends Optional<any> {
         const ERR_ACCESS_PATH = "Access Path to config invalid";
         let currAccessPos: any = Optional.fromNullable(Object.keys(this.configDef).map(key => {
             let ret: { [key: string]: any } = {};
-            ret[key] = this.configDef[key];
+            ret[key] = this.configDef![key];
             return ret;
         }));
 

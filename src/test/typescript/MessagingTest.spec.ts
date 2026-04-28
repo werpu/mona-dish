@@ -313,7 +313,7 @@ describe('Broker tests', function () {
         //closed not possible this seals the element off entirely, this is a no go
         //also a closed shadow root is not recommended, there are other ways of achieving partial
         //isolation
-        let shadowRoot: ShadowRoot = (document.getElementById('shadow1')).attachShadow({mode: 'closed'} as any);
+        let shadowRoot: ShadowRoot = document.getElementById('shadow1')!.attachShadow({mode: 'closed'} as any);
         expect(shadowRoot != null).to.be.true;
         shadowRoot.innerHTML = "<div class='received'>false</div>";
 
@@ -350,7 +350,7 @@ describe('Broker tests', function () {
 
     it("must handle sub-elements correctly", function () {
         let broker1 = new Broker();
-        let broker2 = new Broker(document.getElementById("id_1"));
+        let broker2 = new Broker(document.getElementById("id_1")!);
         let brokerReceived = 0;
         broker2.registerListener(CHANNEL, () => {
             brokerReceived++;
@@ -384,7 +384,7 @@ describe('Broker tests', function () {
         //closed not possible this seals the element off entirely, this is a no go
         //also a closed shadow root is not recommended, there are other ways of achieving partial
         //isolation
-        let shadowRoot: ShadowRoot = (document.getElementById('shadow1')).attachShadow({mode: 'closed'} as any);
+        let shadowRoot: ShadowRoot = document.getElementById('shadow1')!.attachShadow({mode: 'closed'} as any);
         expect(shadowRoot != null).to.be.true;
         shadowRoot.innerHTML = "<div class='received'>false</div>";
 

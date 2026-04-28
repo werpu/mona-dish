@@ -47,8 +47,8 @@ export class TagBuilder {
     connectedCallback?: Function;
     clazz?: CustomElementConstructor;
     extendsType: CustomElementConstructor = HTMLElement;
-    theOptions: ElementDefinitionOptions | null;
-    markup: string;
+    theOptions: ElementDefinitionOptions | null = null;
+    markup: string = "";
     disconnectedCallback?: Function;
     adoptedCallback ?: Function;
     attributeChangedCallback ?: Function;
@@ -133,10 +133,10 @@ export class TagBuilder {
 
             let applyCallback = (name: string) => {
                 let outerCallback = (this as any)[name];
-                let protoCallback = (this.clazz.prototype as any)[name];
+                let protoCallback = (this.clazz!.prototype as any)[name];
                 let finalCallback = outerCallback || protoCallback;
                 if (finalCallback) {
-                    (this.clazz.prototype as any)[name] = function () {
+                    (this.clazz!.prototype as any)[name] = function () {
                         if(outerCallback) {
                             finalCallback.apply(DomQuery.byId(this));
                         } else {
