@@ -680,7 +680,7 @@ describe('DOMQuery tests', function () {
             expect(element.length > 0).to.eq(true);
         } catch (e) {
             //not supported we still need to get an error here
-            expect(e.message.indexOf("not supported") != -1).to.be.true;
+            expect((e as Error).message.indexOf("not supported") != -1).to.be.true;
         }
     })
 
@@ -695,7 +695,7 @@ describe('DOMQuery tests', function () {
             expect(probe.firstParent("#id_1").length > 0).to.eq(true);
         } catch (e) {
             //not supported we still need to get an error here
-            expect(e.message.indexOf("not supported") != -1).to.be.true;
+            expect((e as Error).message.indexOf("not supported") != -1).to.be.true;
         }
     })
 
@@ -715,8 +715,8 @@ describe('DOMQuery tests', function () {
         let probe = DomQuery.byId('id_1');
         setTimeout(() => probe.innerHTML = 'true', 300);
         let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-        delete window.MutationObserver;
-        delete global.MutationObserver;
+        delete (window as any).MutationObserver;
+        delete (global as any).MutationObserver;
         probe.innerHTML = "";
         setTimeout(() => probe.innerHTML = 'true', 300);
         let ret2 = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
@@ -733,8 +733,8 @@ describe('DOMQuery tests', function () {
             expect(!!ex);
         }
         try {
-            delete window.MutationObserver;
-            delete global.MutationObserver;
+            delete (window as any).MutationObserver;
+            delete (global as any).MutationObserver;
             probe.innerHTML = "";
             setTimeout(() => probe.innerHTML = 'true', 300);
             await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
@@ -744,7 +744,7 @@ describe('DOMQuery tests', function () {
         }
     });
     it('must handle null inputs correctly', function () {
-        const dq = new DomQuery(null);
+        const dq = new DomQuery(null as any);
         expect(dq.isAbsent()).to.eq(true);
     })
 

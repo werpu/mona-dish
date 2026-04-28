@@ -50,16 +50,20 @@ export declare function assignIf<T>(condition: boolean, target: {
 export declare function appendIf<T>(condition: boolean, target: {
     [key: string]: any;
 }, ...accessPath: string[]): IValueHolder<T>;
-export declare function resolve<T>(target: any, ...accessPath: string[]): T | null;
+export declare function resolve<T>(target: {
+    [key: string]: any;
+}, ...accessPath: string[]): T | null;
 /**
  * builds up a path, only done if no data is present!
  * @param target
  * @param accessPath
  * @returns the last assignable entry
  */
-export declare function buildPath(target: any, ...accessPath: string[]): {
+export declare function buildPath(target: {
+    [key: string]: any;
+}, ...accessPath: string[]): {
     target: any;
-    key: any;
+    key: string | number;
 };
 export declare function deepCopy(fromAssoc: {
     [key: string]: any;
@@ -71,7 +75,9 @@ export declare function deepCopy(fromAssoc: {
  *
  * @param assocArrays
  */
-export declare function simpleShallowMerge(...assocArrays: any[]): {
+export declare function simpleShallowMerge(...assocArrays: {
+    [key: string]: any;
+}[]): {
     [key: string]: any;
 };
 /**
@@ -82,7 +88,9 @@ export declare function simpleShallowMerge(...assocArrays: any[]): {
  * Combination overwrite withappend filters doubles out of merged arrays
  * @param assocArrays array of assoc arres reduced right to left
  */
-export declare function shallowMerge(overwrite?: boolean, withAppend?: boolean, ...assocArrays: any[]): {
+export declare function shallowMerge(overwrite?: boolean, withAppend?: boolean, ...assocArrays: {
+    [key: string]: any;
+}[]): {
     [key: string]: any;
 };
-export declare function deepEqual(obj1: any, obj2: any): any;
+export declare function deepEqual(obj1: any, obj2: any): boolean | void;

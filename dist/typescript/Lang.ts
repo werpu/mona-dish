@@ -21,7 +21,7 @@ import {Es2019Array} from "./Es2019Array";
 /**
  * Lang helpers crossported from the apache myfaces project
  */
-export module Lang {
+export namespace Lang {
 
 
     //should be in lang, but for now here to avoid recursive imports, not sure if typescript still has a problem with those
@@ -39,7 +39,7 @@ export module Lang {
      * </code>
      *
      * @param resolverProducer a lambda which can produce the value
-     * @param defaultValue an optional default value if the producer failes to produce anything
+     * @param defaultValue an optional default value if the producer fails to produce anything
      * @returns an Optional of the produced value
      */
     export function saveResolve<T>(resolverProducer: () => T, defaultValue: T = null): Optional<T> {

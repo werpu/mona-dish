@@ -20,7 +20,6 @@
   "compilerOptions": {
     "experimentalDecorators": true,
     "target": "es2019",
-    "downlevelIteration": true,
     "lib": [
       "es2019.array",
       "dom"
@@ -28,12 +27,16 @@
     "sourceMap": true,
     "sourceRoot": "./src/main/typescript",
     "outDir": "../dist/js",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "declaration": true,
     "declarationDir": "../target/types",
     "typeRoots": [
       "../node_modules/@types"
     ],
+    "types": ["node", "mocha"],
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "useUnknownInCatchVariables": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {

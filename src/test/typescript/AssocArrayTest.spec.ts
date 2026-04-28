@@ -52,7 +52,7 @@ describe('Assoc Array Helpers test', () => {
     });
 
     it('simple assoc array', () => {
-        const target = {};
+        const target: { [key: string]: any } = {};
         assign(target, "hello", "world", "from").value = "me";
         expect(target?.["hello"]?.["world"]?.["from"]).to.be.eq("me");
         expect(!target?.["hello"]?.["booga"]?.["from"]).to.be.eq(true);

@@ -18,7 +18,7 @@ import { Optional } from "./Monad";
 /**
  * Lang helpers crossported from the apache myfaces project
  */
-export declare module Lang {
+export declare namespace Lang {
     /**
      * helper function to safely resolve anything
      * this is not an elvis operator, it resolves
@@ -33,7 +33,7 @@ export declare module Lang {
      * </code>
      *
      * @param resolverProducer a lambda which can produce the value
-     * @param defaultValue an optional default value if the producer failes to produce anything
+     * @param defaultValue an optional default value if the producer fails to produce anything
      * @returns an Optional of the produced value
      */
     function saveResolve<T>(resolverProducer: () => T, defaultValue?: T): Optional<T>;
