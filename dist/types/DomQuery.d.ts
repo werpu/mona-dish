@@ -229,8 +229,8 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      * remove all affected nodes from this query object from the dom tree
      */
     delete(): void;
-    querySelectorAll(selector: any): DomQuery;
-    closest(selector: any): DomQuery;
+    querySelectorAll(selector: string): DomQuery;
+    closest(selector: string): DomQuery;
     /**
      * core byId method
      * @param id the id to search for

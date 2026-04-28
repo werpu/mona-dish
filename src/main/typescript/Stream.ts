@@ -62,7 +62,7 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
      * from the next element
      */
     activeDataSource: IStreamDataSource<S>;
-    walkedDataSources = [];
+    walkedDataSources: Array<IStreamDataSource<S>> = [];
     _currPos = 0;
 
     constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>) {
@@ -401,7 +401,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      */
 
     flatMap<IStreamDataSource>(fn: (data: T) => IStreamDataSource | Array<any>): Stream<any> {
-        let ret = [];
+        let ret: any[] = [];
         this.each(item => {
             let strmR: any = fn(item);
             ret = Array.isArray(strmR) ? ret.concat(strmR) : ret.concat(strmR.value);
@@ -669,7 +669,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
 
     onElem(fn: IteratableConsumer<T>): LazyStream<T> {
         return new LazyStream(new MappedStreamDataSource((el) => {
-            if (fn(el, this.pos) === false) {
+            if (fn(el as T, this.pos) === false) {
                 this.stop();
             }
             return el;
@@ -681,7 +681,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
     }
 
     map<R>(fn: Mappable<T, R>): LazyStream<any> {
-        return new LazyStream(new MappedStreamDataSource(fn, this));
+        return new LazyStream(new MappedStreamDataSource(fn as any, this));
     }
 
     flatMap<StreamMapper>(fn: StreamMapper | ArrayMapper<any>): LazyStream<any> {
@@ -702,22 +702,22 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         if (!this.hasNext()) {
             return Optional.absent;
         }
-        let value1;
-        let value2 = null;
+        let value1: T | V | ITERATION_STATUS;
+        let value2: T | ITERATION_STATUS = null;
         if (startVal != null) {
             value1 = startVal;
             value2 = this.next();
         } else {
             value1 = this.next();
             if (!this.hasNext()) {
-                return Optional.fromNullable(value1);
+                return Optional.fromNullable(value1 as T | V);
             }
             value2 = this.next();
         }
-        value1 = fn(value1, value2);
+        value1 = fn(value1 as T | V, value2 as T);
         while (this.hasNext()) {
             value2 = this.next();
-            value1 = fn(value1, value2);
+            value1 = fn(value1 as T | V, value2 as T);
         }
         this.reset();
         return Optional.fromNullable(value1);

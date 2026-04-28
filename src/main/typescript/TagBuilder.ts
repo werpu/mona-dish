@@ -55,7 +55,7 @@ export class TagBuilder {
     observedAttrs: string[] = [];
 
     // noinspection JSUnusedGlobalSymbols
-    static withTagName(tagName): TagBuilder {
+    static withTagName(tagName: string): TagBuilder {
         return new TagBuilder(tagName);
     }
 
@@ -65,8 +65,9 @@ export class TagBuilder {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    withObservedAttributes(...oAttrs) {
+    withObservedAttributes(...oAttrs: string[]) {
         this.observedAttrs = oAttrs;
+        return this;
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -100,13 +101,13 @@ export class TagBuilder {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    withOptions(theOptions) {
+    withOptions(theOptions: ElementDefinitionOptions) {
         this.theOptions = theOptions;
         return this;
     }
 
     // noinspection JSUnusedGlobalSymbols
-    withClass(clazz) {
+    withClass(clazz: CustomElementConstructor) {
         if (this.markup) {
             throw Error("Markup already defined, markup must be set in the class");
         }
@@ -115,7 +116,7 @@ export class TagBuilder {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    withMarkup(markup) {
+    withMarkup(markup: string) {
         if (this.clazz) {
             throw Error("Class already defined, markup must be set in the class");
         }
@@ -131,7 +132,7 @@ export class TagBuilder {
         if (this.clazz) {
 
             let applyCallback = (name: string) => {
-                let outerCallback = this[name];
+                let outerCallback = (this as any)[name];
                 let protoCallback = (this.clazz.prototype as any)[name];
                 let finalCallback = outerCallback || protoCallback;
                 if (finalCallback) {
@@ -163,8 +164,8 @@ export class TagBuilder {
         } else {
             let _t_ = this;
             let applyCallback = (name: string, scope: any) => {
-                if (_t_[name]) {
-                    _t_[name].apply(DomQuery.byId(scope) as any);
+                if ((_t_ as any)[name]) {
+                    (_t_ as any)[name].apply(DomQuery.byId(scope) as any);
                 }
             };
 

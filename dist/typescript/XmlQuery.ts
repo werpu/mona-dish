@@ -65,7 +65,7 @@ export class XMLQuery extends DomQuery {
     }
 
     toString(): string {
-        let ret = [];
+        let ret: string[] = [];
         this.eachElem((node: any) => {
             let serialized = (_global$())?.XMLSerializer?.constructor()?.serializeToString(node) ?? node?.xml;
             if (!!serialized) {

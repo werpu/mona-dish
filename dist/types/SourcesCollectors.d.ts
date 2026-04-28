@@ -79,7 +79,7 @@ export interface ICollector<T, S> {
      *
      * @param element
      */
-    collect(element: T): any;
+    collect(element: T): void;
     /**
      * the final result after all the collecting is done
      */
@@ -94,7 +94,7 @@ export declare class MultiStreamDatasource<T> implements IStreamDataSource<T> {
     private activeStrm;
     private selectedPos;
     private strms;
-    constructor(first: any, ...strms: Array<IStreamDataSource<T>>);
+    constructor(first: IStreamDataSource<T>, ...strms: Array<IStreamDataSource<T>>);
     current(): any;
     hasNext(): boolean;
     private findNextStrm;
@@ -136,12 +136,14 @@ export declare class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
  * passes the filter function check
  */
 export declare class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
-    filterFunc: (T: any) => boolean;
+    filterFunc: (data: T) => boolean;
     inputDataSource: IStreamDataSource<T>;
     _current: T | ITERATION_STATUS;
-    _filterIdx: {};
+    _filterIdx: {
+        [key: number]: boolean;
+    };
     _unfilteredPos: number;
-    constructor(filterFunc: (T: any) => boolean, parent: IStreamDataSource<T>);
+    constructor(filterFunc: (data: T) => boolean, parent: IStreamDataSource<T>);
     /**
      * in order to filter we have to make a look ahead until the
      * first next allowed element
@@ -171,9 +173,9 @@ export declare class FilteredStreamDatasource<T> implements IStreamDataSource<T>
  * one into another
  */
 export declare class MappedStreamDataSource<T, S> implements IStreamDataSource<S> {
-    mapFunc: (T: any) => S;
+    mapFunc: (data: T | ITERATION_STATUS) => S;
     inputDataSource: IStreamDataSource<T>;
-    constructor(mapFunc: (T: any) => S, parent: IStreamDataSource<T>);
+    constructor(mapFunc: (data: T | ITERATION_STATUS) => S, parent: IStreamDataSource<T>);
     hasNext(): boolean;
     next(): S;
     reset(): void;

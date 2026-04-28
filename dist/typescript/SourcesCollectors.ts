@@ -96,7 +96,7 @@ export interface ICollector<T, S> {
      *
      * @param element
      */
-    collect(element: T);
+    collect(element: T): void;
 
     /**
      * the final result after all the collecting is done
@@ -111,11 +111,11 @@ export interface ICollector<T, S> {
  */
 export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
 
-    private  activeStrm;
+    private  activeStrm: IStreamDataSource<T>;
     private  selectedPos = 0;
-    private  strms;
+    private  strms: Array<IStreamDataSource<T>>;
 
-    constructor(private first, ...strms: Array<IStreamDataSource<T>>) {
+    constructor(private first: IStreamDataSource<T>, ...strms: Array<IStreamDataSource<T>>) {
         this.strms = [first].concat(...strms);
         this.activeStrm = this.strms[this.selectedPos];
     }
@@ -278,16 +278,16 @@ export class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
  */
 export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
 
-    filterFunc: (T) => boolean;
+    filterFunc: (data: T) => boolean;
     inputDataSource: IStreamDataSource<T>;
 
     _current: T | ITERATION_STATUS = ITERATION_STATUS.BEF_STRM;
     // we have to add a filter idx because the external filter values might change over time, so
     // we cannot reset the state properly unless we do it from a snapshot
-    _filterIdx = {};
+    _filterIdx: { [key: number]: boolean } = {};
     _unfilteredPos = 0;
 
-    constructor(filterFunc: (T) => boolean, parent: IStreamDataSource<T>) {
+    constructor(filterFunc: (data: T) => boolean, parent: IStreamDataSource<T>) {
         this.filterFunc = filterFunc;
         this.inputDataSource = parent;
     }
@@ -304,7 +304,7 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
         let next;
 
         while (!found && (next = this.inputDataSource.lookAhead(steps)) != ITERATION_STATUS.EO_STRM) {
-            if (this.filterFunc(next)) {
+            if (this.filterFunc(next as T)) {
                 this._filterIdx[this._unfilteredPos + steps] = true;
                 found = true;
             } else {
@@ -349,7 +349,7 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
 
         for (let loop = 1; cnt > 0 && (lookupVal = this.inputDataSource.lookAhead(loop)) != ITERATION_STATUS.EO_STRM; loop++) {
             let inCache = this._filterIdx?.[this._unfilteredPos + loop];
-            if (inCache || this.filterFunc(lookupVal)) {
+            if (inCache || this.filterFunc(lookupVal as T)) {
                 cnt--;
                 this._filterIdx[this._unfilteredPos + loop] = true;
             }
@@ -375,10 +375,10 @@ export class FilteredStreamDatasource<T> implements IStreamDataSource<T> {
  */
 export class MappedStreamDataSource<T, S> implements IStreamDataSource<S> {
 
-    mapFunc: (T) => S;
+    mapFunc: (data: T | ITERATION_STATUS) => S;
     inputDataSource: IStreamDataSource<T>;
 
-    constructor(mapFunc: (T) => S, parent: IStreamDataSource<T>) {
+    constructor(mapFunc: (data: T | ITERATION_STATUS) => S, parent: IStreamDataSource<T>) {
         this.mapFunc = mapFunc;
         this.inputDataSource = parent;
     }
@@ -532,8 +532,8 @@ export class QueryFormStringCollector implements ICollector<DomQuery, string> {
 
     get finalValue(): string {
         return new Es2019Array(...this.formData)
-            .map(keyVal => keyVal.join("="))
-            .reduce((item1, item2) => [item1, item2].join("&"));
+            .map((keyVal: [string, string]) => keyVal.join("="))
+            .reduce((item1: string, item2: string) => [item1, item2].join("&"));
     }
 }
 

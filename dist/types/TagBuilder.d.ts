@@ -35,16 +35,16 @@ export declare class TagBuilder {
     adoptedCallback?: Function;
     attributeChangedCallback?: Function;
     observedAttrs: string[];
-    static withTagName(tagName: any): TagBuilder;
+    static withTagName(tagName: string): TagBuilder;
     constructor(tagName: string);
-    withObservedAttributes(...oAttrs: any[]): void;
+    withObservedAttributes(...oAttrs: string[]): this;
     withConnectedCallback(callback: Function): this;
     withDisconnectedCallback(callback: Function): this;
     withAdoptedCallback(callback: Function): this;
     withAttributeChangedCallback(callback: Function): this;
     withExtendsType(extendsType: CustomElementConstructor): this;
-    withOptions(theOptions: any): this;
-    withClass(clazz: any): this;
-    withMarkup(markup: any): this;
+    withOptions(theOptions: ElementDefinitionOptions): this;
+    withClass(clazz: CustomElementConstructor): this;
+    withMarkup(markup: string): this;
     register(): void;
 }

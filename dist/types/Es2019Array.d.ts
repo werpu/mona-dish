@@ -26,5 +26,9 @@ export declare function _Es2019Array<T>(...data: T[]): Es2019Array_<T>;
  * the shim is only provided in case the native browser
  * does not yet have flatMap support on arrays
  */
-export declare var Es2019Array: any;
+interface Es2019ArrayConstructor {
+    new <T = any>(...data: any[]): T[];
+    <T = any>(...data: any[]): T[];
+}
+export declare var Es2019Array: Es2019ArrayConstructor;
 export {};

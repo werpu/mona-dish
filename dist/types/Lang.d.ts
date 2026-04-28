@@ -93,5 +93,5 @@ export declare namespace Lang {
      * @param it the object to check for being a function
      */
     function isFunc(it: any): boolean;
-    function objAssign(target: any, ...theArgs: any): any;
+    function objAssign(target: any, ...theArgs: any[]): any;
 }

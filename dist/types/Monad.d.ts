@@ -29,7 +29,7 @@ export interface IFunctor<T> {
  * flatmap flats nested Monads into a IMonad of the deepest nested implementation
  */
 export interface IMonad<T, M extends IMonad<any, any>> extends IFunctor<T> {
-    flatMap<T, M>(f: (T: any) => M): IMonad<any, any>;
+    flatMap<R>(f?: (data: T) => R): IMonad<any, any>;
 }
 /**
  * a stateful functor which holds a value upn which a
@@ -131,7 +131,7 @@ export declare class Optional<T> extends Monad<T> {
      * the resolution goes towards absent
      */
     resolve<V>(resolver: (item: T) => V): Optional<V>;
-    protected preprocessKeys(...keys: any[]): string[];
+    protected preprocessKeys(...keys: string[]): string[];
 }
 /**
  * ValueEmbedder is the writeable version

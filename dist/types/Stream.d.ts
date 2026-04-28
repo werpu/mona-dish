@@ -39,7 +39,7 @@ export declare class FlatMapStreamDataSource<T, S> implements IStreamDataSource<
      * from the next element
      */
     activeDataSource: IStreamDataSource<S>;
-    walkedDataSources: any[];
+    walkedDataSources: Array<IStreamDataSource<S>>;
     _currPos: number;
     constructor(func: StreamMapper<T>, parent: IStreamDataSource<T>);
     hasNext(): boolean;

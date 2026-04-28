@@ -161,14 +161,14 @@ export interface IDomQuery {
      * @param selector the standard selector
      * @return a DomQuery with the results
      */
-    querySelectorAll(selector: any): DomQuery;
+    querySelectorAll(selector: string): DomQuery;
     /**
      * closest, walks up the dom tree to fid the closest element to match
      *
      * @param selector the standard selector
      * @return a DomQuery with the results
      */
-    querySelectorAll(selector: any): DomQuery;
+    querySelectorAll(selector: string): DomQuery;
     /**
      * core byId method
      * @param id the id to search for
@@ -456,7 +456,7 @@ export interface IDomQuery {
      * @param toMerge optional config which can be merged in
      * @return a copy pf
      */
-    encodeFormElement(toMerge: any): {
+    encodeFormElement(toMerge?: any): {
         [key: string]: any;
     };
     /**

@@ -171,8 +171,8 @@ describe('early stream tests', () => {
             key3: "val3"
         }
 
-        let arr1 = [];
-        let arr2 = [];
+        let arr1: string[] = [];
+        let arr2: Array<string | number> = [];
 
         Stream.ofAssoc(probe).each(item => {
             expect(item.length).to.eq(2);
@@ -459,7 +459,7 @@ describe('early stream tests', () => {
         let strm2 = LazyStream.of(...probe2);
 
         let strm3 = strm1.concat(strm2);
-        let idx = {};
+        let idx: { [key: string]: boolean } = {};
         //we now filter the doubles out
         const resultArr = strm3.filter(item => {
             const ret = !idx?.[`${item}`];
@@ -487,7 +487,7 @@ describe('early stream tests', () => {
             return true;
         }).collect(new ArrayCollector())
 
-        let idx = {};
+        let idx: { [key: string]: boolean } = {};
         //we now filter the doubles out
         const resultArr = strm3.filter(item => {
             const ret = !idx?.[`${item}`];
@@ -515,7 +515,7 @@ describe('early stream tests', () => {
             return true;
         }).collect(new ArrayCollector())
 
-        let idx = {};
+        let idx: { [key: string]: boolean } = {};
         //we now filter the doubles out
         const resultArr = strm3.filter(item => {
             const ret = !idx?.[`${item}`];
@@ -577,7 +577,7 @@ describe('early stream tests', () => {
         let strm31 = strm1.concat(strm2).concat(strm5);
         strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
-        global["debug"] = true;
+        (global as any)["debug"] = true;
         let res2 = strm31.lookAhead(15);
         let res3 = strm31.lookAhead(19);
         let res4 = strm31.lookAhead(21);
@@ -602,7 +602,7 @@ describe('early stream tests', () => {
         let strm31 = strm1.concat(strm2).concat(strm5);
         strm31.each(item => console.log(item));
         //let res = strm31.lookAhead(8);
-        global["debug"] = true;
+        (global as any)["debug"] = true;
         let res2 = strm31.lookAhead(15);
         let res3 = strm31.lookAhead(19);
         let res4 = strm31.lookAhead(21);
@@ -613,7 +613,7 @@ describe('early stream tests', () => {
     });
 
     it('must handle expansions in between', function () {
-        global[this.test.title] = true;
+        (global as any)[this.test.title] = true;
         const data: any = {
             key1: [1, 2, 3, 4],
             key2: [4, 5, 6, 7, 8],

@@ -16,7 +16,7 @@
 
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import pkg from 'mona-dish';
+import pkg from '../../main/typescript/index_esm_compat.js';
 const { Lang } = pkg;
 
 import jsdom from "jsdom";
@@ -127,4 +127,3 @@ describe('Lang tests', () => {
     });
 
 });
-

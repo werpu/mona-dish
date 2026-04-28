@@ -30,7 +30,7 @@ describe('Extended tests', function () {
 
     it("must handle flatmap correctly", () => {
         arr = new (_Es2019Array as any)(...["10", "20", "30", ["40", "50"], "60"])
-        let retArr = arr.flatMap(item => item);
+        let retArr = arr.flatMap((item: any) => item);
 
         expect(retArr.length).to.eq(6);
 
@@ -38,7 +38,7 @@ describe('Extended tests', function () {
 
     it("must handle deeply nested items correctly", () => {
         arr = new (_Es2019Array as any)(...["10", "20", "30", ["40", "50", ["55", "56"]], "60"])
-        let retArr = arr.flatMap((item => item) , true).flatMap(item=>item);
+        let retArr = arr.flatMap(((item: any) => item) , true).flatMap((item: any) => item);
 
         //second nesting level cannot be flatmapped, flatmap only works on one level usually
         //TODO this needs further investigation
@@ -48,12 +48,12 @@ describe('Extended tests', function () {
 
     it("must keep the order", () => {
         arr = new (_Es2019Array as any)(...["10", "20", "30", ["40", "50", ["55", "56"]], "60"])
-        let retArr = arr.flatMap((item => item) , true).flatMap((item => item) , true);
+        let retArr = arr.flatMap(((item: any) => item) , true).flatMap(((item: any) => item) , true);
 
         expect(retArr.length).to.eq(8);
-        let result = new Es2019Array(...["10", "20", "30", "40", "50", ["55", "56"], "60"]).flatMap(item => item);
+        let result = new Es2019Array(...["10", "20", "30", "40", "50", ["55", "56"], "60"]).flatMap((item: any) => item);
 
-        retArr.forEach((item, pos) => {
+        retArr.forEach((item: any, pos: number) => {
             expect(item).to.eq(result[pos]);
         })
 
@@ -61,7 +61,7 @@ describe('Extended tests', function () {
 
     it("must flatten properly", () => {
         arr = new (_Es2019Array as any)(...[[[1, 2]], [[3, 4]], [[5, 6]]]);
-        let flattened = arr.flatMap(item => item);
+        let flattened = arr.flatMap((item: any) => item);
         expect(flattened[0][0]).to.eq(1);
         expect(flattened[2][1]).to.eq(6);
 
@@ -78,14 +78,14 @@ describe('Extended tests', function () {
         expect(arr[0]).to.eq(1);
 
         const res1 = [1].map(item => item+1);
-        const res3 = arr.map(item => item+1);
+        const res3 = arr.map((item: any) => item+1);
 
         expect(res1[0]).to.eq(2);
         expect(res3[0]).to.eq(2);
 
-        const res = arr.map(item => item+1)
-            .filter(item => !isNaN(item))
-            .reduce((item1, item2) => Math.max(item1, item2), -1);
+        const res = arr.map((item: any) => item+1)
+            .filter((item: any) => !isNaN(item))
+            .reduce((item1: number, item2: number) => Math.max(item1, item2), -1);
 
         expect(res).to.eq(2);
     })
@@ -95,7 +95,7 @@ describe('Extended tests', function () {
 
     it("must handle flatmap correctly", () => {
         arr = new Es2019Array(...["10", "20", "30", ["40", "50"], "60"])
-        let retArr = arr.flatMap(item => item);
+        let retArr = arr.flatMap((item: any) => item);
 
         expect(retArr.length).to.eq(6);
 
@@ -103,7 +103,7 @@ describe('Extended tests', function () {
 
     it("must handle deeply nested items correctly", () => {
         arr = new Es2019Array(...["10", "20", "30", ["40", "50", ["55", "56"]], "60"])
-        let retArr = arr.flatMap((item => item) , true).flatMap(item=>item);
+        let retArr = arr.flatMap(((item: any) => item) , true).flatMap((item: any) => item);
 
         //second nesting level cannot be flatmapped, flatmap only works on one level usually
         //TODO this needs further investigation
@@ -113,12 +113,12 @@ describe('Extended tests', function () {
 
     it("must keep the order", () => {
         arr = new Es2019Array(...["10", "20", "30", ["40", "50", ["55", "56"]], "60"])
-        let retArr = arr.flatMap((item => item) , true).flatMap((item => item) , true);
+        let retArr = arr.flatMap(((item: any) => item) , true).flatMap(((item: any) => item) , true);
 
         expect(retArr.length).to.eq(8);
-        let result = new Es2019Array(...["10", "20", "30", "40", "50", ["55", "56"], "60"]).flatMap(item => item);
+        let result = new Es2019Array(...["10", "20", "30", "40", "50", ["55", "56"], "60"]).flatMap((item: any) => item);
 
-        retArr.forEach((item, pos) => {
+        retArr.forEach((item: any, pos: number) => {
             expect(item).to.eq(result[pos]);
         })
 
@@ -126,7 +126,7 @@ describe('Extended tests', function () {
 
     it("must flatten properly", () => {
         arr = new Es2019Array(...[[[1, 2]], [[3, 4]], [[5, 6]]]);
-        let flattened = arr.flatMap(item => item);
+        let flattened = arr.flatMap((item: any) => item);
         expect(flattened[0][0]).to.eq(1);
         expect(flattened[2][1]).to.eq(6);
 

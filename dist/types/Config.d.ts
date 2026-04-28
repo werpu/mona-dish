@@ -57,7 +57,7 @@ export declare class Config extends Optional<any> {
      * assigns a new value on the given access path
      * @param accessPath
      */
-    assign(...accessPath: any[]): IValueHolder<any>;
+    assign(...accessPath: Array<any>): IValueHolder<any>;
     /**
      * assign a value if the condition is set to true, otherwise skip it
      *

@@ -74,7 +74,7 @@ export namespace Lang {
      */
     export function strToArray(it: string, splitter: string | RegExp = /\./gi): Array<string> {
 
-        let ret = [];
+        let ret: string[] = [];
         it.split(splitter).forEach((element => {
             ret.push(trim(element));
         }));
@@ -163,7 +163,7 @@ export namespace Lang {
 
     // code from https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
     // license https://creativecommons.org/licenses/by-sa/2.5/
-    export function objAssign(target: any, ...theArgs: any) { // .length of function is 2
+    export function objAssign(target: any, ...theArgs: any[]) { // .length of function is 2
         if (target == null) { // TypeError if undefined or null
             throw new TypeError('Cannot convert undefined or null to object');
         }
@@ -185,4 +185,3 @@ export namespace Lang {
 
 
 }
-

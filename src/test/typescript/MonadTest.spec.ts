@@ -17,7 +17,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import pkg from 'mona-dish';
+import pkg from '../../main/typescript/index_esm_compat.js';
 const { Config, Optional } = pkg;
 
 describe('optional tests', () => {
@@ -167,5 +167,3 @@ describe('Config tests', () => {
     });
 
 });
-
-

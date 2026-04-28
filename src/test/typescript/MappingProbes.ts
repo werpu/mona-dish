@@ -77,7 +77,7 @@ class BaseDto<T> {
 
     constructor(data?: T, dtoTypes: any = {}) {
 
-        this[this.TYPES] = dtoTypes;
+        (this as any)[this.TYPES] = dtoTypes;
 
         if (data) {
             this.mapIt(this, data);
