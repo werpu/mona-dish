@@ -1,5 +1,6 @@
 {
-    "extends": "@istanbuljs/nyc-config-typescript",
     "all": true,
+    "extension": [".ts"],
+    "include": ["src/main/typescript/**/*.ts"],
     "exclude": ["**/test/**/*.*","**/*.config.*", "**/Messages_*.*","**/*Probe*.*",  "**/*.js"]
 }

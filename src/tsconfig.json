@@ -26,6 +26,7 @@
     ],
     "sourceMap": true,
     "sourceRoot": "./src/main/typescript",
+    "rootDir": ".",
     "outDir": "../dist/js",
     "moduleResolution": "bundler",
     "declaration": true,
@@ -37,8 +38,5 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "paths": {
-      "mona-dish": ["./main/typescript/index_esm_compat"]
-    },
   }
 }

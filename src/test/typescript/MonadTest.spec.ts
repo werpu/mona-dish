@@ -17,8 +17,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import pkg from '../../main/typescript/index_esm_compat.js';
-const { Config, Optional } = pkg;
+import {Config, Optional} from '../../main/typescript';
 
 describe('optional tests', () => {
     it('fromnullable null', () => {

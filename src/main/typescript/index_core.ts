@@ -17,18 +17,18 @@
  * under the License.
  */
 export {DomQuery, ElementAttribute, DomQueryCollector, DQ, DQ$} from "./DomQuery";
-export {IDomQuery} from "./IDomQuery";
+export type {IDomQuery} from "./IDomQuery";
 export {Lang} from "./Lang";
-export {Monad, IValueHolder, IFunctor, IMonad, IIdentity, Optional, ValueEmbedder} from "./Monad";
+export {Monad, Optional, ValueEmbedder} from "./Monad";
+export type {IValueHolder, IFunctor, IMonad, IIdentity} from "./Monad";
 export {XMLQuery, XQ} from "./XmlQuery";
 export {assign, assignIf, append, simpleShallowMerge, shallowMerge} from "./AssocArray"
 export {Config} from "./Config";
-export {ConfigDef} from "./Config";
+export type {ConfigDef} from "./Config";
 export {CONFIG_ANY} from "./Config";
 export {CONFIG_VALUE} from "./Config";
 export * as Assoc from "./AssocArray";
 export {Es2019Array, _Es2019Array} from "./Es2019Array";
-
 
 
 

@@ -16,8 +16,7 @@
 
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import pkg from '../../main/typescript/index_esm_compat.js';
-const { Lang } = pkg;
+import {Lang} from '../../main/typescript';
 
 import jsdom from "jsdom";
 const { JSDOM } = jsdom;
