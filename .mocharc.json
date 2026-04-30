@@ -5,5 +5,5 @@
   "spec": [
     "src/**/*.spec.*"
   ],
-  "require": ["ts-node/register"]
+  "node-option": ["import=tsx"]
 }
