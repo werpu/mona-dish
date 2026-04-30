@@ -119,7 +119,7 @@ export class Promise implements IPromise {
             }
             myapply = null;
             myreject = null;
-            return myPromise;
+            return null as any;
         };
         (thenexecutor as any).__last__ = true;
 
@@ -129,7 +129,7 @@ export class Promise implements IPromise {
             }
             myreject = null;
             myapply = null;
-            return myPromise;
+            return null as any;
         };
         (catchexeutor as any).__last__ = true;
 
@@ -190,7 +190,7 @@ export class Promise implements IPromise {
     finally(executorFunc: () => void): Promise {
         if ((this as any).__reason__) {
             (this as any).__reason__.finally(executorFunc);
-            return this;
+            return undefined as any;
         }
 
         this.allFuncs.push({"finally": executorFunc});
@@ -332,5 +332,4 @@ export class CancellablePromise extends Promise {
     private cancellator = () => {
     };
 }
-
 

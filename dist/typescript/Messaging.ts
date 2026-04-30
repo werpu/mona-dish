@@ -258,7 +258,7 @@ abstract class BaseBroker {
         }
 
         if (BaseBroker.isAnswer(request)) {
-            return this;
+            return undefined as any;
         }
         answer.identifier = BaseBroker.getAnswerId(request);
         this.broadcast(channel, answer);
@@ -297,9 +297,7 @@ abstract class BaseBroker {
                 }
 
                 if (message2.identifier == "_r_" + messageId) {
-                    if (timeout) {
-                        clearTimeout(timeout);
-                    }
+                    clearTimeout(timeout as any);
                     this.unregisterListener(channel, listener);
                     resolve(message2);
                 }
@@ -669,7 +667,7 @@ export class Broker extends BaseBroker {
         /*we now notify all iframes lying underneath */
         Array.prototype.slice.call(document.querySelectorAll("iframe")).forEach((element: HTMLIFrameElement) => {
             let messageWrapper = new MessageWrapper(channel, message);
-            element.contentWindow?.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
+            element.contentWindow!.postMessage(JSON.parse(JSON.stringify(messageWrapper)), message.targetOrigin);
         });
 
         Array.prototype.slice.call(document.querySelectorAll("[data-broker='1']")).forEach((element: HTMLElement) => element.dispatchEvent(evt))

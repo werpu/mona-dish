@@ -116,18 +116,18 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
         // we do the same but for now ignore the options on the dom query
         // we cannot use absent here, because the condition might search for an absent element
         function findElement(root: DomQuery, condition: (element: DomQuery) => boolean): DomQuery | null {
-            let found: Element | null = null;
+            let found: any = null;
             if (!!condition(root)) {
                 return root;
             }
             if (options.childList) {
-                found = (condition(root)) ? root.value.value : root.childNodes.filter(item => condition(item)).first().value.value;
+                found = (condition(root)) ? root : root.childNodes.filter(item => condition(item)).first().value.value;
             } else if (options.subtree) {
-                found = (condition(root)) ? root.value.value : root.querySelectorAll(" * ").filter(item => condition(item)).first().value.value;
+                found = (condition(root)) ? root : root.querySelectorAll(" * ").filter(item => condition(item)).first().value.value;
             } else {
-                found = (condition(root)) ? root.value.value : null;
+                found = (condition(root)) ? root : null;
             }
-            return found ? new DomQuery(found) : null;
+            return found;
         }
 
         let foundElement: DomQuery | null = root;
@@ -138,7 +138,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
 
         if ('undefined' != typeof MutationObserver) {
             const mutTimeout = setTimeout(() => {
-                observer?.disconnect();
+                observer!.disconnect();
                 return error(MUT_ERROR);
             }, options.timeout);
 
@@ -146,7 +146,7 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
                 const found = new DomQuery(mutationList.map((mut) => mut.target)).filter(item => condition(item)).first();
                 if (found.isPresent()) {
                     clearTimeout(mutTimeout);
-                    observer?.disconnect();
+                    observer!.disconnect();
                     success(new DomQuery(found || root));
                 }
             }
@@ -1103,7 +1103,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
     globalEvalSticky(code: string, nonce ?: string): DomQuery {
         let head = document.getElementsByTagName("head")[0] || document.documentElement;
         let script = document.createElement("script");
-        this.applyNonce(nonce ?? "", script);
+        this.applyNonce(nonce as any, script);
         script.type = "text/javascript";
         script.innerHTML = code;
         head.appendChild(script);
@@ -1117,7 +1117,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      */
     detach(): DomQuery {
         this.eachElem((item: Element) => {
-            item.parentNode?.removeChild(item);
+            item.parentNode!.removeChild(item);
         });
         return this;
     }
@@ -1180,10 +1180,10 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                 let nextSibling: Element = <any>existingElement.nextSibling;
                 toInsertParams[cnt].eachElem(insertElem => {
                     if (nextSibling) {
-                        rootNode?.insertBefore(insertElem, nextSibling);
+                        rootNode!.insertBefore(insertElem, nextSibling);
                         existingElement = nextSibling;
                     } else {
-                        rootNode?.appendChild(insertElem);
+                        rootNode!.appendChild(insertElem);
                     }
                 });
 
@@ -1202,7 +1202,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             let rootNode = existingElement.parentNode;
             for (let cnt = 0; cnt < toInsertParams.length; cnt++) {
                 toInsertParams[cnt].eachElem(insertElem => {
-                    rootNode?.insertBefore(insertElem, existingElement);
+                    rootNode!.insertBefore(insertElem, existingElement);
                 });
             }
         });
@@ -1333,7 +1333,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
      */
     outerHTML(markup: string, runEmbeddedScripts ?: boolean, runEmbeddedCss ?: boolean, deep = false): DomQuery {
         if (this.isAbsent()) {
-            return this;
+            return undefined as any;
         }
 
         let focusElementId = document?.activeElement?.id;
@@ -1344,7 +1344,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         let firstInsert = nodes.get(0);
         let parentNode = toReplace.parentNode;
         let replaced = firstInsert.getAsElem(0).value;
-        parentNode?.replaceChild(replaced, toReplace);
+        parentNode!.replaceChild(replaced, toReplace);
         res.push(new DomQuery(replaced));
         // no replacement possible
         if (this.isAbsent()) {
@@ -1365,7 +1365,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             this.runCss();
         }
 
-        let focusElement = DomQuery.byId(focusElementId ?? "");
+        let focusElement = DomQuery.byId(focusElementId as any);
         if (focusElementId && focusElement.isPresent() &&
             caretPosition != null && "undefined" != typeof caretPosition) {
             focusElement.eachElem(item => DomQuery.setCaretPosition(item, caretPosition));
@@ -1425,7 +1425,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         && null != src
                         && src.length > 0
                     ) {
-                        let nonce = item?.nonce ?? item.getAttribute('nonce');
+                        let nonce = item?.nonce ?? (item.getAttribute('nonce') as any).value;
                         // we have to move this into an inner if because chrome otherwise chokes
                         // due to changing the and order instead of relying on left to right
                         // if jsf.js is already registered we do not replace it anymore
@@ -1464,7 +1464,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                                 go = true;
                             }
                         }
-                        let nonce = item?.nonce ?? item.getAttribute('nonce') ?? '';
+                        let nonce = item?.nonce ?? (item.getAttribute('nonce') as any).value ?? '';
                         // we have to run the script under a global context
                         // we store the script for fewer calls to eval
                         finalScripts.push({
@@ -1658,7 +1658,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         // browser behavior no element name no encoding (normal submit fails in that case)
         // https:// issues.apache.org/jira/browse/MYFACES-2847
         if (this.name.isAbsent()) {
-            return {};
+            return undefined as any;
         }
 
         // let´s keep it side-effects free
@@ -2042,10 +2042,8 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
             if (!this.rootNode[cnt]?.closest) {
                 continue;
             }
-            let res = this.rootNode[cnt].closest(selector);
-            if (res) {
-                nodes = nodes.concat(res);
-            }
+            let res = [this.rootNode[cnt].closest(selector)];
+            nodes = nodes.concat(...res as any);
         }
 
         return new DomQuery(...nodes);

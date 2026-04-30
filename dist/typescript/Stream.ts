@@ -87,7 +87,7 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
         let lookAhead = this?.activeDataSource?.lookAhead(cnt);
         if (this?.activeDataSource && lookAhead != ITERATION_STATUS.EO_STRM) {
             //this should cover 95% of all cases
-            return lookAhead ?? ITERATION_STATUS.EO_STRM;
+            return lookAhead as S | ITERATION_STATUS;
         }
 
         if (this.activeDataSource) {
@@ -144,7 +144,7 @@ export class FlatMapStreamDataSource<T, S> implements IStreamDataSource<S> {
             this._currPos++;
             return this.activeDataSource!.next();
         }
-        return ITERATION_STATUS.EO_STRM;
+        return undefined as any;
     }
 
     reset(): void {
@@ -402,24 +402,18 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
      */
 
     flatMap<R>(fn?: (data: T) => R | Array<any>): Stream<any> {
-        if (!fn) {
-            fn = (inval: any) => inval;
-        }
         let ret: any[] = [];
         this.each(item => {
-            let strmR: any = fn(item);
+            let strmR: any = fn!(item);
             ret = Array.isArray(strmR) ? ret.concat(strmR) : ret.concat(strmR.value);
         });
         return <Stream<any>>Stream.of(...ret);
     }
 
     filter(fn?: (data: T) => boolean): Stream<T> {
-        if (!fn) {
-            fn = () => true;
-        }
         let res: Array<T> = [];
         this.each((data) => {
-            if (fn(data)) {
+            if (fn!(data)) {
                 res.push(data);
             }
         });
@@ -505,7 +499,7 @@ export class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<Array<T>>
 
     next(): T | ITERATION_STATUS {
         if (!this.hasNext()) {
-            return ITERATION_STATUS.EO_STRM;
+            return null as any;
         }
         this.pos++;
         return this.value[this.pos];
@@ -656,7 +650,7 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
             }
             return <T>newVal;
         }
-        return ITERATION_STATUS.EO_STRM;
+        return null as any;
     }
 
     limits(max: number): LazyStream<T> {
@@ -683,15 +677,15 @@ export class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, IMonad<T
         }, this));
     }
 
-    filter(fn: Matchable<T> = () => true): LazyStream<T> {
-        return <LazyStream<T>>new LazyStream<T>(new FilteredStreamDatasource<any>(fn, this));
+    filter(fn?: Matchable<T>): LazyStream<T> {
+        return <LazyStream<T>>new LazyStream<T>(new FilteredStreamDatasource<any>(fn!, this));
     }
 
-    map<R>(fn: Mappable<T, R> = (inval: any) => inval): LazyStream<any> {
+    map<R>(fn?: Mappable<T, R>): LazyStream<any> {
         return new LazyStream(new MappedStreamDataSource(fn as any, this));
     }
 
-    flatMap<R>(fn: ((data: T) => R | Array<any>) = (inval: any) => inval): LazyStream<any> {
+    flatMap<R>(fn?: ((data: T) => R | Array<any>)): LazyStream<any> {
         return new LazyStream<any>(new FlatMapStreamDataSource(fn as any, this));
     }
 

@@ -37,7 +37,7 @@ export declare class TagBuilder {
     observedAttrs: string[];
     static withTagName(tagName: string): TagBuilder;
     constructor(tagName: string);
-    withObservedAttributes(...oAttrs: string[]): this;
+    withObservedAttributes(...oAttrs: string[]): void;
     withConnectedCallback(callback: Function): this;
     withDisconnectedCallback(callback: Function): this;
     withAdoptedCallback(callback: Function): this;

@@ -60,7 +60,7 @@ export namespace Lang {
     export function saveResolveLazy<T>(resolverProducer: () => T, defaultValue: (() => T) | null = null): Optional<T> {
         try {
             let result = resolverProducer();
-            return Optional.fromNullable(result ?? defaultValue?.());
+            return Optional.fromNullable(result ?? defaultValue!());
         } catch (e) {
             return Optional.absent;
         }

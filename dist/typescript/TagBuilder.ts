@@ -47,8 +47,8 @@ export class TagBuilder {
     connectedCallback?: Function;
     clazz?: CustomElementConstructor;
     extendsType: CustomElementConstructor = HTMLElement;
-    theOptions: ElementDefinitionOptions | null = null;
-    markup: string = "";
+    theOptions!: ElementDefinitionOptions | null;
+    markup!: string;
     disconnectedCallback?: Function;
     adoptedCallback ?: Function;
     attributeChangedCallback ?: Function;
@@ -67,7 +67,6 @@ export class TagBuilder {
     // noinspection JSUnusedGlobalSymbols
     withObservedAttributes(...oAttrs: string[]) {
         this.observedAttrs = oAttrs;
-        return this;
     }
 
     // noinspection JSUnusedGlobalSymbols

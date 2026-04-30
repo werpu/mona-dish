@@ -157,15 +157,12 @@ export class MultiStreamDatasource<T> implements IStreamDataSource<T> {
         const all_strms = [...strms];
         while(all_strms.length) {
             let next_strm = all_strms.shift();
-            if (!next_strm) {
-                return ITERATION_STATUS.EO_STRM;
-            }
-            let lookAhead = next_strm.lookAhead(cnt);
+            let lookAhead = next_strm!.lookAhead(cnt);
 
             if (lookAhead != ITERATION_STATUS.EO_STRM) {
                 return lookAhead;
             }
-            cnt = cnt - calculateSkips(next_strm);
+            cnt = cnt - calculateSkips(next_strm!);
         }
         return ITERATION_STATUS.EO_STRM;
     }
