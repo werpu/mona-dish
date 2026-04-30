@@ -80,6 +80,14 @@ it('must work with RxJS and DomQuery', function() {
 
 ## Messages and RxJs connectivity
 
+The RxJS-backed messaging API is exposed through the optional `mona-dish/messaging` entry point:
+
+```typescript
+import {Broker, Message} from "mona-dish/messaging";
+```
+
+Consumers using this entry point must provide `rxjs`.
+
 To enable a forward compatibility between messages and rxjs
 the Brokers now have a asSubject(<channel>) Api.
 This enables to treat rxjs messages as subjects and works in both directions
@@ -88,5 +96,4 @@ aka...
 * a broadcast calls an observer on the subject
 * a next call triggers a listener on the broker
 * a next call also triggers an observer on the subject
-
 

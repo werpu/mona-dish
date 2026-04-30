@@ -22,8 +22,20 @@ For now, it is only a small set of Helpers consisting of following items:
 * [Streams](https://github.com/werpu/mona-dish/blob/master/docs/Stream.md) ... a typescript based implementation of early and lazily evaluating streams                   
 * [DomQuery](https://github.com/werpu/mona-dish/blob/master/docs/DomQuery.md) ... a jquery like functional query and dom manipulation engine based on querySelectorAll, also support streams and shadow dom trees
 * XmlQuery ... a jquery like XML document query selection and manipulation engine ... also supports streams
-* [Messaging](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md) ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom
-* [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/RxJS.md) ... RxJS bindings 
+* [Messaging](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md) ... a messaging bus which can break page isolation levels to allow communication between iframes/popups/shadow dom/dom, exposed via `mona-dish/messaging`
+* [RxJS](https://github.com/werpu/mona-dish/blob/master/docs/RxJS.md) ... RxJS bindings for the optional messaging module
+
+## Breaking change: messaging moved to an explicit entry point
+
+The default `mona-dish` package entry now exposes the core API only and does not load the RxJS-backed messaging module.
+
+Projects using messaging must import it from `mona-dish/messaging`:
+
+```typescript
+import {Broker, BroadcastChannelBroker, Message} from "mona-dish/messaging";
+```
+
+`rxjs` remains a consumer-provided external dependency. Install/provide it in applications which use `mona-dish/messaging`.
 
 
 ## Implementation languages
@@ -172,6 +184,12 @@ You, also, will get many other benefits similar to DomQuery by using XmlQuery
 ### Messaging
 
 A messaging bus ... for documentation [follow this link:](https://github.com/werpu/mona-dish/blob/master/docs/Messaging.md)
+
+Messaging is not exported by the default `mona-dish` package entry anymore. Use:
+
+```typescript
+import {Broker, BroadcastChannelBroker, Message} from "mona-dish/messaging";
+```
 
 ## Extended Documentation
 
@@ -362,10 +380,24 @@ it now uses plain associative arrays as internal data structure to make debuggin
 and element.nonce.value = "nonceValue"), or element.nonce.isPresent()
 * Fixing shallow copy in AssocArray
 
-### Version 0.30.0
+### Version 0.40.0
 
 Update to typescript 6.0 in preparation for typescript 7
 
+### Version 0.40.0-beta.3
+
+Breaking change:
+
+Messaging moved out of the default `mona-dish` package entry and is now exposed via `mona-dish/messaging`.
+This keeps the default package entry free of the RxJS-backed messaging layer. Applications using messaging must import from `mona-dish/messaging` and provide `rxjs` themselves.
+
+Build and test changes:
+
+* Removed the runtime build/test dependency on `ts-node`; TypeScript config files and tests now run through `tsx`.
+* Webpack keeps using `webpack.config.ts`, but bundle builds now run with full `ts-loader` type checking.
+* `npm run build` runs `verify` first, then docs, declarations, bundles, dist copy, and dist smoke tests.
+* Added `npm run smoke` to verify generated dist module formats.
+* Added manual `npm run package:test` to pack the package isolatedly and verify core usage without RxJS plus messaging usage with explicitly provided RxJS.
 
 
                    

@@ -2,8 +2,24 @@
   "name": "mona-dish",
   "version": "0.40.0-beta.2",
   "description": "TypeScript/Javascript set of functional pattern inspired helpers, which will ease your programming live",
-  "main": "dist/js/umd/index.js",
-  "types": "dist/types/index.d.ts",
+  "main": "dist/js/commonjs/index_core.js",
+  "types": "dist/types/index_core.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index_core.d.ts",
+      "require": "./dist/js/commonjs/index_core.js",
+      "node": "./dist/js/commonjs/index_core.js",
+      "default": "./dist/js/umd/index_core.js"
+    },
+    "./messaging": {
+      "types": "./dist/types/Messaging.d.ts",
+      "require": "./dist/js/commonjs/Messaging.js",
+      "node": "./dist/js/commonjs/Messaging.js",
+      "default": "./dist/js/umd/Messaging.js"
+    },
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "clean": "node scripts/build-dist.mjs clean",
     "doc": "npm run build:docs",
@@ -13,6 +29,7 @@
     "coverage": "nyc --reporter=html --reporter=text mocha",
     "verify": "npm run typecheck && npm run test",
     "smoke": "node scripts/smoke-dist.mjs",
+    "package:test": "node scripts/package-compat.mjs",
     "build:types": "tsc -p src/tsconfig.json --emitDeclarationOnly",
     "build:bundles": "env NODE_OPTIONS=\"--import tsx\" webpack --config webpack.config.ts --env TARGET_TYPES=umd,commonjs,system,amd,amd-require,window",
     "copy:dist": "node scripts/build-dist.mjs copy",

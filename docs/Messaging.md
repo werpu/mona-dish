@@ -32,6 +32,14 @@ to bundle the library application
 
 ## Usage
 
+Messaging is an optional package entry point:
+
+```typescript
+import {Broker, BroadcastChannelBroker, Message} from "mona-dish/messaging";
+```
+
+The default `mona-dish` entry exposes the core API only. Projects using messaging must provide `rxjs`, because the messaging RxJS bridge uses `Subject` and `Observable`.
+
 ### Brokers,  Channel Groups, Channels, Messages and Listeners
 
 
@@ -449,5 +457,4 @@ For now, we have provided following
 this is useful for rotating key constructs
 
 See the code for further details and also how to implement your own crypto implementation.
-
 

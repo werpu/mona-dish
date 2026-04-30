@@ -28,13 +28,17 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 
 const distFiles = [
+    "dist/js/umd/index_core.js",
     "dist/js/umd/index.js",
+    "dist/js/commonjs/index_core.js",
     "dist/js/commonjs/index.js",
     "dist/js/system/index.js",
     "dist/js/amd/index.js",
     "dist/js/amd-require/index.js",
     "dist/js/window/index.js",
+    "dist/types/index_core.d.ts",
     "dist/types/index.d.ts",
+    "dist/types/Messaging.d.ts",
     "dist/typescript/index.ts"
 ];
 
@@ -71,7 +75,16 @@ function createBrowserLikeContext(extraGlobals = {}) {
 }
 
 function smokePackageMain() {
-    assertApi(require(root), "package main");
+    const api = require(root);
+    assertApi(api, "package main");
+    assert.equal(api.Message, undefined, "package main should not expose messaging");
+}
+
+function smokeMessagingSubpath() {
+    const messaging = require(path.join(root, "dist/js/commonjs/Messaging.js"));
+    assert.equal(typeof messaging.Message, "function", "messaging Message is missing");
+    assert.equal(typeof messaging.Broker, "function", "messaging Broker is missing");
+    assert.equal(typeof messaging.BroadcastChannelBroker, "function", "messaging BroadcastChannelBroker is missing");
 }
 
 function smokeCommonJs() {
@@ -133,6 +146,7 @@ function smokeWindow() {
 
 distFiles.forEach(assertDistFile);
 smokePackageMain();
+smokeMessagingSubpath();
 smokeCommonJs();
 smokeUmd();
 smokeAmd();
