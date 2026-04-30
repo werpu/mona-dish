@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Crypto, Hash } from "./Messaging";
+import type { Crypto, Hash } from "./Messaging";
 /**
  * basic json stringify encryption impl
  * this does not really full encryption except for a standard json stringyfywith an encapsulation json
