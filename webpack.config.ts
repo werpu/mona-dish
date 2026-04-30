@@ -64,8 +64,14 @@ export default (env: any = {}) => {
                     use: [{
                         loader: "ts-loader",
                         options: {
-                            transpileOnly: true,
-                            ignoreDiagnostics: [5011]
+                            configFile: path.resolve(__dirname, "src/tsconfig.json"),
+                            onlyCompileBundledFiles: true,
+                            compilerOptions: {
+                                declaration: false,
+                                declarationMap: false,
+                                declarationDir: undefined
+                            },
+                            reportFiles: ["src/main/typescript/**/*.ts", "!node_modules/**"]
                         }
                     }],
                     exclude: /node_modules/
