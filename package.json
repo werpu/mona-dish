@@ -12,6 +12,7 @@
     "test": "mocha",
     "coverage": "nyc --reporter=html --reporter=text mocha",
     "verify": "npm run typecheck && npm run test",
+    "smoke": "node scripts/smoke-dist.mjs",
     "build:types": "tsc -p src/tsconfig.json --emitDeclarationOnly",
     "build:bundles": "env NODE_OPTIONS=\"--import tsx\" webpack --config webpack.config.ts --env TARGET_TYPES=umd,commonjs,system,amd,amd-require,window",
     "copy:dist": "node scripts/build-dist.mjs copy",
@@ -21,7 +22,7 @@
     "build-system": "env NODE_OPTIONS=\"--import tsx\" webpack --config webpack.config.ts --env TARGET_TYPE=system",
     "build-amd": "env NODE_OPTIONS=\"--import tsx\" webpack --config webpack.config.ts --env TARGET_TYPE=amd",
     "build-amd-require": "env NODE_OPTIONS=\"--import tsx\" webpack --config webpack.config.ts --env TARGET_TYPE=amd-require",
-    "build": "npm run verify && npm run clean && npm run build:docs && npm run build:types && npm run build:bundles && npm run copy:dist"
+    "build": "npm run verify && npm run clean && npm run build:docs && npm run build:types && npm run build:bundles && npm run copy:dist && npm run smoke"
   },
   "keywords": [
     "typescript",
