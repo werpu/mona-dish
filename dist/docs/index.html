@@ -314,10 +314,30 @@ and element.nonce.value = &quot;nonceValue&quot;), or element.nonce.isPresent()<
 This keeps the default package entry free of the RxJS-backed messaging layer. Applications using messaging must import from <code>mona-dish/messaging</code> and provide <code>rxjs</code> themselves.</p>
 <p>Build and test changes:</p>
 <ul>
-<li>Removed the runtime build/test dependency on <code>ts-node</code>; TypeScript config files and tests now run through <code>tsx</code>.</li>
-<li>Webpack keeps using <code>webpack.config.ts</code>, but bundle builds now run with full <code>ts-loader</code> type checking.</li>
-<li><code>npm run build</code> runs <code>verify</code> first, then docs, declarations, bundles, dist copy, and dist smoke tests.</li>
-<li>Added <code>npm run smoke</code> to verify generated dist module formats.</li>
-<li>Added manual <code>npm run package:test</code> to pack the package isolatedly and verify core usage without RxJS plus messaging usage with explicitly provided RxJS.</li>
+<li>
+<p>Removed the runtime build/test dependency on <code>ts-node</code>; TypeScript config files and tests now run through <code>tsx</code>.</p>
+</li>
+<li>
+<p>Webpack keeps using <code>webpack.config.ts</code>, but bundle builds now run with full <code>ts-loader</code> type checking.</p>
+</li>
+<li>
+<p><code>npm run build</code> runs <code>verify</code> first, then docs, declarations, bundles, dist copy, and dist smoke tests.</p>
+</li>
+<li>
+<p>Added <code>npm run smoke</code> to verify generated dist module formats.</p>
+</li>
+<li>
+<p>Added manual <code>npm run package:test</code> to pack the package isolatedly and verify core usage without RxJS plus messaging usage with explicitly provided RxJS.</p>
+</li>
+<li>
+<p>Fixed Beta 2 - beta 3</p>
+<pre><code>- Beta 2 and older
+   - Webpack runtime: aliased mona-dish → src/main/typescript/index_core.ts (TS source, compiled by ts-loader) — same as now
+   - TypeScript type-checking: package had no useful native types entry, so modules.d.ts declared an ambient module &quot;mona-dish&quot; override and the tsconfig paths redirected to the shim, which re-exported from dist/typescript/index_core.ts (TS source alongside .d.ts files in the same dir)
+- Beta 3 (new):
+    - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
+    - TypeScript type-checking: beta 3 added a proper &quot;types&quot;: &quot;./dist/types/index_core.d.ts&quot; condition to the package.json exports map, so TypeScript resolves it natively
+</code></pre>
+</li>
 </ul>
 </div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="assets/icons.svg#icon-chevronDown"></use></svg><h3>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#mona-dish"><span>Mona-<wbr/>dish</span></a><ul><li><a href="#what-is-it"><span>What is it?</span></a></li><li><a href="#breaking-change-messaging-moved-to-an-explicit-entry-point"><span>Breaking change: messaging moved to an explicit entry point</span></a></li><li><a href="#implementation-languages"><span>Implementation languages</span></a></li><li><a href="#building"><span>building</span></a></li><li><a href="#usage"><span>Usage</span></a></li><li><ul><li><a href="#optional"><span>Optional</span></a></li><li><a href="#valueembedder"><span>Value<wbr/>Embedder</span></a></li><li><a href="#configuration"><span>Configuration</span></a></li><li><a href="#promise-and-cancellablepromise"><span>Promise and <wbr/>Cancellable<wbr/>Promise</span></a></li><li><a href="#stream"><span>Stream</span></a></li><li><ul><li><a href="#details"><span>Details</span></a></li><li><a href="#usage-1"><span>Usage</span></a></li></ul></li><li><a href="#domquery"><span>Dom<wbr/>Query</span></a></li><li><a href="#xmlquery"><span>Xml<wbr/>Query</span></a></li><li><a href="#messaging"><span>Messaging</span></a></li></ul></li><li><a href="#extended-documentation"><span>Extended <wbr/>Documentation</span></a></li><li><a href="#examples"><span>Examples</span></a></li></ul><a href="#changelog"><span>Changelog</span></a><ul><li><a href="#version-018"><span>Version 0.18</span></a></li><li><a href="#version-019"><span>Version 0.19</span></a></li><li><a href="#version-0191-01922"><span>Version 0.19.1 -<wbr/> 0.19.22</span></a></li><li><a href="#version-020"><span>Version 0.20.++</span></a></li><li><a href="#version-021"><span>Version 0.21.++</span></a></li><li><a href="#version-022-"><span>Version 0.22 ++</span></a></li><li><a href="#version-023"><span>Version 0.23+</span></a></li><li><a href="#version-024-"><span>Version 0.24 ++</span></a></li><li><a href="#version-025-"><span>Version 0.25 ++</span></a></li><li><ul><li><ul><li><a href="#02520"><span>0.25.20</span></a></li><li><a href="#02526"><span>0.25.26</span></a></li></ul></li></ul></li><li><a href="#version-026-"><span>Version 0.26 ++</span></a></li><li><a href="#version-028"><span>Version 0.28++</span></a></li><li><ul><li><a href="#important-api-chnage"><span>Important <wbr/>API chnage</span></a></li><li><a href="#other-changes-028"><span>Other changes 0.28++</span></a></li><li><a href="#version-0400"><span>Version 0.40.0</span></a></li><li><a href="#version-0400-beta3"><span>Version 0.40.0-<wbr/>beta.3</span></a></li></ul></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html">mona-dish</a><ul class="tsd-small-nested-navigation" id="tsd-nav-container"><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
