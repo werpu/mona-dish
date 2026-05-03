@@ -1,0 +1,51 @@
+# Source & tests (consumers get compiled dist/ only)
+# src/
+# scripts/
+# docs/
+
+# Build tooling
+webpack.config.ts
+karma.config.js
+typings.json
+pom.xml
+build.sh
+init.sh
+test.sh
+
+# Test/coverage artefacts
+coverage/
+.nyc_output/
+.mocharc*
+
+# Build intermediates
+target/
+node_modules/
+package-lock.json
+
+# Dev HTML test pages
+iframe.html
+iframecontent.html
+messagingTest.html
+
+# Planning & internal notes
+plans-post-1.0.txt
+CLAUDE.md
+AI_DISCLOSURE.md
+
+# AI tool config dirs
+.claude/
+.cursor/
+.copilot/
+.aider*
+.continue/
+.codeium/
+.qodo/
+
+# CI & repo metadata
+.github/
+.nycrc
+.nycrc.*
+
+# VCS & editor
+.gitignore
+.idea/

@@ -400,4 +400,14 @@ Build and test changes:
 * Added manual `npm run package:test` to pack the package isolatedly and verify core usage without RxJS plus messaging usage with explicitly provided RxJS.
 
 
+* Fixed Beta 2 - beta 3
+
+      - Beta 2 and older
+         - Webpack runtime: aliased mona-dish → src/main/typescript/index_core.ts (TS source, compiled by ts-loader) — same as now
+         - TypeScript type-checking: package had no useful native types entry, so modules.d.ts declared an ambient module "mona-dish" override and the tsconfig paths redirected to the shim, which re-exported from dist/typescript/index_core.ts (TS source alongside .d.ts files in the same dir)
+      - Beta 3 (new):
+          - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
+          - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
+
+
                    
