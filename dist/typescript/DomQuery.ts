@@ -160,8 +160,9 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
                 observer!.observe(item, observableOpts)
             })
         } else { // fallback for legacy browsers without mutation observer
-
-                let interval: any = setInterval(() => {
+            let interval: any;
+            let timeout: any;
+            interval = setInterval(() => {
                 let found = findElement(root, condition);
                 if (!!found) {
                     if (timeout) {
@@ -172,13 +173,12 @@ function waitUntilDom(root: DomQuery, condition: (element: DomQuery) => boolean,
                     success(new DomQuery(found || root));
                 }
             }, options.interval);
-            let timeout = setTimeout(() => {
+            timeout = setTimeout(() => {
                 if (interval) {
                     clearInterval(interval);
                     error(MUT_ERROR);
                 }
-            }, options.timeout)
-
+            }, options.timeout);
         }
     });
 }
@@ -202,7 +202,6 @@ export class ElementAttribute extends ValueEmbedder<string | null> {
         for (let cnt = 0; cnt < val.length; cnt++) {
             val[cnt].setAttribute(this.name, value);
         }
-        val[0].setAttribute(this.name, value);
     }
 
     protected getClass(): any {
@@ -237,11 +236,11 @@ export class Style extends ValueEmbedder<string | null> {
     }
 
     protected getClass(): any {
-        return ElementAttribute;
+        return Style;
     }
 
     static fromNullable<ElementAttribute, T>(value?: any, valueKey: string = "value"): ElementAttribute {
-        return <any>new ElementAttribute(value, valueKey);
+        return <any>new Style(value, valueKey);
     }
 
 }
@@ -987,7 +986,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
 
     lastElem(func: (item: Element, cnt?: number) => any = item => item): DomQuery {
         if (this.rootNode.length > 0) {
-            func(this.rootNode[this.rootNode.length - 1], 0);
+            func(this.rootNode[this.rootNode.length - 1], this.rootNode.length - 1);
         }
         return this;
     }

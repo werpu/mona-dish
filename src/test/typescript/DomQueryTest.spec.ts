@@ -248,7 +248,7 @@ describe('DOMQuery tests', function () {
     it('Style.fromNullable must write via element.style not setAttribute', function () {
         let probe = new DomQuery(document).querySelectorAll("div#id_2");
         const styleInstance = Style.fromNullable(probe, "color");
-        styleInstance.value = "red";
+        (styleInstance as Style).value = "red";
         const elem = probe.getAsElem(0).value as HTMLElement;
         // written via element.style — visible on style object
         expect(elem.style.color).to.eq("red");
@@ -664,7 +664,7 @@ describe('DOMQuery tests', function () {
     it("firstElem must call func with first element and index 0", function () {
         DomQuery.byTagName("body").innerHTML = `<div id="a"></div><div id="b"></div><div id="c"></div>`;
         const visited: {id: string, idx: number}[] = [];
-        DomQuery.querySelectorAll("div").firstElem((el, idx) => visited.push({id: el.id, idx}));
+        DomQuery.querySelectorAll("div").firstElem((el, idx) => visited.push({id: el.id, idx: idx ?? 0}));
         expect(visited.length).to.eq(1);
         expect(visited[0].id).to.eq("a");
         expect(visited[0].idx).to.eq(0);
@@ -673,7 +673,7 @@ describe('DOMQuery tests', function () {
     it("lastElem must call func with last element and its correct index", function () {
         DomQuery.byTagName("body").innerHTML = `<div id="a"></div><div id="b"></div><div id="c"></div>`;
         const visited: {id: string, idx: number}[] = [];
-        DomQuery.querySelectorAll("div").lastElem((el, idx) => visited.push({id: el.id, idx}));
+        DomQuery.querySelectorAll("div").lastElem((el, idx) => visited.push({id: el.id, idx: idx ?? 0}));
         expect(visited.length).to.eq(1);
         expect(visited[0].id).to.eq("c");
         expect(visited[0].idx).to.eq(2);
