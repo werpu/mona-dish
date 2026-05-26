@@ -31,7 +31,7 @@ Source files modified with AI assistance during the TypeScript 6 update:
 | `src/test/typescript/DomQueryTest.spec.ts`    | test   |
 | `src/tsconfig.json`                           | config |
 
-### Bug fixes and test coverage — 2026-05-26 (v0.50.0-beta.1)
+### Bug fixes and test coverage — 2026-05-26 (v0.50.0-beta.2)
 
 AI-assisted bug fixes and test additions across `Lang` and `DomQuery`:
 

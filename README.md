@@ -409,7 +409,7 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
-### Version 0.50.0-beta.1
+### Version 0.50.0-beta.2
 
 Bug fixes and test coverage improvements:
 
