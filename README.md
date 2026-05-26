@@ -409,5 +409,18 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
+### Version 0.50.0-beta.1
 
-                   
+Bug fixes and test coverage improvements:
+
+* `Lang.objAssign` fallback path: fixed spec non-compliance — now copies enumerable Symbol-keyed own properties via `Object.getOwnPropertySymbols` + `propertyIsEnumerable`, matching ES2015 `Object.assign` behaviour
+* `DomQuery.fromMarkup`: fixed `tfoot` branch (was using wrong table index); unified `thead`/`tbody`/`tfoot` into a single branch; added `th` cell handling (previously fell through to default)
+* `DomQuery.setCaretPosition`: fixed typo `setSelectiongRange` → `setSelectionRange` (caret positioning was silently doing nothing)
+* `DomQuery.firstElem` / `lastElem`: fixed guard condition `> 1` → `> 0` (single-element DomQuery was skipped); fixed `lastElem` passing wrong index to callback
+* `DomQuery.elements` / `deepElements`: removed invalid `checkbox` CSS selector (dead weight — checkboxes are already matched by `input`)
+* `DomQuery` legacy `waitUntilDom` fallback: moved `timeout`/`interval` declarations before assignment for clarity
+* `Style.getClass()` / `Style.fromNullable()`: fixed both returning/creating `ElementAttribute` instead of `Style`
+* `ElementAttribute.set value()`: removed duplicate `setAttribute` call after loop
+* Added test coverage for: `objAssign` (12 tests), `fromMarkup` all branches (14 tests), `setCaretPosition` (3 tests), `firstElem`/`lastElem` (6 tests), `Style.fromNullable`/`getClass` (3 tests), `waitUntilDom` fast-path + tightened assertions
+
+

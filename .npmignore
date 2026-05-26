@@ -1,7 +1,5 @@
-# Source & tests (consumers get compiled dist/ only)
-# src/
-# scripts/
-# docs/
+# Build scripts only (src/ and docs/ are intentionally included)
+scripts/
 
 # Build tooling
 webpack.config.ts

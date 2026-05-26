@@ -31,6 +31,17 @@ Source files modified with AI assistance during the TypeScript 6 update:
 | `src/test/typescript/DomQueryTest.spec.ts`    | test   |
 | `src/tsconfig.json`                           | config |
 
+### Bug fixes and test coverage — 2026-05-26 (v0.50.0-beta.1)
+
+AI-assisted bug fixes and test additions across `Lang` and `DomQuery`:
+
+| File | Type | Change |
+|------|------|--------|
+| `src/main/typescript/Lang.ts` | source | `objAssign` fallback: added Symbol-keyed property copying via `getOwnPropertySymbols` + `propertyIsEnumerable` |
+| `src/main/typescript/DomQuery.ts` | source | Fixed `tfoot` branch selector; unified thead/tbody/tfoot branch; added `th` handling; fixed `setSelectiongRange` typo; fixed `firstElem`/`lastElem` guard (`> 1` → `> 0`) and `lastElem` index; removed invalid `checkbox` CSS selector; fixed `Style.getClass()`/`fromNullable()` returning wrong class; fixed duplicate `setAttribute`; clarified `timeout`/`interval` declaration order |
+| `src/test/typescript/LangTest.spec.ts` | test | Added `objAssign tests` describe block (12 tests) |
+| `src/test/typescript/DomQueryTest.spec.ts` | test | Added tests for: all `fromMarkup` branches (14 tests), `setCaretPosition` (3 tests), `firstElem`/`lastElem` (6 tests), `Style.fromNullable`/`getClass` (3 tests), `waitUntilDom` fast-path; tightened existing `waitUntilDom` assertions |
+
 ---
 
 ## Review and Accountability

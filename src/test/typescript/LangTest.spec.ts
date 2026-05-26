@@ -126,3 +126,105 @@ describe('Lang tests', () => {
     });
 
 });
+
+describe('objAssign tests', () => {
+
+    it('must copy string-keyed own enumerable properties', () => {
+        const result = Lang.objAssign({}, { a: 1, b: 2 });
+        expect(result.a).to.eq(1);
+        expect(result.b).to.eq(2);
+    });
+
+    it('must throw TypeError for null target', () => {
+        expect(() => Lang.objAssign(null)).to.throw(TypeError);
+    });
+
+    it('must throw TypeError for undefined target', () => {
+        expect(() => Lang.objAssign(undefined)).to.throw(TypeError);
+    });
+
+    it('must skip null sources without throwing', () => {
+        const result = Lang.objAssign({ a: 1 }, null, { b: 2 });
+        expect(result.a).to.eq(1);
+        expect(result.b).to.eq(2);
+    });
+
+    it('must skip undefined sources without throwing', () => {
+        const result = Lang.objAssign({ a: 1 }, undefined, { b: 2 });
+        expect(result.a).to.eq(1);
+        expect(result.b).to.eq(2);
+    });
+
+    it('must merge multiple sources with later values overwriting earlier', () => {
+        const result = Lang.objAssign({}, { a: 1, b: 1 }, { b: 2, c: 3 });
+        expect(result.a).to.eq(1);
+        expect(result.b).to.eq(2);
+        expect(result.c).to.eq(3);
+    });
+
+    it('must return target unchanged when no sources provided', () => {
+        const target = { a: 1 };
+        const result = Lang.objAssign(target);
+        expect(result).to.deep.eq({ a: 1 });
+    });
+
+    it('must return the same target object reference', () => {
+        const target = {};
+        const result = Lang.objAssign(target, { a: 1 });
+        expect(result).to.equal(target);
+    });
+
+    it('must copy enumerable symbol-keyed properties (fallback path)', () => {
+        const nativeAssign = (Object as any).assign;
+        try {
+            (Object as any).assign = undefined;
+            const sym = Symbol('test');
+            const source = { a: 1, [sym]: 2 };
+            const result = Lang.objAssign({}, source);
+            expect(result.a).to.eq(1);
+            expect((result as any)[sym]).to.eq(2);
+        } finally {
+            (Object as any).assign = nativeAssign;
+        }
+    });
+
+    it('must not copy non-enumerable symbol-keyed properties (fallback path)', () => {
+        const nativeAssign = (Object as any).assign;
+        try {
+            (Object as any).assign = undefined;
+            const sym = Symbol('hidden');
+            const source = {};
+            Object.defineProperty(source, sym, { value: 42, enumerable: false });
+            const result = Lang.objAssign({}, source);
+            expect((result as any)[sym]).to.be.undefined;
+        } finally {
+            (Object as any).assign = nativeAssign;
+        }
+    });
+
+    it('must skip null/undefined sources in fallback path', () => {
+        const nativeAssign = (Object as any).assign;
+        try {
+            (Object as any).assign = undefined;
+            const result = Lang.objAssign({ a: 1 }, null, undefined, { b: 2 });
+            expect(result.a).to.eq(1);
+            expect(result.b).to.eq(2);
+        } finally {
+            (Object as any).assign = nativeAssign;
+        }
+    });
+
+    it('must merge multiple sources correctly in fallback path', () => {
+        const nativeAssign = (Object as any).assign;
+        try {
+            (Object as any).assign = undefined;
+            const result = Lang.objAssign({}, { a: 1, b: 1 }, { b: 2, c: 3 });
+            expect(result.a).to.eq(1);
+            expect(result.b).to.eq(2);
+            expect(result.c).to.eq(3);
+        } finally {
+            (Object as any).assign = nativeAssign;
+        }
+    });
+
+});

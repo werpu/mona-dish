@@ -17,6 +17,7 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
 import {ArrayCollector, DomQuery, DomQueryCollector, Lang, LazyStream, Stream} from "../../main/typescript";
+import {ElementAttribute, Style} from "../../main/typescript/DomQuery";
 import {from} from "rxjs";
 const trim = Lang.trim;
 import {tobagoSheetWithHeader} from "./markups/tobago-with-header";
@@ -237,6 +238,31 @@ describe('DOMQuery tests', function () {
 
     });
 
+    it('Style.fromNullable must return a Style instance not an ElementAttribute', function () {
+        let probe = new DomQuery(document).querySelectorAll("div#id_2");
+        const styleInstance = Style.fromNullable(probe, "color");
+        expect(styleInstance instanceof Style).to.be.true;
+        expect(styleInstance instanceof ElementAttribute).to.be.false;
+    });
+
+    it('Style.fromNullable must write via element.style not setAttribute', function () {
+        let probe = new DomQuery(document).querySelectorAll("div#id_2");
+        const styleInstance = Style.fromNullable(probe, "color");
+        styleInstance.value = "red";
+        const elem = probe.getAsElem(0).value as HTMLElement;
+        // written via element.style — visible on style object
+        expect(elem.style.color).to.eq("red");
+        // NOT written as an attribute — getAttribute("color") should be null
+        expect(elem.getAttribute("color")).to.be.null;
+    });
+
+    it('Style getClass must return Style not ElementAttribute', function () {
+        let probe = new DomQuery(document).querySelectorAll("div#id_2");
+        const styleInstance = new Style(probe, "color");
+        expect((styleInstance as any).getClass()).to.eq(Style);
+        expect((styleInstance as any).getClass()).to.not.eq(ElementAttribute);
+    });
+
     it('must perform addClass and hasClass correctly', function () {
         let probe1 = new DomQuery(document);
         let element = probe1.querySelectorAll("div#id_2");
@@ -303,6 +329,82 @@ describe('DOMQuery tests', function () {
         expect(fromMarkupWithoutHeader.tagName.value === "HTML").to.be.false;
     });
 
+
+    it('fromMarkup: must parse simple div markup (default branch)', function () {
+        const result = DomQuery.fromMarkup(`<div id="testDiv">hello</div>`);
+        expect(result.tagName.value).to.eq("DIV");
+        expect(result.id.value).to.eq("testDiv");
+    });
+
+    it('fromMarkup: must parse full html document (doctype branch)', function () {
+        const result = DomQuery.fromMarkup(`<!DOCTYPE html><html><head></head><body><div>content</div></body></html>`);
+        expect(result.tagName.value).to.eq("HTML");
+    });
+
+    it('fromMarkup: must parse markup starting with <html tag', function () {
+        const result = DomQuery.fromMarkup(`<html><head></head><body><p>text</p></body></html>`);
+        expect(result.tagName.value).to.eq("HTML");
+    });
+
+    it('fromMarkup: must parse markup starting with <head tag', function () {
+        const result = DomQuery.fromMarkup(`<head><title>test</title></head>`);
+        expect(result.tagName.value).to.eq("HTML");
+    });
+
+    it('fromMarkup: must parse markup starting with <body tag', function () {
+        const result = DomQuery.fromMarkup(`<body><p>text</p></body>`);
+        expect(result.tagName.value).to.eq("HTML");
+    });
+
+    it('fromMarkup: must parse thead markup', function () {
+        const result = DomQuery.fromMarkup(`<thead><tr><th>header</th></tr></thead>`);
+        expect(result.tagName.value).to.eq("THEAD");
+        expect(result.querySelectorAll("th").length).to.eq(1);
+    });
+
+    it('fromMarkup: must parse tbody markup', function () {
+        const result = DomQuery.fromMarkup(`<tbody><tr><td>data</td></tr></tbody>`);
+        expect(result.tagName.value).to.eq("TBODY");
+        expect(result.querySelectorAll("td").length).to.eq(1);
+    });
+
+    it('fromMarkup: must parse tfoot markup', function () {
+        const result = DomQuery.fromMarkup(`<tfoot><tr><td>foot data</td></tr></tfoot>`);
+        expect(result.tagName.value).to.eq("TFOOT");
+        expect(result.querySelectorAll("td").length).to.eq(1);
+    });
+
+    it('fromMarkup: must parse tr markup', function () {
+        const result = DomQuery.fromMarkup(`<tr><td>cell</td></tr>`);
+        expect(result.tagName.value).to.eq("TR");
+        expect(result.querySelectorAll("td").length).to.eq(1);
+    });
+
+    it('fromMarkup: must parse td markup', function () {
+        const result = DomQuery.fromMarkup(`<td>cell content</td>`);
+        expect(result.tagName.value).to.eq("TD");
+    });
+
+    it('fromMarkup: must parse th markup', function () {
+        const result = DomQuery.fromMarkup(`<th>header cell</th>`);
+        expect(result.tagName.value).to.eq("TH");
+    });
+
+    it('fromMarkup: must parse th markup with attributes', function () {
+        const result = DomQuery.fromMarkup(`<th colspan="2">header cell</th>`);
+        expect(result.tagName.value).to.eq("TH");
+        expect(result.attr("colspan").value).to.eq("2");
+    });
+
+    it('fromMarkup: must handle tags with attributes (startsWithTag attribute variant)', function () {
+        const result = DomQuery.fromMarkup(`<thead class="foo"><tr><th>header</th></tr></thead>`);
+        expect(result.tagName.value).to.eq("THEAD");
+    });
+
+    it('fromMarkup: must parse multiple sibling elements', function () {
+        const result = DomQuery.fromMarkup(`<div id="a"></div><div id="b"></div>`);
+        expect(result.length).to.eq(2);
+    });
 
     it('do not falsely assume standard tag', function () {
 
@@ -524,6 +626,27 @@ describe('DOMQuery tests', function () {
         expect(data?.["page:animals"][1]).to.eq("Fox");
     })
 
+    it("setCaretPosition must call setSelectionRange on the control", function () {
+        const calls: number[][] = [];
+        const mockCtrl = {
+            focus: () => {},
+            setSelectionRange: (start: number, end: number) => calls.push([start, end])
+        };
+        DomQuery.setCaretPosition(mockCtrl, 5);
+        expect(calls.length).to.eq(1);
+        expect(calls[0][0]).to.eq(5);
+        expect(calls[0][1]).to.eq(5);
+    });
+
+    it("setCaretPosition must silently do nothing when control has no setSelectionRange", function () {
+        const mockCtrl = { focus: () => {} };
+        expect(() => DomQuery.setCaretPosition(mockCtrl, 3)).not.to.throw();
+    });
+
+    it("setCaretPosition must silently do nothing for null control", function () {
+        expect(() => DomQuery.setCaretPosition(null, 3)).not.to.throw();
+    });
+
     it("must have a proper loadScriptEval execution", function (done) {
 
         DomQuery.byTagName("body").loadScriptEval("./fixtures/test.js");
@@ -536,6 +659,52 @@ describe('DOMQuery tests', function () {
 
     it("must have first etc working", function () {
         expect(DomQuery.querySelectorAll("div").first().id.value).to.eq("id_1");
+    });
+
+    it("firstElem must call func with first element and index 0", function () {
+        DomQuery.byTagName("body").innerHTML = `<div id="a"></div><div id="b"></div><div id="c"></div>`;
+        const visited: {id: string, idx: number}[] = [];
+        DomQuery.querySelectorAll("div").firstElem((el, idx) => visited.push({id: el.id, idx}));
+        expect(visited.length).to.eq(1);
+        expect(visited[0].id).to.eq("a");
+        expect(visited[0].idx).to.eq(0);
+    });
+
+    it("lastElem must call func with last element and its correct index", function () {
+        DomQuery.byTagName("body").innerHTML = `<div id="a"></div><div id="b"></div><div id="c"></div>`;
+        const visited: {id: string, idx: number}[] = [];
+        DomQuery.querySelectorAll("div").lastElem((el, idx) => visited.push({id: el.id, idx}));
+        expect(visited.length).to.eq(1);
+        expect(visited[0].id).to.eq("c");
+        expect(visited[0].idx).to.eq(2);
+    });
+
+    it("firstElem must call func when there is exactly one element", function () {
+        DomQuery.byTagName("body").innerHTML = `<div id="only"></div>`;
+        const visited: string[] = [];
+        DomQuery.querySelectorAll("div").firstElem(el => visited.push(el.id));
+        expect(visited.length).to.eq(1);
+        expect(visited[0]).to.eq("only");
+    });
+
+    it("lastElem must call func when there is exactly one element", function () {
+        DomQuery.byTagName("body").innerHTML = `<div id="only"></div>`;
+        const visited: string[] = [];
+        DomQuery.querySelectorAll("div").lastElem(el => visited.push(el.id));
+        expect(visited.length).to.eq(1);
+        expect(visited[0]).to.eq("only");
+    });
+
+    it("firstElem must not call func on empty DomQuery", function () {
+        const visited: string[] = [];
+        DomQuery.querySelectorAll(".nonexistent").firstElem(el => visited.push(el.id));
+        expect(visited.length).to.eq(0);
+    });
+
+    it("lastElem must not call func on empty DomQuery", function () {
+        const visited: string[] = [];
+        DomQuery.querySelectorAll(".nonexistent").lastElem(el => visited.push(el.id));
+        expect(visited.length).to.eq(0);
     });
 
     it("runscript runcss", function (done) {
@@ -702,15 +871,23 @@ describe('DOMQuery tests', function () {
     })
 
 
+    it('it must resolve immediately when condition is already true (fast path)', async function () {
+        let probe = DomQuery.byId('id_1');
+        probe.innerHTML = 'true';
+        const start = Date.now();
+        let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
+        expect(ret.isPresent()).to.be.true;
+        expect(Date.now() - start).to.be.lessThan(100);
+    });
+
     it('it must have a working wait for dom with mut observer and must detect condition after change', async function () {
         let probe = DomQuery.byId('id_1');
         probe.innerHTML = 'true';
         let ret = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-        expect(ret.isPresent());
+        expect(ret.isPresent()).to.be.true;
         probe = DomQuery.byId('bosushsdhs');
         ret = await probe.waitUntilDom((element) => element.isAbsent());
-        expect(ret.isAbsent());
-
+        expect(ret.isAbsent()).to.be.true;
     });
 
     it('it must have a working wait for dom with mut observer', async function () {
@@ -722,7 +899,8 @@ describe('DOMQuery tests', function () {
         probe.innerHTML = "";
         setTimeout(() => probe.innerHTML = 'true', 300);
         let ret2 = await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
-        expect(ret.isPresent() && ret2.isPresent());
+        expect(ret.isPresent()).to.be.true;
+        expect(ret2.isPresent()).to.be.true;
     });
 
     it('it must have a timeout', async function () {
@@ -732,7 +910,7 @@ describe('DOMQuery tests', function () {
             await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
             expect.fail("must have a timeout");
         } catch (ex) {
-            expect(!!ex);
+            expect(ex).to.be.instanceOf(Error);
         }
         try {
             delete (window as any).MutationObserver;
@@ -742,7 +920,7 @@ describe('DOMQuery tests', function () {
             await probe.waitUntilDom((element) => element.innerHTML.indexOf('true') != -1);
             expect.fail("must have a timeout");
         } catch (ex2) {
-            expect(!!ex2);
+            expect(ex2).to.be.instanceOf(Error);
         }
     });
     it('must handle null inputs correctly', function () {
