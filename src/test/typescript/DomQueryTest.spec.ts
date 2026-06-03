@@ -211,6 +211,83 @@ describe('DOMQuery tests', function () {
         expect(window.document.body.innerHTML.indexOf("blarg") != -1).to.be.true;
     });
 
+    it('outerHTML must not reset the caret of a focused input outside the replaced subtree', function () {
+        // regression: updating an unrelated component reset the caret of a different,
+        // still focused input field to position 0
+        const doc = window.document;
+        const input = doc.createElement("input");
+        input.id = "focusedInput";
+        input.value = "123";
+        doc.body.appendChild(input);
+        input.focus();
+        input.setSelectionRange(1, 1);
+
+        new DomQuery(doc.getElementById("id_2")).outerHTML(`<div id='id_2'>updated</div>`);
+
+        expect(doc.activeElement?.id).to.eq("focusedInput");
+        expect((doc.getElementById("focusedInput") as HTMLInputElement).selectionStart).to.eq(1);
+    });
+
+    it('outerHTML restores the caret when the focused input is part of the replaced subtree', function () {
+        const doc = window.document;
+        const container = doc.getElementById("id_1") as HTMLElement;
+        container.innerHTML = `<input id='inner' value='123'>`;
+        const inner = doc.getElementById("inner") as HTMLInputElement;
+        inner.focus();
+        inner.setSelectionRange(2, 2);
+
+        new DomQuery(container).outerHTML(`<div id='id_1'><input id='inner' value='123'></div>`);
+
+        const restored = doc.getElementById("inner") as HTMLInputElement;
+        expect(restored.selectionStart).to.eq(2);
+    });
+
+    it('tobago scenario: typing digits stays in order across partial updates', function () {
+        // Reproduces the Tobago "<tc:in> renders only <tc:out>" case:
+        // every keystroke triggers an ajax request that re-renders ONLY the output,
+        // not the focused input. The caret of the input must survive each update so the
+        // next typed digit lands behind the previous one ("12") and not in front ("21").
+        const doc = window.document;
+        const input = doc.createElement("input");
+        input.id = "page:inputAjax::field";
+        doc.body.appendChild(input);
+        input.focus();
+        input.setSelectionRange(0, 0);
+
+        // simulates the browser inserting a character at the current caret position
+        const typeChar = (el: HTMLInputElement, ch: string) => {
+            const pos = el.selectionStart ?? el.value.length;
+            el.value = el.value.slice(0, pos) + ch + el.value.slice(pos);
+            el.setSelectionRange(pos + 1, pos + 1);
+        };
+        // simulates the partial-response update that re-renders only the output component
+        const renderOutput = () => {
+            new DomQuery(doc.getElementById("page:outputAjax") as HTMLElement)
+                .outerHTML(`<span id='page:outputAjax'>${input.value}</span>`);
+        };
+
+        const output = doc.createElement("span");
+        output.id = "page:outputAjax";
+        doc.body.appendChild(output);
+
+        typeChar(input, "1");
+        renderOutput();
+        // caret must still sit behind the "1", the input is untouched by the output update
+        expect(doc.activeElement?.id).to.eq("page:inputAjax::field");
+        expect(input.selectionStart).to.eq(1);
+
+        typeChar(input, "2");
+        renderOutput();
+        expect(input.selectionStart).to.eq(2);
+
+        typeChar(input, "3");
+        renderOutput();
+
+        expect(input.value).to.eq("123");
+        expect(input.selectionStart).to.eq(3);
+        expect((doc.getElementById("page:outputAjax") as HTMLElement).innerHTML).to.eq("123");
+    });
+
     it('attr test and eval tests', function () {
 
         let probe1 = new DomQuery(document);
@@ -645,6 +722,19 @@ describe('DOMQuery tests', function () {
 
     it("setCaretPosition must silently do nothing for null control", function () {
         expect(() => DomQuery.setCaretPosition(null, 3)).not.to.throw();
+    });
+
+    it("getCaretPosition must read selectionStart on modern browsers", function () {
+        // regression: getCaretPosition only had the legacy IE document.selection branch
+        // and therefore always returned 0 on modern browsers, which reset the caret to the
+        // start of the input after a partial update
+        const mockCtrl = {selectionStart: 4};
+        expect(DomQuery.getCaretPosition(mockCtrl)).to.eq(4);
+    });
+
+    it("getCaretPosition returns 0 for controls without a caret", function () {
+        expect(DomQuery.getCaretPosition({})).to.eq(0);
+        expect(DomQuery.getCaretPosition(null)).to.eq(0);
     });
 
     it("must have a proper loadScriptEval execution", function (done) {
