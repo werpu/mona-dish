@@ -409,6 +409,19 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
+### Version 0.50.0-beta.3
+
+Bug fix:
+
+* `DomQuery.outerHTML` / caret handling: fixed a regression where a partial update of an
+  unrelated component reset the caret of a different, still-focused input field to position 0.
+  The caret is now only saved/restored when the focused element is actually part of the
+  subtree being replaced.
+* `DomQuery.getCaretPosition`: prefer the modern `selectionStart` property when available,
+  falling back to the legacy IE `document.selection` range only when it is not. This makes
+  caret read-out reliable across partial-update cycles (e.g. the Tobago `<tc:in>` typing scenario).
+* Added regression tests covering caret survival across partial updates and in-subtree restore.
+
 ### Version 0.50.0-beta.2
 
 Bug fixes and test coverage improvements:

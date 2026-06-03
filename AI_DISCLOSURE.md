@@ -31,6 +31,15 @@ Source files modified with AI assistance during the TypeScript 6 update:
 | `src/test/typescript/DomQueryTest.spec.ts`    | test   |
 | `src/tsconfig.json`                           | config |
 
+### Caret position regression fix — 2026-06-03 (v0.50.0-beta.3)
+
+AI-assisted bug fix and regression tests in `DomQuery`:
+
+| File | Type | Change |
+|------|------|--------|
+| `src/main/typescript/DomQuery.ts` | source | `outerHTML`: only save/restore caret when the focused element is contained in the replaced subtree; `getCaretPosition`: prefer modern `selectionStart` over the legacy IE `document.selection` fallback |
+| `src/test/typescript/DomQueryTest.spec.ts` | test | Added regression tests: caret of an unrelated focused input survives a partial update, caret restored when the focused input is part of the replaced subtree, Tobago typing-order scenario |
+
 ### Bug fixes and test coverage — 2026-05-26 (v0.50.0-beta.2)
 
 AI-assisted bug fixes and test additions across `Lang` and `DomQuery`:
