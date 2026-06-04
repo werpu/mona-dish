@@ -31,6 +31,14 @@ Source files modified with AI assistance during the TypeScript 6 update:
 | `src/test/typescript/DomQueryTest.spec.ts`    | test   |
 | `src/tsconfig.json`                           | config |
 
+### Caret fallback cleanup — 2026-06-04 (v0.50.0-beta.4)
+
+AI-assisted cleanup in `DomQuery`:
+
+| File | Type | Change |
+|------|------|--------|
+| `src/main/typescript/DomQuery.ts` | source | `getCaretPosition`: dropped the legacy IE `document.selection`/`TextRange` fallback and the third-party blog attribution; rewrote as a clean-room `selectionStart`-only implementation |
+
 ### Caret position regression fix — 2026-06-03 (v0.50.0-beta.3)
 
 AI-assisted bug fix and regression tests in `DomQuery`:

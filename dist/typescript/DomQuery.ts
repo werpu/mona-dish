@@ -1891,29 +1891,17 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
         return false;
     }
 
-    // from
-    // http:// blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
-    static getCaretPosition(ctrl: any) {
-        let caretPos = 0;
-
+    static getCaretPosition(ctrl: any): number {
         try {
+            // selectionStart is supported on text inputs/textareas in every relevant
+            // browser (IE9+ and all modern engines)
             if (typeof ctrl?.selectionStart === "number") {
-                // modern browsers expose the caret position directly via selectionStart
-                caretPos = ctrl.selectionStart;
-            } else if ((document as any)?.selection) {
-                // legacy IE fallback
-                ctrl.focus();
-                let selection = (document as any).selection.createRange();
-                // the selection now is start zero
-                selection.moveStart('character', -ctrl.value.length);
-                // the caret-position is the selection start
-                caretPos = selection.text.length;
+                return ctrl.selectionStart;
             }
         } catch (e) {
-            // now this is ugly, but not supported input types throw errors for selectionStart
-            // just in case someone dumps this code onto unsupported browsers
+            // some input types throw on selectionStart access; treat as "no caret"
         }
-        return caretPos;
+        return 0;
     }
 
     /**
