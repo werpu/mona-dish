@@ -409,6 +409,29 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
+### Version 0.50.0-beta.5
+
+Bug fix (browser argument-stack limit on large arrays):
+
+* Fixed `RangeError: Maximum call stack size exceeded` when collections beyond the engine
+  argument-stack limit (~65k elements in Chromium, varies per engine) flow through the library.
+  All internal call-position spreads of unbounded arrays (`fn(...data)`, `new Cls(...data)`,
+  `push(...data)`, `Element.prepend(...data)`) were replaced by chunk-safe copies
+  (chunk size 30000, see `MAX_ARG_LENGTH`).
+* New chunk-safe entry points for large data: `Es2019ArrayFrom(arrayLike)`,
+  `pushChunked(target, source)`, `Stream.ofArr(array)`, `LazyStream.ofArr(array)`,
+  `ArrayStreamDataSource.ofArray(array)`. The variadic forms (`Stream.of(...arr)` etc.) remain
+  unchanged but are inherently subject to the engine argument limit when the caller spreads —
+  use the `ofArr`-style factories for large arrays.
+* `DomQuery` now accepts plain element arrays directly (`new DomQuery(elementArray)`) and
+  flattens them chunk-safely (the constructor signature always advertised this).
+* `DomQuery.prepend` / `prependTo` prepend in reverse chunk order — same resulting element
+  order as before, still a single native `prepend` call below the chunk size.
+* Fixed `DomQuery.offsetTop` returning `NaN` (long-standing missing spread in the reduction).
+* Added the regression suite `LargeArrayChunkingTest.spec.ts`: 200k-element runs over all
+  chunking primitives with full order/completeness verification, 70k-element `DomQuery`
+  construction, 35k chunk-boundary `prepend` order check.
+
 ### Version 0.50.0-beta.4
 
 Cleanup:

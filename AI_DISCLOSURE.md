@@ -31,6 +31,22 @@ Source files modified with AI assistance during the TypeScript 6 update:
 | `src/test/typescript/DomQueryTest.spec.ts`    | test   |
 | `src/tsconfig.json`                           | config |
 
+### Large-array chunking fix — 2026-06-11 (v0.50.0-beta.5)
+
+AI-assisted fix for the engine argument-stack limit on large arrays
+(`RangeError: Maximum call stack size exceeded`):
+
+| File | Type | Change |
+|------|------|--------|
+| `src/main/typescript/Es2019Array.ts` | source | Added `MAX_ARG_LENGTH`, `pushChunked`, `Es2019ArrayFrom`, `_Es2019ArrayFromArr`; shim constructor and array-producing methods no longer spread into calls |
+| `src/main/typescript/DomQuery.ts` | source | Constructor flattens plain arrays chunk-safely; all internal data-sized spreads removed; `prepend`/`prependTo` use reverse-chunked native prepend; fixed `offsetTop` `NaN` |
+| `src/main/typescript/Stream.ts` | source | Added `Stream.ofArr`/`LazyStream.ofArr`; internal stream construction routed through them |
+| `src/main/typescript/SourcesCollectors.ts` | source | Added `ArrayStreamDataSource.ofArray`; `MultiStreamDatasource` flattens chunk-safely; `QueryFormStringCollector` spread removed |
+| `src/main/typescript/Lang.ts` | source | `objToArray` builds the result without spreading |
+| `src/main/typescript/Config.ts` | source | `shallowMerge`/`assertAccessPath` spreads replaced by chunk-safe forms |
+| `src/main/typescript/AssocArray.ts` | source | `append`/`alloc`/shallow-merge helpers push chunk-safely |
+| `src/test/typescript/LargeArrayChunkingTest.spec.ts` | test | New regression suite: 200k-element chunking-primitive runs with full order/completeness verification, 70k-element `DomQuery` construction, 35k chunk-boundary `prepend` order check, behavior pins for the rewritten paths |
+
 ### Caret fallback cleanup — 2026-06-04 (v0.50.0-beta.4)
 
 AI-assisted cleanup in `DomQuery`:
