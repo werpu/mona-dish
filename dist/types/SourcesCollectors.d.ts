@@ -123,6 +123,14 @@ export declare class ArrayStreamDataSource<T> implements IStreamDataSource<T> {
     value: Array<T>;
     dataPos: number;
     constructor(...value: Array<T>);
+    /**
+     * chunk-safe factory, takes the backing array directly instead
+     * of spreading it into the constructor call (spreading large arrays
+     * overflows the argument stack)
+     *
+     * @param data the array to stream over
+     */
+    static ofArray<T>(data: Array<T>): ArrayStreamDataSource<T>;
     lookAhead(cnt?: number): T | ITERATION_STATUS;
     hasNext(): boolean;
     next(): T | ITERATION_STATUS;

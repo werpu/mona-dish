@@ -180,6 +180,14 @@ export declare class Stream<T> implements IMonad<T, Stream<any>>, IValueHolder<A
     private pos;
     constructor(...value: T[]);
     static of<T>(...data: Array<T>): Stream<T>;
+    /**
+     * chunk-safe factory, takes the backing array directly instead of
+     * spreading it into the call (Stream.of(...largeArray) overflows the
+     * argument stack on large arrays)
+     *
+     * @param data the array to stream over
+     */
+    static ofArr<T>(data: Array<T>): Stream<T>;
     static ofAssoc<T>(data: {
         [key: string]: T;
     }): Stream<[string, T]>;
@@ -245,6 +253,14 @@ export declare class LazyStream<T> implements IStreamDataSource<T>, IStream<T>, 
     _limits: number;
     pos: number;
     static of<T>(...values: Array<T>): LazyStream<T>;
+    /**
+     * chunk-safe factory, takes the backing array directly instead of
+     * spreading it into the call (LazyStream.of(...largeArray) overflows
+     * the argument stack on large arrays)
+     *
+     * @param data the array to stream over
+     */
+    static ofArr<T>(data: Array<T>): LazyStream<T>;
     static ofAssoc<T>(data: {
         [key: string]: T;
     }): LazyStream<[string, T]>;
