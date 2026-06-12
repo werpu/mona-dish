@@ -724,6 +724,23 @@ describe('DOMQuery tests', function () {
         expect(() => DomQuery.setCaretPosition(null, 3)).not.to.throw();
     });
 
+    it("setCaretPosition must not throw for inputs whose setSelectionRange rejects selection (checkbox/radio)", function () {
+        // regression: checkbox/radio inputs expose setSelectionRange but throw
+        // InvalidStateError when it is called; the focus must still be applied
+        let focused = false;
+        const mockCtrl = {
+            focus: () => { focused = true; },
+            setSelectionRange: () => {
+                throw new DOMException(
+                    "Failed to execute 'setSelectionRange' on 'HTMLInputElement': " +
+                    "The input element's type ('checkbox') does not support selection.",
+                    "InvalidStateError");
+            }
+        };
+        expect(() => DomQuery.setCaretPosition(mockCtrl, 1)).not.to.throw();
+        expect(focused).to.eq(true);
+    });
+
     it("getCaretPosition must read selectionStart on modern browsers", function () {
         // regression: getCaretPosition only had the legacy IE document.selection branch
         // and therefore always returned 0 on modern browsers, which reset the caret to the

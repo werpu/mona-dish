@@ -409,6 +409,19 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
+### Version 0.50.0-beta.6
+
+Bug fix (caret restore on non-text inputs):
+
+* Fixed `Uncaught InvalidStateError: Failed to execute 'setSelectionRange' on 'HTMLInputElement'`
+  thrown by `DomQuery.setCaretPosition` when a checkbox or radio button is re-rendered (e.g. via
+  a JSF/Faces Ajax partial update that focuses the re-rendered control). `setSelectionRange`
+  exists on every `HTMLInputElement` but the DOM spec mandates it throw for input types without
+  text selection (`checkbox`, `radio`, `button`, `file`, …); the prior existence-only guard was
+  therefore insufficient. The call is now wrapped so the error is swallowed while the preceding
+  `focus()` still applies (silent fail as documented). Regression introduced together with the
+  caret-restore refocus logic.
+
 ### Version 0.50.0-beta.5
 
 Bug fix (browser argument-stack limit on large arrays):
