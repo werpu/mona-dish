@@ -754,6 +754,120 @@ describe('DOMQuery tests', function () {
         expect(DomQuery.getCaretPosition(null)).to.eq(0);
     });
 
+    it("byIdDeep resolves a light-DOM id", function () {
+        let res = new DomQuery(window.document).byIdDeep("id_3");
+        expect(res.length).to.eq(1);
+        expect(res.id.value).to.eq("id_3");
+    });
+
+    it("byIdDeep returns matches from every scope when the same id lives in both light and shadow DOM", function () {
+        // ids are unique per node-tree only, so the same id may exist in the
+        // light DOM and inside a shadow root at the same time; the deep search
+        // must return both
+        let host = window.document.createElement("div");
+        host.id = "host_dup";
+        window.document.body.appendChild(host);
+        let shadow = host.attachShadow({mode: "open"});
+        let innerDup = window.document.createElement("span");
+        innerDup.id = "id_3"; // same id as the light-DOM div in the fixture
+        shadow.appendChild(innerDup);
+
+        let res = new DomQuery(window.document).byIdDeep("id_3");
+        expect(res.length).to.eq(2);
+    });
+
+    it("byIdDeep still descends into shadow roots when the light DOM misses", function () {
+        let host = window.document.createElement("div");
+        host.id = "host";
+        window.document.body.appendChild(host);
+        let shadow = host.attachShadow({mode: "open"});
+        let inner = window.document.createElement("span");
+        inner.id = "deep_id";
+        shadow.appendChild(inner);
+
+        let res = new DomQuery(window.document).byIdDeep("deep_id");
+        expect(res.length).to.eq(1);
+        expect(res.id.value).to.eq("deep_id");
+    });
+
+    it("byIdDeep returns an empty result for an unknown id", function () {
+        let res = new DomQuery(window.document).byIdDeep("does_not_exist");
+        expect(res.length).to.eq(0);
+    });
+
+    it("querySelectorAllDeep collects matches across several nested shadow roots", function () {
+        // builds host1 -> #shadow1 (host2 -> #shadow2 (host3 -> #shadow3)),
+        // each shadow level plus the light DOM carries one ".deepHit" element.
+        // querySelectorAllDeep must descend through every nesting level and
+        // return all four matches.
+        const doc = window.document;
+        const makeHit = (id: string) => {
+            let el = doc.createElement("span");
+            el.className = "deepHit";
+            el.id = id;
+            return el;
+        };
+
+        // light DOM match
+        doc.body.appendChild(makeHit("light_hit"));
+
+        // nested shadow chain, three levels deep
+        let parentScope: any = doc.body;
+        for (let level = 1; level <= 3; level++) {
+            let host = doc.createElement("div");
+            host.id = "host_" + level;
+            parentScope.appendChild(host);
+            let shadow = host.attachShadow({mode: "open"});
+            shadow.appendChild(makeHit("shadow_hit_" + level));
+            parentScope = shadow;
+        }
+
+        let res = new DomQuery(doc).querySelectorAllDeep(".deepHit");
+        expect(res.length).to.eq(4);
+
+        let ids = res.allElems().map(el => el.id).sort();
+        expect(ids).to.deep.eq(["light_hit", "shadow_hit_1", "shadow_hit_2", "shadow_hit_3"]);
+    });
+
+    it("childNodes aggregates the children of every root node in document order", function () {
+        const doc = window.document;
+        let p1 = doc.createElement("div");
+        // no inter-element whitespace -> only element children, deterministic count
+        p1.innerHTML = `<span id="a"></span><span id="b"></span>`;
+        let p2 = doc.createElement("div");
+        p2.innerHTML = `<span id="c"></span>`;
+        doc.body.appendChild(p1);
+        doc.body.appendChild(p2);
+
+        let kids = new DomQuery(p1, p2).childNodes;
+        expect(kids.length).to.eq(3);
+        let ids = kids.allElems().map(el => el.id);
+        expect(ids).to.deep.eq(["a", "b", "c"]);
+    });
+
+    it("byTagName with includeRoot returns the matching roots plus their descendants", function () {
+        const doc = window.document;
+        let s1 = doc.createElement("section");
+        s1.id = "s1";
+        let s1a = doc.createElement("section");
+        s1a.id = "s1a";
+        s1.appendChild(s1a);
+        let s2 = doc.createElement("section");
+        s2.id = "s2";
+        let s2a = doc.createElement("section");
+        s2a.id = "s2a";
+        s2.appendChild(s2a);
+        doc.body.appendChild(s1);
+        doc.body.appendChild(s2);
+
+        // includeRoot matches s1/s2 (tagName is upper-case "SECTION"); the
+        // descendant query adds the nested s1a/s2a
+        let res = new DomQuery(s1, s2).byTagName("SECTION", true);
+        expect(res.length).to.eq(4);
+        let ids = res.allElems().map(el => el.id).sort();
+        expect(ids).to.deep.eq(["s1", "s1a", "s2", "s2a"]);
+    });
+
     it("must have a proper loadScriptEval execution", function (done) {
 
         DomQuery.byTagName("body").loadScriptEval("./fixtures/test.js");

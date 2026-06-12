@@ -409,6 +409,27 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
+### Version 0.50.0-beta.8
+
+Performance (deep selector lookups):
+
+* `_querySelectorAll` now pushes each NodeList straight into a single target array via
+  `pushChunked` instead of `nodes = nodes.concat(objToArray(res))`, eliminating the per-root
+  `objToArray` copy and the `concat` reallocation (two redundant full copies of large result
+  sets, e.g. the `querySelectorAll("*")` shadow scan in `querySelectorAllDeep`).
+* `querySelectorAllDeep` collects shadow hosts in a single pass (new private helper
+  `_collectShadowRoots`) instead of `querySelectorAll("*").shadowRoot`, which materialized a
+  DomQuery wrapping every element and then re-walked it through the `shadowRoot` getter. The cost
+  stays O(number of elements) — there is no selector for "has a shadow root" — but the throwaway
+  all-elements DomQuery and the second traversal are gone. Behaviour is unchanged, covered by a
+  new nested-shadow-root regression test.
+* `childNodes` now `pushChunked`s each root's child list into one target array instead of
+  `childNodeArr = childNodeArr.concat(objToArray(item.childNodes))` per root, removing the
+  per-root copy and the O(roots × children) accumulator reallocation.
+* `byTagName` (`includeRoot` branch) appends the matching roots via `pushChunked` instead of
+  `reduce((acc, item) => acc.concat([item]))`, which reallocated the accumulator on every match
+  (O(matches²)). Both are covered by new multi-root regression tests.
+
 ### Version 0.50.0-beta.6
 
 Bug fix (caret restore on non-text inputs):

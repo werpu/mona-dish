@@ -138,6 +138,20 @@ export declare class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>,
      */
     querySelectorAllDeep(queryStr: string): DomQuery;
     /**
+     * Collects the shadow roots hosted by the light-DOM descendants of each root
+     * node in a single pass.
+     *
+     * This replaces the prior `querySelectorAll("*").shadowRoot`, which
+     * materialized a DomQuery wrapping every element on the page and then walked
+     * that throwaway collection a second time through the shadowRoot getter. We
+     * still have to inspect every element - there is no CSS selector for "has a
+     * shadow root", so the cost stays O(number of elements) - but we drop the
+     * intermediate all-elements DomQuery and the redundant second traversal.
+     *
+     * @private
+     */
+    private _collectShadowRoots;
+    /**
      * disabled flag
      */
     get disabled(): boolean;
