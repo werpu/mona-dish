@@ -1492,7 +1492,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                         && null != src
                         && src.length > 0
                     ) {
-                        let nonce = item?.nonce ?? (item.getAttribute('nonce') as any).value;
+                        let nonce = item?.nonce || item.getAttribute('nonce');
                         // we have to move this into an inner if because chrome otherwise chokes
                         // due to changing the and order instead of relying on left to right
                         // if jsf.js is already registered we do not replace it anymore
@@ -1531,7 +1531,7 @@ export class DomQuery implements IDomQuery, IStreamDataSource<DomQuery>, Iterabl
                                 go = true;
                             }
                         }
-                        let nonce = item?.nonce ?? (item.getAttribute('nonce') as any).value ?? '';
+                        let nonce = item?.nonce || item.getAttribute('nonce') || '';
                         // we have to run the script under a global context
                         // we store the script for fewer calls to eval
                         finalScripts.push({

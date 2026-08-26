@@ -1226,4 +1226,26 @@ describe('DOMQuery tests', function () {
         expect((element2.getAsElem(0).value as any).nonce).to.be.eq('nonceValue');
         expect(element2.nonce.value).to.be.eq('nonceValue');
     })
+
+    it("runScripts must fall back to the nonce content attribute when the nonce property is hidden", function () {
+        let probe = DomQuery.byId("id_1");
+        probe.innerHTML = "<script nonce='hiddenNonce'>document.getElementById('id_1').innerHTML = 'hello3'</script>";
+        let scriptElem = probe.querySelectorAll("script").getAsElem(0).value as HTMLScriptElement;
+        // simulate a browser hiding the live nonce IDL property (CSP nonce hiding),
+        // the content attribute must still be picked up as a fallback
+        Object.defineProperty(scriptElem, "nonce", {value: "", configurable: true});
+
+        let capturedNonce: string;
+        let origGlobalEval = DomQuery.prototype.globalEval;
+        DomQuery.prototype.globalEval = function (code: string, nonce?: string) {
+            capturedNonce = nonce;
+            return this;
+        };
+        try {
+            probe.runScripts();
+        } finally {
+            DomQuery.prototype.globalEval = origGlobalEval;
+        }
+        expect(capturedNonce).to.eq("hiddenNonce");
+    });
 });
