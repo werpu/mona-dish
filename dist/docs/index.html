@@ -350,6 +350,15 @@ This keeps the default package entry free of the RxJS-backed messaging layer. Ap
 </code></pre>
 </li>
 </ul>
+<h3 id="version-0500-final" class="tsd-anchor-link">Version 0.50.0-Final<a href="#version-0500-final" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<ul>
+<li>Fixed a bug in <code>runScripts</code> where the nonce content-attribute fallback chained <code>.value</code> onto
+the raw string returned by <code>getAttribute('nonce')</code>, which is always <code>undefined</code>. Whenever the
+live <code>nonce</code> IDL property was empty (e.g. hidden by the browser's CSP nonce-hiding behaviour),
+the nonce was silently dropped, breaking eval'd/loaded scripts under a strict CSP.</li>
+<li>Dependency updates (<code>ncu -u</code> + <code>npm audit fix</code>); <code>typescript</code> stays pinned to <code>^6.x</code> until
+<code>typedoc</code> supports TS 7.</li>
+</ul>
 <h3 id="version-0500-beta8" class="tsd-anchor-link">Version 0.50.0-beta.8<a href="#version-0500-beta8" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <p>Performance (deep selector lookups):</p>
 <ul>
@@ -497,6 +506,7 @@ caret read-out reliable across partial-update cycles (e.g. the Tobago <code>&lt;
 <li><a href="#other-changes-028"><span>Other changes 0.28++</span></a></li>
 <li><a href="#version-0400"><span>Version 0.40.0</span></a></li>
 <li><a href="#version-0400-beta3"><span>Version 0.40.0-<wbr/>beta.3</span></a></li>
+<li><a href="#version-0500-final"><span>Version 0.50.0-<wbr/>Final</span></a></li>
 <li><a href="#version-0500-beta8"><span>Version 0.50.0-<wbr/>beta.8</span></a></li>
 <li><a href="#version-0500-beta6"><span>Version 0.50.0-<wbr/>beta.6</span></a></li>
 <li><a href="#version-0500-beta5"><span>Version 0.50.0-<wbr/>beta.5</span></a></li>

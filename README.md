@@ -409,6 +409,15 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
+### Version 0.50.0-Final
+
+* Fixed a bug in `runScripts` where the nonce content-attribute fallback chained `.value` onto
+  the raw string returned by `getAttribute('nonce')`, which is always `undefined`. Whenever the
+  live `nonce` IDL property was empty (e.g. hidden by the browser's CSP nonce-hiding behaviour),
+  the nonce was silently dropped, breaking eval'd/loaded scripts under a strict CSP.
+* Dependency updates (`ncu -u` + `npm audit fix`); `typescript` stays pinned to `^6.x` until
+  `typedoc` supports TS 7.
+
 ### Version 0.50.0-beta.8
 
 Performance (deep selector lookups):
