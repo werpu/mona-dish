@@ -1235,7 +1235,7 @@ describe('DOMQuery tests', function () {
         // the content attribute must still be picked up as a fallback
         Object.defineProperty(scriptElem, "nonce", {value: "", configurable: true});
 
-        let capturedNonce: string;
+        let capturedNonce: string | undefined = undefined;
         let origGlobalEval = DomQuery.prototype.globalEval;
         DomQuery.prototype.globalEval = function (code: string, nonce?: string) {
             capturedNonce = nonce;
