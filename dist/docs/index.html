@@ -350,6 +350,26 @@ This keeps the default package entry free of the RxJS-backed messaging layer. Ap
 </code></pre>
 </li>
 </ul>
+<h3 id="version-0600" class="tsd-anchor-link">Version 0.60.0<a href="#version-0600" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
+<p>Upgrade to TypeScript 7 (the native/Go compiler). 0.50.0-Final had kept <code>typescript</code> pinned to
+<code>^6.x</code> specifically because <code>typedoc</code> wasn't ready for it — that block is now resolved:</p>
+<ul>
+<li>TypeScript 7's npm package drops the classic in-process JS compiler API (<code>ts.createProgram</code>,
+<code>ts.sys</code>, <code>ts.SyntaxKind</code>, etc.) in favor of a native binary; only the <code>tsc</code> CLI and a new
+unstable AST API remain. This breaks any tool that pokes the old API directly in-process.</li>
+<li><code>ts-loader</code> (used by the webpack bundle build) relied on the removed API and no longer works.
+Replaced with <code>esbuild-loader</code>. Not a behavior change: the actual compiled syntax target has
+always been <code>es2019</code> (<code>src/tsconfig.json</code>) — webpack's own <code>target: &quot;es5&quot;</code> setting only
+affects its runtime glue code — and type safety is unaffected since <code>npm run build</code> already
+runs <code>npm run typecheck</code> (real <code>tsc</code>) before bundling.</li>
+<li><code>typedoc</code> still has no stable TypeScript 7-compatible release (only <code>1.0.0-dev.*</code> builds), and
+it declares <code>typescript</code> as a peer dependency, so <code>npm overrides</code> can't pin it a private copy
+(confirmed: npm's peer-conflict check runs before overrides are applied). Doc generation is
+now isolated into its own toolchain under <code>tools/docs/</code> (pinned to <code>typescript@^6.0.3</code>), kept
+separate from the root project's TypeScript 7 toolchain until typedoc catches up.</li>
+<li><code>npm test</code> was unaffected throughout — it already ran via <code>tsx</code> (esbuild-based), which never
+used the TS compiler API.</li>
+</ul>
 <h3 id="version-0500-final" class="tsd-anchor-link">Version 0.50.0-Final<a href="#version-0500-final" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul>
 <li>Fixed a bug in <code>runScripts</code> where the nonce content-attribute fallback chained <code>.value</code> onto
@@ -506,6 +526,7 @@ caret read-out reliable across partial-update cycles (e.g. the Tobago <code>&lt;
 <li><a href="#other-changes-028"><span>Other changes 0.28++</span></a></li>
 <li><a href="#version-0400"><span>Version 0.40.0</span></a></li>
 <li><a href="#version-0400-beta3"><span>Version 0.40.0-<wbr/>beta.3</span></a></li>
+<li><a href="#version-0600"><span>Version 0.60.0</span></a></li>
 <li><a href="#version-0500-final"><span>Version 0.50.0-<wbr/>Final</span></a></li>
 <li><a href="#version-0500-beta8"><span>Version 0.50.0-<wbr/>beta.8</span></a></li>
 <li><a href="#version-0500-beta6"><span>Version 0.50.0-<wbr/>beta.6</span></a></li>

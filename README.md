@@ -409,6 +409,27 @@ Build and test changes:
           - Webpack runtime: same — src/main/typescript/index_core.ts via the alias, nothing changed
           - TypeScript type-checking: beta 3 added a proper "types": "./dist/types/index_core.d.ts" condition to the package.json exports map, so TypeScript resolves it natively 
 
+### Version 0.60.0
+
+Upgrade to TypeScript 7 (the native/Go compiler). 0.50.0-Final had kept `typescript` pinned to
+`^6.x` specifically because `typedoc` wasn't ready for it — that block is now resolved:
+
+* TypeScript 7's npm package drops the classic in-process JS compiler API (`ts.createProgram`,
+  `ts.sys`, `ts.SyntaxKind`, etc.) in favor of a native binary; only the `tsc` CLI and a new
+  unstable AST API remain. This breaks any tool that pokes the old API directly in-process.
+* `ts-loader` (used by the webpack bundle build) relied on the removed API and no longer works.
+  Replaced with `esbuild-loader`. Not a behavior change: the actual compiled syntax target has
+  always been `es2019` (`src/tsconfig.json`) — webpack's own `target: "es5"` setting only
+  affects its runtime glue code — and type safety is unaffected since `npm run build` already
+  runs `npm run typecheck` (real `tsc`) before bundling.
+* `typedoc` still has no stable TypeScript 7-compatible release (only `1.0.0-dev.*` builds), and
+  it declares `typescript` as a peer dependency, so `npm overrides` can't pin it a private copy
+  (confirmed: npm's peer-conflict check runs before overrides are applied). Doc generation is
+  now isolated into its own toolchain under `tools/docs/` (pinned to `typescript@^6.0.3`), kept
+  separate from the root project's TypeScript 7 toolchain until typedoc catches up.
+* `npm test` was unaffected throughout — it already ran via `tsx` (esbuild-based), which never
+  used the TS compiler API.
+
 ### Version 0.50.0-Final
 
 * Fixed a bug in `runScripts` where the nonce content-attribute fallback chained `.value` onto
