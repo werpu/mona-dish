@@ -1,0 +1,9 @@
+{
+  "name": "mona-dish-docs-tooling",
+  "private": true,
+  "description": "Isolated toolchain for API doc generation. typedoc does not yet support TypeScript 7's native compiler API, so it is pinned to TypeScript 6.x here, separate from the root project's TypeScript 7 toolchain. Remove this isolation once typedoc ships a release compatible with TypeScript 7.",
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "typedoc": "^0.28.20"
+  }
+}

@@ -62,16 +62,11 @@ export default (env: any = {}) => {
                 {
                     test: /\.tsx?$/,
                     use: [{
-                        loader: "ts-loader",
+                        loader: "esbuild-loader",
                         options: {
-                            configFile: path.resolve(__dirname, "src/tsconfig.json"),
-                            onlyCompileBundledFiles: true,
-                            compilerOptions: {
-                                declaration: false,
-                                declarationMap: false,
-                                declarationDir: undefined
-                            },
-                            reportFiles: ["src/main/typescript/**/*.ts", "!node_modules/**"]
+                            loader: "ts",
+                            target: "es2019",
+                            tsconfig: path.resolve(__dirname, "src/tsconfig.json")
                         }
                     }],
                     exclude: /node_modules/

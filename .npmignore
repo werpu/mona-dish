@@ -2,6 +2,7 @@
 scripts/
 
 # Build tooling
+tools/
 webpack.config.ts
 karma.config.js
 typings.json
